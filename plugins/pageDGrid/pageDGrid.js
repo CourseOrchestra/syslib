@@ -2,7 +2,7 @@ var arrGrids = {};
 
 
 function createPageDGrid(elementId, parentId, metadata) {
-	require(["dgrid/extensions/CompoundColumns", "dgrid/ColumnSet", "dojo/store/util/QueryResults", "dojo/on", "dgrid/Grid", "dgrid/extensions/Pagination", "dgrid/extensions/ColumnResizer","dgrid/Selection", "dgrid/CellSelection", "dgrid/Keyboard", "dojo/_base/declare", "JsonRest", "dojo/store/Cache", "dojo/store/Memory", "dojo/aspect", "dojo/domReady!"], 
+	require(["dgrid/extensions/CompoundColumns", "dgrid/ColumnSet", "dojo/store/util/QueryResults", "dojo/on", "dgrid/Grid", "dgrid/extensions/Pagination", "ColumnResizer","dgrid/Selection", "dgrid/CellSelection", "dgrid/Keyboard", "dojo/_base/declare", "JsonRest", "dojo/store/Cache", "dojo/store/Memory", "dojo/aspect", "dojo/domReady!"], 
 	function(CompoundColumns, ColumnSet, QueryResults, on, Grid, Pagination, ColumnResizer, Selection, CellSelection, Keyboard, declare, JsonRest, Cache, Memory, aspect){
 		
 		var firstLoading = true;
@@ -81,6 +81,15 @@ function createPageDGrid(elementId, parentId, metadata) {
 				}
 				return div;
 	        };
+	        
+	        if(metadata["common"]["haColumnHeader"]){
+		        column["renderHeaderCell"] = function actionRenderCell(node) {
+					var div = document.createElement("div");
+					div.style["text-align"] = metadata["common"]["haColumnHeader"];
+					div.innerHTML = this.label;
+					return div;
+		        };
+	        }
 			
 			columns.push(column);
 		}
