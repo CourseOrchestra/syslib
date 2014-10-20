@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datapanel>
+  <tab id="1" name="Поля">
+    <element id="16" type="webtext" proc="ssp.struct_fields_webtext_buttons" hideOnLoad="true">
+      <related id="17"/>
+    </element>
+    <element id="17" type="grid" subtype="EXT_LIVE_GRID" proc="ssp.struct_fields_grid">
+    </element>
+    <element id="18" type="xforms" template="ssp_struct_sprav_field.xml" proc="ssp.struct_sprav_field_proc" neverShowInPanel="true">
+      <proc id="proc18" name="ssp.struct_sprav_field_saveproc" type="SAVE"/>
+    </element>
+  </tab>
+  <tab id="2" name="Ключи">
+    <element id="19" type="webtext" proc="ssp.struct_keys_webtext_buttons" hideOnLoad="true">
+      <related id="20"/>
+    </element>
+    <element id="20" type="grid" subtype="EXT_LIVE_GRID" proc="ssp.struct_keys_grid">
+    </element>
+    <element id="21" type="xforms" template="ssp_key_fields.xml" proc="ssp.key_fields_proc" neverShowInPanel="true">
+      <proc id="proc21" name="ssp.key_fields_saveproc" type="SAVE"/>
+    </element>
+    <element id="22" type="grid" subtype="EXT_LIVE_GRID" proc="ssp.struct_keys_fields_grid" hideOnLoad="true">
+      <related id="20"/>
+    </element>
+  </tab>
+  <tab id="3" name="Данные">
+    <element id="11" type="xforms" template="ssp_data_filter.xml" proc="ssp.data_filter_proc"> 
+      <proc id="proc11" name="ssp.data_filter_saveproc" type="SAVE"/>
+    </element>
+    <element id="12" type="webtext" proc="ssp.data_webtext_buttons"  hideOnLoad="true">
+      <related id="13"/>
+    </element>
+    <element id="13" type="grid" subtype="EXT_PAGE_GRID" proc="ssp.data_grid"/>
+    <element id="14" type="xforms" template="ssp_data.xml" proc="ssp.data_proc" neverShowInPanel="true">
+      <proc id="proc1" name="ssp.data_saveproc" type="SAVE"/>
+    </element>
+    <element id="15" type="xforms" template="ssp_data.xml" proc="ssp.data_proc" neverShowInPanel="true"> 
+      <proc id="proc15" name="ssp.data_saveproc" type="SAVE"/>
+    </element>
+  </tab>
+</datapanel>
