@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="filtersConditions">
+	<row>
+		<field name="id">1</field>
+		<field name="name">равно</field>
+		<field name="prefix">eq</field>
+		<field name="pythonCond">([F]=V)</field>
+		<field name="visualCond">([F] равно V)</field>
+	</row>
+	<row>
+		<field name="id">2</field>
+		<field name="name">не равно</field>
+		<field name="prefix">neq</field>
+		<field name="pythonCond">([F]!=V)</field>
+		<field name="visualCond">([F] не равно V)</field>
+	</row>
+	<row>
+		<field name="id">3</field>
+		<field name="name">больше</field>
+		<field name="prefix">gt</field>
+		<field name="pythonCond">([F]&gt;V)</field>
+		<field name="visualCond">([F] больше V)</field>
+	</row>
+	<row>
+		<field name="id">4</field>
+		<field name="name">больше или равно</field>
+		<field name="prefix">eg</field>
+		<field name="pythonCond">([F]&gt;=V)</field>
+		<field name="visualCond">([F] больше или равно V)</field>
+	</row>
+	<row>
+		<field name="id">5</field>
+		<field name="name">меньше</field>
+		<field name="prefix">lt</field>
+		<field name="pythonCond">([F]&lt;V)</field>
+		<field name="visualCond">([F] меньше V)</field>
+	</row>
+	<row>
+		<field name="id">6</field>
+		<field name="name">меньше или равно</field>
+		<field name="prefix">elt</field>
+		<field name="pythonCond">([F]&lt;=V)</field>
+		<field name="visualCond">([F] меньше или равно V)</field>
+	</row>
+	<row>
+		<field name="id">7</field>
+		<field name="name">начинается с</field>
+		<field name="prefix">sl</field>
+		<field name="pythonCond">([F] like &apos;V%&apos;)</field>
+		<field name="visualCond">([F] начинается с &apos;V&apos;)</field>
+	</row>
+	<row>
+		<field name="id">8</field>
+		<field name="name">не начинается с</field>
+		<field name="prefix">nsl</field>
+		<field name="pythonCond">([F] not like &apos;V%&apos;)</field>
+		<field name="visualCond">([F] не начинается с &apos;V&apos;)</field>
+	</row>
+	<row>
+		<field name="id">9</field>
+		<field name="name">заканчивается на</field>
+		<field name="prefix">el</field>
+		<field name="pythonCond">([F] like &apos;%V&apos;)</field>
+		<field name="visualCond">([F] заканчивается на &apos;V&apos;)</field>
+	</row>
+	<row>
+		<field name="id">10</field>
+		<field name="name">не заканчивается на</field>
+		<field name="prefix">nel</field>
+		<field name="pythonCond">([F] not like &apos;%V&apos;)</field>
+		<field name="visualCond">([F] не заканчивается на &apos;V&apos;)</field>
+	</row>
+	<row>
+		<field name="id">11</field>
+		<field name="name">содержит</field>
+		<field name="prefix">lk</field>
+		<field name="pythonCond">([F] like &apos;%V%&apos;)</field>
+		<field name="visualCond">([F] содержит &apos;V&apos;)</field>
+	</row>
+	<row>
+		<field name="id">12</field>
+		<field name="name">не содержит</field>
+		<field name="prefix">nlk</field>
+		<field name="pythonCond">([F] not like &apos;%V%&apos;)</field>
+		<field name="visualCond">([F] не содержит &apos;V&apos;)</field>
+	</row>
+	<row>
+		<field name="id">13</field>
+		<field name="name">в списке значений</field>
+		<field name="prefix">in</field>
+		<field name="pythonCond">([F] in (V))</field>
+		<field name="visualCond">([F] в списке значений (V))</field>
+	</row>
+	<row>
+		<field name="id">14</field>
+		<field name="name">не в списке значений</field>
+		<field name="prefix">nin</field>
+		<field name="pythonCond">([F] not in (V))</field>
+		<field name="visualCond">([F] не в списке значений (V))</field>
+	</row>
+	<row>
+		<field name="id">15</field>
+		<field name="name">пусто</field>
+		<field name="prefix">nl</field>
+		<field name="pythonCond">([F] is null)</field>
+		<field name="visualCond">([F] пустое)</field>
+	</row>
+	<row>
+		<field name="id">16</field>
+		<field name="name">не пусто</field>
+		<field name="prefix">ntnl</field>
+		<field name="pythonCond">(not [F] is null)</field>
+		<field name="visualCond">([F] не пустое)</field>
+	</row>
+	<row>
+		<field name="id">17</field>
+		<field name="name">между</field>
+		<field name="prefix">bt</field>
+		<field name="pythonCond">([F] between V and V2)</field>
+		<field name="visualCond">([F] между V и V2)</field>
+	</row>
+</table>

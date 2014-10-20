@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="fieldsTypes">
+	<row>
+		<field name="id">1</field>
+		<field name="name">Boolean</field>
+		<field name="celestaType">bit</field>
+		<field name="defLength">0</field>
+		<field name="defPrecision">0</field>
+		<field name="useInKey">1</field>
+		<field name="useInSelector">1</field>
+		<field name="useInFilter">1</field>
+	</row>
+	<row>
+		<field name="id">2</field>
+		<field name="name">Datetime</field>
+		<field name="celestaType">datetime</field>
+		<field name="defLength">0</field>
+		<field name="defPrecision">0</field>
+		<field name="useInKey">1</field>
+		<field name="useInSelector">1</field>
+		<field name="useInFilter">1</field>
+	</row>
+	<row>
+		<field name="id">3</field>
+		<field name="name">Decimal</field>
+		<field name="celestaType">real</field>
+		<field name="defLength">20</field>
+		<field name="defPrecision">2</field>
+		<field name="useInKey">1</field>
+		<field name="useInSelector">1</field>
+		<field name="useInFilter">1</field>
+	</row>
+	<row>
+		<field name="id">4</field>
+		<field name="name">Image</field>
+		<field name="celestaType">image</field>
+		<field name="defLength">0</field>
+		<field name="defPrecision">0</field>
+		<field name="useInKey">0</field>
+		<field name="useInSelector">0</field>
+		<field name="useInFilter">1</field>
+	</row>
+	<row>
+		<field name="id">5</field>
+		<field name="name">Integer</field>
+		<field name="celestaType">int</field>
+		<field name="defLength">0</field>
+		<field name="defPrecision">0</field>
+		<field name="useInKey">1</field>
+		<field name="useInSelector">1</field>
+		<field name="useInFilter">1</field>
+	</row>
+	<row>
+		<field name="id">6</field>
+		<field name="name">Reference List</field>
+		<field name="celestaType">nvarchar</field>
+		<field name="defLength">2000</field>
+		<field name="defPrecision">0</field>
+		<field name="useInKey">0</field>
+		<field name="useInSelector">0</field>
+		<field name="useInFilter">1</field>
+	</row>
+	<row>
+		<field name="id">7</field>
+		<field name="name">Reference Value</field>
+		<field name="celestaType">nvarchar</field>
+		<field name="defLength">2000</field>
+		<field name="defPrecision">0</field>
+		<field name="useInKey">1</field>
+		<field name="useInSelector">0</field>
+		<field name="useInFilter">1</field>
+	</row>
+	<row>
+		<field name="id">8</field>
+		<field name="name">Select List</field>
+		<field name="celestaType">nvarchar</field>
+		<field name="defLength">255</field>
+		<field name="defPrecision">0</field>
+		<field name="useInKey">1</field>
+		<field name="useInSelector">0</field>
+		<field name="useInFilter">1</field>
+	</row>
+	<row>
+		<field name="id">9</field>
+		<field name="name">String</field>
+		<field name="celestaType">nvarchar</field>
+		<field name="defLength">255</field>
+		<field name="defPrecision">0</field>
+		<field name="useInKey">1</field>
+		<field name="useInSelector">1</field>
+		<field name="useInFilter">1</field>
+	</row>
+	<row>
+		<field name="id">10</field>
+		<field name="name">UUID</field>
+		<field name="celestaType">nvarchar</field>
+		<field name="defLength">36</field>
+		<field name="defPrecision">0</field>
+		<field name="useInKey">1</field>
+		<field name="useInSelector">1</field>
+		<field name="useInFilter">1</field>
+	</row>
+	<row>
+		<field name="id">11</field>
+		<field name="name">Latitude</field>
+		<field name="celestaType">real</field>
+		<field name="defLength">0</field>
+		<field name="defPrecision">0</field>
+		<field name="useInKey">1</field>
+		<field name="useInSelector">1</field>
+		<field name="useInFilter">1</field>
+	</row>
+	<row>
+		<field name="id">12</field>
+		<field name="name">Longtitude</field>
+		<field name="celestaType">real</field>
+		<field name="defLength">0</field>
+		<field name="defPrecision">0</field>
+		<field name="useInKey">1</field>
+		<field name="useInSelector">1</field>
+		<field name="useInFilter">1</field>
+	</row>
+</table>
