@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="xsltforms/xsltforms.xsl" type="text/xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ev="http://www.w3.org/2001/xml-events"
+	xmlns:xf="http://www.w3.org/2002/xforms">
+	<head>
+		<xf:model id="xformId_mainModel">
+			<xf:instance id="xformId_mainInstance" xmlns="">
+				<schema> </schema>
+			</xf:instance>
+			<xf:bind>
+				<xf:bind nodeset="instance('xformId_mainInstance')/r" type="boolean"></xf:bind>
+				<xf:bind nodeset="instance('xformId_mainInstance')/i" type="boolean"></xf:bind>
+				<xf:bind nodeset="instance('xformId_mainInstance')/m" type="boolean"></xf:bind>
+				<xf:bind nodeset="instance('xformId_mainInstance')/d" type="boolean"></xf:bind>
+				<xf:bind nodeset="instance('xformId_mainInstance')/roleid" readonly="true()" required="true()"></xf:bind>
+				<xf:bind nodeset="instance('xformId_mainInstance')/grainid" readonly="true()" required="true()"></xf:bind>
+				<xf:bind nodeset="instance('xformId_mainInstance')/tablename" readonly="true()" required="true()"></xf:bind>
+			</xf:bind>
+		</xf:model>
+	</head>
+	<body>
+		<!--    <xf:output value="serialize(instance('xformId_mainInstance'))"></xf:output>-->
+		<div class="selector">
+			<div class="security selectorText">
+				<xf:input class="author baseInput" ref="instance('xformId_mainInstance')/roleid">
+					<xf:label>Роль:</xf:label>
+				</xf:input>
+			</div>
+			<div class="security selectorButton">
+				<xf:selector buttonLabel="..."
+					procCount="'security.xform.permissions.rolesCount.celesta'"
+					procList="'security.xform.permissions.rolesList.celesta'" generalFilters=""
+					currentValue="''" windowCaption="'Выбор значения'"
+					xpathMapping="{'XPath(instance(quot(xformId_mainInstance))/roleid)' : 'id'}"
+				></xf:selector>
+			</div>
+			<div class="security selectorButton">
+				<xf:trigger>
+					<xf:label>X</xf:label>
+					<xf:action ev:event="DOMActivate">
+						<xf:setvalue ref="instance('xformId_mainInstance')/roleid" value=""
+						></xf:setvalue>
+					</xf:action>
+				</xf:trigger>
+			</div>
+		</div>
+		<div class="selector">
+			<div class="security selectorText">
+				<xf:input class="author baseInput" ref="instance('xformId_mainInstance')/grainid">
+					<xf:label>Гранула:</xf:label>
+				</xf:input>
+			</div>
+			<div class="security selectorButton">
+				<xf:selector buttonLabel="..."
+					procCount="'security.xform.permissions.grainsCount.celesta'"
+					procList="'security.xform.permissions.grainsList.celesta'" generalFilters=""
+					currentValue="''" windowCaption="'Выбор значения'"
+					xpathMapping="{'XPath(instance(quot(xformId_mainInstance))/grainid)' : 'id'}"
+				></xf:selector>
+			</div>
+			<div class="security selectorButton">
+				<xf:trigger>
+					<xf:label>X</xf:label>
+					<xf:action ev:event="DOMActivate">
+						<xf:setvalue ref="instance('xformId_mainInstance')/grainid" value=""
+						></xf:setvalue>
+					</xf:action>
+				</xf:trigger>
+			</div>
+		</div>
+		<div class="selector">
+			<div class="security selectorText">
+				<xf:input class="author baseInput" ref="instance('xformId_mainInstance')/tablename">
+					<xf:label>Таблица:</xf:label>
+				</xf:input>
+			</div>
+			<div class="security selectorButton">
+				<xf:selector buttonLabel="..."
+					procCount="'security.xform.permissions.tablesCount.celesta'"
+					procList="'security.xform.permissions.tablesList.celesta'"
+					generalFilters="['XPath(instance(quot(xformId_mainInstance))/grainid)']"
+					currentValue="''" windowCaption="'Выбор значения'"
+					xpathMapping="{'XPath(instance(quot(xformId_mainInstance))/tablename)' : 'id',}"
+				></xf:selector>
+			</div>
+			<div class="security selectorButton">
+				<xf:trigger>
+					<xf:label>X</xf:label>
+					<xf:action ev:event="DOMActivate">
+						<xf:setvalue ref="instance('xformId_mainInstance')/tablename" value=""
+						></xf:setvalue>
+					</xf:action>
+				</xf:trigger>
+			</div>
+		</div>
+
+		<div class="xformId_nameInput" style="float: left; clear: both; width: 350px">
+			<div style="width: 300px, float: left">
+				<xf:input class="author baseInput" ref="instance('xformId_mainInstance')/r">
+					<xf:label>Разрешение на чтение:</xf:label>
+				</xf:input>
+			</div>
+			<!--<div style="float: left, width: 350px"> Разрешение на добавление: </div>-->
+			<div style="width: 300px, float: left">
+				<xf:input class="author baseInput" ref="instance('xformId_mainInstance')/i">
+					<xf:label>Разрешение на добавление:</xf:label>
+				</xf:input>
+			</div>
+			<!--<div style="float: left, width: 350px"> Разрешение на редактирование: </div>-->
+			<div style="width: 300px, float: left">
+				<xf:input class="author baseInput" ref="instance('xformId_mainInstance')/m">
+					<xf:label>Разрешение на редактирование:</xf:label>
+				</xf:input>
+			</div>
+			<!--<div style="float: left, width: 350px"> Разрешение на удаление: </div>-->
+			<div style="width: 300px, float: left">
+				<xf:input class="author baseInput" ref="instance('xformId_mainInstance')/d">
+					<xf:label>Разрешение на удаление:</xf:label>
+				</xf:input>
+			</div>
+		</div>
+		<hr style="margin-top:21px; width: 100%;  float: left; clear: both;" />
+		<div class="dirusing newbutton" style="float: left">
+			<xf:trigger class="blue">
+				<xf:label>Сохранить</xf:label>
+				<xf:action ev:event="DOMActivate"
+					if="(is-valid(instance('xformId_mainInstance'))=false())">
+					<xf:message>Заполнено с ошибкой!</xf:message>
+				</xf:action>
+				<xf:action ev:event="DOMActivate"
+					if="(is-valid(instance('xformId_mainInstance'))=true())">
+					<xf:load
+						resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"> </xf:load>
+					<xf:message>Данные сохранены</xf:message>
+				</xf:action>
+			</xf:trigger>
+		</div>
+		<div class="dirusing newbutton" style="float: right">
+			<xf:trigger class="blue">
+				<xf:label>Закрыть</xf:label>
+				<xf:action ev:event="DOMActivate">
+					<xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"></xf:load>
+				</xf:action>
+			</xf:trigger>
+		</div>
+	</body>
+</html>

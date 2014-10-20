@@ -1,0 +1,624 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="xsltforms/xsltforms.xsl" type="text/xsl"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xsd="http://www.w3.org/2001/XMLschema" xmlns:fs="http://www.curs.ru/ns/FormServer" xmlns:xf="http://www.w3.org/2002/xforms">
+	<head>
+		<style type="text/css">
+			body {
+			    font-family: sans-serif;
+			}
+			div {
+			    margin: 0px 0px 0px 0px;
+			    padding: 0px;
+			}
+      td {
+        vertical-align: top;
+      }
+			button.TabButton {
+			    border: 0px;
+			    background-color: transparent;
+			    width: 100%;
+			    height: 100%;
+			}
+      .orgtype .xforms-label {
+        margin-top: 2px;      
+        padding-left: 5px;
+        font-size: 1em;
+        float: left;
+        width: 120px;
+      }
+      .orgtype .value {
+        float: right;
+        width: 260px;
+      }
+      .orgtype .xforms-value {
+        margin: 0px;
+        padding-left: 2px;
+      }
+      .baseTableInput .xforms-value {
+          background-color: #ffffcc;
+          border-bottom: 1px solid rgb(90, 139, 195); /*rgb(255,192,128);*/
+          display: block;
+          min-height: 17px;
+          width: 100%;
+          padding: 1px 0px 2px 2px;
+      }
+      .baseTableInput2 .xforms-value {
+          background-color: #E5F2FF;
+          border: 0 none;
+          display: block;
+          min-height: 21px;
+          width: 100%;
+          padding: 1px 0px 2px 2px;
+      }
+      .date .value .xforms-value {
+         display: block !important;
+         float: left !important;
+         width: 215px !important;
+         margin-right: 3px;
+         padding: 0 !important;
+      }
+      .date .value .aid-button {
+         width: 30px !important;
+         height: 20px !important;
+         display: block;
+         float: left;
+      }
+			div.Hide {
+			    display:
+			    none;
+			}
+			div.Show {
+			    display:
+			    inline;
+			}
+			.aid-button, 
+			.aid-button
+			button {
+        width: 30px !important;
+        height: 22px !important;
+      }
+      .newbutton button {
+        width: 100% !important;
+      }
+		</style>
+
+		<xf:model id="xformId_mainModel">
+			<xf:instance id="xformId_mainInstance">
+        <schema xmlns="">
+          <sprav>
+            <id></id>
+            <name></name>
+            <field>
+              <id></id>
+              <name title="Название поля"></name>
+              <prefix title="Префикс поля"></prefix>
+              <fis_name title="Имя поля в таблице"></fis_name>
+              <type title="Тип поля">9</type>
+              <max_length title="Длина">255</max_length>
+              <precision title="Точность">0</precision>
+              <ref_table_prefix title="Связанный справочник" value=""></ref_table_prefix>
+              <ref_field_prefix title="Связанное поле" value=""></ref_field_prefix>
+              <select_list title="Список значений"></select_list>
+              <field_order title="Порядок следования">0</field_order>
+              <required title="Обязательное поле">false</required>
+              <editable title="Редактируемое поле">true</editable>
+            </field>
+          </sprav>
+          <types>
+            <type id="1" name="Boolean"></type>
+            <type id="2" name="Date"></type>
+            <type id="3" name="Decimal"></type>
+            <type id="4" name="Image"></type>
+            <type id="5" name="Integer"></type>
+            <type id="6" name="Reference List"></type>
+            <type id="7" name="Reference Value"></type>
+            <type id="8" name="Select List"></type>
+            <type id="9" name="String"></type>
+          </types>          
+        </schema>
+			</xf:instance>
+
+      <xf:instance id="xformId_quot">
+        <schema xmlns="">"</schema>
+      </xf:instance>
+      <xf:instance id="xformId_fieldcheck">
+				<schema xmlns="">
+					<check>false</check>
+				</schema>
+			</xf:instance>
+      <xf:instance id="xformId_reflist">
+        <schema xmlns="">
+          <item>
+            <id></id>
+            <value></value>
+          </item>
+        </schema>
+      </xf:instance>
+      <xf:bind>
+        <xf:bind readonly="true()" nodeset="instance('xformId_mainInstance')/sprav/field/sel_spr"></xf:bind>
+        <xf:bind readonly="true()" nodeset="instance('xformId_mainInstance')/sprav/field/sel_field"></xf:bind>
+        <xf:bind type="boolean" nodeset="instance('xformId_mainInstance')/sprav/field/required"></xf:bind>
+        <xf:bind type="boolean" nodeset="instance('xformId_mainInstance')/sprav/field/editable"></xf:bind>
+        <xf:bind type="int" nodeset="instance('xformId_mainInstance')/sprav/field/field_order"></xf:bind>
+        <xf:bind type="int" nodeset="instance('xformId_mainInstance')/sprav/field/view_length"></xf:bind>
+        <xf:bind calculate="if((instance('xformId_mainInstance')/sprav/field/name='') or (instance('xformId_mainInstance')/sprav/field/prefix='') or (instance('xformId_mainInstance')/sprav/field/fis_name='')           or ((instance('xformId_mainInstance')/sprav/field/type='8') and (instance('xformId_mainInstance')/sprav/field/select_list=''))            or (((instance('xformId_mainInstance')/sprav/field/type=3) or (instance('xformId_mainInstance')/sprav/field/type=8) or (instance('xformId_mainInstance')/sprav/field/type=9)) and (instance('xformId_mainInstance')/sprav/field/max_length=''))           or (((instance('xformId_mainInstance')/sprav/field/type=6) or (instance('xformId_mainInstance')/sprav/field/type=7)) and ((instance('xformId_mainInstance')/sprav/field/ref_table_prefix='') or (instance('xformId_mainInstance')/sprav/field/ref_field_prefix='')            or (instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix='')))           ,'Не все обязательные поля заполнены!','')" nodeset="instance('xformId_mainInstance')/error_message"></xf:bind>
+      </xf:bind>
+      <xf:submission id="xformId_check_sprav_field" method="post" instance="xformId_fieldcheck" replace="instance" ref="instance('xformId_mainInstance')" action="secured/sqlTransform?proc=ssp.struct_sprav_field_check">
+        <xf:action ev:event="xforms-submit-done">
+          <!--xf:message>Сделано</xf:message!-->
+          <xf:load resource="javascript:xforms.ready = false;xforms.refresh();xforms.ready = true;"></xf:load>
+        </xf:action>
+        <xf:action ev:event="xforms-submit-error">
+          <xf:message>Ошибка при получении данных</xf:message>
+        </xf:action>
+      </xf:submission>
+
+		</xf:model>
+	</head>
+	<body>
+ 	  <div style="width: 485px; float: left; clear: both;"> 
+      <div class="orgtype" style="width: 400px; float: left; clear: both;">
+        <xf:output class="baseInput" value="instance('xformId_mainInstance')/sprav/name">
+          <xf:label>Справочник:</xf:label>
+        </xf:output>
+      </div>
+      <div class="group" style="width: 485px; height: 320px; float: left; clear: both; padding: 2px; margin: 10px 0 0 0;overflow-y: scroll;">
+        <div style="float: left; clear: both; margin-top: 5px;">
+          <div class="cellHeader" style="height: 10px; width: 198px; float: left; clear: both; padding-right: 2px;">Название</div>
+          <div class="cellHeader" style="height: 10px; width: 250px; float: left">Значение</div>
+        </div>
+        <div style="float: left; clear: both;">
+          <table class="main2" cellspacing="1" cellpadding="0">
+            <tr>
+              <td style="width: 202px; font-weight: bold;">
+                <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/name/@title"></xf:output>
+              </td>
+              <td style="width: 252px; padding-left: 2px;">
+                <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/name"></xf:input>
+              </td>
+            </tr>
+          </table>
+          <table class="main2" cellspacing="1" cellpadding="0">
+            <tr>
+              <td style="width: 202px; font-weight: bold;">
+                <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/prefix/@title"></xf:output>
+              </td>
+              <td style="width: 252px; padding-left: 2px;">
+                <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/prefix"></xf:input>
+              </td>
+            </tr>
+          </table>
+          
+          <xf:group ref="instance('xformId_mainInstance')/sprav/field[id=0]">
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/fis_name/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/fis_name"></xf:input>
+                </td>
+              </tr>
+            </table>
+          </xf:group>
+          <xf:group ref="instance('xformId_mainInstance')/sprav/field[id!=0]">
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/fis_name/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/fis_name"></xf:output>
+                </td>
+              </tr>
+            </table>
+          </xf:group>          
+          <xf:group ref="instance('xformId_mainInstance')/sprav/field[id=0]">
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/type/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <xf:select1 class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/type">
+                    <xf:itemset nodeset="instance('xformId_mainInstance')/types/type">
+                      <xf:label ref="@name"></xf:label>
+                      <xf:value ref="@id"></xf:value>
+                    </xf:itemset>
+                    <xf:action ev:event="xforms-value-changed">                   
+                      <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/max_length" value="instance('xformId_mainInstance')/types/type[@id=instance('xformId_mainInstance')/sprav/field/type]/@def_length"></xf:setvalue>
+                      <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/precision" value="instance('xformId_mainInstance')/types/type[@id=instance('xformId_mainInstance')/sprav/field/type]/@def_precision"></xf:setvalue>
+                    </xf:action>
+                  </xf:select1>
+                </td>
+              </tr>
+            </table> 
+          </xf:group>         
+          <xf:group ref="instance('xformId_mainInstance')/sprav/field[id!=0]">
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/type/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/types/type[@id=instance('xformId_mainInstance')/sprav/field/type]/@name"></xf:output>
+                </td>
+              </tr>
+            </table> 
+          </xf:group>
+          
+          <xf:group ref="instance('xformId_mainInstance')/types/type[(@id=instance('xformId_mainInstance')/sprav/field/type) and (@use_length='true')]">
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/max_length/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/max_length" inputmode="digits"></xf:input>
+                </td>
+              </tr>
+            </table>
+          </xf:group>
+          <xf:group ref="instance('xformId_mainInstance')/types/type[(@id=instance('xformId_mainInstance')/sprav/field/type) and (@use_precision='true')]">
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/precision/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <xf:select1 class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/precision">
+                    <xf:item>
+                      <xf:label>0</xf:label>
+                      <xf:value>0</xf:value>
+                    </xf:item>
+                    <xf:item>
+                      <xf:label>1</xf:label>
+                      <xf:value>1</xf:value>
+                    </xf:item>
+                    <xf:item>
+                      <xf:label>2</xf:label>
+                      <xf:value>2</xf:value>
+                    </xf:item>
+                    <xf:item>
+                      <xf:label>3</xf:label>
+                      <xf:value>3</xf:value>
+                    </xf:item>
+                    <xf:item>
+                      <xf:label>4</xf:label>
+                      <xf:value>4</xf:value>
+                    </xf:item>
+                    <xf:item>
+                      <xf:label>5</xf:label>
+                      <xf:value>5</xf:value>
+                    </xf:item>
+                    <xf:item>
+                      <xf:label>6</xf:label>
+                      <xf:value>6</xf:value>
+                    </xf:item>
+                    <xf:item>
+                      <xf:label>7</xf:label>
+                      <xf:value>7</xf:value>
+                    </xf:item>
+                    <xf:item>
+                      <xf:label>8</xf:label>
+                      <xf:value>8</xf:value>
+                    </xf:item>
+                  </xf:select1>
+                </td>
+              </tr>
+            </table>
+          </xf:group>
+          <xf:group ref="instance('xformId_mainInstance')/sprav/field[type=6]">
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/ref_table_prefix/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <div style="width: 188px; float: left; margin-right: 2px;">
+                    <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/ref_table_prefix/@value">
+                      <xf:action ev:event="xforms-value-changed">
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_field_prefix" value=""></xf:setvalue>
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_field_prefix/@value" value=""></xf:setvalue>
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix" value=""></xf:setvalue>
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix/@value" value=""></xf:setvalue>
+                      </xf:action>
+                    </xf:input>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0 2px 0 0; float: left;">
+                    <div class="blue" style="padding: 0; margin: 0;">
+                      <xf:selector buttonLabel="..." procListAndCount="'ssp.struct_sprav_list_and_count'" generalFilters="['XPath(instance(quot(xformId_mainInstance))/sprav/id)']" currentValue="''" windowCaption="'Связанный справочник'" xpathMapping="{'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_table_prefix/@value)' : 'name', 'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_table_prefix)' : 'prefix'}"></xf:selector>
+                    </div>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0; float: left;">
+                    <xf:trigger class="blue aid-button" id="xformId_delete10">
+                      <xf:label>X</xf:label>
+                      <xf:action ev:event="DOMActivate">
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_table_prefix" value=""></xf:setvalue>
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_table_prefix/@value" value=""></xf:setvalue>
+                      </xf:action>
+                    </xf:trigger>
+                  </div>
+                </td>
+              </tr>
+            </table>
+            
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <div style="width: 188px; float: left; margin-right: 2px;">
+                    <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix/@value"></xf:input>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0 2px 0 0; float: left;">
+                    <div class="blue" style="padding: 0; margin: 0;">
+                      <xf:selector buttonLabel="..." procListAndCount="'ssp.struct_key_field_list_and_count'" generalFilters="['XPath(instance(quot(xformId_mainInstance))/sprav)']" currentValue="''" windowCaption="'Связанное поле'" xpathMapping="{'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_key_field_prefix/@value)' : 'name', 'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_key_field_prefix)' : 'prefix'}"></xf:selector>
+                    </div>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0; float: left;">
+                    <xf:trigger class="blue aid-button" id="xformId_delete11">
+                      <xf:label>X</xf:label>
+                      <xf:action ev:event="DOMActivate">
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix" value=""></xf:setvalue>
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix/@value" value=""></xf:setvalue>
+                      </xf:action>
+                    </xf:trigger>
+                  </div>
+                </td>
+              </tr>
+            </table>
+            
+            
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/ref_field_prefix/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <div style="width: 188px; float: left; margin-right: 2px;">
+                    <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/ref_field_prefix/@value"></xf:input>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0 2px 0 0; float: left;">
+                    <div class="blue" style="padding: 0; margin: 0;">
+                      <xf:selector buttonLabel="..." procListAndCount="'ssp.struct_field_list_and_count'" generalFilters="['XPath(instance(quot(xformId_mainInstance))/sprav)']" currentValue="''" windowCaption="'Связанное поле'" xpathMapping="{'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_field_prefix/@value)' : 'name', 'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_field_prefix)' : 'prefix'}"></xf:selector>
+                    </div>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0; float: left;">
+                    <xf:trigger class="blue aid-button" id="xformId_delete11">
+                      <xf:label>X</xf:label>
+                      <xf:action ev:event="DOMActivate">
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_field_prefix" value=""></xf:setvalue>
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_field_prefix/@value" value=""></xf:setvalue>
+                      </xf:action>
+                    </xf:trigger>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </xf:group>
+          <xf:group ref="instance('xformId_mainInstance')/sprav/field[type=7]">
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/ref_table_prefix/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <div style="width: 188px; float: left; margin-right: 2px;">
+                    <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/ref_table_prefix/@value">
+                      <xf:action ev:event="xforms-value-changed">
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_field_prefix" value=""></xf:setvalue>
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_field_prefix/@value" value=""></xf:setvalue>
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix" value=""></xf:setvalue>
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix/@value" value=""></xf:setvalue>
+                        <xf:delete nodeset="instance('xformId_mainInstance')/sprav/field/ref_additional_fields/*"></xf:delete>
+                      </xf:action>
+                    </xf:input>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0 2px 0 0; float: left;">
+                    <div class="blue" style="padding: 0; margin: 0;">
+                      <xf:selector buttonLabel="..." procListAndCount="'ssp.struct_sprav_list_and_count'" generalFilters="['XPath(instance(quot(xformId_mainInstance))/sprav/id)']" currentValue="''" windowCaption="'Связанный справочник'" xpathMapping="{'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_table_prefix/@value)' : 'name', 'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_table_prefix)' : 'prefix'}"></xf:selector>
+                    </div>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0; float: left;">
+                    <xf:trigger class="blue aid-button" id="xformId_delete12">
+                      <xf:label>X</xf:label>
+                      <xf:action ev:event="DOMActivate">
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_table_prefix" value=""></xf:setvalue>
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_table_prefix/@value" value=""></xf:setvalue>
+                      </xf:action>
+                    </xf:trigger>
+                  </div>
+                </td>
+              </tr>
+            </table>
+            
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <div style="width: 188px; float: left; margin-right: 2px;">
+                    <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix/@value"></xf:input>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0 2px 0 0; float: left;">
+                    <div class="blue" style="padding: 0; margin: 0;">
+                      <xf:selector buttonLabel="..." procListAndCount="'ssp.struct_key_field_list_and_count'" generalFilters="['XPath(instance(quot(xformId_mainInstance))/sprav)']" currentValue="''" windowCaption="'Связанное поле'" xpathMapping="{'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_key_field_prefix/@value)' : 'name', 'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_key_field_prefix)' : 'prefix'}"></xf:selector>
+                    </div>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0; float: left;">
+                    <xf:trigger class="blue aid-button" id="xformId_delete11">
+                      <xf:label>X</xf:label>
+                      <xf:action ev:event="DOMActivate">
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix" value=""></xf:setvalue>
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_key_field_prefix/@value" value=""></xf:setvalue>
+                      </xf:action>
+                    </xf:trigger>
+                  </div>
+                </td>
+              </tr>
+            </table>
+            
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/ref_field_prefix/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <div style="width: 188px; float: left; margin-right: 2px;">
+                    <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/ref_field_prefix/@value"></xf:input>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0 2px 0 0; float: left;">
+                    <div class="blue" style="padding: 0; margin: 0;">
+                      <xf:selector buttonLabel="..." procListAndCount="'ssp.struct_field_list_and_count'" generalFilters="['XPath(instance(quot(xformId_mainInstance))/sprav)']" currentValue="''" windowCaption="'Связанное поле'" xpathMapping="{'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_field_prefix/@value)' : 'name', 'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_field_prefix)' : 'prefix'}"></xf:selector>
+                    </div>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0; float: left;">
+                    <xf:trigger class="blue aid-button" id="xformId_delete13">
+                      <xf:label>X</xf:label>
+                      <xf:action ev:event="DOMActivate">
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_field_prefix" value=""></xf:setvalue>
+                        <xf:setvalue ref="instance('xformId_mainInstance')/sprav/field/ref_field_prefix/@value" value=""></xf:setvalue>
+                      </xf:action>
+                    </xf:trigger>
+                  </div>
+                </td>
+              </tr>
+            </table>
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/ref_additional_fields/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                
+                  <div style="width: 220px; float: left; margin-right: 2px;">
+                    <xf:repeat id="xformId_refrow" nodeset="instance('xformId_mainInstance')/sprav/field/ref_additional_fields/item">
+                      <div style="width: 188px; float: left; margin-right: 2px;">
+                        <xf:input class="baseTableInput" ref="./value"></xf:input>
+                      </div>
+                      <div class="newbutton" style="width: 30px; padding: 0; float: left;">
+                        <xf:trigger class="blue aid-button" id="xformId_delete14">
+                          <xf:label>-</xf:label>
+                          <xf:action ev:event="DOMActivate">
+                            <xf:action if="(count(.././item) &gt; 0)">
+                              <xf:delete nodeset=".././item[index('xformId_refrow')]"></xf:delete>
+                            </xf:action>
+                          </xf:action>
+                        </xf:trigger>    
+                      </div>                        
+                    </xf:repeat>
+                  </div>
+                  <div class="newbutton" style="width: 30px; padding: 0; float: left;">
+                    <div class="blue" style="padding: 0; margin: 0;">
+                      <xf:multiselector buttonLabel="+" procListAndCount="'ssp.spr_struct_field_list_and_count'" generalFilters="['XPath(instance(quot(xformId_mainInstance))/sprav)']" currentValue="''" windowCaption="'Дополнительные поля'" needClear="true" needInitSelection="true" xpathRoot="'XPath(instance(quot(xformId_mainInstance))/sprav/field/ref_additional_fields)'" xpathMapping="{'XPath(instance(quot(xformId_reflist))/item)':{'prefix':'./id','name':'./value'}}"></xf:multiselector>
+                    </div>
+                  </div>
+
+                </td>
+              </tr>
+            </table>
+          </xf:group>
+          <!--ref_additional_fields-->
+          <xf:group ref="instance('xformId_mainInstance')/sprav/field[type=8]">
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/select_list/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <xf:textarea class="baseTableInput" rows="4" ref="instance('xformId_mainInstance')/sprav/field/select_list"></xf:textarea>
+                </td>
+              </tr>
+            </table>
+          </xf:group>
+          <table class="main2" cellspacing="1" cellpadding="0">
+            <tr>
+              <td style="width: 202px; font-weight: bold;">
+                <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/view_length/@title"></xf:output>
+              </td>
+              <td style="width: 252px; padding-left: 2px;">
+                <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/view_length" inputmode="digits"></xf:input>
+              </td>
+            </tr>
+          </table>
+          <table class="main2" cellspacing="1" cellpadding="0">
+            <tr>
+              <td style="width: 202px; font-weight: bold;">
+                <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/field_order/@title"></xf:output>
+              </td>
+              <td style="width: 252px; padding-left: 2px;">
+                <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/field_order" inputmode="digits"></xf:input>
+              </td>
+            </tr>
+          </table>
+          <xf:group ref="instance('xformId_mainInstance')/sprav/field[id=0]">
+            <table class="main2" cellspacing="1" cellpadding="0">
+              <tr>
+                <td style="width: 202px; font-weight: bold;">
+                  <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/required/@title"></xf:output>
+                </td>
+                <td style="width: 252px; padding-left: 2px;">
+                  <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/required"></xf:input>
+                </td>
+              </tr>
+            </table>
+          </xf:group>
+          <table class="main2" cellspacing="1" cellpadding="0">
+            <tr>
+              <td style="width: 202px; font-weight: bold;">
+                <xf:output class="baseTableInput2" value="instance('xformId_mainInstance')/sprav/field/editable/@title"></xf:output>
+              </td>
+              <td style="width: 252px; padding-left: 2px;">
+                <xf:input class="baseTableInput" ref="instance('xformId_mainInstance')/sprav/field/editable"></xf:input>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div style="width: 465px; height: 10px; vertical-align: middle; float: left; clear: both; margin: 0; font-size: small; padding-left: 10px;">
+      * - обязательно для заполнения
+    </div>
+    <div style="float: left; width: 493px; clear: both;">
+      <div style="float: right; margin: 5px 0; padding: 0;">
+        <div class="newbutton" style="width: 130px; margin: 0; padding-left: 10px; float: left;">
+          <xf:trigger class="blue">
+            <xf:label>ОК</xf:label>
+            <xf:action ev:event="DOMActivate">
+              <!--xf:load resource="javascript: xforms.ready = false; xforms.defaultModel.revalidate(); xforms.refresh(); xforms.ready = true;"/!-->
+              <xf:action if="instance('xformId_mainInstance')/error_message!=''">
+                <xf:message ref="instance('xformId_mainInstance')/error_message"></xf:message>
+              </xf:action>
+              <xf:action if="instance('xformId_mainInstance')/error_message=''">
+                <xf:action if="is-valid(instance('xformId_mainInstance'))='true'">
+                  <xf:send submission="xformId_check_sprav_field"></xf:send>
+                  <xf:action if="instance('xformId_fieldcheck')/check='true'">
+                    <xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
+                  </xf:action>
+                  <xf:action if="instance('xformId_fieldcheck')/check!='true'">
+                    <xf:message ref="instance('xformId_fieldcheck')/check"></xf:message>
+                  </xf:action>
+                </xf:action>
+                <xf:action if="is-valid(instance('xformId_mainInstance'))='false'">
+                  <xf:message>Данные не сохранены! Форма содержит ошибки.</xf:message>
+                </xf:action>
+              </xf:action>
+            </xf:action>
+          </xf:trigger>
+        </div>
+        <div class="newbutton" style="width: 130px; margin: 0; padding-left: 10px; float: left;">
+          <xf:trigger class="blue">
+            <xf:label>Отмена</xf:label>
+            <xf:action ev:event="DOMActivate">
+              <xf:load resource="javascript:gwtXFormFilter('xformId','1', null)"></xf:load>
+            </xf:action>
+          </xf:trigger>
+        </div>
+      </div>
+		</div>
+    <!--div style="width: 465px; float: left; clear: both; margin: 5px 0 0 0;">
+      <xf:output value="serialize(instance('mainInstance'))"/>
+    </div-->
+	</body>
+</html>

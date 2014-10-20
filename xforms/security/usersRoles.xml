@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="xsltforms/xsltforms.xsl" type="text/xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ev="http://www.w3.org/2001/xml-events"
+  xmlns:xf="http://www.w3.org/2002/xforms">
+  <head>
+    <xf:model id="xformId_mainModel">
+      <xf:instance id="mainInstance" xmlns="">
+        <schema>
+          <roles></roles>
+        </schema>
+      </xf:instance>
+
+      <xf:instance id="roleInstance" xmlns="">
+        <schema>
+          <role id="" description=""></role>
+        </schema>
+      </xf:instance>
+
+      <xf:bind>
+        <xf:bind></xf:bind>
+      </xf:bind>
+
+    </xf:model>
+  </head>
+  <body>
+    <!--<xf:output value="serialize(instance('mainInstance'))"></xf:output>-->
+    <div class="xformId_nameInput" style="float: left, clear: both, width: 350px">
+      <div class="blue">
+        <xf:multiselector buttonLabel="Выбор ролей" dataWidth="'600px'" dataHeight="'450px'"
+          selectedDataWidth="'500px'" visibleRecordCount="'25'"
+          procCount="'security.xform.usersRoles.rolesCount.celesta'"
+          procList="'security.xform.usersRoles.rolesList.celesta'" generalFilters="''"
+          currentValue="''" windowCaption="'Выберите пользователей'" needClear="true"
+          needInitSelection="true" xpathRoot="'XPath(instance(quot(mainInstance))/roles)'"
+          xpathMapping="{'XPath(instance(quot(roleInstance))/role)':{'id': '@id','name':'@id'}}"
+        ></xf:multiselector>
+      </div>
+      <div class="" style="float: left; margin-top: 5px; clear: both;"> Выбранные роли: </div>
+      <div class="ScrollPanel1" style="width: 370px; padding: 2px; float: left;">
+        <xf:repeat id="id_roles" nodeset="instance('mainInstance')/roles/role">
+          <div style="width: 250px; padding: 0px; float: left;">
+            <xf:output class="baseInput" ref="@id"></xf:output>
+            <xf:trigger>
+              <xf:label>—</xf:label>
+              <xf:action ev:event="DOMActivate">
+                <xf:delete nodeset="/schema/roles/role[index('id_roles')]"></xf:delete>
+              </xf:action>
+            </xf:trigger>
+          </div>          
+        </xf:repeat>
+      </div>
+    </div>
+    <hr style="margin-top:21px; width: 100%;  float: left; clear: both;" />
+    <div class="dirusing newbutton" style="float: left">
+      <xf:trigger class="blue">
+        <xf:label>Сохранить</xf:label>
+        <xf:action ev:event="DOMActivate" if="(is-valid(instance('mainInstance'))=false())">
+          <xf:message>Заполнено с ошибкой!</xf:message>
+        </xf:action>
+        <xf:action ev:event="DOMActivate" if="(is-valid(instance('mainInstance'))=true())">
+          <xf:load
+            resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'mainInstance')))"></xf:load>
+          <xf:message>Данные сохранены</xf:message>
+        </xf:action>
+      </xf:trigger>
+    </div>
+    <div class="dirusing newbutton" style="float: right">
+      <xf:trigger class="blue">
+        <xf:label>Закрыть</xf:label>
+        <xf:action ev:event="DOMActivate">
+          <xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"></xf:load>
+        </xf:action>
+      </xf:trigger>
+    </div>
+  </body>
+</html>

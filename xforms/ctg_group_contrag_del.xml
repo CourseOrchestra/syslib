@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="xsltforms/xsltforms.xsl" type="text/xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ev="http://www.w3.org/2001/xml-events"
+	xmlns:xsd="http://www.w3.org/2001/XMLschema" xmlns:fs="http://www.curs.ru/ns/FormServer"
+	xmlns:xf="http://www.w3.org/2002/xforms">
+	<head>
+		<style type="text/css">
+			.dateInput
+			.xforms-value {
+        width: 170px !important;
+        border: 0px;
+        padding: 2px 0px 2px 0px;
+        background-color: #E5F2FF;
+        margin: 6px 0px 0px 0px;
+        min-height: 13px;
+			}			
+			.aid-button, .aid-button button {
+        width: 30px !important;
+			}
+      .newbutton button {
+        width: 100% !important;
+      }
+		</style>
+		<xf:model id="xformId_mainModel">
+			<xf:instance id="xformId_mainInstance">
+				<schema xmlns="">
+          <info>
+            <row id=""/>
+            <org name="" startdate="" enddate=""/>
+          </info>
+          <contrags/>
+        </schema>
+			</xf:instance>
+			<xf:bind>
+				<!--xf:bind nodeset="/schema/info/org/@startdate" type="date"/!-->
+				<xf:bind nodeset="instance('xformId_mainInstance')/info/org/@enddate" type="date"/>
+			</xf:bind>
+		</xf:model>
+	</head>
+	<body>
+		<div style="width: 410px; float: left; clear: both" class="group">
+			<div class="control" style="width: 405px; padding: 2px; float: left;">
+				<xf:output class="baseInput" ref="instance('xformId_mainInstance')/info/org/@name">
+					<xf:label>Контрагент: </xf:label>
+				</xf:output>
+			</div>
+			<div class="control" style="width: 200px; padding: 2px; float: left; clear:both;">
+				<xf:output class="baseInput" style="width: 150px;" ref="instance('xformId_mainInstance')/info/org/@startdate">
+					<xf:label>Дата вхождения в группу:</xf:label>
+				</xf:output>
+			</div>
+			<div class="control" style="width: 200px; padding: 2px; float: left; clear:both;">
+				<xf:input class="dateInput" style="width: 150px;" ref="instance('xformId_mainInstance')/info/org/@enddate">
+					<xf:label>Дата выхода из группы:</xf:label>
+				</xf:input>
+			</div>
+		</div>
+		<div style="width: 410px; float: left; clear: both; margin: 0; padding: 0;">
+      <div style="float: right; margin: 5px 0; padding: 0;">
+        <div class="newbutton" style="width: 130px; padding-left: 10px; float: left;">
+          <xf:trigger class="blue">
+            <xf:label>ОК</xf:label>
+            <xf:action ev:event="DOMActivate">
+              <xf:action if="instance('xformId_mainInstance')/info/org/@enddate!=''">              
+                <xf:action if="instance('xformId_mainInstance')/info/org/@enddate&gt;=instance('xformId_mainInstance')/info/org/@startdate">
+					<xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
+                </xf:action>
+                <xf:action if="instance('xformId_mainInstance')/info/org/@enddate&lt;instance('xformId_mainInstance')/info/org/@startdate">
+                  <xf:message>Дата выхода контрагента из группы меньше даты вхождения!</xf:message>
+                </xf:action>
+              </xf:action>
+              <xf:action if="instance('xformId_mainInstance')/info/org/@enddate=''">
+                 <xf:message>Введите дату выхода контрагента из группы!</xf:message>
+              </xf:action>                
+            </xf:action>
+          </xf:trigger>
+        </div>
+        <div class="newbutton" style="width: 130px; padding-left: 10px; float: left;">
+          <xf:trigger class="blue">
+            <xf:label>Отмена</xf:label>
+            <xf:action ev:event="DOMActivate">
+              <xf:load resource="javascript:gwtXFormFilter('xformId','1', null)"/>
+            </xf:action>
+          </xf:trigger>
+        </div>
+      </div>
+		</div>
+	</body>
+</html>
