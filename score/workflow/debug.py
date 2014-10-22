@@ -1,29 +1,29 @@
 # coding: utf-8
-
+import security
 from ru.curs.celesta import Celesta
 from ru.curs.celesta.score import Score
 from ru.curs.celesta import ConnectionPool
 from ru.curs.celesta import CallContext
 from ru.curs.celesta import SessionContext
-#from common import navigator, sysfunctions
-#from common.xmlutils import XMLJSONConverter
+# from common import navigator, sysfunctions
+# from common.xmlutils import XMLJSONConverter
 #
-##try:
-##    from java.lang import String111
-##except:
-##    from java.lang import Integer as III
+# #try:
+# #    from java.lang import String111
+# #except:
+# #    from java.lang import Integer as III
 #
 #
-#import sys, os
-#import common
-##from security.grid import permissions
+# import sys, os
+# import common
+# #from security.grid import permissions
 #
 a = Celesta.getInstance()
 conn = ConnectionPool.get()
 sesContext = SessionContext('admin', 'testsession')
 context = CallContext(conn, sesContext)
-##print context.getCelesta()
-#from security.xform import permissions
+# #print context.getCelesta()
+# from security.xform import permissions
 import org.activiti.engine.ProcessEngineConfiguration as ProcessEngineConfiguration
 import org.apache.log4j.PropertyConfigurator as PropertyConfigurator
 import org.activiti.image.ProcessDiagramGenerator as ProcessDiagramGenerator
@@ -42,16 +42,19 @@ from java.io import InputStreamReader, FileInputStream
 import java.io.ByteArrayInputStream as ByteArrayInputStream
 import java.nio.file.Files as Files
 import java.nio.file.Paths as Paths
-from workflow.grid.processVersionsGrid import gridDataAndMeta
-from workflow.webtext.processesImage import webtextData
+# from workflow.grid.processVersionsGrid import gridDataAndMeta
+# from workflow.webtext.processesImage import webtextData
 import base64
 import array
 try:
     from ru.curs.showcase.activiti import  EngineFactory
 except:
     from workflow import testConfig as EngineFactory
+from common._common_orm import numbersSeriesCursor, linesOfNumbersSeriesCursor
 from workflow import processUtils
-#import processtest
+import os
+from workflow.grid import tasksGrid
+# import processtest
 
 from workflow.datapanel.processes import manageProcesses
 
@@ -62,18 +65,19 @@ if (1, 1) in a:
 else:
     print 'no'
 
+session = """{"#text": "", "sessioncontext": {"username": "admin", "fullusername": "admin", "sid": "admin", "related": {"gridContext": {"@id": "processesGrid", "selectedRecordId": "simplebookorder", "pageInfo": {"@number": "1", "@size": "20", "#text": ""}, "gridFilterInfo": "", "currentRecordId": "simplebookorder", "currentDatapanelWidth": "1646", "liveInfo": {"@offset": "0", "@limit": "50", "@pageNumber": "1", "@totalCount": "0", "#text": ""}, "currentDatapanelHeight": "881", "#text": ""}, "#text": ""}, "#text": "", "ip": "127.0.0.1", "email": "12@yandex.r", "phone": "123-56-78", "login": "admin", "userdata": "default", "sessionid": "51EE2609088A434B355D04F9EF4F1BC7"}}"""
+
 def proc2(context):
-    print gridDataAndMeta(context, session="""{"#text": "", "sessioncontext": {"username": "admin", "fullusername": "admin", "sid": "admin", "related": {"gridContext": {"@id": "processesGrid", "selectedRecordId": "simplebookorder", "pageInfo": {"@number": "1", "@size": "20", "#text": ""}, "gridFilterInfo": "", "currentRecordId": "simplebookorder", "currentDatapanelWidth": "1646", "liveInfo": {"@offset": "0", "@limit": "50", "@pageNumber": "1", "@totalCount": "0", "#text": ""}, "currentDatapanelHeight": "881", "#text": ""}, "#text": ""}, "#text": "", "ip": "127.0.0.1", "email": "12@yandex.r", "phone": "123-56-78", "login": "admin", "userdata": "default", "sessionid": "51EE2609088A434B355D04F9EF4F1BC7"}}""")
+    print tasksGrid.gridDataAndMeta(context, session=session)
 
 def proc1(context):
-
-    #log4jConfPath = "log4j.properties"
-    #PropertyConfigurator.configure(log4jConfPath)
+    # log4jConfPath = "log4j.properties"
+    # PropertyConfigurator.configure(log4jConfPath)
 
     processEngine = EngineFactory.getActivitiProcessEngine()
     # здесь коннект идёт уже к MS SQL (описано в activiti.cfg.xml)
 #    try:
-#        
+#
 #    except:
 #        conf = ProcessEngineConfiguration.createStandaloneProcessEngineConfiguration()
 #        conf.setDatabaseType("postgres")
@@ -83,35 +87,35 @@ def proc1(context):
 #        conf.setJdbcPassword("F708420Dx")
 #
 #        processEngine = conf.buildProcessEngine()
-    #processUtils.getProcessDefinition('simplebookorder', None)
+    # processUtils.getProcessDefinition('simplebookorder', None)
 
-    #runtimeService = processEngine.getRuntimeService()
-    activ = processUtils.activitiObject()
+    runtimeService = processEngine.getRuntimeService()
+    activ = processUtils.ActivitiObject()
     repositoryService = processEngine.getRepositoryService()
 
     processDefinition = repositoryService.createProcessDefinitionQuery() \
                                                          .processDefinitionKey("bookorder").latestVersion() \
                                                          .singleResult()
 
-    diagramResourceName = processDefinition.getDiagramResourceName()
-    imageStream = repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), diagramResourceName)
+#     diagramResourceName = processDefinition.getDiagramResourceName()
+#     imageStream = repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), diagramResourceName)
 
     stringout = u''
     byteArray = [-1, -1, -1]
-    while True:
-        byteArray[0] = imageStream.read()
-        byteArray[1] = imageStream.read()
-        byteArray[2] = imageStream.read()
-        if byteArray[0] == -1:
-            break
-        elif byteArray[1] == -1:
-            stringout += base64.b64encode(array.array('B', byteArray[0:1]).tostring())
-            break
-        elif byteArray[2] == -1:
-            stringout += base64.b64encode(array.array('B', byteArray[0:2]).tostring())
-            break
-        else:
-            stringout += base64.b64encode(array.array('B', byteArray).tostring())
+#     while True:
+#         byteArray[0] = imageStream.read()
+#         byteArray[1] = imageStream.read()
+#         byteArray[2] = imageStream.read()
+#         if byteArray[0] == -1:
+#             break
+#         elif byteArray[1] == -1:
+#             stringout += base64.b64encode(array.array('B', byteArray[0:1]).tostring())
+#             break
+#         elif byteArray[2] == -1:
+#             stringout += base64.b64encode(array.array('B', byteArray[0:2]).tostring())
+#             break
+#         else:
+#             stringout += base64.b64encode(array.array('B', byteArray).tostring())
     print stringout
 #    while True:
 #        try:
@@ -127,12 +131,13 @@ def proc1(context):
 
 
     # разворачиваем процесс из потока
-    #repositoryService.createProcessDefinitionQuery().latestVersion().list()[0]
-    #repositoryService.createDeployment().addInputStream("bookorder.simple.bpmn20.xml", FileInputStream("bookorder.simple.bpmn20.xml")).deploy()
+#     repositoryService.createProcessDefinitionQuery().latestVersion().list()[0]
+    a = FileInputStream(os.path.join(os.path.dirname(os.path.abspath(__file__)), "bookorder.bpmn20.xml"))
+#     repositoryService.createDeployment().addInputStream("bookorder.bpmn20.xml", a).deploy()
 
     # стартуем инстанс по айдишнику
-    #processInstance = runtimeService.startProcessInstanceByKey("simplebookorder")
-    #print "id " + processInstance.getId() + " " + processInstance.getProcessDefinitionId()
+#     processInstance = runtimeService.startProcessInstanceByKey("bookorder")
+    # print "id " + processInstance.getId() + " " + processInstance.getProcessDefinitionId()
 
 
 
@@ -146,6 +151,6 @@ proc2(context)
 #    if not filtersConditions.tryInsert():
 #        filtersConditions.update()
 
-#ConnectionPool.putBack(conn)
+# ConnectionPool.putBack(conn)
 
 
