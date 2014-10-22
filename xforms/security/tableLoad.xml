@@ -15,17 +15,17 @@
     <!--<xf:output value="serialize(instance('xformId_mainInstance'))"></xf:output>-->
     <div class="xformId_nameInput" style="float: left, clear: both, width: 350px">
       <xf:group ref="instance('xformId_mainInstance')/context[@add='upload']">
-        <div style="float: left, clear: both, width: 350px">Загрузить данные в базу?</div>
-        <xf:upload class="blue" id="xformId_tableXformUpload"  singleFile="true"></xf:upload>
+        <div class="break">Загрузить данные в базу?</div>
+        <xf:upload class="button30" id="xformId_tableXformUpload"  singleFile="true"></xf:upload>
       </xf:group>
       <xf:group ref="instance('xformId_mainInstance')/context[@add='download']">
-        <div style="float: left, clear: both, width: 350px">Скачать данные из базы?</div>
+        <div class="break">Скачать данные из базы?</div>
       </xf:group>
     </div>
-    <hr style="margin-top:21px; width: 100%;  float: left; clear: both;" />
+    <hr class="break" style="margin-top:21px; width: 100%;  float: left;" />
     <xf:group ref="instance('xformId_mainInstance')/context[@add='download']">
-      <div class="dirusing newbutton" style="width: 40%; float: left">
-        <xf:trigger class="blue">
+      <div class="button100" style="float: left">
+        <xf:trigger>
           <xf:label>Скачать</xf:label>
           <xf:action ev:event="DOMActivate">
             <xf:load
@@ -36,8 +36,8 @@
       </div>
     </xf:group>
     <xf:group ref="instance('xformId_mainInstance')/context[@add='upload']">
-      <div class="dirusing newbutton" style="width: 40%; float: left">
-        <xf:trigger class="blue">
+      <div class="button100" style="float: left">
+        <xf:trigger>
           <xf:label>Загрузить</xf:label>
           <xf:action ev:event="DOMActivate">
             <xf:load
@@ -47,8 +47,8 @@
         </xf:trigger>
       </div>
     </xf:group>
-    <div class="dirusing newbutton" style="width: 40%; float: right">
-      <xf:trigger class="blue">
+    <div class="button100" style="float: right">
+      <xf:trigger>
         <xf:label>Закрыть</xf:label>
         <xf:action ev:event="DOMActivate">
           <xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"></xf:load>

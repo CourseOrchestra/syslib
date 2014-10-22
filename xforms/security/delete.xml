@@ -5,19 +5,18 @@
   <head>
     <xf:model id="xformId_mainModel">
       <xf:instance id="xformId_mainInstance">
-        <schema xmlns="">
-        </schema>
+        <schema xmlns=""> </schema>
       </xf:instance>
     </xf:model>
   </head>
   <body>
-<!--    <xf:output value="serialize(instance('xformId_mainInstance'))"></xf:output>-->
-    <div class="xformId_nameInput" style="float: left, clear: both, width: 350px">
-        <div style="float: left, clear: both, width: 350px">Вы действительно хотите удалить эту запись?</div>
-    </div>
-    <hr style="margin-top:21px; width: 100%;  float: left; clear: both;" />
-    <div class="dirusing newbutton" style="width: 40%; float: left">
-      <xf:trigger class="blue">
+    <!--    <xf:output value="serialize(instance('xformId_mainInstance'))"></xf:output>-->
+
+    <div style="float: left, clear: both, width: 350px">Вы действительно хотите удалить эту запись?</div>
+
+    <hr class="break" style="margin-top:21px; width: 100%;  float: left;"/>
+    <div class="button100" style="float: left">
+      <xf:trigger>
         <xf:label>Удалить</xf:label>
         <xf:action ev:event="DOMActivate">
           <xf:load
@@ -26,8 +25,8 @@
         </xf:action>
       </xf:trigger>
     </div>
-    <div class="dirusing newbutton" style="width: 40%; float: right">
-      <xf:trigger class="blue">
+    <div class="button100" style="float: right">
+      <xf:trigger>
         <xf:label>Отмена</xf:label>
         <xf:action ev:event="DOMActivate">
           <xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"></xf:load>
