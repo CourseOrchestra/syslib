@@ -44,7 +44,7 @@
           <xf:input ref="instance('xformId_mainInstance')/user/@password">
             <xf:label>Пароль:</xf:label>
           </xf:input>        
-          <xf:trigger>
+          <xf:trigger class="keyImage">
             <!--<xf:label></xf:label>-->
             <xf:action ev:event="DOMActivate">
               <xf:send submission="xformId_idGeneratePassword"></xf:send>
