@@ -1,4 +1,8 @@
 ﻿@CHARSET "UTF-8";
+
+@import "security.css";
+@import "udStyle.css";
+
 /*Общие стили*/
 body, table td, select {
     font-family: sans-serif;
