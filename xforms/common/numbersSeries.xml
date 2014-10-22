@@ -10,25 +10,25 @@
         </schema>
       </xf:instance>
       <xf:bind>
-        <xf:bind nodeset="instance('xformId_mainInstance')/numbersSeries/@id" required="true()"></xf:bind>
-        ></xf:bind>
+        <xf:bind nodeset="instance('xformId_mainInstance')/numbersSeries/@id" required="true()"
+        ></xf:bind> ></xf:bind>
     </xf:model>
   </head>
   <body>
     <!--    <xf:output value="serialize(instance('xformId_mainInstance'))"></xf:output>-->
-    <div class="xformId_nameInput" style="float: left, clear: both, width: 350px">
-      <xf:input class="author baseInput" ref="instance('xformId_mainInstance')/numbersSeries/@id">
+    <div class="baseInput200 break" style="float: left, clear: both, width: 350px">
+      <xf:input ref="instance('xformId_mainInstance')/numbersSeries/@id">
         <xf:label>ID:</xf:label>
       </xf:input>
     </div>
-    <div class="xformId_nameInput" style="float: left, clear: both, width: 350px">
-      <xf:input class="author baseInput" ref="instance('xformId_mainInstance')/numbersSeries/@description">
+    <div class="baseInput400 break" style="float: left, clear: both, width: 350px">
+      <xf:input ref="instance('xformId_mainInstance')/numbersSeries/@description">
         <xf:label>Описание:</xf:label>
       </xf:input>
     </div>
-    <hr style="margin-top:21px; width: 100%;  float: left; clear: both;" />
-    <div class="dirusing newbutton" style="float: left">
-      <xf:trigger class="blue">
+    <hr class="break" style="margin-top:21px; width: 100%;  float: left;" />
+    <div class="button100" style="float: left">
+      <xf:trigger>
         <xf:label>Сохранить</xf:label>
         <xf:action ev:event="DOMActivate" if="(is-valid(instance('xformId_mainInstance'))=false())">
           <xf:message>Заполнено с ошибкой!</xf:message>
@@ -40,8 +40,8 @@
         </xf:action>
       </xf:trigger>
     </div>
-    <div class="dirusing newbutton" style="float: right">
-      <xf:trigger class="blue">
+    <div class="button100" style="float: right">
+      <xf:trigger>
         <xf:label>Закрыть</xf:label>
         <xf:action ev:event="DOMActivate">
           <xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"></xf:load>
