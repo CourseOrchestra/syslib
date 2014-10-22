@@ -22,7 +22,7 @@ import org.activiti.image.ProcessDiagramGenerator as ProcessDiagramGenerator
 
 class ActivitiObject():
     def __init__(self):
-        #получение запущенного движка Activiti и необходимых сервисов
+        # получение запущенного движка Activiti и необходимых сервисов
         self.processEngine = EngineFactory.getActivitiProcessEngine()
         self.conf = self.processEngine.getProcessEngineConfiguration()
         self.repositoryService = self.processEngine.getRepositoryService()
@@ -91,9 +91,16 @@ class ActivitiObject():
             imageStream = generator.generatePngDiagram(model)
         return imageStream
 
-    def getExecutionModel(self, key, vernum=None):
+    def getExecutionModel(self, processInstanceId, vernum=None):
         # картинка выполняющегося процесса с отмеченным таском
-        processDefinition = self.getProcessDefinition(key, vernum)
+        processInstance = self.runtimeService.createProcessInstanceQuery()\
+            .processInstanceId(processInstanceId).singleResult()
+        processDefinition = self.repositoryService.createProcessDefinitionQuery()\
+            .processDefinitionId(processInstance.getProcessDefinitionId()).singleResult()
+        key = processDefinition.getKey()
+
+
+        self.getProcessDefinitionById(key)
         if processDefinition.getDiagramResourceName():
             model = self.repositoryService.getBpmnModel(processDefinition.getId())
         else:
@@ -103,7 +110,7 @@ class ActivitiObject():
             model = BpmnXMLConverter().convertToBpmnModel(xtr)
             self.repositoryService.validateProcess(model)
             BpmnAutoLayout(model).execute()
-        actuals = self.runtimeService.createExecutionQuery().processDefinitionId(processDefinition.getId()).singleResult()
+        actuals = self.runtimeService.createExecutionQuery().processInstanceId(processInstance.getId()).singleResult()
         generator = self.conf.getProcessDiagramGenerator()
         definitionImageStream = generator.generateDiagram(model, "png", self.runtimeService.getActiveActivityIds(actuals.getId()))
         return definitionImageStream
@@ -111,7 +118,7 @@ class ActivitiObject():
     def stopProcess(self, processId, reason='stopped manually'):
         self.runtimeService.deleteProcessInstance(processId, reason)
 
-    def getUserTasks(self, username): # all assigned, candidate and owner tasks
+    def getUserTasks(self, username):  # all assigned, candidate and owner tasks
         taskQuery = self.taskService.createTaskQuery().taskInvolvedUser(username).list()
         return taskQuery
 

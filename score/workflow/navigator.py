@@ -31,6 +31,14 @@ def manageProcessesNav(context, session):
                                                  "datapanel":{"@type": "workflow.datapanel.processes.manageProcesses.celesta",
                                                               "@tab": "firstOrCurrent"}
                                                  }
+                                      },
+                                      {
+                                      "@id": "myTasks",
+                                      "@name": u"Мои задачи",
+                                      "action":{"main_context": "current",
+                                                 "datapanel":{"@type": "workflow.datapanel.tasks.myTasks.celesta",
+                                                              "@tab": "firstOrCurrent"}
+                                                 }
                                       }]
                             }
                    }

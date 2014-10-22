@@ -53,7 +53,7 @@ except:
 from common._common_orm import numbersSeriesCursor, linesOfNumbersSeriesCursor
 from workflow import processUtils
 import os
-from workflow.grid import tasksGrid
+from workflow.webtext import tasksImage, processesImage
 # import processtest
 
 from workflow.datapanel.processes import manageProcesses
@@ -65,10 +65,10 @@ if (1, 1) in a:
 else:
     print 'no'
 
-session = """{"#text": "", "sessioncontext": {"username": "admin", "fullusername": "admin", "sid": "admin", "related": {"gridContext": {"@id": "processesGrid", "selectedRecordId": "simplebookorder", "pageInfo": {"@number": "1", "@size": "20", "#text": ""}, "gridFilterInfo": "", "currentRecordId": "simplebookorder", "currentDatapanelWidth": "1646", "liveInfo": {"@offset": "0", "@limit": "50", "@pageNumber": "1", "@totalCount": "0", "#text": ""}, "currentDatapanelHeight": "881", "#text": ""}, "#text": ""}, "#text": "", "ip": "127.0.0.1", "email": "12@yandex.r", "phone": "123-56-78", "login": "admin", "userdata": "default", "sessionid": "51EE2609088A434B355D04F9EF4F1BC7"}}"""
+session = """{"sessioncontext":{"sid":"67D5D000-7477-430C-A6B1-B28AE10F0E75","userdata":"default","phone":"","username":"bobkova","fullusername":"bobkova","email":"","login":"bobkova","sessionid":"603769A65A9FD1B4953585026E066919","related":{"gridContext":{"currentColumnId":"\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u0437\u0430\u0434\u0430\u0447\u0438","gridFilterInfo":"","pageInfo":{"@size":"20","@number":"1","#text":""},"liveInfo":{"@totalCount":"0","@pageNumber":"1","@offset":"0","@limit":"50","#text":""},"partialUpdate":"false","currentDatapanelWidth":"1646","@id":"tasksGrid","currentDatapanelHeight":"933","currentRecordId":"10072","#text":""},"#text":""},"ip":"0:0:0:0:0:0:0:1","#text":""},"#text":""}"""
 
 def proc2(context):
-    print tasksGrid.gridDataAndMeta(context, session=session)
+    print tasksImage.webtextData(context, session=session)
 
 def proc1(context):
     # log4jConfPath = "log4j.properties"
@@ -132,8 +132,8 @@ def proc1(context):
 
     # разворачиваем процесс из потока
 #     repositoryService.createProcessDefinitionQuery().latestVersion().list()[0]
-    a = FileInputStream(os.path.join(os.path.dirname(os.path.abspath(__file__)), "bookorder.bpmn20.xml"))
-#     repositoryService.createDeployment().addInputStream("bookorder.bpmn20.xml", a).deploy()
+    a = FileInputStream(os.path.join(os.path.dirname(os.path.abspath(__file__)), "fp.bpmn"))
+    repositoryService.createDeployment().addInputStream("fp.bpmn", a).deploy()
 
     # стартуем инстанс по айдишнику
 #     processInstance = runtimeService.startProcessInstanceByKey("bookorder")
