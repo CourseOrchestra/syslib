@@ -25,7 +25,7 @@ except:
 
 def gridData(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
-    u'''Функция получения данных для грида. '''
+    u'''Функция получения данных для грида. '''    
     settings=Settings()
     logins = loginsCursor(context)    
     # Определяем переменную для JSON данных    
@@ -108,7 +108,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
             sortindex = '%s' % column.getSorting()
             if column.getId()<>u"Субъект":
                 logins.orderBy(columnsDict[column.getId()] +' '+sortindex)
-        logins.limit(firstrecord, pagesize)
+        logins.limit(firstrecord-1, pagesize)
         for logins in logins.iterate():
             loginsDict = {}
             loginsDict[toHexForXml('~~id')] = logins.userName
@@ -132,7 +132,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
         for column in sortColumnList:
             sortindex = '%s' % column.getSorting()
             logins.orderBy(columnsDict[column.getId()] +' '+sortindex)
-        logins.limit(firstrecord, pagesize)
+        logins.limit(firstrecord-1, pagesize)
         for logins in logins.iterate():
             loginsDict = {}
             loginsDict[toHexForXml('~~id')] = logins.userName
