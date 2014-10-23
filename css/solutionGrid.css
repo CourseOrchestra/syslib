@@ -284,3 +284,71 @@
  .webmain-DataGrid	.indent5 {
 	padding-left:90px !important;
 	}
+	
+	
+	
+.dgrid-row
+{
+overflow: hidden;
+border-bottom: 1px dotted #99b9e9;
+}
+ 
+.dgrid-cell
+{
+border-style: none dotted none none  !important;
+border-color: #99b9e9 !important;
+vertical-align: middle !important;
+}
+ 
+.dgrid-row-odd {
+    background-color: #ebf0f7; 
+}
+ 
+.dgrid-cell div
+{
+max-height: 33px;
+}
+ 
+.dgrid-header th {
+    text-align: center !important;
+    vertical-align: middle !important;  
+    font-size: x-small !important;
+}
+ 
+.dgrid-header th {
+    text-align: center !important;
+}
+ 
+.dgrid-header, .dgrid-header-row, .dgrid-footer {
+    background-color: #ebf0f7 !important;
+    border-bottom: 1px solid #99b9e9 !important;
+    overflow: hidden !important;
+}
+.dgrid-footer 
+{
+border-top: 1px dotted #99b9e9 !important;
+padding: 3px !important;
+}
+ 
+.dgrid {
+    border-color: #99b9e9 !important;
+    border-style: none solid !important;
+    border-width: 1px !important;
+ 
+}
+ 
+.x-toolbar-mark {
+    border: 1px solid #99b9e9 !important;
+}
+.dgrid-footer div {
+    font-size: x-small;
+    font-weight: bold;
+}
+.dgrid-footer input {
+    font-size: x-small;
+    font-weight: bold;
+}
+.dgrid-footer select {
+    font-size: x-small;
+    font-weight: bold;
+}
