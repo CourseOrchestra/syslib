@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datapanel>
+    <tab id="1" name="Тест">	
+        <element id="test_filter" type="xforms" proc="workflow.xforms.testFilter.cardData.cl" template="testFilter.xml"/>
+        <element id="test_card" type="xforms" template="testCard.xml"
+            proc="workflow.xforms.testCard.cardData.cl" neverShowInPanel="true">
+            <related id="test_grid"/>
+            <proc id="test_card_save" name="workflow.xforms.testCard.cardSave.cl" type="SAVE"/>
+        </element>
+
+    </tab>	
+</datapanel>
