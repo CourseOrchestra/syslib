@@ -18,13 +18,13 @@
 			<xf:output ref="docName" class="break baseInput400">
 				<xf:label>Наименование заявки</xf:label>
 			</xf:output>
-			<div class="break baseInput200">Перейти к <a href="{requestReference}">заявке</a></div>
+			<div class="break baseInput200">Перейти к <a href="{requestReference}" target="_blank">заявке</a></div>
 			<xf:select1 ref="newStatus" class="break baseInput200">
-				<xf:itemset nodeset="statuses/status">
+				<xf:itemset nodeset="../statuses/status">
 					<xf:label ref="@name"/>
 					<xf:value ref="@id"/>
 				</xf:itemset>
-				<xf:label>Статус</xf:label>
+				<xf:label>Операция</xf:label>
 			</xf:select1>
 		</xf:group>
 		<div class="break button100">
