@@ -19,6 +19,8 @@ def testNavigator(context, session):
     return myNavigator
 
 def manageProcessesNav(context, session):
+    session = json.loads(session)["sessioncontext"]
+    sid = session["sid"]
     myNavigator = {
                    "group":{
                             "@id": "workflow",
@@ -31,17 +33,32 @@ def manageProcessesNav(context, session):
                                                  "datapanel":{"@type": "workflow.datapanel.processes.manageProcesses.celesta",
                                                               "@tab": "firstOrCurrent"}
                                                  }
-                                      },
-                                      {
-                                      "@id": "myTasks",
-                                      "@name": u"Мои задачи",
-                                      "action":{"main_context": "current",
-                                                 "datapanel":{"@type": "workflow.datapanel.tasks.myTasks.celesta",
-                                                              "@tab": "firstOrCurrent"}
-                                                 }
                                       }]
                             }
                    }
+    if userHasPermission(context, sid, 'activeTasks'):
+        myNavigator["group"]["level1"].append({"@id": "activeTasks",
+                                              "@name": u"Мои задачи",
+                                              "action":
+                                                {"main_context": "current",
+                                                 "datapanel":
+                                                    {"@type": "workflow.datapanel.activeTasks.activeTasks.celesta",
+                                                     "@tab": "firstOrCurrent"
+                                                     }
+                                                 }
+                                              })
+
+    if userHasPermission(context, sid, 'archiveTasks'):
+        myNavigator["group"]["level1"].append({"@id": "archiveTasks",
+                                              "@name": u"Завершенные задачи",
+                                              "action":
+                                                {"main_context": "current",
+                                                 "datapanel":
+                                                    {"@type": "workflow.datapanel.archiveTasks.archiveTasks.celesta",
+                                                     "@tab": "firstOrCurrent"
+                                                     }
+                                                 }
+                                              })
     return myNavigator
 
 
