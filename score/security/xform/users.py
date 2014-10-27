@@ -71,7 +71,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                         "@employeeName":"",
                                         "@isAuthServer":unicode(settings.isUseAuthServer()).lower(),
                                         "@loginIsSubject":unicode(settings.loginIsSubject()).lower(),
-                                        "@add":add}
+                                        "@add":add,
+                                        "@key":unichr(9911)}
                                 }
                       }
         if settings.loginIsSubject():
@@ -95,7 +96,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                         "@employeeName":empName,
                                         "@isAuthServer":unicode(settings.isUseAuthServer()).lower(),
                                         "@loginIsSubject":unicode(settings.loginIsSubject()).lower(),
-                                        "@add":""}
+                                        "@add":"",
+                                        "@key":unichr(9911)}
                                 }
                       }
     elif add == 'edit':        
