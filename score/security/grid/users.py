@@ -182,9 +182,9 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     # Определяем список полей таблицы для отображения    
     columns={"Имя пользователя":320}
     if settings.loginIsSubject() and settings.isEmployees():
-        columns["Сотрудник"]=320
+        columns["Сотрудник"]=640
     elif not settings.loginIsSubject():
-        columns["Субъект"]=320
+        columns["Субъект"]=640
     if settings.isUseAuthServer():
         columns["SID"]=320
     settings = func.generateGridSettings(columns, totalCount=totalcount, header=header_str)
