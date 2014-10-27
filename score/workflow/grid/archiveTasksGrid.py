@@ -30,14 +30,14 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 #                "schema":[u"Схема"],
                "name":[u"Название задачи"],
                "process": [u"Название процесса"],
-               "docName": [u"Название процесса"],
+               "link": [u"Заявка"],
                "properties":[u"properties"]}
 
 
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
     # Проходим по таблице и заполняем data
-
+    runtimeService = activiti.runtimeService
 
     for tasks in tasksList:
         procDict = {}
@@ -48,14 +48,22 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         processDefinition = activiti.repositoryService.createProcessDefinitionQuery()\
             .processDefinitionId(processInstance.getProcessDefinitionId()).singleResult()
         docName = ''
-#         docName = "%s. %s" % (variables.getVariable(tasks.id, 'docId'), \
-#                               variables.getVariable(tasks.id, 'docName')) if tasks.id == '5013' else ''
-        procDict[_header["process"][1]] = "%s %s" % (processDefinition.getName(), docName)
+        docName = "%s. %s" % (runtimeService.getVariable(processInstanceId, 'docId'), \
+                              runtimeService.getVariable(processInstanceId, 'docName'))
+        procDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
 #         procDict[_header["schema"][1]] = {"div":
 #                                            {"@align": "center",
 #                                             "img":
 #                                             {"@src": "solutions/default/resources/flowblock.png", "@height": "20px"}}}
         procDict[_header["name"][1]] = tasks.name
+        requestReference = runtimeService.getVariable(processInstanceId, 'requestReference')
+        procDict[_header["link"][1]] = {"div":
+                                             {"@align": "center",
+                                              "a":{"@href": requestReference,
+                                                   "@target": "_blank",
+                                                   "img":
+                                                        {"@src": "solutions/default/resources/imagesingrid/link.png",
+                                                         "@height": "20px"}}}}
 
 #         procDict[_header["properties"][1]] = {"event":
 #                                               {"@name":"cell_single_click",
@@ -93,8 +101,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                 }
     # Добавляем поля для отображения в gridsettings
 #     settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0], "@width": "40px", "type": "IMAGE"})
-#     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "280px"})
-#     settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0], "@width": "650px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "280px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0], "@width": "650px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["link"][0],
+                                                       "@width": "40px",
+                                                       "type": "IMAGE"})
 
     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))

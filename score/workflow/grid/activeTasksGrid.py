@@ -38,16 +38,17 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         _header[column].append(toHexForXml(_header[column][0]))
     # Проходим по таблице и заполняем data
     taskService = activiti.taskService
+    runtimeService = activiti.runtimeService
     for tasks in tasksList:
         procDict = {}
         procDict[_header["id"][1]] = tasks.id
         processInstanceId = tasks.getProcessInstanceId()
-        processInstance = activiti.runtimeService.createProcessInstanceQuery()\
+        processInstance = runtimeService.createProcessInstanceQuery()\
             .processInstanceId(processInstanceId).singleResult()
         processDefinition = activiti.repositoryService.createProcessDefinitionQuery()\
             .processDefinitionId(processInstance.getProcessDefinitionId()).singleResult()
-        docName = "%s. %s" % (taskService.getVariable(tasks.id, 'docId'), \
-                              taskService.getVariable(tasks.id, 'docName'))
+        docName = "%s. %s" % (runtimeService.getVariable(processInstanceId, 'docId'), \
+                              runtimeService.getVariable(processInstanceId, 'docName'))
         procDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
         procDict[_header["schema"][1]] = {"div":
                                            {"@align": "center",
@@ -56,10 +57,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                              "@height": "20px"}}}
         procDict[_header["name"][1]] = tasks.name
 
-        requestReference = taskService.getVariable(tasks.id, 'requestReference')
+        requestReference = runtimeService.getVariable(processInstanceId, 'requestReference')
         procDict[_header["link"][1]] = {"div":
                                              {"@align": "center",
                                               "a":{"@href": requestReference,
+                                                   "@target": "_blank",
                                                    "img":
                                                         {"@src": "solutions/default/resources/imagesingrid/link.png",
                                                          "@height": "20px"}}}}
