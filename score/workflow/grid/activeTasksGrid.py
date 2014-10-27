@@ -31,7 +31,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                "schema":[u"Схема"],
                "name":[u"Название задачи"],
                "process": [u"Название процесса"],
-               "docName": [u"Название процесса"],
+               "link": [u"Заявка"],
                "properties":[u"properties"]}
 
     for column in _header:
@@ -41,19 +41,28 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     for tasks in tasksList:
         procDict = {}
         procDict[_header["id"][1]] = tasks.id
-        task = taskService.createTaskQuery().taskId(tasks.id).singleResult()
-        processInstanceId = task.getProcessInstanceId()
+        processInstanceId = tasks.getProcessInstanceId()
         processInstance = activiti.runtimeService.createProcessInstanceQuery()\
             .processInstanceId(processInstanceId).singleResult()
         processDefinition = activiti.repositoryService.createProcessDefinitionQuery()\
             .processDefinitionId(processInstance.getProcessDefinitionId()).singleResult()
-        docName = "%s. %s" % (taskService.getVariable(tasks.id, 'docId'), taskService.getVariable(tasks.id, 'docName'))
+        docName = "%s. %s" % (taskService.getVariable(tasks.id, 'docId'), \
+                              taskService.getVariable(tasks.id, 'docName'))
         procDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
         procDict[_header["schema"][1]] = {"div":
                                            {"@align": "center",
                                             "img":
-                                            {"@src": "solutions/default/resources/flowblock.png", "@height": "20px"}}}
+                                            {"@src": "solutions/default/resources/flowblock.png",
+                                             "@height": "20px"}}}
         procDict[_header["name"][1]] = tasks.name
+
+        requestReference = taskService.getVariable(tasks.id, 'requestReference')
+        procDict[_header["link"][1]] = {"div":
+                                             {"@align": "center",
+                                              "a":{"@href": requestReference,
+                                                   "img":
+                                                        {"@src": "solutions/default/resources/imagesingrid/link.png",
+                                                         "@height": "20px"}}}}
 
         procDict[_header["properties"][1]] = {"event":
                                               {"@name":"cell_single_click",
@@ -90,9 +99,16 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                "@profile":"default.properties"}
                                 }
     # Добавляем поля для отображения в gridsettings
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0], "@width": "40px", "type": "IMAGE"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "280px"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0], "@width": "650px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0],
+                                                       "@width": "40px",
+                                                       "type": "IMAGE"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0],
+                                                       "@width": "280px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0],
+                                                       "@width": "600px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["link"][0],
+                                                       "@width": "40px",
+                                                       "type": "IMAGE"})
 
     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
@@ -108,8 +124,8 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
         style = "false"
 
     data = {"gridtoolbar":{"item":[]}}
-    form = formCursor(context)
-    form.get(1)
+#     form = formCursor(context)
+#     form.get(1)
 
 #     sAction = json.loads(form.sAction) if form.sAction is not None else None
     sAction = {"@show_in": "MODAL_WINDOW",
