@@ -19,7 +19,35 @@ def testNavigator(context, session):
     return myNavigator
 
 def manageProcessesNav(context, session):
+    
     session = json.loads(session)["sessioncontext"]
+    if 'urlparams' in session:
+        drawProcess = False
+        if isinstance(session['urlparams']['urlparam'],list):
+            for params in session['urlparams']['urlparam']:
+                if params['@name'] == 'type':
+                    if params['@value'] == '[drawProcess]':
+                        drawProcess = True
+#                 if params['@name'] == 'procInstId':
+#                     procInstId = params['@name'][1:-1]
+        if drawProcess:
+            myNavigator = {
+                               "group":{
+                                        "@id": "workflow",
+                                        "@name": u"Организация рабочего процесса",
+                                        "@icon": "flowblock.png",
+                                        "level1":[{
+                                                  "@id": "drawProcesses",
+                                                  "@selectOnLoad": "true",
+                                                  "@name": u"Схема процесса",
+                                                  "action":{"main_context": "current",
+                                                             "datapanel":{"@type": "workflow.datapanel.processes.drawProcesses.celesta",
+                                                                          "@tab": "schemaProcess"}
+                                                             }
+                                                  }]
+                                        }
+                               }
+            return myNavigator
     sid = session["sid"]
     myNavigator = {
                    "group":{
@@ -68,4 +96,11 @@ def navSettings(context, session):
         "@width": "250px",
         "@hideOnLoad": "false"
     }
+    session = json.loads(session)["sessioncontext"]
+    if 'urlparams' in session:
+        if isinstance(session['urlparams']['urlparam'],list):
+            for params in session['urlparams']['urlparam']:
+                if params['@name'] == 'type':
+                    if params['@value'] == '[drawProcess]':
+                        myNavigator["@hideOnLoad"] = "true"
     return myNavigator
