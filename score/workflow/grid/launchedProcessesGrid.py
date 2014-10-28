@@ -44,7 +44,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict = {}
         procDict[_header["id"][1]] = process.getId()
         procDict[_header["pid"][1]] = process.getId()
-        procDict[_header["name"][1]] = process.getName()
+        defId = process.getProcessDefinitionId()
+        procDict[_header["name"][1]] = activiti.repositoryService.createProcessDefinitionQuery().processDefinitionId(defId).singleResult().getName()        
         procDict[_header["comment"][1]] = ''
         procDict[_header["schema"][1]] =   {"link": {  "@href":"./?procInstId="+process.getId()+"&type=drawProcess",
                                                      "@image":"solutions/default/resources/flowblock.png",
