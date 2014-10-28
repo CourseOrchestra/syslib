@@ -4,7 +4,7 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 import simplejson as json
 
 def manageProcesses(context, main=None, session=None):
-    data = {"datapanel":{"tab":{"@id":"1",
+    data = {"datapanel":{"tab":[{"@id":"1",
                                 "@name":u"Управление процессами",
                                 "element":[{"@id":"processesGrid",
                                             "@type":"grid",
@@ -48,18 +48,94 @@ def manageProcesses(context, main=None, session=None):
                                             "@type":"xforms",
                                             "@neverShowInPanel":"true",
                                             "@proc":"workflow.xforms.processUploadCard.cardData.celesta",
-                                            "@template":"processUploadCard.xml",
+                                            "@template":"workflow/processUploadCard.xml",
                                             "related":{
                                                        "@id":"processesGrid"
                                                        },
                                             "proc":[{
-                                                    "@id":3,
-                                                    "@name":"workflow.grid.processVersionsGrid.downloadProcFile.celesta",
-                                                    "@type":"DOWNLOAD"}]
+                                                    "@id":"processUpload",
+                                                    "@name":"workflow.xforms.processUploadCard.processUpload.celesta",
+                                                    "@type":"UPLOAD"},
+                                                    {
+                                                    "@id":"processUploadCardSave",
+                                                    "@name":"workflow.xforms.processUploadCard.cardSave.celesta",
+                                                    "@type":"SAVE"}]
 
                                             }
                                            ]
+                                },
+                                {"@id":"launchedProcesses",
+                                "@name":u"Запущенные процессы",
+                                "element":[{"@id":"launchedProcessesGrid",
+                                            "@type":"grid",
+                                            "@proc":"workflow.grid.launchedProcessesGrid.gridDataAndMeta.celesta",
+                                            "@subtype":"JS_LIVE_GRID",
+                                            "@plugin":"liveDGrid",
+                                            "proc":[{
+                                                    "@id":1,
+                                                    "@name":"workflow.grid.launchedProcessesGrid.gridToolBar.celesta",
+                                                    "@type":"TOOLBAR"}
+                                                    ]
+                                            },
+                                           {"@id":"launchedProcessImage",
+                                            "@type":"webtext",
+                                            "@hideOnLoad":"true",
+                                            "@neverShowInPanel":"true",
+                                            "@proc":"workflow.webtext.launchedProcessImage.webtextData.celesta",
+                                            "related":{
+                                                       "@id":"launchedProcessesGrid"
+                                                       }
+                                            },
+                                           {"@id":"suspendProcessCard",
+                                            "@type":"xforms",
+                                            "@neverShowInPanel":"true",
+                                            "@proc":"workflow.xforms.suspendProcessCard.cardData.celesta",
+                                            "@template":"workflow/suspendProcessCard.xml",
+                                            "related":{
+                                                       "@id":"launchedProcessesGrid"
+                                                       },
+                                            "proc":[
+                                                    {
+                                                    "@id":"suspendProcessCardSave",
+                                                    "@name":"workflow.xforms.suspendProcessCard.cardSave.celesta",
+                                                    "@type":"SAVE"}]
+
+                                            },
+                                            {"@id":"launchedProcessesEventsGrid",
+                                            "@type":"grid",
+                                            "@hideOnLoad":"true",
+                                            "@proc":"workflow.grid.launchedProcessesEventsGrid.gridDataAndMeta.celesta",
+                                            "@subtype":"JS_LIVE_GRID",
+                                            "@plugin":"liveDGrid",
+                                            "related":{
+                                                       "@id":"launchedProcessesGrid"
+                                                       },
+                                            "proc":[{
+                                                    "@id":1,
+                                                    "@name":"workflow.grid.launchedProcessesEventsGrid.gridToolBar.celesta",
+                                                    "@type":"TOOLBAR"}
+                                                    ]
+                                            }
+                                           
+                                           ]
                                 }
+                                ]
+                         }
+            }
+    return XMLJSONConverter.jsonToXml(json.dumps(data))
+
+def drawProcesses(context, main=None, session=None):
+    data = {"datapanel":{"tab":[ {"@id":"schemaProcess",
+                                "@name":u"Схема процесса",
+                                "element":[
+                                           {"@id":"launchedProcessImage",
+                                            "@type":"webtext",
+                                            "@proc":"workflow.webtext.launchedProcessImage.webtextData.celesta"
+                                            }
+                                           
+                                           ]
+                                }
+                                ]
                          }
             }
     return XMLJSONConverter.jsonToXml(json.dumps(data))
