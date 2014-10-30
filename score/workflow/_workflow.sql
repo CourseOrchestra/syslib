@@ -2,6 +2,7 @@ CREATE GRAIN workflow VERSION '1.0';
 
 -- *** TABLES ***
 CREATE TABLE form(
+  processKey varchar(30) NOT NULL,
   id INT NOT NULL,
   /**скрипт для открывания*/
   sOpen TEXT,
@@ -9,7 +10,9 @@ CREATE TABLE form(
   sSave TEXT,
   /**скрипт для действия*/
   sAction TEXT,
-  CONSTRAINT Pk_forms PRIMARY KEY (id)
+  link TEXT,
+  isStartForm BIT NOT NULL DEFAULT 0,
+  CONSTRAINT Pk_forms PRIMARY KEY (processKey,id)
 );
 
 CREATE TABLE status(
@@ -35,7 +38,7 @@ CREATE TABLE statusTransition(
 );
 
 -- *** FOREIGN KEYS ***
-ALTER TABLE status ADD CONSTRAINT Fk_status FOREIGN KEY (modelId) REFERENCES workflow.statusModel(id);
+ALTER TABLE status ADD CONSTRAINT fk_status FOREIGN KEY (modelId) REFERENCES workflow.statusModel(id);
 ALTER TABLE statusTransition ADD CONSTRAINT fk_statustransition_status FOREIGN KEY (statusFrom, modelFrom) REFERENCES workflow.status(id, modelId);
 ALTER TABLE statusTransition ADD CONSTRAINT fk_statustransition_status2 FOREIGN KEY (statusTo, modelTo) REFERENCES workflow.status(id, modelId);
 -- *** INDICES ***
