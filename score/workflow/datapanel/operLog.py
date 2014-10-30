@@ -9,17 +9,17 @@ Created on 21.10.2014
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 import simplejson as json
 
-def myTasks(context, main=None, session=None):
+def operLog(context, main=None, session=None):
     data = {"datapanel":{"tab":{"@id":"1",
                                 "@name":u"Список задач",
                                 "element":[{"@id":"tasksGrid",
                                             "@type":"grid",
-                                            "@proc":"workflow.grid.tasksGrid.gridDataAndMeta.celesta",
+                                            "@proc":"workflow.grid.activeTasksGrid.gridDataAndMeta.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
                                             "proc":[{
                                                     "@id":1,
-                                                    "@name":"workflow.grid.tasksGrid.gridToolBar.celesta",
+                                                    "@name":"workflow.grid.activeTasksGrid.gridToolBar.celesta",
                                                     "@type":"TOOLBAR"}]
                                             },
                                            {"@id":"tasksImage",

@@ -12,11 +12,17 @@ import simplejson as json
 def archiveTasks(context, main=None, session=None):
     data = {"datapanel":{"tab":{"@id":"1",
                                 "@name":u"Список задач",
-                                "element":[{"@id":"tasksGrid",
+                                "element":[{"@id":"tasksFilter",
+                                            "@type":"xforms",
+                                            "@template": "tasksFilter.xml",
+                                            "@proc":"workflow.xforms.tasksFilter.archiveTasksFilter.celesta",
+                                            },
+                                           {"@id":"tasksGrid",
                                             "@type":"grid",
                                             "@proc":"workflow.grid.archiveTasksGrid.gridDataAndMeta.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
+                                            "related":{"@id":"tasksFilter"}
 #                                             "proc":[{
 #                                                     "@id":1,
 #                                                     "@name":"workflow.grid.activeTasksGrid.gridToolBar.celesta",
