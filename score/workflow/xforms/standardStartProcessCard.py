@@ -32,18 +32,24 @@ from jarray import zeros
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
-    xformsdata = {"schema":{"@xmlns":'',
-                            "data":{"@reason":''},                            
-                            }
-                  }
+    if add == "added":     
+        xformsdata = {"schema":{"@xmlns":'',
+                                "data":{"@type":'hide'},                            
+                                }
+                      }
+    else:
+        xformsdata = {"schema":{"@xmlns":'',
+                                "data":{"@type":'add'},                            
+                                }
+                      }
     xformssettings = {"properties":{
                                     "event":[{"@name": "single_click",
                                               "@linkId": "1",
                                               "action":{"main_context": "current",
                                                         "datapanel":{"@type": "current",
                                                                      "@tab": "current",
-                                                                     "element":{"@id": "launchedProcessesGrid",
-                                                                                "add_context": 'current'}
+                                                                     "element":{"@id":'standardStartProcess',
+                                                                                "add_context":"added"}
                                                                      }
                                                         }
                                               }]
@@ -56,8 +62,12 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 
 
 def cardSave(context, main, add, filterinfo, session, elementId, data):
-    data_dict = json.loads(data)
-    reason = data_dict["schema"]["data"]["@reason"]
-    procId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
+    session = json.loads(session)['sessioncontext']
+    if isinstance(session['urlparams']['urlparam'],list):
+        for params in session['urlparams']['urlparam']:
+            if params['@name'] == 'processKey':
+                processKey = params['@value'][1:-1]
     activiti = ActivitiObject()
-    activiti.runtimeService.suspendProcessInstanceById(procId)
+    vars = {"initiator":'cock'}
+    activiti.runtimeService.startProcessInstanceByKey(processKey,vars)
+    return context.message(u'Процесс запущен')
