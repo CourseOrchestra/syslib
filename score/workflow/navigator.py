@@ -87,7 +87,7 @@ def manageProcessesNav(context, session):
                    }
     if userHasPermission(context, sid, 'activeTasks'):
         myNavigator["group"]["level1"].append({"@id": "activeTasks",
-                                              "@name": u"Мои задачи",
+                                              "@name": u"Текущие задачи",
                                               "action":
                                                 {"main_context": "current",
                                                  "datapanel":
@@ -99,11 +99,33 @@ def manageProcessesNav(context, session):
 
     if userHasPermission(context, sid, 'archiveTasks'):
         myNavigator["group"]["level1"].append({"@id": "archiveTasks",
-                                              "@name": u"Завершенные задачи",
+                                              "@name": u"Выполненные задачи",
                                               "action":
                                                 {"main_context": "current",
                                                  "datapanel":
                                                     {"@type": "workflow.datapanel.archiveTasks.archiveTasks.celesta",
+                                                     "@tab": "firstOrCurrent"
+                                                     }
+                                                 }
+                                              })
+    if userHasPermission(context, sid, 'allActiveTasks'):
+        myNavigator["group"]["level1"].append({"@id": "allActiveTasks",
+                                              "@name": u"Все задачи",
+                                              "action":
+                                                {"main_context": "current",
+                                                 "datapanel":
+                                                    {"@type": "workflow.datapanel.allActiveTasks.allActiveTasks.celesta",
+                                                     "@tab": "firstOrCurrent"
+                                                     }
+                                                 }
+                                              })
+    if userHasPermission(context, sid, 'operLog'):
+        myNavigator["group"]["level1"].append({"@id": "operLog",
+                                              "@name": u"Лог операций",
+                                              "action":
+                                                {"main_context": "current",
+                                                 "datapanel":
+                                                    {"@type": "workflow.datapanel.operLog.operLog.celesta",
                                                      "@tab": "firstOrCurrent"
                                                      }
                                                  }
