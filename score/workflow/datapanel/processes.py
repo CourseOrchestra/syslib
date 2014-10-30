@@ -20,19 +20,35 @@ def manageProcesses(context, main=None, session=None):
                                                     "@name":"workflow.grid.processesGrid.downloadProcFile.celesta",
                                                     "@type":"DOWNLOAD"}]
                                             },
-                                           {"@id":"processVersionsGrid",
+                                           {"@id":"processFormsGrid",
                                             "@type":"grid",
                                             "@hideOnLoad":"true",
-                                            "@proc":"workflow.grid.processVersionsGrid.gridDataAndMeta.celesta",
+                                            "@proc":"workflow.grid.processFormsGrid.gridDataAndMeta.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
                                             "related":{
                                                        "@id":"processesGrid"
                                                        },
                                             "proc":[{
-                                                    "@id":3,
-                                                    "@name":"workflow.grid.processVersionsGrid.downloadProcFile.celesta",
-                                                    "@type":"DOWNLOAD"}]
+                                                    "@id":"processFormsGridToolBar",
+                                                    "@name":"workflow.grid.processFormsGrid.gridToolBar.celesta",
+                                                    "@type":"TOOLBAR"}]
+
+                                            },
+                                           {"@id":"processFormCard",
+                                            "@type":"xforms",
+                                            "@neverShowInPanel":"true",
+                                            "@proc":"workflow.xforms.processFormCard.cardData.celesta",
+                                            "@template":"workflow/processFormCard.xml",
+                                            "related":[
+                                                       {"@id":"processesGrid"},
+                                                       {"@id":"processFormsGrid"}
+                                                       ],
+                                            "proc":[
+                                                    {
+                                                    "@id":"processFormCardSave",
+                                                    "@name":"workflow.xforms.processFormCard.cardSave.celesta",
+                                                    "@type":"SAVE"}]
 
                                             },
                                            {"@id":"processesImage",
@@ -132,6 +148,27 @@ def drawProcesses(context, main=None, session=None):
                                             "@type":"webtext",
                                             "@proc":"workflow.webtext.launchedProcessImage.webtextData.celesta"
                                             }
+                                           
+                                           ]
+                                }
+                                ]
+                         }
+            }
+    return XMLJSONConverter.jsonToXml(json.dumps(data))
+
+def standardStartProcess(context,main=None, session=None):
+    data = {"datapanel":{"tab":[ {"@id":"schemaProcess",
+                                "@name":u"Старт процесса",
+                                "element":[
+                                           {"@id":"standardStartProcess",
+                                            "@type":"xforms",
+                                            "@proc":"workflow.xforms.standardStartProcessCard.cardData.celesta",
+                                            "@template":"workflow/standardStartProcessCard.xml",
+                                             "proc":[
+                                                    {
+                                                    "@id":"standardStartProcessCardSave",
+                                                    "@name":"workflow.xforms.standardStartProcessCard.cardSave.celesta",
+                                                    "@type":"SAVE"}]}
                                            
                                            ]
                                 }
