@@ -6,6 +6,7 @@ Created on 23.10.2014
 
 import simplejson as json
 from java.util import ArrayList
+# from org.activiti.engine.delegate.event import BaseEntityEventListener
 try:
     from ru.curs.showcase.core.jython import JythonDTO
     from ru.curs.showcase.core.selector import ResultSelectorData
@@ -13,18 +14,13 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO, DataRecord, ResultSelectorData
 
-try:
-    from ru.curs.showcase.activiti import  EngineFactory
-except:
-    from workflow import testConfig as EngineFactory
-
-from ru.curs.celesta import CelestaException
+from workflow.processUtils import ActivitiObject
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow._workflow_orm import statusCursor, statusTransitionCursor
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
-    processEngine = EngineFactory.getActivitiProcessEngine()
-    taskService = processEngine.getTaskService()
+    activiti = ActivitiObject()
+    taskService = activiti.taskService
     session = json.loads(session)
 
     taskId = session['sessioncontext']['related']['gridContext']['currentRecordId']
@@ -63,10 +59,11 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(xformsdata)), XMLJSONConverter.jsonToXml(json.dumps(xformssettings)))
 
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
-    processEngine = EngineFactory.getActivitiProcessEngine()
-    taskService = processEngine.getTaskService()
+    activiti = ActivitiObject()
+    taskService = activiti.taskService
+#     raise Exception(session)
     session = json.loads(session)
-
+#     activiti.runtimeService.addEventListener(BaseEntityEventListener())
     taskId = session['sessioncontext']['related']['gridContext']['currentRecordId']
     jsonData = json.loads(xformsdata)["schema"]["data"]
     newStatus = jsonData["newStatus"]
