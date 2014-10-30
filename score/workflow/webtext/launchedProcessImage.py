@@ -25,11 +25,20 @@ def webtextData(context, main=None, add=None, filterinfo=None,
     taskService = activiti.taskService;
 
     session = json.loads(session)['sessioncontext']
+    drawInstance = False
+    drawProcess = False
     for params in session['urlparams']['urlparam']:
-        if params['@name'] == 'procInstId':
+        if params['@name'] == 'processId':
             procInstId = params['@value'][1:-1]
-    data = {"image":{"@align":"center",
+            drawInstance = True
+        if params['@name'] == 'processKey':
+            procKey = params['@value'][1:-1]
+            drawProcess = True
+    if drawInstance:
+        data = {"image":{"@align":"center",
                      "@src": u"data:image/png;base64," + getBase64Image(activiti.getExecutionModel(procInstId))}}
-
+    elif drawProcess:
+        data = {"image":{"@align":"center",
+                     "@src": u"data:image/png;base64," + getBase64Image(activiti.getDeployedProcessModel(procKey))}}        
 
     return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(data)), None)
