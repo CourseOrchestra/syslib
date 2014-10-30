@@ -7,11 +7,28 @@ Created on 26.09.2014
 from org.activiti.engine import ProcessEngineConfiguration
 
 def getActivitiProcessEngine():
+    u"""Процедура возвращающая экземпляр ProcessEngine
+        Подсоединённый к локальной базе postgres.
+        
+    """
     conf = ProcessEngineConfiguration.createStandaloneProcessEngineConfiguration()
     conf.setDatabaseType("postgres")
     conf.setJdbcUrl("jdbc:postgresql://localhost:5432/activiti")
     conf.setJdbcDriver("org.postgresql.Driver")
     conf.setJdbcUsername("postgres")
     conf.setJdbcPassword("F708420Dx")
+    return conf.buildProcessEngine()
 
+
+def getTestActivitiProcessEngine():
+    u"""Процедура возвращающая экземпляр ProcessEngine
+        Подсоединённый к тестовой базе h2.
+        Используется для тестирования процессов.
+    """
+    conf = ProcessEngineConfiguration.createStandaloneProcessEngineConfiguration()
+    conf.setDatabaseSchemaUpdate("true")
+    conf.setJdbcDriver("org.h2.Driver")
+    conf.setJdbcUrl("jdbc:h2:mem:activiti;DB_CLOSE_DELAY=1000")
+    conf.setJdbcUsername("sa")
+    conf.setJdbcPassword("")
     return conf.buildProcessEngine()
