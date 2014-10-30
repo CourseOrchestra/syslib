@@ -3,7 +3,7 @@ CREATE GRAIN workflow VERSION '1.0';
 -- *** TABLES ***
 CREATE TABLE form(
   processKey varchar(30) NOT NULL,
-  id INT NOT NULL,
+  id varchar(30) NOT NULL,
   /**скрипт для открывания*/
   sOpen TEXT,
   /**скрипт для сохранения*/
