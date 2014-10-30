@@ -4,6 +4,8 @@ import simplejson as json
 from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
+from workflow._workflow_orm import formCursor
+
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
@@ -15,10 +17,10 @@ except:
 def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
     u'''Функция получения списка всех развернутых процессов. '''
-
+    form = formCursor(context)
     activiti = ActivitiObject()
     processesList = activiti.getActualVersionOfProcesses()
-
+    
     data = {"records":{"rec":[]}}
     _header = {"id":["~~id"],
              "pid":[u"Код процесса"],
@@ -26,6 +28,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              "description":[u"Описание"],
              "version":[u"Версия"],
              "file":[u"Файл"],
+             "schema":[u"Схема"],
+             "startProcess":[u"Старт процесса"],
              "properties":[u"properties"]}
 
     for column in _header:
@@ -39,11 +43,31 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict[_header["description"][1]] = process.description
         procDict[_header["version"][1]] = process.version
         procDict[_header["file"][1]] = u'Загрузить'
+        procDict[_header["schema"][1]] =   {"link": {  "@href":"./?mode=image&processKey="+process.key+"",
+                                             "@image":"solutions/default/resources/flowblock.png",
+                                             "@text":"Схема",
+                                             "@openInNewTab":"true"
+                                             }
+                                   }
+        form.setRange('processKey', process.key)
+        form.setRange('isStartForm',True)
+        if form.tryFirst():
+            link = form.link+"&processKey="+process.key
+        else:
+            link = "./?mode=process&processKey="+process.key
+        procDict[_header["startProcess"][1]] =   {"link": {  "@href":link,
+                                             "@image":"solutions/default/resources/play.png",
+                                             "@text":"Запустить",
+                                             "@openInNewTab":"true"
+                                             }
+                                   }
+
+        
         procDict[_header["properties"][1]] = {"event":{"@name":"row_single_click",
                                          "action":{"#sorted":[{"main_context": 'current'},
                                                               {"datapanel":{'@type':"current",
                                                                             '@tab':"current",
-                                                                            'element':{'@id':'processVersionsGrid'}
+                                                                            'element':{'@id':'processFormsGrid'}
                                                                             }
                                                                }]
                                                    }
@@ -55,17 +79,22 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "1200px",
+                                               "@gridWidth": "1100px",
                                                "@gridHeight": "300",
+                                               
                                                "@totalCount": len(processesList),
                                                "@profile":"default.properties"},
                                 "labels":{"header":"Развернутые процессы"}
                                 }
+    if add is not None:
+        settings["gridsettings"]["properties"]["@autoSelectRecordUID"] = add
     # Добавляем поля для отображения в gridsettings
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0], "@width": "40px", "@type": "LINK"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["startProcess"][0], "@width": "40px", "@type": "LINK"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["pid"][0], "@width": "150px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "300px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "400px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "300px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["file"][0], "@width": "100px", "@type":"DOWNLOAD", "@linkId":"2"})
 
     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
@@ -116,8 +145,6 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                                               }]
                                                   }
                                         })
-
-
 
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 
