@@ -28,6 +28,7 @@ class ActivitiObject():
         self.repositoryService = self.processEngine.getRepositoryService()
         self.historyService = self.processEngine.getHistoryService()
         self.runtimeService = self.processEngine.getRuntimeService()
+        self.identityService = self.processEngine.getIdentityService()
         self.taskService = self.processEngine.getTaskService()
     def getActualVersionOfProcesses(self):
         u'''Функция получения списка всех развернутых процессов'''
@@ -75,7 +76,7 @@ class ActivitiObject():
             return None
 
     def getDeployedProcessModel(self, key, vernum=None):
-        # картинка развёрнутого процесса
+        u'''картинка развёрнутого процесса'''
         processDefinition = self.getProcessDefinition(key, vernum)
         if processDefinition.getDiagramResourceName():
             diagramResourceName = processDefinition.getDiagramResourceName()
@@ -92,7 +93,7 @@ class ActivitiObject():
         return imageStream
 
     def getExecutionModel(self, processInstanceId, vernum=None):
-        # картинка выполняющегося процесса с отмеченным таском
+        u'''картинка выполняющегося процесса с отмеченным таском'''
         processInstance = self.runtimeService.createProcessInstanceQuery()\
             .processInstanceId(processInstanceId).singleResult()
         processDefinition = self.repositoryService.createProcessDefinitionQuery()\
@@ -119,29 +120,34 @@ class ActivitiObject():
         self.runtimeService.deleteProcessInstance(processId, reason)
 
     def getUserTasks(self, username):  # all assigned, candidate and owner tasks
+        u'''выбирает задачи, которые появились в identityLink, т.е. назначен на задание либо владеет им'''
         taskQuery = self.taskService.createTaskQuery().taskInvolvedUser(username).list()
         return taskQuery
 
     def getCandUserTasks(self, username):
+        u'''выбирает только те задачи, у которых заданный пользователь является кандидатом на назначение'''
         taskQuery = self.taskService.createTaskQuery().taskCandidateUser(username).list()
         return taskQuery
 
     def getCandOrAssUserTasks(self, username):
+        u'''выбирает только задачи, на которые назначен заданный пользователь или является кандидатом на назначение'''
         taskQuery = self.taskService.createTaskQuery().taskCandidateOrAssigned(username).list()
         return taskQuery
 
+#     Deprecated ?
     def getUnassTasks(self):
         taskQuery = self.taskService.createTaskQuery().taskUnnassigned().list()
         return taskQuery
 
     def getUserAssTasks(self, username):
+        u'''выбирает только те задачи, на которые назначен заданный пользователь'''
         taskQuery = self.taskService.createTaskQuery().taskAssignee(username).list()
         return taskQuery
 
-    def getGroupCandTasks(self, username):
-        taskQuery = self.taskService.createTaskQuery().taskCandidateGroup(username).list()
+    def getGroupCandTasks(self, candidateGroup):
+        u'''выбирает только те задачи, кандидатами которых являются пользователи заданной группы'''
+        taskQuery = self.taskService.createTaskQuery().taskCandidateGroup(candidateGroup).list()
         return taskQuery
-
 
 def getBase64Image(imageStream):
     stringout = u''
