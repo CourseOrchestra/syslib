@@ -23,11 +23,14 @@ def manageProcessesNav(context, session):
     session = json.loads(session)["sessioncontext"]
     if 'urlparams' in session:
         drawProcess = False
+        startProcess = False
         if isinstance(session['urlparams']['urlparam'],list):
             for params in session['urlparams']['urlparam']:
-                if params['@name'] == 'type':
-                    if params['@value'] == '[drawProcess]':
+                if params['@name'] == 'mode':
+                    if params['@value'] == '[image]':
                         drawProcess = True
+                    elif params['@value'] == '[process]':
+                        startProcess = True
 #                 if params['@name'] == 'procInstId':
 #                     procInstId = params['@name'][1:-1]
         if drawProcess:
@@ -42,6 +45,24 @@ def manageProcessesNav(context, session):
                                                   "@name": u"Схема процесса",
                                                   "action":{"main_context": "current",
                                                              "datapanel":{"@type": "workflow.datapanel.processes.drawProcesses.celesta",
+                                                                          "@tab": "schemaProcess"}
+                                                             }
+                                                  }]
+                                        }
+                               }
+            return myNavigator
+        if startProcess:
+            myNavigator = {
+                               "group":{
+                                        "@id": "workflow",
+                                        "@name": u"Организация рабочего процесса",
+                                        "@icon": "flowblock.png",
+                                        "level1":[{
+                                                  "@id": "startProcess",
+                                                  "@selectOnLoad": "true",
+                                                  "@name": u"Схема процесса",
+                                                  "action":{"main_context": "current",
+                                                             "datapanel":{"@type": "workflow.datapanel.processes.standardStartProcess.celesta",
                                                                           "@tab": "schemaProcess"}
                                                              }
                                                   }]
@@ -100,7 +121,7 @@ def navSettings(context, session):
     if 'urlparams' in session:
         if isinstance(session['urlparams']['urlparam'],list):
             for params in session['urlparams']['urlparam']:
-                if params['@name'] == 'type':
-                    if params['@value'] == '[drawProcess]':
+                if params['@name'] == 'mode':
+                    if params['@value'] == '[image]' or params['@value'] == '[process]':
                         myNavigator["@hideOnLoad"] = "true"
     return myNavigator
