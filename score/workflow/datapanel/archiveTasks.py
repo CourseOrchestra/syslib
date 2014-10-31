@@ -34,16 +34,6 @@ def archiveTasks(context, main=None, session=None):
                                             "@neverShowInPanel":"true",
                                             "@proc":"workflow.webtext.tasksImage.webtextData.celesta",
                                             "related":{"@id":"tasksGrid"}
-                                            },
-                                           {"@id":"taskStatusCard",
-                                            "@type":"xforms",
-                                            "@neverShowInPanel":"true",
-                                            "@template": "tasksStatus.xml",
-                                            "@proc":"workflow.xforms.tasksStatus.cardData.celesta",
-                                            "related":{"@id":"tasksGrid"},
-                                            "proc": {"@id": "1",
-                                                     "@name": "workflow.xforms.tasksStatus.cardDataSave.celesta",
-                                                     "@type": "SAVE"}
                                             }
                                            ]
                                 }
