@@ -1,5 +1,6 @@
 # coding: utf-8
 import simplejson as json
+import os
 from security.functions import userHasPermission
 
 def testNavigator(context, session):
@@ -52,6 +53,10 @@ def manageProcessesNav(context, session):
                                }
             return myNavigator
         if startProcess:
+            filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
+            f = open(filePath, 'r')
+            datapanelSettings = json.loads(f.read())
+            f.close()
             myNavigator = {
                                "group":{
                                         "@id": "workflow",
@@ -62,8 +67,8 @@ def manageProcessesNav(context, session):
                                                   "@selectOnLoad": "true",
                                                   "@name": u"Схема процесса",
                                                   "action":{"main_context": "current",
-                                                             "datapanel":{"@type": "workflow.datapanel.processes.standardStartProcess.celesta",
-                                                                          "@tab": "schemaProcess"}
+                                                             "datapanel":{"@type": datapanelSettings["startingProcess"],
+                                                                          }
                                                              }
                                                   }]
                                         }
@@ -144,6 +149,6 @@ def navSettings(context, session):
         if isinstance(session['urlparams']['urlparam'],list):
             for params in session['urlparams']['urlparam']:
                 if params['@name'] == 'mode':
-                    if params['@value'] == '[image]' or params['@value'] == '[process]':
+                    if params['@value'] == '[image]' or params['@value'] == '[process]' or params['@value'] == '[task]':
                         myNavigator["@hideOnLoad"] = "true"
     return myNavigator
