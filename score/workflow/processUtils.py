@@ -7,6 +7,7 @@ Created on 30.09.2014
 '''
 import base64
 import array
+import re
 try:
     from ru.curs.showcase.activiti import EngineFactory
 except:
@@ -167,3 +168,22 @@ def getBase64Image(imageStream):
         else:
             stringout += base64.b64encode(array.array('B', byteArray).tostring())
     return stringout
+
+def setVariablesInLink(activiti,processId,taskId,link):
+    pattern = '\$\[\w+\]'
+    params = re.compile(pattern)
+    variables = activiti.runtimeService.createProcessInstanceQuery().processInstanceId(processId).includeProcessVariables().singleResult().getProcessVariables()
+    replaceDict = dict()
+    for param in params.finditer(link):
+        par = link[param.start():param.end()]
+        if par == '$[processId]':
+            replaceDict[par] = processId
+        elif par == '$[taskId]':
+            replaceDict[par] = taskId          
+        else:
+            if par[2:-1] in variables:
+                replaceDict[par] = variables[par[2:-1]]
+    for key in replaceDict:
+        link = link.replace(key,replaceDict[key])
+    return link
+        
