@@ -19,6 +19,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     u'''Функция получения списка всех развернутых процессов. '''
     form = formCursor(context)
     activiti = ActivitiObject()
+    #Получение списка развернутых процессов
     processesList = activiti.getActualVersionOfProcesses()
     
     data = {"records":{"rec":[]}}
@@ -43,17 +44,20 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict[_header["description"][1]] = process.description
         procDict[_header["version"][1]] = process.version
         procDict[_header["file"][1]] = u'Загрузить'
+        #Поле-ссылка для отрисовки изображения процесса
         procDict[_header["schema"][1]] =   {"link": {  "@href":"./?mode=image&processKey="+process.key+"",
                                              "@image":"solutions/default/resources/flowblock.png",
                                              "@text":"Схема",
                                              "@openInNewTab":"true"
                                              }
                                    }
+        #Формирование ссылки для запуска процесса
         form.setRange('processKey', process.key)
         form.setRange('isStartForm',True)
-        if form.tryFirst():
-            link = form.link+"&processKey="+process.key
-        else:
+        if form.tryFirst():#Для процесса задана форма инициализации
+            link = form.link
+            link = link.replace("$[processKey]",process.key)
+        else:#Стандартная форма инициализации процесса
             link = "./?mode=process&processKey="+process.key
         procDict[_header["startProcess"][1]] =   {"link": {  "@href":link,
                                              "@image":"solutions/default/resources/play.png",

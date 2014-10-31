@@ -59,7 +59,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     # Добавляем поля для отображения в gridsettings
     #settings["gridsettings"]["columns"]["col"].append({"@id":_header["pid"][0], "@width": "150px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "300px"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["link"][0], "@width": "100px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["link"][0], "@width": "300px"})
     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
 
@@ -117,6 +117,23 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                                               }]
                                                   }
                                         })
+    data["gridtoolbar"]["item"].append({"@text":"Удалить форму",
+                                    "@hint":"Удаление формы процесса",
+                                    "@disable": style,
+                                    "action":{"@show_in": "MODAL_WINDOW",
+                                              "#sorted":[{"main_context":"current"},
+                                                         {"modalwindow":{"@caption": "Удаление формы",
+                                                                         "@height": "300",
+                                                                         "@width": "500"}
+                                                          },
+                                                         {"datapanel":{"@type": "current",
+                                                                       "@tab": "current",
+                                                                       "element": {"@id": "processFormDeleteCard",
+                                                                                   "add_context":"del"}
+                                                                       }
+                                                          }]
+                                              }
+                                    })
 
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 
