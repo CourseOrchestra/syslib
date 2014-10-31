@@ -4,6 +4,10 @@
 Created on 21.10.2014
 
 @author: m.prudyvus
+
+задачи, на которые пользователь назначен
+задачи, у которых он кандидат
+задачи, у которых кандидат - его группа
 '''
 
 import simplejson as json
@@ -27,7 +31,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     activiti = ActivitiObject()
     userRoles = UserRolesCursor(context)
     roles = RolesCursor(context)
-    identityService = activiti.identityService
+    u'''получение данных из фильтра'''
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
         taskName = "%%%s%%" % ' '.join(info["@task"].split())
@@ -43,10 +47,12 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             rolesList.append(userRoles.roleid)
             if not userRoles.next():
                 break
-
+#     задачи, у которых кандидат - группа
     groupTasksList = activiti.taskService.createTaskQuery().taskCandidateGroupIn(rolesList).taskNameLike(taskName).list()
+#     задачи, у которых кандидат или исполнитель - юзер
     userTasksList = activiti.taskService.createTaskQuery().taskCandidateOrAssigned(sid).taskNameLike(taskName).list()
     taskDict = {}
+#     чтобы не дублировались задачи
     for task in userTasksList:
         taskDict[task.id] = task
     for task in groupTasksList:
@@ -63,78 +69,77 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
-    # Проходим по таблице и заполняем data
+
     runtimeService = activiti.runtimeService
     taskService = activiti.taskService
     logins = loginsCursor(context)
+
+#     Проходим по таблице и заполняем data
     for task in taskDict.values():
+#         смотрим связи задачи
         identityLinks = taskService.getIdentityLinksForTask(task.id)
         procDict = {}
-        show = False
+#         отображается немного разное в зав-ти юзер или группа
         for link in identityLinks:
             if link.userId == sid:
                 logins.setRange("subjectId", sid)
                 logins.first()
-                procDict[_header["excec"][1]] = logins.userName
-                show = True
-                break
+                if not (link.type == 'candidate' and _header["excec"][1] in procDict):
+                    procDict[_header["excec"][1]] = logins.userName
             elif link.groupId in rolesList:
                 roles.get(link.groupId)
-                procDict[_header["excec"][1]] = u"Группа %s" % roles.description
-                show = True
-                break
-        if show:
-            procDict[_header["id"][1]] = task.id
-            processInstanceId = task.getProcessInstanceId()
-            processInstance = runtimeService.createProcessInstanceQuery()\
-                .processInstanceId(processInstanceId).singleResult()
-            processDefinition = activiti.repositoryService.createProcessDefinitionQuery()\
-                .processDefinitionId(processInstance.getProcessDefinitionId()).singleResult()
-            docName = "%s. %s" % (runtimeService.getVariable(processInstanceId, 'docId'), \
-                                  runtimeService.getVariable(processInstanceId, 'docName'))
-            procDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
+                procDict[_header["excec"][1]] = u"""Группа "%s\"""" % roles.description
 
-            procDict[_header["schema"][1]] = {"div":
-                                               {"@align": "center",
-                                                "img":
-                                                {"@src": "solutions/default/resources/flowblock.png",
-                                                 "@height": "20px"}}}
-            procDict[_header["name"][1]] = task.name
+        procDict[_header["id"][1]] = task.id
+        processInstanceId = task.getProcessInstanceId()
+#         получаем процесс, чтобы потом получить его имя
+        processDefinition = activiti.repositoryService.createProcessDefinitionQuery()\
+            .processDefinitionId(task.getProcessDefinitionId()).singleResult()
+        docName = "%s. %s" % (runtimeService.getVariable(processInstanceId, 'docId'), \
+                              runtimeService.getVariable(processInstanceId, 'docName'))
+        procDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
+#         картинка, по нажатию переходим на схему
+        procDict[_header["schema"][1]] = {"div":
+                                           {"@align": "center",
+                                            "img":
+                                            {"@src": "solutions/default/resources/flowblock.png",
+                                             "@height": "20px"}}}
+        procDict[_header["name"][1]] = task.name
+#         ссылка
+        requestReference = runtimeService.getVariable(processInstanceId, 'requestReference')
+        procDict[_header["link"][1]] = {"div":
+                                             {"@align": "center",
+                                              "a":{"@href": requestReference,
+                                                   "@target": "_blank",
+                                                   "img":
+                                                        {"@src": "solutions/default/resources/imagesingrid/link.png",
+                                                         "@height": "20px"}}}}
 
-            requestReference = runtimeService.getVariable(processInstanceId, 'requestReference')
-            procDict[_header["link"][1]] = {"div":
-                                                 {"@align": "center",
-                                                  "a":{"@href": requestReference,
-                                                       "@target": "_blank",
-                                                       "img":
-                                                            {"@src": "solutions/default/resources/imagesingrid/link.png",
-                                                             "@height": "20px"}}}}
-
-            procDict[_header["properties"][1]] = {"event":
-                                                  {"@name":"cell_single_click",
-                                                   "@column": _header["schema"][0],
-                                                   "action":
-                                                        {"@show_in": "MODAL_WINDOW",
-                                                         "#sorted":
-                                                            [{"main_context":"current"},
-                                                             {"modalwindow":
-                                                                {"@caption": "Схема процесса"
+        procDict[_header["properties"][1]] = {"event":
+                                              {"@name":"cell_single_click",
+                                               "@column": _header["schema"][0],
+                                               "action":
+                                                    {"@show_in": "MODAL_WINDOW",
+                                                     "#sorted":
+                                                        [{"main_context":"current"},
+                                                         {"modalwindow":
+                                                            {"@caption": "Схема процесса"
+                                                             }
+                                                          },
+                                                         {"datapanel":
+                                                            {"@type": "current",
+                                                             "@tab": "current",
+                                                             "element":
+                                                                {"@id": "tasksImage"
                                                                  }
-                                                              },
-                                                             {"datapanel":
-                                                                {"@type": "current",
-                                                                 "@tab": "current",
-                                                                 "element":
-                                                                    {"@id": "tasksImage"
-                                                                     }
-                                                                 }
-                                                              }
-                                                             ]
-                                                         }
-                                                   }
-                                                  }
-            if processName == '' or processName in procDict[_header["process"][1]]:
-                data["records"]["rec"].append(procDict)
+                                                             }
+                                                          }
+                                                         ]
+                                                     }
+                                               }
+                                              }
+        if processName == '' or processName in procDict[_header["process"][1]]:
+            data["records"]["rec"].append(procDict)
 
     # Определяем список полей таблицы для отображения
     settings = {}
@@ -159,19 +164,21 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["excec"][0],
                                                        "@width": "100px"})
 
-    res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
-    res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
-
-    return JythonDTO(res1, res2)
+    return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(data)),
+                     XMLJSONConverter.jsonToXml(json.dumps(settings)))
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Toolbar для грида. '''
     session = json.loads(session)['sessioncontext']
     activiti = ActivitiObject()
+    styleAss = 'true'
     if 'currentRecordId' not in session['related']['gridContext']:
         style = "true"
     else:
         style = "false"
+        taskId = session['related']['gridContext']['currentRecordId']
+        if activiti.taskService.createTaskQuery().taskId(taskId).singleResult().getAssignee() != session["sid"]:
+            styleAss = 'false'
 
     data = {"gridtoolbar":{"item":[]}}
 #     form = formCursor(context)
@@ -197,9 +204,45 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                         "@disable": style,
                                         "action": sAction})
 
-#     data["gridtoolbar"]["item"].append({"@text":"Принять",
-#                                         "@hint":"Принять задачу",
-#                                         "@disable": styleAss,
-#                                         "action": None})
+    data["gridtoolbar"]["item"].append({"@text":"Принять",
+                                        "@hint":"Принять задачу",
+                                        "@disable": styleAss,
+                                        "action": {"#sorted":
+                                                     [{"main_context": 'current'},
+                                                      {"server":
+                                                       {"activity":
+                                                        {"@id": "assign",
+                                                         "@name": "workflow.grid.activeTasksGrid.assign.celesta",
+                                                         "add_context": "current"}}},
+                                                      {"datapanel":
+                                                        {"@type": "current",
+                                                         "@tab": "current",
+                                                            "element":
+                                                             {"@id": "tasksGrid",
+                                                              "add_context": 'current'}}}
+                                                         ]}})
+
+    data["gridtoolbar"]["item"].append({"@text":"Переназначить",
+                                        "@hint":"Переназначить задачу",
+                                        "@disable": 'false' if styleAss != 'false' and style == 'false' else 'true',
+                                        "action": {"@show_in": "MODAL_WINDOW",
+                                                   "#sorted":[{"main_context":"current"},
+                                                              {"modalwindow":{"@caption": "Переназначить задачу",
+                                                                              "@height": "300",
+                                                                              "@width": "500"}
+                                                              },
+                                                              {"datapanel":{"@type": "current",
+                                                                            "@tab": "current",
+                                                                            "element": {"@id": "reassign"}
+                                                                           }
+                                                              }]
+                                                  }})
 
     return XMLJSONConverter.jsonToXml(json.dumps(data))
+
+def assign(context, main, add=None, filterinfo=None, session=None, elementId=None):
+    session = json.loads(session)['sessioncontext']
+    taskId = session['related']['gridContext']['currentRecordId']
+    sid = session["sid"]
+    activiti = ActivitiObject()
+    activiti.taskService.claim(taskId, sid)
