@@ -22,11 +22,12 @@ except:
 
 def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
-    u'''Функция получения списка всех запущенных процессов. '''
+    u'''Функция получения списка всех событий для запущенных процессов. '''
     session = json.loads(session)
     #raise Exception(session)
     procId = session["sessioncontext"]['related']['gridContext']["currentRecordId"]
     activiti = ActivitiObject()
+    #Получение информации о запущенном процессе
     procInstance = activiti.historyService.createHistoricProcessInstanceQuery().processInstanceId(procId).singleResult()
     answerList = list()
     pushList = list()
@@ -37,6 +38,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     pushList.append(procInstance.getId())
     pushList.append('')
     answerList.append(pushList)
+    #Получение информации о задачах запущенного процесса
     taskList = activiti.historyService.createHistoricTaskInstanceQuery().processInstanceId(procInstance.getId()).list()
     
     for task in taskList:
@@ -60,6 +62,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             pushList.append('')
             answerList.append(pushList)
     #raise Exception(answerList)
+    #Получение информации о изменениях переменных процесса
     variableList = activiti.historyService.createHistoricDetailQuery().processInstanceId(procInstance.getId()).list()
     for variable in variableList:
         pushList = list()
@@ -85,7 +88,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     # Проходим по таблице и заполняем data
     #raise Exception(processesList)
     
-    for instance in sorted(answerList):
+    for instance in sorted(answerList, reverse = True):
         procDict = {}
         procDict[_header["id"][1]] = instance[1]
         procDict[_header["pid"][1]] = instance[4]
