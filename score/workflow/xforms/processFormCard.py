@@ -7,6 +7,8 @@ Created on 30.10.2014
 
 
 import simplejson as json
+import urlparse
+import cgi
 
 from workflow.processUtils import ActivitiObject
 try:
@@ -34,6 +36,7 @@ from jarray import zeros
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
+    u'''Карточка добавления и редактирования формы процесаа'''
     session = json.loads(session)
     form = formCursor(context)
     link = ''
@@ -49,6 +52,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                 formId = gridContext["currentRecordId"]
     form.setRange('isStartForm',True)
     form.setRange('processKey',processKey)
+    #Проверка, существует ли форма инициализации для процесса
     if form.tryFirst():
         startAdded = 'true'
     else:
@@ -94,6 +98,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 
 
 def cardSave(context, main, add, filterinfo, session, elementId, data):
+    u'''Сохранение формы процесса'''
     data_dict = json.loads(data)
     processKey = data_dict["schema"]["data"]["@processKey"]
     prevId = data_dict["schema"]["data"]["@id"]
@@ -102,6 +107,41 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     isStart = True if data_dict["schema"]["data"]["@isStart"] == 'true' else False
     type = data_dict["schema"]["data"]["@add"]
     form = formCursor(context)
+    parsedLink = urlparse.urlparse(link)
+    linkParams = cgi.parse_qs(parsedLink.query)
+    if isStart:
+        if 'mode' not in linkParams:
+            return context.error(u'Не указан параметр mode. Добавьте в ссылку строку mode=process')
+        if len(linkParams['mode']) > 1:
+            return context.error(u'Указано больше одного значения параметра mode. Укажите только одно значение параметра mode')        
+        if linkParams['mode'][0] != 'process':
+            return context.error(u'Неправильное значение параметра mode. Параметр mode должен быть равным process')
+        if 'processKey' not in linkParams:
+            return context.error(u'Не указан параметр processKey. Добавьте в ссылку строку processKey=$[processKey]')
+        if len(linkParams['processKey']) > 1:
+            return context.error(u'Указано больше одного значения параметра processKey. Укажите только одно значение параметра processKey')         
+        if linkParams['processKey'][0] != '$[processKey]' and linkParams['processKey'][0] != processKey:
+            return context.error(u'Неправильное значение параметра processKey. Параметр processKey должен быть равен либо $[processKey], либо %s'% processKey)
+    else:
+        if 'mode' not in linkParams:
+            return context.error(u'Не указан параметр mode. Добавьте в ссылку строку mode=task')
+        if len(linkParams['mode']) > 1:
+            return context.error(u'Указано больше одного значения параметра mode. Укажите только одно значение параметра mode')
+        if linkParams['mode'][0] != 'task':
+            return context.error(u'Неправильное значение параметра mode. Параметр mode должен быть равным task')
+        if 'processId' not in linkParams:
+            return context.error(u'Не указан параметр processId. Добавьте в ссылку строку processId=$[processId]')
+        if len(linkParams['processId']) > 1:
+            return context.error(u'Указано больше одного значения параметра processId. Укажите только одно значение параметра processId')         
+        if linkParams['processId'][0] != '$[processId]':
+            return context.error(u'Неправильное значение параметра processId. Параметр processId должен быть равен $[processId]')
+        if 'taskId' not in linkParams:
+            return context.error(u'Не указан параметр taskId. Добавьте в ссылку строку taskId=$[taskId]')
+        if len(linkParams['taskId']) > 1:
+            return context.error(u'Указано больше одного значения параметра taskId. Укажите только одно значение параметра taskId')         
+        if linkParams['taskId'][0] != '$[taskId]':
+            return context.error(u'Неправильное значение параметра taskId. Параметр taskId должен быть равен $[taskId]')
+
     if type == 'add':
         form.setRange("processKey",processKey)
         form.setRange("id",id)

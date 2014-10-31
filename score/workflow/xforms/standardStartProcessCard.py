@@ -32,6 +32,7 @@ from jarray import zeros
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
+    u'''Карточка стандартного запуска процесса'''
     if add == "added":     
         xformsdata = {"schema":{"@xmlns":'',
                                 "data":{"@type":'hide'},                            
@@ -62,12 +63,13 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 
 
 def cardSave(context, main, add, filterinfo, session, elementId, data):
+    u'''Запуск процесса'''
     session = json.loads(session)['sessioncontext']
     if isinstance(session['urlparams']['urlparam'],list):
         for params in session['urlparams']['urlparam']:
             if params['@name'] == 'processKey':
                 processKey = params['@value'][1:-1]
     activiti = ActivitiObject()
-    vars = {"initiator":'cock'}
+    #vars = {"initiator":'cock'}
     activiti.runtimeService.startProcessInstanceByKey(processKey,vars)
     return context.message(u'Процесс запущен')
