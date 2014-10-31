@@ -44,6 +44,16 @@ def activeTasks(context, main=None, session=None):
                                             "proc": {"@id": "1",
                                                      "@name": "workflow.xforms.tasksStatus.cardDataSave.celesta",
                                                      "@type": "SAVE"}
+                                            },
+                                           {"@id":"reassign",
+                                            "@type":"xforms",
+                                            "@neverShowInPanel":"true",
+                                            "@template": "tasksReassign.xml",
+                                            "@proc":"workflow.xforms.tasksReassign.cardData.celesta",
+                                            "related":{"@id":"tasksGrid"},
+                                            "proc": {"@id": "1",
+                                                     "@name": "workflow.xforms.tasksReassign.cardDataSave.celesta",
+                                                     "@type": "SAVE"}
                                             }
                                            ]
                                 }
