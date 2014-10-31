@@ -188,10 +188,10 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                         "@hint":"Выполнить задачу",
                                         "@disable": style,
                                         "action": sAction})
-
-    data["gridtoolbar"]["item"].append({"@text":"Принять",
-                                        "@hint":"Принять задачу",
-                                        "@disable": styleAss,
-                                        "action": None})
+#
+#     data["gridtoolbar"]["item"].append({"@text":"Принять",
+#                                         "@hint":"Принять задачу",
+#                                         "@disable": styleAss,
+#                                         "action": None})
 
     return XMLJSONConverter.jsonToXml(json.dumps(data))
