@@ -17,7 +17,7 @@ try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
     from ru.curs.celesta.showcase import JythonDTO, JythonDownloadResult
-from ru.curs.celesta.syscursors import UserRolesCursor
+from ru.curs.celesta.syscursors import UserRolesCursor, RolesCursor
 
 def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
@@ -68,9 +68,20 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     # Проходим по таблице и заполняем data
     runtimeService = activiti.runtimeService
     logins = loginsCursor(context)
+    userRoles = UserRolesCursor(context)
+    roles = RolesCursor(context)
+    userRoles.setRange('userid', sid)
+
+    rolesList = []
+    if userRoles.tryFirst():
+        while True:
+            rolesList.append(userRoles.roleid)
+            if not userRoles.next():
+                break
+
     for task in groupTaskList:
-        procDict = {}
-        procDict[_header["id"][1]] = task.id
+        taskDict = {}
+        taskDict[_header["id"][1]] = task.id
         processInstanceId = task.getProcessInstanceId()
         processInstance = runtimeService.createProcessInstanceQuery()\
             .processInstanceId(processInstanceId).singleResult()
@@ -78,20 +89,22 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             .processDefinitionId(processInstance.getProcessDefinitionId()).singleResult()
         docName = "%s. %s" % (runtimeService.getVariable(processInstanceId, 'docId'), \
                               runtimeService.getVariable(processInstanceId, 'docName'))
-        procDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
-        logins.setRange("subjectId", task.getAssignee())
-        logins.first()
-        procDict[_header["assignee"][1]] = logins.userName
-        procDict[_header["date"][1]] = unicode(task.getCreateTime())
-#         procDict[_header["schema"][1]] = {"div":
-#                                            {"@align": "center",
-#                                             "img":
-#                                             {"@src": "solutions/default/resources/flowblock.png",
-#                                              "@height": "20px"}}}
-        procDict[_header["name"][1]] = task.name
+        taskDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
+        identityLinks = activiti.taskService.getIdentityLinksForTask(task.id)
+#         taskDict[_header["assignee"][1]] = 'error'
+        for link in identityLinks:
+            if link.userId == sid:
+                logins.setRange("subjectId", sid)
+                logins.first()
+                taskDict[_header["assignee"][1]] = logins.userName
+            elif link.groupId in rolesList:
+                roles.get(link.groupId)
+                taskDict[_header["assignee"][1]] = u"""Группа "%s\"""" % roles.description
+        taskDict[_header["date"][1]] = unicode(task.getCreateTime())
+        taskDict[_header["name"][1]] = task.name
 
         requestReference = runtimeService.getVariable(processInstanceId, 'requestReference')
-        procDict[_header["link"][1]] = {"div":
+        taskDict[_header["link"][1]] = {"div":
                                              {"@align": "center",
                                               "a":{"@href": requestReference,
                                                    "@target": "_blank",
@@ -99,31 +112,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                         {"@src": "solutions/default/resources/imagesingrid/link.png",
                                                          "@height": "20px"}}}}
 
-#         procDict[_header["properties"][1]] = {"event":
-#                                               {"@name":"cell_single_click",
-#                                                "@column": _header["schema"][0],
-#                                                "action":
-#                                                     {"@show_in": "MODAL_WINDOW",
-#                                                      "#sorted":
-#                                                         [{"main_context":"current"},
-#                                                          {"modalwindow":
-#                                                             {"@caption": "Схема процесса"
-#                                                              }
-#                                                           },
-#                                                          {"datapanel":
-#                                                             {"@type": "current",
-#                                                              "@tab": "current",
-#                                                              "element":
-#                                                                 {"@id": "tasksImage"
-#                                                                  }
-#                                                              }
-#                                                           }
-#                                                          ]
-#                                                      }
-#                                                }
-#                                               }
-        if processName in procDict[_header["process"][1]] and assignee in procDict[_header["assignee"][1]]:
-            data["records"]["rec"].append(procDict)
+        if processName in taskDict[_header["process"][1]] and _header["assignee"][1] in taskDict:
+            data["records"]["rec"].append(taskDict)
 
     # Определяем список полей таблицы для отображения
     settings = {}
@@ -135,9 +125,6 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                "@profile":"default.properties"}
                                 }
     # Добавляем поля для отображения в gridsettings
-#     settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0],
-#                                                        "@width": "40px",
-#                                                        "type": "IMAGE"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["link"][0],
                                                        "@width": "55px",
                                                        "type": "IMAGE"})

@@ -62,9 +62,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     _header = {"id":["~~id"],
                "schema":[u"Схема"],
                "name":[u"Название задачи"],
+               "assign":[u"Принять"],
                "process": [u"Название процесса"],
-               "link": [u"Документ"],
-               "excec": [u"Назначена на"],
+               "finish": [u"Выполнить"],
+               "reassing": [u"Переназначить"],
+               "userAss": [u"Назначена на"],
                "properties":[u"properties"]}
 
     for column in _header:
@@ -78,74 +80,68 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     for task in taskDict.values():
 #         смотрим связи задачи
         identityLinks = taskService.getIdentityLinksForTask(task.id)
-        procDict = {}
+        taskDict = {}
 #         отображается немного разное в зав-ти юзер или группа
         for link in identityLinks:
             if link.userId == sid:
                 logins.setRange("subjectId", sid)
                 logins.first()
-                if not (link.type == 'candidate' and _header["excec"][1] in procDict):
-                    procDict[_header["excec"][1]] = logins.userName
+                if not (link.type == 'candidate' and _header["userAss"][1] in taskDict):
+                    taskDict[_header["userAss"][1]] = logins.userName
             elif link.groupId in rolesList:
                 roles.get(link.groupId)
-                procDict[_header["excec"][1]] = u"""Группа "%s\"""" % roles.description
+                taskDict[_header["userAss"][1]] = u"""Группа "%s\"""" % roles.description
 
-        procDict[_header["id"][1]] = task.id
+        taskDict[_header["id"][1]] = task.id
         processInstanceId = task.getProcessInstanceId()
 #         получаем процесс, чтобы потом получить его имя
-        processDefinition = activiti.repositoryService.createProcessDefinitionQuery()\
+        process = activiti.repositoryService.createProcessDefinitionQuery()\
             .processDefinitionId(task.getProcessDefinitionId()).singleResult()
         docName = "%s. %s" % (runtimeService.getVariable(processInstanceId, 'docId'), \
                               runtimeService.getVariable(processInstanceId, 'docName'))
-        procDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
+        taskDict[_header["process"][1]] = "%s: %s" % (process.name, docName)
 #         картинка, по нажатию переходим на схему
-        procDict[_header["schema"][1]] = {"div":
-                                           {"@align": "center",
-                                            "img":
-                                            {"@src": "solutions/default/resources/flowblock.png",
-                                             "@height": "20px"}}}
-        procDict[_header["name"][1]] = task.name
-#         ссылка
-        requestReference = runtimeService.getVariable(processInstanceId, 'requestReference')
-        procDict[_header["link"][1]] = {"div":
-                                             {"@align": "center",
-                                              "a":{"@href": requestReference,
-                                                   "@target": "_blank",
-                                                   "img":
-                                                        {"@src": "solutions/default/resources/imagesingrid/link.png",
-                                                         "@height": "20px"}}}}
 
-        procDict[_header["properties"][1]] = {"event":
-                                              {"@name":"cell_single_click",
-                                               "@column": _header["schema"][0],
-                                               "action":
-                                                    {"@show_in": "MODAL_WINDOW",
-                                                     "#sorted":
-                                                        [{"main_context":"current"},
-                                                         {"modalwindow":
-                                                            {"@caption": "Схема процесса"
-                                                             }
-                                                          },
-                                                         {"datapanel":
-                                                            {"@type": "current",
-                                                             "@tab": "current",
-                                                             "element":
-                                                                {"@id": "tasksImage"
-                                                                 }
-                                                             }
-                                                          }
-                                                         ]
-                                                     }
-                                               }
-                                              }
-        if processName == '' or processName in procDict[_header["process"][1]]:
-            data["records"]["rec"].append(procDict)
+        taskDict[_header["schema"][1]] = {"link":
+                                          {"@href":"./?mode=image&processId=%s" % processInstanceId,
+                                           "@image":"solutions/default/resources/flowblock.png",
+                                           "@text":"Схема",
+                                           "@openInNewTab":"true"
+                                             }
+                                          }
+        taskDict[_header["name"][1]] = task.name
+
+        taskDict[_header["assign"][1]] = {"link":
+                                          {"@href":"./?mode=image&processId=%s" % processInstanceId,
+                                           "@image":"solutions/default/resources/imagesingrid/ok.png",
+                                           "@text":"Принять",
+                                           "@openInNewTab":"true"
+                                             }
+                                          } if taskDict[_header["userAss"][1]] != logins.userName else {"link": ""}
+        taskDict[_header["finish"][1]] = {"link":
+                                          {"@href":"./?mode=task&processId=%s&taskId=%s" % (processInstanceId, task.id),
+                                           "@image":"solutions/default/resources/imagesingrid/finish.png",
+                                           "@text":"Выполнить",
+                                           "@openInNewTab":"true"
+                                             }
+                                          } if taskDict[_header["userAss"][1]] == logins.userName else {"link": ""}
+
+        taskDict[_header["reassing"][1]] = {"link":
+                                          {"@href":"./?mode=image&processId=%s" % processInstanceId,
+                                           "@image": "solutions/default/resources/imagesingrid/user.png",
+                                           "@text":"Переназначить",
+                                           "@openInNewTab":"true"
+                                             }
+                                          } if len(identityLinks) > 1 else {"link": {}}
+
+        if processName == '' or processName in taskDict[_header["process"][1]]:
+            data["records"]["rec"].append(taskDict)
 
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "1000px",
+                                               "@gridWidth": "1100px",
                                                "@gridHeight": "500",
                                                "@totalCount": len(data["records"]["rec"]),
                                                "@profile":"default.properties"}
@@ -153,15 +149,21 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     # Добавляем поля для отображения в gridsettings
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0],
                                                        "@width": "40px",
-                                                       "type": "IMAGE"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["link"][0],
-                                                       "@width": "55px",
-                                                       "type": "IMAGE"})
+                                                       "@type": "LINK"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["assign"][0],
+                                                       "@width": "60px",
+                                                       "@type": "LINK"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["reassing"][0],
+                                                       "@width": "85px",
+                                                       "@type": "LINK"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["finish"][0],
+                                                       "@width": "60px",
+                                                       "@type": "LINK"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0],
-                                                       "@width": "230px"})
+                                                       "@width": "215px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0],
                                                        "@width": "500px"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["excec"][0],
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["userAss"][0],
                                                        "@width": "100px"})
 
     return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(data)),
@@ -181,31 +183,25 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
             styleAss = 'false'
 
     data = {"gridtoolbar":{"item":[]}}
-#     form = formCursor(context)
-#     form.get(1)
 
-#     sAction = json.loads(form.sAction) if form.sAction is not None else None
-    sAction = {"@show_in": "MODAL_WINDOW",
-                          "#sorted":[{"main_context":"current"},
-                                     {"modalwindow":{"@caption": "Изменение статуса",
-                                                     "@height": "300",
-                                                     "@width": "500"}
-                                      },
-                                     {"datapanel":{"@type": "current",
-                                                   "@tab": "current",
-                                                   "element": {"@id": "taskStatusCard"}
-                                                   }
-                                      }]
-                          }
+#     data["gridtoolbar"]["item"].append({"@text":"Выполнить",
+#                                         "@hint":"Выполнить задачу",
+#                                         "@disable": style,
+#                                         "action": {"@show_in": "MODAL_WINDOW",
+#                                                    "#sorted":[{"main_context":"current"},
+#                                                              {"modalwindow":{"@caption": "Изменение статуса",
+#                                                                              "@height": "300",
+#                                                                              "@width": "500"}
+#                                                               },
+#                                                              {"datapanel":{"@type": "current",
+#                                                                            "@tab": "current",
+#                                                                            "element": {"@id": "taskStatusCard"}
+#                                                                            }
+#                                                               }]
+#                                                   }})
 
-
-    data["gridtoolbar"]["item"].append({"@text":"Выполнить",
-                                        "@hint":"Выполнить задачу",
-                                        "@disable": style,
-                                        "action": sAction})
-
-    data["gridtoolbar"]["item"].append({"@text":"Принять",
-                                        "@hint":"Принять задачу",
+    data["gridtoolbar"]["item"].append({"@text":"Взять на исполнение",
+                                        "@hint":"Взять на исполнение",
                                         "@disable": styleAss,
                                         "action": {"#sorted":
                                                      [{"main_context": 'current'},
@@ -222,21 +218,21 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                                               "add_context": 'current'}}}
                                                          ]}})
 
-    data["gridtoolbar"]["item"].append({"@text":"Переназначить",
-                                        "@hint":"Переназначить задачу",
-                                        "@disable": 'false' if styleAss != 'false' and style == 'false' else 'true',
-                                        "action": {"@show_in": "MODAL_WINDOW",
-                                                   "#sorted":[{"main_context":"current"},
-                                                              {"modalwindow":{"@caption": "Переназначить задачу",
-                                                                              "@height": "300",
-                                                                              "@width": "500"}
-                                                              },
-                                                              {"datapanel":{"@type": "current",
-                                                                            "@tab": "current",
-                                                                            "element": {"@id": "reassign"}
-                                                                           }
-                                                              }]
-                                                  }})
+#     data["gridtoolbar"]["item"].append({"@text":"Переназначить",
+#                                         "@hint":"Переназначить задачу",
+#                                         "@disable": 'false' if styleAss != 'false' and style == 'false' else 'true',
+#                                         "action": {"@show_in": "MODAL_WINDOW",
+#                                                    "#sorted":[{"main_context":"current"},
+#                                                               {"modalwindow":{"@caption": "Переназначить задачу",
+#                                                                               "@height": "300",
+#                                                                               "@width": "500"}
+#                                                               },
+#                                                               {"datapanel":{"@type": "current",
+#                                                                             "@tab": "current",
+#                                                                             "element": {"@id": "reassign"}
+#                                                                            }
+#                                                               }]
+#                                                   }})
 
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 
