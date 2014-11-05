@@ -2,6 +2,7 @@
 import simplejson as json
 import os
 from security.functions import userHasPermission
+from workflow.processUtils import parse_json
 
 def testNavigator(context, session):
     myNavigator = {"group":{"@id": "journals",
@@ -20,18 +21,21 @@ def testNavigator(context, session):
     return myNavigator
 
 def manageProcessesNav(context, session):
-    
+
     session = json.loads(session)["sessioncontext"]
     if 'urlparams' in session:
         drawProcess = False
         startProcess = False
-        if isinstance(session['urlparams']['urlparam'],list):
+        finishTask = False
+        if isinstance(session['urlparams']['urlparam'], list):
             for params in session['urlparams']['urlparam']:
                 if params['@name'] == 'mode':
                     if params['@value'] == '[image]':
                         drawProcess = True
                     elif params['@value'] == '[process]':
                         startProcess = True
+                    elif params['@value'] == '[task]':
+                        finishTask = True
 #                 if params['@name'] == 'procInstId':
 #                     procInstId = params['@name'][1:-1]
         if drawProcess:
@@ -54,9 +58,7 @@ def manageProcessesNav(context, session):
             return myNavigator
         if startProcess:
             filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
-            f = open(filePath, 'r')
-            datapanelSettings = json.loads(f.read())
-            f.close()
+            datapanelSettings = parse_json(filePath)
             myNavigator = {
                                "group":{
                                         "@id": "workflow",
@@ -73,6 +75,22 @@ def manageProcessesNav(context, session):
                                                   }]
                                         }
                                }
+            return myNavigator
+        if finishTask:
+            filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
+            datapanelSettings = parse_json(filePath)
+            myNavigator = {"group":
+                           {"@id": "workflow",
+                            "@name": u"Организация рабочего процесса",
+                            "@icon": "flowblock.png",
+                            "level1":
+                                [{"@id": "startProcess",
+                                  "@selectOnLoad": "true",
+                                  "@name": u"Завершение задачи",
+                                  "action":
+                                    {"main_context": "current",
+                                     "datapanel":{"@type": datapanelSettings["completingTask"]}}
+                                  }]}}
             return myNavigator
     sid = session["sid"]
     myNavigator = {
@@ -96,7 +114,7 @@ def manageProcessesNav(context, session):
                                               "action":
                                                 {"main_context": "current",
                                                  "datapanel":
-                                                    {"@type": "workflow.datapanel.activeTasks.activeTasks.celesta",
+                                                    {"@type": "workflow.datapanel.tasks.activeTasks.celesta",
                                                      "@tab": "firstOrCurrent"
                                                      }
                                                  }
@@ -108,7 +126,7 @@ def manageProcessesNav(context, session):
                                               "action":
                                                 {"main_context": "current",
                                                  "datapanel":
-                                                    {"@type": "workflow.datapanel.archiveTasks.archiveTasks.celesta",
+                                                    {"@type": "workflow.datapanel.tasks.archiveTasks.celesta",
                                                      "@tab": "firstOrCurrent"
                                                      }
                                                  }
@@ -119,25 +137,12 @@ def manageProcessesNav(context, session):
                                               "action":
                                                 {"main_context": "current",
                                                  "datapanel":
-                                                    {"@type": "workflow.datapanel.allActiveTasks.allActiveTasks.celesta",
-                                                     "@tab": "firstOrCurrent"
-                                                     }
-                                                 }
-                                              })
-    if userHasPermission(context, sid, 'operLog'):
-        myNavigator["group"]["level1"].append({"@id": "operLog",
-                                              "@name": u"Лог операций",
-                                              "action":
-                                                {"main_context": "current",
-                                                 "datapanel":
-                                                    {"@type": "workflow.datapanel.operLog.operLog.celesta",
+                                                    {"@type": "workflow.datapanel.tasks.allActiveTasks.celesta",
                                                      "@tab": "firstOrCurrent"
                                                      }
                                                  }
                                               })
     return myNavigator
-
-
 
 def navSettings(context, session):
     myNavigator = {
@@ -146,9 +151,10 @@ def navSettings(context, session):
     }
     session = json.loads(session)["sessioncontext"]
     if 'urlparams' in session:
-        if isinstance(session['urlparams']['urlparam'],list):
+        if isinstance(session['urlparams']['urlparam'], list):
             for params in session['urlparams']['urlparam']:
                 if params['@name'] == 'mode':
-                    if params['@value'] == '[image]' or params['@value'] == '[process]' or params['@value'] == '[task]':
+                    if params['@value'] == '[image]' or params['@value'] == '[process]' \
+                            or params['@value'] == '[task]':
                         myNavigator["@hideOnLoad"] = "true"
     return myNavigator
