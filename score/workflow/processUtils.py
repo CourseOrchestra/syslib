@@ -19,7 +19,7 @@ import org.activiti.engine.ProcessEngineConfiguration as ProcessEngineConfigurat
 import org.activiti.bpmn.BpmnAutoLayout as BpmnAutoLayout
 import org.activiti.bpmn.converter.BpmnXMLConverter as BpmnXMLConverter
 import org.activiti.image.ProcessDiagramGenerator as ProcessDiagramGenerator
-
+import simplejson as json
 
 class ActivitiObject():
     def __init__(self):
@@ -169,21 +169,53 @@ def getBase64Image(imageStream):
             stringout += base64.b64encode(array.array('B', byteArray).tostring())
     return stringout
 
-def setVariablesInLink(activiti,processId,taskId,link):
+def setVariablesInLink(activiti, processId, taskId, link):
     pattern = '\$\[\w+\]'
     params = re.compile(pattern)
-    variables = activiti.runtimeService.createProcessInstanceQuery().processInstanceId(processId).includeProcessVariables().singleResult().getProcessVariables()
+    variables = activiti.runtimeService.createProcessInstanceQuery()\
+                    .processInstanceId(processId).includeProcessVariables().singleResult().getProcessVariables()
     replaceDict = dict()
     for param in params.finditer(link):
         par = link[param.start():param.end()]
         if par == '$[processId]':
             replaceDict[par] = processId
         elif par == '$[taskId]':
-            replaceDict[par] = taskId          
+            replaceDict[par] = taskId
         else:
             if par[2:-1] in variables:
                 replaceDict[par] = variables[par[2:-1]]
     for key in replaceDict:
-        link = link.replace(key,replaceDict[key])
+        link = link.replace(key, replaceDict[key])
     return link
-        
+
+def parse_json(filename):
+    # Regular expression for comments
+    comment_re = re.compile(
+        '(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
+        re.DOTALL | re.MULTILINE
+    )
+    """ Parse a JSON file
+        First remove comments and then use the json module package
+        Comments look like :
+            // ...
+        or
+            /*
+            ...
+            */
+    """
+    f = open(filename)
+    content = ''.join(f.readlines())
+    f.close()
+
+    # # Looking for comments
+    match = comment_re.search(content)
+    while match:
+        # single line comment
+        content = content[:match.start()] + content[match.end():]
+        match = comment_re.search(content)
+
+
+    print content
+
+    # Return json file
+    return json.loads(content)
