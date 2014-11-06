@@ -68,8 +68,9 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     if isinstance(session['urlparams']['urlparam'],list):
         for params in session['urlparams']['urlparam']:
             if params['@name'] == 'processKey':
-                processKey = params['@value'][1:-1]
+                processKey = params['@value'][0]
     activiti = ActivitiObject()
-    #vars = {"initiator":'cock'}
+    vars = {}
+    #vars = {"initiator":'cock',"troll":'stock'}
     activiti.runtimeService.startProcessInstanceByKey(processKey,vars)
     return context.message(u'Процесс запущен')
