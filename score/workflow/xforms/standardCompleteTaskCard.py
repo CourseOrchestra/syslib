@@ -59,7 +59,7 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     if isinstance(session['urlparams']['urlparam'], list):
         for params in session['urlparams']['urlparam']:
             if params['@name'] == 'taskId':
-                taskId = params['@value'][1:-1]
+                taskId = params['@value'][0]
     activiti = ActivitiObject()
     # vars = {"initiator":'cock'}
     activiti.taskService.complete(taskId)

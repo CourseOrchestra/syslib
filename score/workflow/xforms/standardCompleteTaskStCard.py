@@ -27,7 +27,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     if isinstance(session['urlparams']['urlparam'], list):
         for params in session['urlparams']['urlparam']:
             if params['@name'] == 'taskId':
-                taskId = params['@value'][1:-1]
+                taskId = params['@value'][0]
     xformsdata = {"schema":
                     {"data":{"newStatus": "",
                              "statuses": {"status": []}}
@@ -69,7 +69,7 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
     if isinstance(session['urlparams']['urlparam'], list):
         for params in session['urlparams']['urlparam']:
             if params['@name'] == 'taskId':
-                taskId = params['@value'][1:-1]
+                taskId = params['@value'][0]
     activiti = ActivitiObject()
     jsonData = json.loads(xformsdata)["schema"]["data"]
     newStatus = jsonData["newStatus"]

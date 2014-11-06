@@ -75,4 +75,5 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
     session = json.loads(session)['sessioncontext']
     taskId = session['related']['gridContext']['currentRecordId']
     jsonData = json.loads(xformsdata)["schema"]["data"]
-    taskService.delegateTask(taskId, jsonData["newUser"])
+    taskService.unclaim(taskId)
+    taskService.claim(taskId, jsonData["newUser"])
