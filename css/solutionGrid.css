@@ -352,3 +352,7 @@ padding: 3px !important;
     font-size: x-small;
     font-weight: bold;
 }
+
+.gridCellCursor{
+	cursor: pointer;
+}
