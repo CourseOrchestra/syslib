@@ -5,7 +5,7 @@ import simplejson as json
 
 def manageProcesses(context, main=None, session=None):
     data = {"datapanel":{"tab":[{"@id":"1",
-                                "@name":u"Управление процессами",
+                                "@name":u"Развёрнутые процессы",
                                 "element":[{"@id":"processesGrid",
                                             "@type":"grid",
                                             "@proc":"workflow.grid.processesGrid.gridDataAndMeta.celesta",

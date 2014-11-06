@@ -32,6 +32,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              "name":[u"Название процесса"],
              "description":[u"Описание"],
              "schema":[u"Схема"],
+             "stop":[u'Остановка'],
              "version":[u"Версия"],
              "properties":[u"properties"],
              "comment":[u"Комментарий"]}
@@ -54,32 +55,33 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                      "@openInNewTab":"true"
                                                      }
                                            }
-
+        #Поле-кнопка для остановки процесса
+        procDict[_header["stop"][1]] = "stop.png"
         #procDict[_header["description"][1]] = process.description
         #procDict[_header["version"][1]] = process.version
         procDict[_header["properties"][1]] = {"event":
                                               [
-#                                                {"@name":"cell_single_click",
-#                                                "@column": _header["schema"][0],
-#                                                "action":
-#                                                     {"@show_in": "MODAL_WINDOW",
-#                                                      "#sorted":
-#                                                         [{"main_context":"current"},
-#                                                          {"modalwindow":
-#                                                             {"@caption": "Схема процесса"
-#                                                              }
-#                                                           },
-#                                                          {"datapanel":
-#                                                             {"@type": "current",
-#                                                              "@tab": "current",
-#                                                              "element":
-#                                                                 {"@id": "launchedProcessImage"
-#                                                                  }
-#                                                              }
-#                                                           }
-#                                                          ]
-#                                                      }
-#                                                },
+                                                {"@name":"cell_single_click",
+                                                "@column": _header["stop"][0],
+                                                "action":
+                                                     {"@show_in": "MODAL_WINDOW",
+                                                      "#sorted":
+                                                         [{"main_context":"current"},
+                                                          {"modalwindow":
+                                                             {"@caption": "Остановка процесса"
+                                                              }
+                                                           },
+                                                          {"datapanel":
+                                                             {"@type": "current",
+                                                              "@tab": "current",
+                                                              "element":
+                                                                 {"@id": "suspendProcessCard"
+                                                                  }
+                                                              }
+                                                           }
+                                                          ]
+                                                      }
+                                                },
                                                 {"@name":"row_single_click",
                                                                  "action":
                                                                     {"main_context": "current",
@@ -102,11 +104,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                "@gridWidth": "1000px",
                                                "@gridHeight": "300",
                                                "@totalCount": len(processesList),
-                                               "@profile":"default.properties"},
-                                "labels":{"header":"Запущенные процессы"}
+                                               "@profile":"default.properties"}
                                 }
     # Добавляем поля для отображения в gridsettings
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0], "@width": "40px", "@type": "LINK"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["stop"][0], "@width": "50px", "@type": "IMAGE"})    
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["pid"][0], "@width": "150px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "300px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["comment"][0], "@width": "300px"})
@@ -125,25 +127,25 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
     else:
         style = "false"
 
-    data = {"gridtoolbar":{"item":[]}}
+    data = {"gridtoolbar":{"item":{}}}
 
 
-    data["gridtoolbar"]["item"].append({ "@text":"Остановить",
-                                        "@hint":"Остановить процесс",
-                                        "@disable": style,
-                                        "action":{"@show_in": "MODAL_WINDOW",
-                                                  "#sorted":[{"main_context":"current"},
-                                                             {"modalwindow":{"@caption": "Остановка процесса"
-                                                                             }
-                                                              },
-                                                             {"datapanel":{"@type": "current",
-                                                                           "@tab": "current",
-                                                                           "element": {"@id": "suspendProcessCard"}
-                                                                           }
-                                                              }
-                                                             ]
-                                                  }
-                                        })
+#     data["gridtoolbar"]["item"].append({ "@text":"Остановить",
+#                                         "@hint":"Остановить процесс",
+#                                         "@disable": style,
+#                                         "action":{"@show_in": "MODAL_WINDOW",
+#                                                   "#sorted":[{"main_context":"current"},
+#                                                              {"modalwindow":{"@caption": "Остановка процесса"
+#                                                                              }
+#                                                               },
+#                                                              {"datapanel":{"@type": "current",
+#                                                                            "@tab": "current",
+#                                                                            "element": {"@id": "suspendProcessCard"}
+#                                                                            }
+#                                                               }
+#                                                              ]
+#                                                   }
+#                                         })
 
 
 

@@ -87,8 +87,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                "@gridHeight": "300",
                                                
                                                "@totalCount": len(processesList),
-                                               "@profile":"default.properties"},
-                                "labels":{"header":"Развернутые процессы"}
+                                               "@profile":"default.properties"}
                                 }
     if add is not None:
         settings["gridsettings"]["properties"]["@autoSelectRecordUID"] = add
@@ -117,22 +116,22 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
     data = {"gridtoolbar":{"item":[]}}
 
 
-    data["gridtoolbar"]["item"].append({ "@text":"Схема",
-                                        "@hint":"Схема процесса",
-                                        "@disable": style,
-                                        "action":{"@show_in": "MODAL_WINDOW",
-                                                  "#sorted":[{"main_context":"current"},
-                                                             {"modalwindow":{"@caption": "Схема процесса"
-                                                                             }
-                                                              },
-                                                             {"datapanel":{"@type": "current",
-                                                                           "@tab": "current",
-                                                                           "element": {"@id": "processesImage"}
-                                                                           }
-                                                              }
-                                                             ]
-                                                  }
-                                        })
+#     data["gridtoolbar"]["item"].append({ "@text":"Схема",
+#                                         "@hint":"Схема процесса",
+#                                         "@disable": style,
+#                                         "action":{"@show_in": "MODAL_WINDOW",
+#                                                   "#sorted":[{"main_context":"current"},
+#                                                              {"modalwindow":{"@caption": "Схема процесса"
+#                                                                              }
+#                                                               },
+#                                                              {"datapanel":{"@type": "current",
+#                                                                            "@tab": "current",
+#                                                                            "element": {"@id": "processesImage"}
+#                                                                            }
+#                                                               }
+#                                                              ]
+#                                                   }
+#                                         })
     data["gridtoolbar"]["item"].append({"@text":"Развернуть",
                                         "@hint":"Развернуть процесс",
                                         "@disable": "false",

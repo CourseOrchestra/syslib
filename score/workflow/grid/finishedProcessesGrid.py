@@ -102,8 +102,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                "@gridWidth": "1000px",
                                                "@gridHeight": "300",
                                                "@totalCount": len(processesList),
-                                               "@profile":"default.properties"},
-                                "labels":{"header":"Запущенные процессы"}
+                                               "@profile":"default.properties"}
                                 }
     # Добавляем поля для отображения в gridsettings
     #settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0], "@width": "40px", "@type": "LINK"})
