@@ -51,47 +51,41 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                 .taskCompletedAfter(endTimeFrom)\
                                 .taskCompletedBefore(endTimeTo)\
                                 .orderByHistoricTaskInstanceEndTime().desc().list()
-#     variablesList = historyService.createHistoricDetailQuery().list()
+
     data = {"records":{"rec":[]}}
     _header = {"id":["~~id"],
 #                "schema":[u"Схема"],
                "name":[u"Название задачи"],
                "process": [u"Название процесса"],
-               "link": [u"Документ"],
-               "endTime": [u"Дата"],
-#                "type": [u"Тип"],
-#                "shift": [u"Изменение"],
+#                "link": [u"Документ"],
+               "endTime": [u"Дата завершения"],
                "properties":[u"properties"]}
 
-    translateDict = {"userTask": "Задача"}
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
 
 
     # Проходим по таблице и заполняем data
-    for tasks in tasksList:
+    for task in tasksList:
         procDict = {}
-        procDict[_header["id"][1]] = tasks.getId()
-        processInstanceId = tasks.getProcessInstanceId()
+        procDict[_header["id"][1]] = task.getId()
+        processInstanceId = task.getProcessInstanceId()
         processInstance = activiti.runtimeService.createProcessInstanceQuery()\
             .processInstanceId(processInstanceId).singleResult()
+        if processInstance is None:
+            processInstance = activiti.historyService.createHistoricProcessInstanceQuery()\
+                .processInstanceId(processInstanceId).singleResult()
+
         processDefinition = activiti.repositoryService.createProcessDefinitionQuery()\
             .processDefinitionId(processInstance.getProcessDefinitionId()).singleResult()
-        docName = ''
-        docName = "%s. %s" % (activiti.runtimeService.getVariable(processInstanceId, 'docId'), \
-                              activiti.runtimeService.getVariable(processInstanceId, 'docName'))
+        historicVariables = activiti.historyService.createHistoricVariableInstanceQuery()\
+            .processInstanceId(processInstanceId)
+        docName = "%s. %s" % (historicVariables.variableName('docId').singleResult().textValue, \
+                              historicVariables.variableName('docName').singleResult().textValue)
         procDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
-        procDict[_header["name"][1]] = tasks.getName()
+        procDict[_header["name"][1]] = task.getName()
 #         procDict[_header["shift"][1]] = tasks.getDeleteReason()
-        procDict[_header["endTime"][1]] = unicode(tasks.getEndTime())
-        requestReference = activiti.runtimeService.getVariable(processInstanceId, 'requestReference')
-        procDict[_header["link"][1]] = {"div":
-                                             {"@align": "center",
-                                              "a":{"@href": requestReference,
-                                                   "@target": "_blank",
-                                                   "img":
-                                                        {"@src": "solutions/default/resources/imagesingrid/link.png",
-                                                         "@height": "20px"}}}}
+        procDict[_header["endTime"][1]] = SimpleDateFormat("HH:mm dd.MM.yyyy").format(task.getEndTime())
 
         if processName == '' or processName in procDict[_header["process"][1]]:
             data["records"]["rec"].append(procDict)
@@ -106,9 +100,9 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                "@profile":"default.properties"}
                                 }
     # Добавляем поля для отображения в gridsettings
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["link"][0],
-                                                       "@width": "55px",
-                                                       "type": "IMAGE"})
+#     settings["gridsettings"]["columns"]["col"].append({"@id":_header["link"][0],
+#                                                        "@width": "55px",
+#                                                        "type": "IMAGE"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "250px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0], "@width": "600px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["endTime"][0], "@width": "150px"})

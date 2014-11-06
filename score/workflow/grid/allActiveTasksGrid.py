@@ -45,8 +45,6 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     dateFrom = SimpleDateFormat.parse(inputFormat, dateFrom)
     dateTo = SimpleDateFormat.parse(inputFormat, dateTo)
 
-#     userTasksList = activiti.taskService.createTaskQuery().taskAssignee(sid).taskNameLike(taskName).list()
-#     groupTaskList = activiti.taskService.createTaskQuery().taskCandidateGroup(group).taskNameLike(taskName).list()
     groupTaskList = activiti.taskService.createTaskQuery()\
                             .taskNameLike(taskName)\
                             .taskCreatedAfter(dateFrom)\
@@ -60,7 +58,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                "process": [u"Название процесса"],
                "assignee": [u"Исполнитель"],
                "date": [u"Дата"],
-               "link": [u"Документ"],
+               "document": [u"Документ"],
                "properties":[u"properties"]}
 
     for column in _header:
@@ -71,13 +69,6 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     userRoles = UserRolesCursor(context)
     roles = RolesCursor(context)
     userRoles.setRange('userid', sid)
-
-    rolesList = []
-    if userRoles.tryFirst():
-        while True:
-            rolesList.append(userRoles.roleid)
-            if not userRoles.next():
-                break
 
     for task in groupTaskList:
         taskDict = {}
@@ -93,26 +84,26 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         identityLinks = activiti.taskService.getIdentityLinksForTask(task.id)
 #         taskDict[_header["assignee"][1]] = 'error'
         for link in identityLinks:
-            if link.userId == sid:
-                logins.setRange("subjectId", sid)
+            if link.userId is not None:
+                logins.setRange("subjectId", link.userId)
                 logins.first()
                 taskDict[_header["assignee"][1]] = logins.userName
-            elif link.groupId in rolesList:
+            elif link.groupId is not None:
                 roles.get(link.groupId)
                 taskDict[_header["assignee"][1]] = u"""Группа "%s\"""" % roles.description
-        taskDict[_header["date"][1]] = unicode(task.getCreateTime())
+
+        taskDict[_header["date"][1]] = SimpleDateFormat("HH:mm dd.MM.yyyy").format(task.getCreateTime())
         taskDict[_header["name"][1]] = task.name
 
-        requestReference = runtimeService.getVariable(processInstanceId, 'requestReference')
-        taskDict[_header["link"][1]] = {"div":
-                                             {"@align": "center",
-                                              "a":{"@href": requestReference,
-                                                   "@target": "_blank",
-                                                   "img":
-                                                        {"@src": "solutions/default/resources/imagesingrid/link.png",
-                                                         "@height": "20px"}}}}
+        taskDict[_header["document"][1]] = {"div":
+                                            {"@align": "center",
+                                             "a":
+                                             {"@href": "./?mode=task&processId=%s&taskId=%s" % (processInstanceId, task.id),
+                                              "@target": "_blank",
+                                              "img":
+                                                {"@src": "solutions/default/resources/play.png"}}}}
 
-        if processName in taskDict[_header["process"][1]] and _header["assignee"][1] in taskDict:
+        if processName in taskDict[_header["process"][1]] and assignee in taskDict[_header["assignee"][1]]:
             data["records"]["rec"].append(taskDict)
 
     # Определяем список полей таблицы для отображения
@@ -125,9 +116,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                "@profile":"default.properties"}
                                 }
     # Добавляем поля для отображения в gridsettings
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["link"][0],
-                                                       "@width": "55px",
-                                                       "type": "IMAGE"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["document"][0],
+                                                       "@width": "60px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0],
                                                        "@width": "250px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0],
