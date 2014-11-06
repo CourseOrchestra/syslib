@@ -213,9 +213,32 @@ def parse_json(filename):
         # single line comment
         content = content[:match.start()] + content[match.end():]
         match = comment_re.search(content)
-
-
-    print content
-
     # Return json file
     return json.loads(content)
+
+def listFormAccess(userId):
+    u'''из userId выдает список доступных пользователю форм'''
+    activiti = ActivitiObject()
+    permitsList = []
+    tasks = activiti.historyService.createHistoricTaskInstanceQuery().taskAssignee(userId).list()
+    for task in tasks:
+        if task.getFormKey() is not None:
+            permitsList.append({"procId": task.getProcessInstanceId(),
+                                "formId": task.getFormKey(),
+                                "accessType": "write" if task.getEndTime() is None else "read"})
+    return permitsList
+
+def checkFormAccess(userId, processInstanceId, formId):
+    u'''проверяет доступность формы пользователю'''
+    activiti = ActivitiObject()
+    tasks = activiti.historyService.createHistoricTaskInstanceQuery()\
+                .taskAssignee(userId).processInstanceId(processInstanceId).list()
+    result = 'deny'
+    for task in tasks:
+        if task.getFormKey() == formId:
+            if task.getEndTime() is None:
+                result = 'write'
+                break
+            else:
+                result = 'read'
+    return result
