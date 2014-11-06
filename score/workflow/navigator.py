@@ -23,6 +23,7 @@ def testNavigator(context, session):
 def manageProcessesNav(context, session):
 
     session = json.loads(session)["sessioncontext"]
+    #raise Exception(session)
     if 'urlparams' in session:
         drawProcess = False
         startProcess = False
@@ -30,11 +31,11 @@ def manageProcessesNav(context, session):
         if isinstance(session['urlparams']['urlparam'], list):
             for params in session['urlparams']['urlparam']:
                 if params['@name'] == 'mode':
-                    if params['@value'] == '[image]':
+                    if params['@value'][0] == 'image':
                         drawProcess = True
-                    elif params['@value'] == '[process]':
+                    elif params['@value'][0] == 'process':
                         startProcess = True
-                    elif params['@value'] == '[task]':
+                    elif params['@value'][0] == 'task':
                         finishTask = True
 #                 if params['@name'] == 'procInstId':
 #                     procInstId = params['@name'][1:-1]
@@ -154,7 +155,7 @@ def navSettings(context, session):
         if isinstance(session['urlparams']['urlparam'], list):
             for params in session['urlparams']['urlparam']:
                 if params['@name'] == 'mode':
-                    if params['@value'] == '[image]' or params['@value'] == '[process]' \
-                            or params['@value'] == '[task]':
+                    if params['@value'][0] == 'image' or params['@value'][0] == 'process' \
+                            or params['@value'][0] == 'task':
                         myNavigator["@hideOnLoad"] = "true"
     return myNavigator
