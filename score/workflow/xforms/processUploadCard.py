@@ -32,8 +32,7 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     xformsdata = {"schema":{"@xmlns":'',
-                            "file":{},
-                            "@tag":'asd'
+                            "files":{}
                             }
                   }
     xformssettings = {"properties":{
