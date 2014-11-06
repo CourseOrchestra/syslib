@@ -8,10 +8,14 @@
 				<schema xmlns="">
 				</schema>
 			</xf:instance>
+			<xf:bind>
+				<xf:bind nodeset="instance('xformId_mainInstance')/data/@reason"  required="true()"/>
+			</xf:bind>
 		</xf:model>
+
 	</head>
 	<body>
-		   <!-- <xf:output value="serialize(instance('xformId_mainInstance'))"></xf:output> -->
+		   <!--  <xf:output value="serialize(instance('xformId_mainInstance'))"></xf:output>  -->
 
  			<div class="baseInput400" >
 				<!-- <div style="float: left, clear: both, width: 350px"> -->Вы действительно хотите остановить этот процесс? <!-- </div> -->
@@ -28,7 +32,12 @@
 						<div class="button100 break">
 							<xf:trigger>
 								<xf:label>Да</xf:label>
-								<xf:action ev:event="DOMActivate">
+								<xf:action ev:event="DOMActivate"
+									if="(is-valid(instance('xformId_mainInstance'))=false())">
+									<xf:message>Заполнено с ошибкой!</xf:message>
+								</xf:action>
+								<xf:action ev:event="DOMActivate"
+									if="(is-valid(instance('xformId_mainInstance'))=true())">
 									<xf:load
 										resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"
 									>
