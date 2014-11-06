@@ -58,14 +58,19 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             continue
         procDict[_header["comment"][1]] = ''
         #Поле-ссылка для показа изображения процесса
-        procDict[_header["schema"][1]] =   {"link": {  "@href":"./?mode=image&processId="+process.getId()+"",
-                                                     "@image":"solutions/default/resources/flowblock.png",
-                                                     "@text":"Схема",
-                                                     "@openInNewTab":"true"
-                                                     }
-                                           }
+        procDict[_header["schema"][1]] =   {"div":
+                                            {"@align": "center",
+                                             "a":
+                                             {"@href": "./?mode=image&processKey="+process.getId()+"",
+                                              "@target": "_blank",
+                                              "img":
+                                                {"@src": "solutions/default/resources/flowblock.png"}}}}
         #Поле-кнопка для остановки процесса
-        procDict[_header["stop"][1]] = "stop.png"
+        procDict[_header["stop"][1]] =  {"div":
+                                                {"@align": "center",
+                                                 "@class": "gridCellCursor",
+                                                 "img":
+                                                    {"@src": "solutions/default/resources/stop.png"}}}
         #procDict[_header["description"][1]] = process.description
         #procDict[_header["version"][1]] = process.version
         procDict[_header["properties"][1]] = {"event":
@@ -116,8 +121,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                "@profile":"default.properties"}
                                 }
     # Добавляем поля для отображения в gridsettings
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0], "@width": "40px", "@type": "LINK"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["stop"][0], "@width": "50px", "@type": "IMAGE"})    
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0], "@width": "40px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["stop"][0], "@width": "50px"})    
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["pid"][0], "@width": "150px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "300px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["comment"][0], "@width": "300px"})

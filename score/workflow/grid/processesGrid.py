@@ -53,12 +53,13 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict[_header["version"][1]] = process.version
         procDict[_header["file"][1]] = u'Загрузить'
         #Поле-ссылка для отрисовки изображения процесса
-        procDict[_header["schema"][1]] =   {"link": {  "@href":"./?mode=image&processKey="+process.key+"",
-                                             "@image":"solutions/default/resources/flowblock.png",
-                                             "@text":"Схема",
-                                             "@openInNewTab":"true"
-                                             }
-                                   }
+        procDict[_header["schema"][1]] = {"div":
+                                            {"@align": "center",
+                                             "a":
+                                             {"@href": "./?mode=image&processKey="+process.key+"",
+                                              "@target": "_blank",
+                                              "img":
+                                                {"@src": "solutions/default/resources/flowblock.png"}}}} 
         #Формирование ссылки для запуска процесса
         form.setRange('processKey', process.key)
         form.setRange('isStartForm',True)
@@ -67,12 +68,13 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             link = link.replace("$[processKey]",process.key)
         else:#Стандартная форма инициализации процесса
             link = "./?mode=process&processKey="+process.key
-        procDict[_header["startProcess"][1]] =   {"link": {  "@href":link,
-                                             "@image":"solutions/default/resources/play.png",
-                                             "@text":"Запустить",
-                                             "@openInNewTab":"true"
-                                             }
-                                   }
+        procDict[_header["startProcess"][1]] = {"div":
+                                            {"@align": "center",
+                                             "a":
+                                             {"@href": link,
+                                              "@target": "_blank",
+                                              "img":
+                                                {"@src": "solutions/default/resources/play.png"}}}}
 
         
         procDict[_header["properties"][1]] = {"event":{"@name":"row_single_click",
@@ -100,8 +102,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     if add is not None:
         settings["gridsettings"]["properties"]["@autoSelectRecordUID"] = add
     # Добавляем поля для отображения в gridsettings
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0], "@width": "40px", "@type": "LINK"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["startProcess"][0], "@width": "40px", "@type": "LINK"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0], "@width": "40px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["startProcess"][0], "@width": "40px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["pid"][0], "@width": "150px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "300px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
