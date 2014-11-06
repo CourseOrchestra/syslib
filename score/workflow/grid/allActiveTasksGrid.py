@@ -4,6 +4,8 @@
 Created on 21.10.2014
 
 @author: m.prudyvus
+
+все активные задачи всех пользователей и групп
 '''
 
 import simplejson as json

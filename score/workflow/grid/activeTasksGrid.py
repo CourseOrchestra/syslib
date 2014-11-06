@@ -123,7 +123,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         if taskDict[_header["userAss"][1]] != logins.userName:
             taskDict[_header["assign"][1]] = {"div":
                                                 {"@align": "center",
-                                                 "@style": "cursor: pointer",
+                                                 "@class": "gridCellCursor",
                                                  "img":
                                                     {"@src": "solutions/default/resources/imagesingrid/ok.png"}}}
             taskDict[_header["properties"][1]]["event"].append({"@name":"cell_single_click",
@@ -161,7 +161,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         if len(identityLinks) > 1:
             taskDict[_header["reassign"][1]] = {"div":
                                                 {"@align": "center",
-                                                 "@style": "cursor: pointer",
+                                                 "@class": "gridCellCursor",
                                                  "img":
                                                     {"@src": "solutions/default/resources/imagesingrid/user.png"}}}
             taskDict[_header["properties"][1]]["event"].append({"@name":"cell_single_click",
