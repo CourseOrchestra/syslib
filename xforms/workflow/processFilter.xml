@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="xsltforms/xsltforms.xsl" type="text/xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ev="http://www.w3.org/2001/xml-events"
+  xmlns:xf="http://www.w3.org/2002/xforms">
+	<head>
+		<xf:model id="xformId_mainModel">
+			<xf:instance id="xformId_mainInstance">
+				<schema xmlns=""/>
+			</xf:instance>
+			<xf:bind>
+				<xf:bind nodeset="instance('xformId_mainInstance')/info/@dateFrom" type="dateTime"/>
+				<xf:bind nodeset="instance('xformId_mainInstance')/info/@dateTo" type="dateTime"/>
+			</xf:bind>
+		</xf:model>
+	</head>
+	<body>
+		<!-- <xf:output value="serialize(instance('xformId_mainInstance'))"/> -->
+		<div class="dateInput break">
+			<xf:output value="'Фильтры:'"/>
+			<xf:trigger>
+				<xf:label>
+					<xf:output value="if(instance('xformId_mainInstance')/info/@show = 1, ' &lt;&lt;&lt;', ' &gt;&gt;&gt;')"/>
+				</xf:label>
+
+				<xf:action ev:event="DOMActivate">
+					<xf:setvalue ref="instance('xformId_mainInstance')/info/@show"
+						value="1 - instance('xformId_mainInstance')/info/@show"/>
+				</xf:action>
+			</xf:trigger>
+		</div>
+
+		<xf:group ref="instance('xformId_mainInstance')/info[@show=1]">
+			<xf:group ref="@processName">
+				<div class="baseInput200 break">
+					<xf:input ref=".">
+						<xf:label>Название задачи</xf:label>
+					</xf:input>
+				</div>
+			</xf:group>
+			<div class="break button100">
+				<xf:trigger>
+					<xf:label>Отобразить</xf:label>
+					<xf:action ev:event="DOMActivate">
+						<xf:load
+              resource="javascript:gwtXFormUpdate('xformId',
+												  '1', 
+												  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"/>
+					</xf:action>
+				</xf:trigger>
+			</div>
+		</xf:group>
+
+
+
+
+	</body>
+</html>
