@@ -29,10 +29,10 @@ def webtextData(context, main=None, add=None, filterinfo=None,
     drawProcess = False
     for params in session['urlparams']['urlparam']:
         if params['@name'] == 'processId':
-            procInstId = params['@value'][1:-1]
+            procInstId = params['@value'][0]
             drawInstance = True
         if params['@name'] == 'processKey':
-            procKey = params['@value'][1:-1]
+            procKey = params['@value'][0]
             drawProcess = True
     if drawInstance:
         data = {"image":{"@align":"center",
