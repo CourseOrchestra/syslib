@@ -95,7 +95,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict[_header["name"][1]] = instance[2]
         procDict[_header["type"][1]] = instance[3]
         procDict[_header["value"][1]] = instance[5]
-        procDict[_header["date"][1]] = SimpleDateFormat("HH:mm dd-MM-yyyy").format(instance[0])
+        procDict[_header["date"][1]] = SimpleDateFormat("HH:mm dd.MM.yyyy").format(instance[0])
 #         procDict[_header["schema"][1]] = {"div":
 #                                            {"@align": "center",
 #                                             "img":

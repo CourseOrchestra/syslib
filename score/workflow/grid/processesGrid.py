@@ -21,7 +21,13 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     activiti = ActivitiObject()
     #Получение списка развернутых процессов
     processesList = activiti.getActualVersionOfProcesses()
-    
+    #Извлечение фильтра из related-контекста
+    session = json.loads(session)['sessioncontext']
+    if "formData" in session["related"]["xformsContext"]:
+        info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
+        processName = info["@processName"]
+    else:
+        processName = ''
     data = {"records":{"rec":[]}}
     _header = {"id":["~~id"],
              "pid":[u"Код процесса"],
@@ -38,6 +44,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     # Проходим по таблице и заполняем data    
     for process in processesList:
         procDict = {}
+        if processName.lower() not in process.name.lower():
+            continue
         procDict[_header["id"][1]] = process.key
         procDict[_header["pid"][1]] = process.key
         procDict[_header["name"][1]] = process.name

@@ -25,6 +25,13 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
     activiti = ActivitiObject()
     processesList = activiti.runtimeService.createProcessInstanceQuery().orderByProcessInstanceId().active().asc().list()
+    #Извлечение фильтра из related-контекста
+    session = json.loads(session)['sessioncontext']
+    if "formData" in session["related"]["xformsContext"]:
+        info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
+        processName = info["@processName"]
+    else:
+        processName = ''
 
     data = {"records":{"rec":[]}}
     _header = {"id":["~~id"],
@@ -47,6 +54,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict[_header["pid"][1]] = process.getId()
         defId = process.getProcessDefinitionId()
         procDict[_header["name"][1]] = activiti.repositoryService.createProcessDefinitionQuery().processDefinitionId(defId).singleResult().getName()        
+        if processName.lower() not in procDict[_header["name"][1]].lower():
+            continue
         procDict[_header["comment"][1]] = ''
         #Поле-ссылка для показа изображения процесса
         procDict[_header["schema"][1]] =   {"link": {  "@href":"./?mode=image&processId="+process.getId()+"",
