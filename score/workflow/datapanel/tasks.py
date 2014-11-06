@@ -23,10 +23,10 @@ def activeTasks(context, main=None, session=None):
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
                                             "related":{"@id":"tasksFilter"},
-                                            "proc":[{
-                                                    "@id":1,
-                                                    "@name":"workflow.grid.activeTasksGrid.gridToolBar.celesta",
-                                                    "@type":"TOOLBAR"}]
+#                                             "proc":[{
+#                                                     "@id":1,
+#                                                     "@name":"workflow.grid.activeTasksGrid.gridToolBar.celesta",
+#                                                     "@type":"TOOLBAR"}]
                                             },
                                            {"@id":"tasksImage",
                                             "@type":"webtext",
