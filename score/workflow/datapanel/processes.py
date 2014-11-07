@@ -6,7 +6,12 @@ import simplejson as json
 def manageProcesses(context, main=None, session=None):
     data = {"datapanel":{"tab":[{"@id":"1",
                                 "@name":u"Развёрнутые процессы",
-                                "element":[{"@id":"processesGrid",
+                                "element":[{"@id":"processFilter",
+                                            "@type":"xforms",
+                                            "@template": "workflow/processFilter.xml",
+                                            "@proc":"workflow.xforms.processFilter.filterData.celesta",
+                                            },
+                                           {"@id":"processesGrid",
                                             "@type":"grid",
                                             "@proc":"workflow.grid.processesGrid.gridDataAndMeta.celesta",
                                             "@subtype":"JS_LIVE_GRID",
@@ -18,7 +23,8 @@ def manageProcesses(context, main=None, session=None):
                                                     {
                                                     "@id":2,
                                                     "@name":"workflow.grid.processesGrid.downloadProcFile.celesta",
-                                                    "@type":"DOWNLOAD"}]
+                                                    "@type":"DOWNLOAD"}],
+                                            "related":{"@id":"processFilter"}
                                             },
                                            {"@id":"processFormsGrid",
                                             "@type":"grid",
@@ -98,7 +104,12 @@ def manageProcesses(context, main=None, session=None):
                                 },
                                 {"@id":"launchedProcesses",
                                 "@name":u"Запущенные процессы",
-                                "element":[{"@id":"launchedProcessesGrid",
+                                "element":[{"@id":"launchedProcessFilter",
+                                            "@type":"xforms",
+                                            "@template": "workflow/processFilter.xml",
+                                            "@proc":"workflow.xforms.processFilter.filterData.celesta",
+                                            },
+                                           {"@id":"launchedProcessesGrid",
                                             "@type":"grid",
                                             "@proc":"workflow.grid.launchedProcessesGrid.gridDataAndMeta.celesta",
                                             "@subtype":"JS_LIVE_GRID",
@@ -107,7 +118,8 @@ def manageProcesses(context, main=None, session=None):
                                                     "@id":1,
                                                     "@name":"workflow.grid.launchedProcessesGrid.gridToolBar.celesta",
                                                     "@type":"TOOLBAR"}
-                                                    ]
+                                                    ],
+                                            "related":{"@id":"launchedProcessFilter"}
                                             },
                                            {"@id":"launchedProcessImage",
                                             "@type":"webtext",
@@ -153,7 +165,12 @@ def manageProcesses(context, main=None, session=None):
                                 },
                                 {"@id":"finishedProcesses",
                                 "@name":u"Завершённые процессы",
-                                "element":[{"@id":"finishedProcessesGrid",
+                                "element":[{"@id":"finishedProcessFilter",
+                                            "@type":"xforms",
+                                            "@template": "workflow/processFilter.xml",
+                                            "@proc":"workflow.xforms.processFilter.filterData.celesta",
+                                            },
+                                           {"@id":"finishedProcessesGrid",
                                             "@type":"grid",
                                             "@proc":"workflow.grid.finishedProcessesGrid.gridDataAndMeta.celesta",
                                             "@subtype":"JS_LIVE_GRID",
@@ -162,7 +179,8 @@ def manageProcesses(context, main=None, session=None):
                                                     "@id":1,
                                                     "@name":"workflow.grid.finishedProcessesGrid.gridToolBar.celesta",
                                                     "@type":"TOOLBAR"}
-                                                    ]
+                                                    ],
+                                            "related":{"@id":"finishedProcessFilter"}
                                             },
                                             {"@id":"finishedProcessEventsGrid",
                                             "@type":"grid",
@@ -187,6 +205,29 @@ def manageProcesses(context, main=None, session=None):
             }
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 
+def editingProcesses(context,main=None,session=None):
+    u'''Датапанель редактирования процессов'''
+    data = {"datapanel":{"tab":[ {"@id":"schemaProcess",
+                                "@name":u"Старт процесса",
+                                "element":[
+                                           {"@id":"selectionProcess",
+                                            "@type":"xforms",
+                                            "@proc":"workflow.xforms.selectionProcess.cardData.celesta",
+                                            "@template":"workflow/selectionProcessCard.xml",
+                                             "proc":[
+                                                    {
+                                                    "@id":"standardStartProcessCardSave",
+                                                    "@name":"workflow.xforms.standardStartProcessCard.cardSave.celesta",
+                                                    "@type":"SAVE"}]}
+                                           
+                                           ]
+                                }
+                                ]
+                         }
+            }
+    return XMLJSONConverter.jsonToXml(json.dumps(data))
+  
+    
 def drawProcesses(context, main=None, session=None):
     u'''Датапанель отрисовки изображения запущенного процесса или определения процесса'''
     data = {"datapanel":{"tab":[ {"@id":"schemaProcess",
@@ -203,6 +244,7 @@ def drawProcesses(context, main=None, session=None):
                          }
             }
     return XMLJSONConverter.jsonToXml(json.dumps(data))
+
 
 def standardStartProcess(context,main=None, session=None):
     u'''Датапанель стандартного запуска процесса'''
