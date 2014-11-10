@@ -207,8 +207,8 @@ def manageProcesses(context, main=None, session=None):
 
 def editingProcesses(context,main=None,session=None):
     u'''Датапанель редактирования процессов'''
-    data = {"datapanel":{"tab":[ {"@id":"schemaProcess",
-                                "@name":u"Старт процесса",
+    data = {"datapanel":{"tab":[ {"@id":"editProcess",
+                                "@name":u"Редактирование процесса",
                                 "element":[
                                            {"@id":"selectionProcess",
                                             "@type":"xforms",
@@ -218,8 +218,51 @@ def editingProcesses(context,main=None,session=None):
                                                     {
                                                     "@id":"standardStartProcessCardSave",
                                                     "@name":"workflow.xforms.standardStartProcessCard.cardSave.celesta",
-                                                    "@type":"SAVE"}]}
-                                           
+                                                    "@type":"SAVE"}]
+                                            },
+                                           {"@id":"matchingCircuitGrid",
+                                            "@type":"grid",
+                                            "@hideOnLoad":"true",
+                                            "@proc":"workflow.grid.matchingCircuitGrid.treeGrid.celesta",
+                                            "@subtype":"JS_TREE_GRID",
+                                            "@plugin":"treeDGrid",
+                                            "related":{
+                                                       "@id":"selectionProcess"
+                                                       },
+                                            "proc":[{
+                                                    "@id":1,
+                                                    "@name":"workflow.grid.matchingCircuitGrid.gridToolBar.celesta",
+                                                    "@type":"TOOLBAR"}
+                                                    ]
+                                            },
+                                           {"@id":"addMatcher",
+                                            "@neverShowInPanel":"true",
+                                            "@type":"xforms",
+                                            "@proc":"workflow.xforms.addMatcher.cardData.celesta",
+                                            "@template":"workflow/addMatcherCard.xml",
+                                            "related":{
+                                                       "@id":"matchingCircuitGrid"
+                                                       },
+                                             "proc":[
+                                                    {
+                                                    "@id":"addMatcherSave",
+                                                    "@name":"workflow.xforms.addMatcher.cardSave.celesta",
+                                                    "@type":"SAVE"}]
+                                            },
+                                           {"@id":"deleteMatcher",
+                                            "@neverShowInPanel":"true",
+                                            "@type":"xforms",
+                                            "@proc":"workflow.xforms.deleteMatcher.cardData.celesta",
+                                            "@template":"workflow/deleteMatcherCard.xml",
+                                            "related":{
+                                                       "@id":"matchingCircuitGrid"
+                                                       },
+                                             "proc":[
+                                                    {
+                                                    "@id":"deleteMatcherSave",
+                                                    "@name":"workflow.xforms.deleteMatcher.cardSave.celesta",
+                                                    "@type":"SAVE"}]
+                                            }               
                                            ]
                                 }
                                 ]
