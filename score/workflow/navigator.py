@@ -23,11 +23,12 @@ def testNavigator(context, session):
 def manageProcessesNav(context, session):
 
     session = json.loads(session)["sessioncontext"]
-    #raise Exception(session)
+    # raise Exception(session)
     if 'urlparams' in session:
         drawProcess = False
         startProcess = False
         finishTask = False
+        drawTable = False
         if isinstance(session['urlparams']['urlparam'], list):
             for params in session['urlparams']['urlparam']:
                 if params['@name'] == 'mode':
@@ -37,27 +38,45 @@ def manageProcessesNav(context, session):
                         startProcess = True
                     elif params['@value'][0] == 'task':
                         finishTask = True
+                    elif params['@value'][0] == 'table':
+                        drawTable = True
 #                 if params['@name'] == 'procInstId':
 #                     procInstId = params['@name'][1:-1]
         if drawProcess:
-            myNavigator = {
-                               "group":{
-                                        "@id": "workflow",
-                                        "@name": u"Организация рабочего процесса",
-                                        "@icon": "flowblock.png",
-                                        "level1":[{
-                                                  "@id": "drawProcesses",
-                                                  "@selectOnLoad": "true",
-                                                  "@name": u"Схема процесса",
-                                                  "action":{"main_context": "current",
-                                                             "datapanel":{"@type": "workflow.datapanel.processes.drawProcesses.celesta",
-                                                                          "@tab": "schemaProcess"}
-                                                             }
-                                                  }]
-                                        }
-                               }
+            myNavigator = {"group":
+                           {"@id": "workflow",
+                            "@name": u"Организация рабочего процесса",
+                            "@icon": "flowblock.png",
+                            "level1":
+                                [{"@id": "drawProcesses",
+                                  "@selectOnLoad": "true",
+                                  "@name": u"Схема процесса",
+                                  "action":
+                                    {"main_context": "current",
+                                     "datapanel":
+                                        {"@type": "workflow.datapanel.processes.drawProcesses.celesta",
+                                         "@tab": "schemaProcess"}
+                                     }
+                                  }]
+                            }
+                           }
             return myNavigator
-        if startProcess:
+        elif drawTable:
+            myNavigator = {"group":
+                           {"@id": "workflow",
+                            "@name": u"Организация рабочего процесса",
+                            "@icon": "flowblock.png",
+                            "level1":
+                                [{"@id": "drawTable",
+                                  "@selectOnLoad": "true",
+                                  "@name": u"Активные задачи",
+                                  "action":
+                                    {"main_context": "current",
+                                     "datapanel":
+                                        {"@type": "workflow.datapanel.tasks.drawTasksByProcId.celesta",
+                                         "@tab": "firstOrCurrent"}}}]}}
+            return myNavigator
+        elif startProcess:
             filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
             datapanelSettings = parse_json(filePath)
             myNavigator = {
@@ -77,7 +96,7 @@ def manageProcessesNav(context, session):
                                         }
                                }
             return myNavigator
-        if finishTask:
+        elif finishTask:
             filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
             datapanelSettings = parse_json(filePath)
             myNavigator = {"group":
@@ -155,7 +174,6 @@ def navSettings(context, session):
         if isinstance(session['urlparams']['urlparam'], list):
             for params in session['urlparams']['urlparam']:
                 if params['@name'] == 'mode':
-                    if params['@value'][0] == 'image' or params['@value'][0] == 'process' \
-                            or params['@value'][0] == 'task':
+                    if params['@value'][0] in ('image', 'process' 'task', 'table'):
                         myNavigator["@hideOnLoad"] = "true"
     return myNavigator
