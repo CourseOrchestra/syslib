@@ -9,13 +9,16 @@
 					<data/>
 				</schema>
 			</xf:instance>
+			<xf:bind>
+				<xf:bind ref="instance('xformId_mainInstance')/data/@newStatus" required="true()"></xf:bind>
+			</xf:bind>
 		</xf:model>
 	</head>
 
 	<body>
 		<!-- <xf:output value="serialize(instance('xformId_mainInstance'))"/> -->
 		<xf:group ref="instance('xformId_mainInstance')/data[@type = 'add']">
-			<xf:select1 ref="newStatus" class="break baseInput200" appearance="full">
+			<xf:select1 ref="@newStatus" class="break baseInput200" appearance="full">
 				<xf:itemset nodeset="../statuses/status">
 					<xf:label ref="@name"/>
 					<xf:value ref="@id"/>
@@ -23,7 +26,7 @@
 				<xf:label>Операция</xf:label>
 			</xf:select1>
 
-			<xf:textarea class="break baseInput400" ref="comment">
+			<xf:textarea class="break baseInput400" ref="@comment">
 				<xf:label>Комментарий</xf:label>
 			</xf:textarea>
 
