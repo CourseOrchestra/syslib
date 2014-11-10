@@ -15,11 +15,10 @@
 	</head>
 	<body>
 		<!-- <xf:output value="serialize(instance('xformId_mainInstance'))"/> -->
-		<div class="dateInput break">
-			<xf:output value="'Фильтры:'"/>
-			<xf:trigger>
+		<div class="filterButton break">
+			<xf:trigger appearance="minimal">
 				<xf:label>
-					<xf:output value="if(instance('xformId_mainInstance')/info/@show = 1, ' &lt;&lt;&lt;', ' &gt;&gt;&gt;')"/>
+					<xf:output value="concat('Фильтры ', if(instance('xformId_mainInstance')/info/@show = 1, '&lt;&lt;&lt;', '&gt;&gt;&gt;'))"/>
 				</xf:label>
 
 				<xf:action ev:event="DOMActivate">

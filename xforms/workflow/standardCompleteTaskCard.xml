@@ -14,6 +14,9 @@
 		<!-- <xf:output value="serialize(instance('xformId_mainInstance'))"></xf:output> -->
 
 		<xf:group ref="instance('xformId_mainInstance')/data[@type = 'add']">
+			<xf:textarea class="break baseInput400" ref="comment">
+				<xf:label>Комментарий</xf:label>
+			</xf:textarea>
 			<div class="button200 break">
 				<xf:trigger>
 					<xf:label>Завершить задачу</xf:label>

@@ -15,13 +15,17 @@
 	<body>
 		<!-- <xf:output value="serialize(instance('xformId_mainInstance'))"/> -->
 		<xf:group ref="instance('xformId_mainInstance')/data[@type = 'add']">
-			<xf:select1 ref="newStatus" class="break baseInput200">
+			<xf:select1 ref="newStatus" class="break baseInput200" appearance="full">
 				<xf:itemset nodeset="../statuses/status">
 					<xf:label ref="@name"/>
 					<xf:value ref="@id"/>
 				</xf:itemset>
 				<xf:label>Операция</xf:label>
 			</xf:select1>
+
+			<xf:textarea class="break baseInput400" ref="comment">
+				<xf:label>Комментарий</xf:label>
+			</xf:textarea>
 
 			<div class="break button200">
 				<xf:trigger>
