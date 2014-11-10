@@ -54,11 +54,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
     data = {"records":{"rec":[]}}
     _header = {"id":["~~id"],
-#                "schema":[u"Схема"],
                "name":[u"Название задачи"],
                "process": [u"Название процесса"],
-#                "link": [u"Документ"],
                "endTime": [u"Дата завершения"],
+               "comment": [u'Комментарий'],
                "properties":[u"properties"]}
 
     for column in _header:
@@ -84,8 +83,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                               historicVariables.variableName('docName').singleResult().textValue)
         procDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
         procDict[_header["name"][1]] = task.getName()
-#         procDict[_header["shift"][1]] = tasks.getDeleteReason()
         procDict[_header["endTime"][1]] = SimpleDateFormat("HH:mm dd.MM.yyyy").format(task.getEndTime())
+        procDict[_header["comment"][1]] = ' '.join([comment.getFullMessage() for comment in activiti.taskService.getTaskComments(task.id)])
 
         if processName == '' or processName in procDict[_header["process"][1]]:
             data["records"]["rec"].append(procDict)
@@ -94,7 +93,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "1300px",
+                                               "@gridWidth": "1250px",
                                                "@gridHeight": "500",
                                                "@totalCount": len(tasksList),
                                                "@profile":"default.properties"}
@@ -105,7 +104,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 #                                                        "type": "IMAGE"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "250px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0], "@width": "600px"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["endTime"][0], "@width": "150px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["endTime"][0], "@width": "105px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["comment"][0], "@width": "250px"})
 #     settings["gridsettings"]["columns"]["col"].append({"@id":_header["type"][0], "@width": "100px"})
 #     settings["gridsettings"]["columns"]["col"].append({"@id":_header["shift"][0], "@width": "150px"})
 
