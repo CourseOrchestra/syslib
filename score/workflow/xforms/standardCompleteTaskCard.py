@@ -30,13 +30,16 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Карточка стандартного запуска процесса'''
     if add == "added":
-        xformsdata = {"schema":{"@xmlns":'',
-                                "data":{"@type":'hide'},
-                                }
-                      }
+        xformsdata = {"schema":
+                      {"@xmlns":'',
+                       "data":
+                        {"@type":'hide'}}}
     else:
-        xformsdata = {"schema":{"@xmlns":'',
-                                "data":{"@type":'add'}}}
+        xformsdata = {"schema":
+                      {"@xmlns":'',
+                       "data":
+                        {"@type":'add',
+                         "comment": ""}}}
     xformssettings = {"properties":
                       {"event":
                        [{"@name": "single_click",
@@ -53,14 +56,17 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
     return JythonDTO(jsonData, jsonSettings)
 
-def cardSave(context, main, add, filterinfo, session, elementId, data):
+def cardSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     u'''Запуск процесса'''
     session = json.loads(session)['sessioncontext']
     if isinstance(session['urlparams']['urlparam'], list):
         for params in session['urlparams']['urlparam']:
             if params['@name'] == 'taskId':
                 taskId = params['@value'][0]
+            elif params['@name'] == 'processId':
+                processId = params['@value'][0]
     activiti = ActivitiObject()
-    # vars = {"initiator":'cock'}
+    jsonData = json.loads(xformsdata)["schema"]["data"]
+    activiti.taskService.addComment(taskId, processId, jsonData["comment"])
     activiti.taskService.complete(taskId)
     return context.message(u'Задача выполнена')
