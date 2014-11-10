@@ -24,54 +24,58 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
     u'''Функция получения списка всех событий для запущенных процессов. '''
     session = json.loads(session)
-    #raise Exception(session)
+    # raise Exception(session)
     procId = session["sessioncontext"]['related']['gridContext']["currentRecordId"]
     activiti = ActivitiObject()
-    #Получение информации о запущенном процессе
+    # Получение информации о запущенном процессе
     procInstance = activiti.historyService.createHistoricProcessInstanceQuery().processInstanceId(procId).singleResult()
     answerList = list()
     pushList = list()
     pushList.append(procInstance.getStartTime())
-    pushList.append(procInstance.getId()+'pi')
+    pushList.append(procInstance.getId() + 'pi')
     pushList.append(procInstance.getName())
     pushList.append(u'Старт процесса')
     pushList.append(procInstance.getId())
     pushList.append('')
+    pushList.append('')
     answerList.append(pushList)
-    #Получение информации о задачах запущенного процесса
+    # Получение информации о задачах запущенного процесса
     taskList = activiti.historyService.createHistoricTaskInstanceQuery().processInstanceId(procInstance.getId()).list()
-    
+
     for task in taskList:
         if task.getStartTime() is not None:
             pushList = list()
             pushList.append(task.getStartTime())
-            pushList.append(task.getId()+'s')
+            pushList.append(task.getId() + 's')
             pushList.append(task.getName())
             pushList.append(u'Старт задачи')
             pushList.append(task.getId())
             pushList.append('')
+            pushList.append('')
             answerList.append(pushList)
-            
+
         if task.getEndTime() is not None:
             pushList = list()
             pushList.append(task.getEndTime())
-            pushList.append(task.getId()+'f')
+            pushList.append(task.getId() + 'f')
             pushList.append(task.getName())
             pushList.append(u'Конец задачи')
             pushList.append(task.getId())
             pushList.append('')
+            pushList.append(' '.join([comment.getFullMessage() for comment in activiti.taskService.getTaskComments(task.id)]))
             answerList.append(pushList)
-    #raise Exception(answerList)
-    #Получение информации о изменениях переменных процесса
+    # raise Exception(answerList)
+    # Получение информации о изменениях переменных процесса
     variableList = activiti.historyService.createHistoricDetailQuery().processInstanceId(procInstance.getId()).list()
     for variable in variableList:
         pushList = list()
         pushList.append(variable.getTime())
-        pushList.append(variable.getId()+'v')
+        pushList.append(variable.getId() + 'v')
         pushList.append(variable.getName())
         pushList.append(u'Изменение переменной')
         pushList.append(variable.getId())
         pushList.append(variable.getValue())
+        pushList.append('')
         answerList.append(pushList)
     data = {"records":{"rec":[]}}
     _header = {"id":["~~id"],
@@ -80,28 +84,30 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              "description":[u"Описание"],
              "type":[u"Тип"],
              "date":[u"Дата"],
+             "comment":[u"Комментарий"],
              "properties":[u"properties"],
              "value":[u"Значение"]}
 
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
     # Проходим по таблице и заполняем data
-    #raise Exception(processesList)
-    
-    for instance in sorted(answerList, reverse = True):
+    # raise Exception(processesList)
+
+    for instance in sorted(answerList, reverse=True):
         procDict = {}
         procDict[_header["id"][1]] = instance[1]
         procDict[_header["pid"][1]] = instance[4]
         procDict[_header["name"][1]] = instance[2]
         procDict[_header["type"][1]] = instance[3]
         procDict[_header["value"][1]] = instance[5]
+        procDict[_header["comment"][1]] = instance[6]
         procDict[_header["date"][1]] = SimpleDateFormat("HH:mm dd.MM.yyyy").format(instance[0])
 #         procDict[_header["schema"][1]] = {"div":
 #                                            {"@align": "center",
 #                                             "img":
 #                                             {"@src": "solutions/default/resources/flowblock.png", "@height": "20px"}}}
-        #procDict[_header["description"][1]] = process.description
-        #procDict[_header["version"][1]] = process.version
+        # procDict[_header["description"][1]] = process.description
+        # procDict[_header["version"][1]] = process.version
         procDict[_header["properties"][1]] = { }
         data["records"]["rec"].append(procDict)
 
@@ -121,8 +127,9 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["type"][0], "@width": "100px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["value"][0], "@width": "100px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["date"][0], "@width": "100px"})
-    #settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
-    #settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "400px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["comment"][0], "@width": "200px"})
+    # settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
+    # settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "400px"})
     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
 
