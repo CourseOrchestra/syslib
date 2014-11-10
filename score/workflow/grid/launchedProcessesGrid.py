@@ -25,7 +25,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
     activiti = ActivitiObject()
     processesList = activiti.runtimeService.createProcessInstanceQuery().orderByProcessInstanceId().active().asc().list()
-    #Извлечение фильтра из related-контекста
+    # Извлечение фильтра из related-контекста
     session = json.loads(session)['sessioncontext']
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
@@ -40,6 +40,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              "description":[u"Описание"],
              "schema":[u"Схема"],
              "stop":[u'Остановка'],
+             "activeTasks":[u'Активные задачи'],
              "version":[u"Версия"],
              "properties":[u"properties"],
              "comment":[u"Комментарий"]}
@@ -47,32 +48,39 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
     # Проходим по таблице и заполняем data
-    #raise Exception(processesList)
+    # raise Exception(processesList)
     for process in processesList:
         procDict = {}
         procDict[_header["id"][1]] = process.getId()
         procDict[_header["pid"][1]] = process.getId()
         defId = process.getProcessDefinitionId()
-        procDict[_header["name"][1]] = activiti.repositoryService.createProcessDefinitionQuery().processDefinitionId(defId).singleResult().getName()        
+        procDict[_header["name"][1]] = activiti.repositoryService.createProcessDefinitionQuery().processDefinitionId(defId).singleResult().getName()
         if processName.lower() not in procDict[_header["name"][1]].lower():
             continue
         procDict[_header["comment"][1]] = ''
-        #Поле-ссылка для показа изображения процесса
-        procDict[_header["schema"][1]] =   {"div":
+        # Поле-ссылка для показа изображения процесса
+        procDict[_header["schema"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
-                                             {"@href": "./?mode=image&processKey="+process.getId()+"",
+                                             {"@href": "./?mode=image&processKey=" + process.getId() + "",
                                               "@target": "_blank",
                                               "img":
                                                 {"@src": "solutions/default/resources/flowblock.png"}}}}
-        #Поле-кнопка для остановки процесса
-        procDict[_header["stop"][1]] =  {"div":
+        # Поле-кнопка для остановки процесса
+        procDict[_header["stop"][1]] = {"div":
                                                 {"@align": "center",
                                                  "@class": "gridCellCursor",
                                                  "img":
                                                     {"@src": "solutions/default/resources/stop.png"}}}
-        #procDict[_header["description"][1]] = process.description
-        #procDict[_header["version"][1]] = process.version
+        procDict[_header["activeTasks"][1]] = {"div":
+                                                {"@align": "center",
+                                                 "a":
+                                                 {"@href": "./?mode=table&processId=%s" % process.getId(),
+                                                  "@target": "_blank",
+                                                  "img":
+                                                    {"@src": "solutions/default/resources/table.png"}}}}
+        # procDict[_header["description"][1]] = process.description
+        # procDict[_header["version"][1]] = process.version
         procDict[_header["properties"][1]] = {"event":
                                               [
                                                 {"@name":"cell_single_click",
@@ -122,12 +130,13 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                 }
     # Добавляем поля для отображения в gridsettings
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0], "@width": "40px"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["stop"][0], "@width": "50px"})    
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["stop"][0], "@width": "50px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["activeTasks"][0], "@width": "50px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["pid"][0], "@width": "150px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "300px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["comment"][0], "@width": "300px"})
-    #settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
-    #settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "400px"})
+    # settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
+    # settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "400px"})
     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
 
