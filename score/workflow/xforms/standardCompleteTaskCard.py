@@ -39,7 +39,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                       {"@xmlns":'',
                        "data":
                         {"@type":'add',
-                         "comment": ""}}}
+                         "@comment": ""}}}
     xformssettings = {"properties":
                       {"event":
                        [{"@name": "single_click",
@@ -56,7 +56,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
     return JythonDTO(jsonData, jsonSettings)
 
-def cardSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
+def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     u'''Запуск процесса'''
     session = json.loads(session)['sessioncontext']
     if isinstance(session['urlparams']['urlparam'], list):
@@ -67,6 +67,8 @@ def cardSave(context, main=None, add=None, filterinfo=None, session=None, elemen
                 processId = params['@value'][0]
     activiti = ActivitiObject()
     jsonData = json.loads(xformsdata)["schema"]["data"]
-    activiti.taskService.addComment(taskId, processId, jsonData["comment"])
+
+    if ' '.join(jsonData["@comment"].split(' ')) != '':
+        activiti.taskService.addComment(taskId, processId, jsonData["@comment"])
     activiti.taskService.complete(taskId)
     return context.message(u'Задача выполнена')

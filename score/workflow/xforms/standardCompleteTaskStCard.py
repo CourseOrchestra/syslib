@@ -29,8 +29,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             if params['@name'] == 'taskId':
                 taskId = params['@value'][0]
     xformsdata = {"schema":
-                    {"data":{"newStatus": "",
-                             "comment": "",
+                    {"data":{"@newStatus": "",
+                             "@comment": "",
                              "statuses": {"status": []}}
                      }
                   }
@@ -67,6 +67,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     session = json.loads(session)['sessioncontext']
+
     if isinstance(session['urlparams']['urlparam'], list):
         for params in session['urlparams']['urlparam']:
             if params['@name'] == 'taskId':
@@ -75,6 +76,11 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                 processId = params['@value'][0]
     activiti = ActivitiObject()
     jsonData = json.loads(xformsdata)["schema"]["data"]
-    activiti.taskService.addComment(taskId, processId, jsonData["comment"])
-    activiti.taskService.complete(taskId, {"status": jsonData["newStatus"]})
-    return context.message(u'Задача выполнена, статус изменен')
+
+    if jsonData["@newStatus"] != '':
+        if ' '.join(jsonData["@comment"].split(' ')) != '':
+            activiti.taskService.addComment(taskId, processId, jsonData["@comment"])
+        activiti.taskService.complete(taskId, {"status": jsonData["@newStatus"]})
+        return context.message(u'Задача выполнена, статус изменен')
+    else:
+        return context.error(u'Ошибка, не выбран новый статус')

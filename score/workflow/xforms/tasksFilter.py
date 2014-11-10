@@ -120,3 +120,35 @@ def allActiveTasksFilter(context, main=None, add=None, filterinfo=None, session=
     jsonData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))
     jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
     return JythonDTO(jsonData, jsonSettings)
+
+def activeTasksByProcIdFilter(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
+    xformsdata = {"schema":
+                    {"@xmlns":"",
+                     "info":
+                        {"@task": "",
+                         "@assignee": "",
+                         "@show": "0"
+                         }
+                     }
+                  }
+    xformssettings = {"properties":
+                        {"event":
+                         [{"@name": "single_click",
+                           "@linkId": "1",
+                           "action":
+                                {"main_context": "current",
+                                 "datapanel":
+                                    {"@type": "current",
+                                     "@tab": "current",
+                                     "element":
+                                        {"@id": "tasksGrid",
+                                         "add_context": 'current'
+                                         }
+                                     }
+                                 }
+                           }]
+                         }
+                      }
+    jsonData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))
+    jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
+    return JythonDTO(jsonData, jsonSettings)
