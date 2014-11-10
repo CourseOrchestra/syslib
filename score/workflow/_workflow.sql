@@ -15,6 +15,16 @@ CREATE TABLE form(
   CONSTRAINT Pk_forms PRIMARY KEY (processKey,id)
 );
 
+CREATE TABLE matchingCircuit(
+	processKey varchar(30) NOT NULL,
+	id int NOT NULL,
+	sid varchar(50) NOT NULL,
+	type varchar(50) NOT NULL,
+	number varchar(30) NOT NULL,
+	sort varchar(100) NOT NULL,
+	CONSTRAINT pk_matchingCircuit PRIMARY KEY(processKey,id)
+);
+
 CREATE TABLE status(
   id VARCHAR(50) NOT NULL,
   name VARCHAR(100) NOT NULL,
