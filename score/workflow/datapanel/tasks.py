@@ -141,7 +141,7 @@ def standardCompleteTask(context, main=None, session=None):
                   "@template":"workflow/standardCompleteTaskCard.xml",
                   "proc":
                     [{"@id":"completeTaskCardSave",
-                      "@name":"workflow.xforms.standardCompleteTaskCard.cardSave.celesta",
+                      "@name":"workflow.xforms.standardCompleteTaskCard.cardDataSave.celesta",
                       "@type":"SAVE"}]}]}}}
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 
@@ -160,4 +160,29 @@ def standardCompleteTaskWithStatus(context, main=None, session=None):
                     [{"@id":"completeTaskCardSave",
                       "@name":"workflow.xforms.standardCompleteTaskStCard.cardDataSave.celesta",
                       "@type":"SAVE"}]}]}}}
+    return XMLJSONConverter.jsonToXml(json.dumps(data))
+
+def drawTasksByProcId(context, main=None, session=None):
+    u'''Датапанель отрисовки таблицы активных задач'''
+    data = {"datapanel":
+            {"tab":
+             [{"@id":"activeTasks",
+               "@name":u"Активные задачи",
+               "element":
+                [{"@id":"tasksFilter",
+                "@type":"xforms",
+                "@template": "workflow/tasksFilter.xml",
+                "@proc":"workflow.xforms.tasksFilter.activeTasksByProcIdFilter.celesta",
+                },
+               {"@id":"tasksGrid",
+                "@type":"grid",
+                "@proc":"workflow.grid.activeTasksByProcIdGrid.gridDataAndMeta.celesta",
+                "@subtype":"JS_LIVE_GRID",
+                "@plugin":"liveDGrid",
+                "related":{"@id":"tasksFilter"},
+#                 "proc":[{
+#                         "@id":1,
+#                         "@name":"workflow.grid.activeTasksByProcIdGrid.gridToolBar.celesta",
+#                         "@type":"TOOLBAR"}]
+                }]}]}}
     return XMLJSONConverter.jsonToXml(json.dumps(data))
