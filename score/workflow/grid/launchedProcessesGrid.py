@@ -62,7 +62,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict[_header["schema"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
-                                             {"@href": "./?mode=image&processKey=" + process.getId() + "",
+                                             {"@href": "./?mode=image&processId=" + process.getId() + "",
                                               "@target": "_blank",
                                               "img":
                                                 {"@src": "solutions/default/resources/flowblock.png"}}}}
