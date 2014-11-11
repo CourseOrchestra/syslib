@@ -174,6 +174,6 @@ def navSettings(context, session):
         if isinstance(session['urlparams']['urlparam'], list):
             for params in session['urlparams']['urlparam']:
                 if params['@name'] == 'mode':
-                    if params['@value'][0] in ('image', 'process' 'task', 'table'):
+                    if params['@value'][0] in ('image', 'process', 'task', 'table'):
                         myNavigator["@hideOnLoad"] = "true"
     return myNavigator
