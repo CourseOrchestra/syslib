@@ -44,34 +44,47 @@ from jarray import zeros
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
-    u'''Карточка добавления и редактирования элементов в грид согласователей процесаа'''
+    u'''Карточка добавления и редактирования элементов в грид согласователей процеса'''
     session = json.loads(session)
     add = json.loads(add)
     addContext = add[0]
     processKey = add[1]
     matchingCircuit = matchingCircuitCursor(context)
-    if 'currentRecordId' in session["sessioncontext"]["related"]["gridContext"]:
-        currentId = json.loads(session["sessioncontext"]["related"]["gridContext"]["currentRecordId"])
-        id = currentId['id']
-        matchingCircuit.get(processKey,id)
-        name = matchingCircuit.sid
-        if addContext == 'add':
-            parentId = id
-            parentName = name
-            parallelAlignment = 'true'
-            id = ''
-            name = ''
-        else:
-            parentId = ''
-            parentName = ''
-            parallelAlignment = 'false'
-    else:
+    currentId = json.loads(session["sessioncontext"]["related"]["gridContext"]["currentRecordId"])
+    assignee = ''
+    users = {"@tag":"tag"}
+    groups = {"@tag":"tag"}
+    #Фиктивный жлемент верхнего уровня
+    if currentId['id'] == 'top':
         parallelAlignment = 'false'
-        processKey
         id = ''
         name = ''
         parentId = ''
         parentName = 'Элемент верхнего уровня'
+    else:
+        id = currentId['id']
+        matchingCircuit.get(processKey,id)
+        name = matchingCircuit.name
+        #Добавление внуть параллельного согласования
+        if addContext == 'add':
+            parentId = id
+            parentName = u'Параллельное согласование'
+            parallelAlignment = 'true'
+            id = ''
+            name = ''
+        else:
+            ass = json.loads(matchingCircuit.assJSON)
+            #Получение ответственного лица и списка кандидатов
+            assignee = ass['assignee']
+            users = {'@tag':'tag','user':[]}
+            groups = {'@tag':'tag','group':[]}
+            for user in ass['users']:
+                users['user'].append({'name':user})
+            for group in ass['groups']:
+                groups['group'].append({'name':group})
+            parentId = ''
+            parentName = ''
+            parallelAlignment = 'false'
     xformsdata = {"schema":{"@xmlns":'',
                         "data":{
                                 "@id":id,
@@ -81,8 +94,12 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                 "@processKey" : processKey,
                                 "@parallel": parallelAlignment,
                                 "@isParallel": 'false',
-                                "@add":addContext},                            
-                        }
+                                "@add":addContext,
+                                "@assignee":assignee,
+                                "users":users,
+                                 "groups":groups                            
+                                 }
+                            }
               }
     xformssettings = {"properties":{
                                     "event":[{"@name": "single_click",
@@ -112,20 +129,46 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     data_dict = json.loads(data)
     processKey = data_dict["schema"]["data"]["@processKey"]
     parentId = data_dict["schema"]["data"]["@parentId"]
-    sid = data_dict["schema"]["data"]["@name"]
-    id = data_dict["schema"]["data"]["@id"]
-    type = data_dict["schema"]["data"]["@add"]
+    name = data_dict["schema"]["data"]["@name"]
+    assignee = data_dict["schema"]["data"]["@assignee"]
     isParallel = data_dict["schema"]["data"]["@isParallel"]
-    if type == 'edit':
+    addContext = data_dict["schema"]["data"]["@add"]
+    id = data_dict["schema"]["data"]["@id"]
+    #Если добавляем не параллельное согласование, то получаем список кандидатов
+    if isParallel == 'false':
+        users = list()
+        if 'user' in data_dict["schema"]["data"]["users"]:
+            users = data_dict["schema"]["data"]["users"]["user"]
+        if isinstance(users,dict):
+            users = [users]
+        usersList = list() 
+        for user in users:
+            usersList.append(user['name'])
+        groups = list()
+        if 'group' in data_dict["schema"]["data"]["groups"]:
+            groups = data_dict["schema"]["data"]["groups"]["group"]
+        if isinstance(groups,dict):
+            groups = [groups]
+        groupsList = list()
+        for group in groups:
+            groupsList.append(group['name'])
+        assJSON = {'assignee':assignee,
+                   'users':usersList,
+                   'groups':groupsList}
+        ass = json.dumps(assJSON)
+    #Редактирование элемента
+    if addContext == 'edit':
         id = int(id)
         matchingCircuit.get(processKey,id)
-        matchingCircuit.sid = sid
+        matchingCircuit.name = name
+        matchingCircuit.assJSON = ass
         matchingCircuit.update()
         return context.message(u'Элемент изменён')
     else:
         if parentId == '':
             numbersSerie = numbersSeriesCursor(context)
             linesOfNumbersSeries = linesOfNumbersSeriesCursor(context)
+            #Если с процессом не связаны серии номеров, то ддобавляем серию номеров
             if numbersSerie.tryGet(processKey):
                 pass
             else:
@@ -147,25 +190,29 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
                 linesOfNumbersSeries.insert()
             matchingCircuit.processKey = processKey
             matchingCircuit.id = getNextNo.getNextNoOfSeries(context,processKey)
-            matchingCircuit.sid = sid
+            matchingCircuit.name = name
+            #Параллельное согласование
             if isParallel == 'true':
                 matchingCircuit.type = 'parallel'
-            else:
-                matchingCircuit.type = 'user'
+                matchingCircuit.name = 'parallel'
+            else:#Задача
+                matchingCircuit.type = 'task'
+                matchingCircuit.assJSON = ass
             matchingCircuitClone.setRange('processKey',processKey)
             matchingCircuitClone.setFilter('number',"!%'.'%")
             matchingCircuit.number = matchingCircuitClone.count() + 1
             matchingCircuit.insert()	
-        else:
+        else:#Добавление дочернего элемента для параллельного согласования
             parentId = int(parentId)
             matchingCircuit.setRange('processKey',processKey)
             matchingCircuit.get(processKey,parentId)
             number = getNewItemInLevelInHierarchy(context, matchingCircuit, 'number')
             matchingCircuit.processKey = processKey
             matchingCircuit.id = getNextNo.getNextNoOfSeries(context,processKey)
-            matchingCircuit.sid = sid
+            matchingCircuit.name = name
             matchingCircuit.type = 'user'
             matchingCircuit.number = number
+            matchingCircuit.assJSON = ass
             matchingCircuit.insert()
             
             

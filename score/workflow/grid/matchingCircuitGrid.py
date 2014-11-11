@@ -36,45 +36,62 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
     event = {}
     # Корень дерева
     if parentId is None:
+        #Вывод верхнего фиктивного элемента процесс
+        id_dict = dict()
+        id_dict["procKey"] = processKey
+        id_dict["id"] = 'top'
+        row = dict()
+        row[_headers['id']] = json.dumps(id_dict)
+        row[_headers['name']] = u'===Процесс==='
         matchingCircuit.setRange('processKey',processKey)
-        matchingCircuitClone.setRange('processKey',processKey)
-        matchingCircuit.setFilter('number',"!%'.'%")
-        matchingCircuit.orderBy('sort')
-        for matchingCircuit in matchingCircuit.iterate():
-            id_dict = dict()
-            id_dict["procKey"] = processKey
-            id_dict["id"] = matchingCircuit.id
-            row = dict()
-            row[_headers['id']] = json.dumps(id_dict)
-            row[_headers['name']] = matchingCircuit.sid
-            row[_headers['hasChildren']] = hasChildren(context,matchingCircuit.number,matchingCircuitClone)
-            row[_headers['properties']] = event
-
-            _data["records"]["rec"].append(row)
+        row[_headers['hasChildren']] = 1 if matchingCircuit.count() > 0 else False
+        row[_headers['properties']] = event
+        _data["records"]["rec"].append(row)
 # Дочерние элементы
     else:
-        isEmptyFlag = True
-        id_dict = json.loads(parentId)
-        matchingCircuit.get(id_dict["procKey"],id_dict["id"])
-        matchingCircuitClone.setRange('processKey',processKey)
-        number = matchingCircuit.number
-        matchingCircuit.setRange('processKey',processKey)
-        matchingCircuit.setFilter('number', "('%s.'%%)&(!'%s.'%%'.'%%)" % (number, number))
-        matchingCircuit.orderBy('sort')
-        for matchingCircuit in matchingCircuit.iterate():
-            isEmptyFlag = False
-            id_dict = dict()
-            id_dict["procKey"] = processKey
-            id_dict["id"] = matchingCircuit.id
-            row = dict()
-            row[_headers['id']] = json.dumps(id_dict)
-            row[_headers['name']] = matchingCircuit.sid
-            row[_headers['hasChildren']] = hasChildren(context,matchingCircuit.number,matchingCircuitClone)
-            row[_headers['properties']] = event
-
-            _data["records"]["rec"].append(row)
-        if isEmptyFlag:
-            _data = {"records": ''}
+        #Вывод элементов верхнего уровня
+        parentId = json.loads(parentId)
+        if parentId['id'] == 'top':        
+            matchingCircuit.setRange('processKey',processKey)
+            matchingCircuitClone.setRange('processKey',processKey)
+            matchingCircuit.setFilter('number',"!%'.'%")
+            matchingCircuit.orderBy('sort')
+            for matchingCircuit in matchingCircuit.iterate():
+                id_dict = dict()
+                id_dict["procKey"] = processKey
+                id_dict["id"] = matchingCircuit.id
+                row = dict()
+                row[_headers['id']] = json.dumps(id_dict)
+                if matchingCircuit.type == 'parallel':
+                    row[_headers['name']] = u'Параллельное согласование'
+                else:
+                    row[_headers['name']] = matchingCircuit.name
+                row[_headers['hasChildren']] = hasChildren(context,matchingCircuit.number,matchingCircuitClone)
+                row[_headers['properties']] = event
+                _data["records"]["rec"].append(row)
+        else:       
+            #Вывод параллельного согласования
+            isEmptyFlag = True
+            id_dict = parentId
+            matchingCircuit.get(id_dict["procKey"],id_dict["id"])
+            matchingCircuitClone.setRange('processKey',processKey)
+            number = matchingCircuit.number
+            matchingCircuit.setRange('processKey',processKey)
+            matchingCircuit.setFilter('number', "('%s.'%%)&(!'%s.'%%'.'%%)" % (number, number))
+            matchingCircuit.orderBy('sort')
+            for matchingCircuit in matchingCircuit.iterate():
+                isEmptyFlag = False
+                id_dict = dict()
+                id_dict["procKey"] = processKey
+                id_dict["id"] = matchingCircuit.id
+                row = dict()
+                row[_headers['id']] = json.dumps(id_dict)
+                row[_headers['name']] = matchingCircuit.name
+                row[_headers['hasChildren']] = hasChildren(context,matchingCircuit.number,matchingCircuitClone)
+                row[_headers['properties']] = event   
+                _data["records"]["rec"].append(row)
+            if isEmptyFlag:
+                _data = {"records": ''}
     resultData = XMLJSONConverter.jsonToXml(json.dumps(_data))
     settings = {"gridsettings":
                 {"action":
@@ -87,8 +104,7 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
                     {"header": u"Диагностические заключения"},
                  "columns":
                     {"col":
-                     [{"@id": u"Название"},
-                      {"@id": u"Тип"},
+                     [{"@id": u"Название"}
                       ]},
                  "properties":
                     {"@flip": "false",
@@ -110,6 +126,7 @@ def hasChildren(context, ident, cursor):
         return False
 
 def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementId=None):
+    u'''Тулбар грида согласователей процесса'''
     matchingCircuit = matchingCircuitCursor(context)
     session = json.loads(session)
     sid = session['sessioncontext']['sid']
@@ -120,16 +137,25 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
     hintEdit = u"Редактирование элемента"
     styleDelete = 'true'
     if ('currentRecordId' not in session['sessioncontext']['related']['gridContext']):
-        styleAdd = 'false'
+        styleAdd = 'true'
         styleEdit = 'true'
     else:
         styleAdd = 'true'
         currentId = json.loads(session['sessioncontext']['related']['gridContext']['currentRecordId'])
-        matchingCircuit.get(currentId['procKey'],currentId['id'])
-        if matchingCircuit.type == 'parallel':
+        #В фиктивный элемент верхнего уровня можно только добавлять элементы
+        if currentId['id'] == 'top':
             styleAdd = 'false'
-        styleEdit = 'false'
-        styleDelete = 'false'
+            styleEdit = 'true'
+        else:
+            matchingCircuit.get(currentId['procKey'],currentId['id'])
+            #В элементы параллельного согласования можно добавлять элементы, но нельзя редактировать параллельлное согласование
+            if matchingCircuit.type == 'parallel':
+                styleAdd = 'false'
+                styleEdit = 'true'
+            #Другие элементы можно редактировать
+            else:
+                styleEdit = 'false'
+            styleDelete = 'false'
     data = {"gridtoolbar":
         {"item":
          [{"@text": textAdd,
@@ -142,7 +168,7 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
              [{"main_context": 'current'},
               {"modalwindow":
                 {"@caption": u"Добавление элемента",
-                 "@height": "400",
+                 "@height": "600",
                  "@width": "600"}},
               {"datapanel":
                 {"@type": "current",
@@ -160,7 +186,7 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
              [{"main_context": 'current'},
               {"modalwindow":
                 {"@caption": u"Редактирование элемента",
-                 "@height": "400",
+                 "@height": "600",
                  "@width": "600"}},
               {"datapanel":
                 {"@type": "current",
@@ -179,7 +205,7 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
              "#sorted":
              [{"main_context": 'current'},
               {"modalwindow":
-                {"@caption": u"Удаление диагностического заключения",
+                {"@caption": u"Удаление элемента",
                  "@height": "150",
                  "@width": "450"}},
               {"datapanel":

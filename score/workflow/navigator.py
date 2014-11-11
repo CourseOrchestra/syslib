@@ -113,6 +113,7 @@ def manageProcessesNav(context, session):
                                   }]}}
             return myNavigator
     sid = session["sid"]
+    #Пункт меню управление процессами
     myNavigator = {
                    "group":{
                             "@id": "workflow",
@@ -128,6 +129,17 @@ def manageProcessesNav(context, session):
                                       }]
                             }
                    }
+    #Пункт меню редактирования процессов
+    myNavigator["group"]["level1"].append({"@id": "editingProcesses",
+                                          "@name": u"Редактирование процессов",
+                                          "action":
+                                            {"main_context": "current",
+                                             "datapanel":
+                                                {"@type": "workflow.datapanel.processes.editingProcesses.celesta",
+                                                 "@tab": "firstOrCurrent"
+                                                 }
+                                             }
+                                          })
     if userHasPermission(context, sid, 'activeTasks'):
         myNavigator["group"]["level1"].append({"@id": "activeTasks",
                                               "@name": u"Текущие задачи",

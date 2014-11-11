@@ -18,8 +18,9 @@ CREATE TABLE form(
 CREATE TABLE matchingCircuit(
 	processKey varchar(30) NOT NULL,
 	id int NOT NULL,
-	sid varchar(50) NOT NULL,
+	name varchar(50) NOT NULL,
 	type varchar(50) NOT NULL,
+	assJSON TEXT,
 	number varchar(30) NOT NULL,
 	sort varchar(100) NOT NULL,
 	CONSTRAINT pk_matchingCircuit PRIMARY KEY(processKey,id)
