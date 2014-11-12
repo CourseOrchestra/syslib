@@ -545,6 +545,11 @@ margin: 5px 3px 4px 4px;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }	
+
+ .xforms-select1.xforms-appearance-full .xforms-value{
+	background-image: none;
+	border: none;
+}
 /*
 .newbutton .xforms-trigger .xforms-label {
 display: block;
