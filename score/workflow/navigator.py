@@ -27,7 +27,7 @@ def manageProcessesNav(context, session):
     if 'urlparams' in session:
         drawProcess = False
         startProcess = False
-        finishTask = False
+        documentTask = False
         drawTable = False
         if isinstance(session['urlparams']['urlparam'], list):
             for params in session['urlparams']['urlparam']:
@@ -37,7 +37,7 @@ def manageProcessesNav(context, session):
                     elif params['@value'][0] == 'process':
                         startProcess = True
                     elif params['@value'][0] == 'task':
-                        finishTask = True
+                        documentTask = True
                     elif params['@value'][0] == 'table':
                         drawTable = True
 #                 if params['@name'] == 'procInstId':
@@ -96,7 +96,7 @@ def manageProcessesNav(context, session):
                                         }
                                }
             return myNavigator
-        elif finishTask:
+        elif documentTask:
             filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
             datapanelSettings = parse_json(filePath)
             myNavigator = {"group":
@@ -109,7 +109,7 @@ def manageProcessesNav(context, session):
                                   "@name": u"Завершение задачи",
                                   "action":
                                     {"main_context": "current",
-                                     "datapanel":{"@type": datapanelSettings["completingTask"]}}
+                                     "datapanel":{"@type": datapanelSettings["documentTask"]}}
                                   }]}}
             return myNavigator
     sid = session["sid"]
