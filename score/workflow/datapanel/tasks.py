@@ -186,3 +186,20 @@ def drawTasksByProcId(context, main=None, session=None):
 #                         "@type":"TOOLBAR"}]
                 }]}]}}
     return XMLJSONConverter.jsonToXml(json.dumps(data))
+
+def approveTask(context, main=None, session=None):
+    u'''Датапанель утверждения задачи'''
+    data = {"datapanel":
+            {"tab":
+             {"@id":"completeTask",
+              "@name":u"Утверждение задачи",
+              "element":
+                [{"@id":"approveTaskCard",
+                  "@type":"xforms",
+                  "@proc":"workflow.xforms.approveTaskCard.cardData.celesta",
+                  "@template":"workflow/approveTaskCard.xml",
+                  "proc":
+                    [{"@id":"approveTaskCardSave",
+                      "@name":"workflow.xforms.approveTaskCard.cardDataSave.celesta",
+                      "@type":"SAVE"}]}]}}}
+    return XMLJSONConverter.jsonToXml(json.dumps(data))
