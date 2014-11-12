@@ -1,3 +1,5 @@
 {"startingProcess" : "workflow.datapanel.processes.standardStartProcess.celesta",
- "startingTask" : "workflow.datapanel.processes.standardStartProcess.celesta"
+ //"documentTask" : "workflow.datapanel.tasks.standardCompleteTask.celesta"
+ "documentTask" : "workflow.datapanel.tasks.standardCompleteTaskWithStatus.celesta"
+ //"documentTask": "workflow.datapanel.tasks.approveTask.celesta"
 }
