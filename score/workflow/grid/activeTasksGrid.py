@@ -31,6 +31,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     activiti = ActivitiObject()
     userRoles = UserRolesCursor(context)
     roles = RolesCursor(context)
+    form = formCursor(context)
     u'''получение данных из фильтра'''
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
@@ -105,18 +106,12 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         taskDict[_header["schema"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
-                                             {"@href": "./?mode=image&processId=%s" % processInstanceId,
+                                             {"@href": "./?userdata=%s&mode=image&processId=%s" \
+                                                            % (session["userdata"], processInstanceId),
                                               "@target": "_blank",
                                               "img":
                                                 {"@src": "solutions/default/resources/flowblock.png"}}}}
 
-#         {"link":
-#                                           {"@href":"./?mode=image&processId=%s" % processInstanceId,
-#                                            "@image":"solutions/default/resources/flowblock.png",
-#                                            "@text":"Схема",
-#                                            "@openInNewTab":"true"
-#                                              }
-#                                           }
         taskDict[_header["name"][1]] = task.name
         taskDict[_header["properties"][1]] = {"event":
                                               []}
@@ -143,10 +138,15 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                                             {'@id':'tasksGrid'}}}]}})
         else:
             taskDict[_header["assign"][1]] = ""
+
+        if form.tryGet(process.key, task.formKey):
+            link = form.link.replace('&[processId]', processInstanceId).replace('&[taskId]', task.id)
+        else:
+            link = "./?userdata=%s&mode=task&processId=%s&taskId=%s" % (session["userdata"], processInstanceId, task.id)
         taskDict[_header["document"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
-                                             {"@href": "./?mode=task&processId=%s&taskId=%s" % (processInstanceId, task.id),
+                                             {"@href": link,
                                               "@target": "_blank",
                                               "img":
                                                 {"@src": "solutions/default/resources/play.png"}}}} \
