@@ -112,7 +112,7 @@ def manageProcessesNav(context, session):
                                   }]}}
             return myNavigator
     sid = session["sid"]
-    #Пункт меню управление процессами
+    # Пункт меню управление процессами
     myNavigator = {
                    "group":{
                             "@id": "workflow",
@@ -128,7 +128,7 @@ def manageProcessesNav(context, session):
                                       }]
                             }
                    }
-    #Пункт меню редактирования процессов
+    # Пункт меню редактирования процессов
     myNavigator["group"]["level1"].append({"@id": "editingProcesses",
                                           "@name": u"Редактирование процессов",
                                           "action":
@@ -181,7 +181,7 @@ def navSettings(context, session):
         "@hideOnLoad": "false"
     }
     session = json.loads(session)["sessioncontext"]
-    if 'urlparams' in session and 'urlparam' in 'session['urlparams']:
+    if 'urlparams' in session and 'urlparam' in session['urlparams']:
         if isinstance(session['urlparams']['urlparam'], list):
             for params in session['urlparams']['urlparam']:
                 if params['@name'] == 'mode':
