@@ -213,12 +213,7 @@ def editingProcesses(context,main=None,session=None):
                                            {"@id":"selectionProcess",
                                             "@type":"xforms",
                                             "@proc":"workflow.xforms.selectionProcess.cardData.celesta",
-                                            "@template":"workflow/selectionProcessCard.xml",
-                                             "proc":[
-                                                    {
-                                                    "@id":"standardStartProcessCardSave",
-                                                    "@name":"workflow.xforms.standardStartProcessCard.cardSave.celesta",
-                                                    "@type":"SAVE"}]
+                                            "@template":"workflow/selectionProcessCard.xml"
                                             },
                                            {"@id":"matchingCircuitGrid",
                                             "@type":"grid",
@@ -234,6 +229,20 @@ def editingProcesses(context,main=None,session=None):
                                                     "@name":"workflow.grid.matchingCircuitGrid.gridToolBar.celesta",
                                                     "@type":"TOOLBAR"}
                                                     ]
+                                            },
+                                           {"@id":"generateProcessImage",
+                                            "@hideOnLoad":"true",
+                                            "@type":"webtext",
+                                            "@proc":"workflow.webtext.generateProcessImage.webtextData.celesta",
+                                            "related":{
+                                                       "@id":"selectionProcess"
+                                                       }
+                                            },
+                                           {"@id":"generateProcessDefinition",
+                                            "@hideOnLoad":"true",
+                                            "@type":"xforms",
+                                            "@proc":"workflow.xforms.generateProcessDefinition.cardData.celesta",
+                                            "@template":"workflow/generateProcessDefinition.xml"
                                             },
                                            {"@id":"addMatcher",
                                             "@neverShowInPanel":"true",
