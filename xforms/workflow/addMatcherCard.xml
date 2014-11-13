@@ -24,7 +24,7 @@
 			<xf:bind>
 				<xf:bind nodeset="instance('xformId_mainInstance')/data/@isParallel" type="boolean" />
 				<xf:bind nodeset="instance('xformId_mainInstance')/data/@name" required="instance('xformId_mainInstance')/data/@isParallel='false'"/>
-				<xf:bind nodeset="instance('xformId_mainInstance')/data/@assignee" required="instance('xformId_mainInstance')/data/@isParallel='false'"/>
+				<!-- <xf:bind nodeset="instance('xformId_mainInstance')/data/@assignee" required="instance('xformId_mainInstance')/data/@isParallel='false'"/> -->
 			</xf:bind>
 		</xf:model>
 	</head>
@@ -137,39 +137,41 @@
 					</div>
 				</div>
 		</xf:group>
-		<table>
-			<tr>
-				<td width="300px">
-					<div class="button200 break">
-						<xf:trigger>
-							<xf:label>Сохранить</xf:label>
-							<xf:action ev:event="DOMActivate" if="(is-valid(instance('xformId_mainInstance'))=true())">
-								<xf:load
-								resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"
-							>
-								</xf:load>
-							</xf:action>
-								<xf:action ev:event="DOMActivate"
-									if="(is-valid(instance('xformId_mainInstance'))=false())">
-									<xf:message>Заполнено с ошибкой</xf:message>
+		<xf:group class="break">
+			<table>
+				<tr>
+					<td width="300px">
+						<div class="button200 break">
+							<xf:trigger>
+								<xf:label>Сохранить</xf:label>
+								<xf:action ev:event="DOMActivate" if="(is-valid(instance('xformId_mainInstance'))=true())">
+									<xf:load
+									resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"
+								>
+									</xf:load>
 								</xf:action>
-						</xf:trigger>
-					</div>
-				</td>
-				<td>
-					<div class="button200">
-						<xf:trigger>
-							<xf:label>Закрыть</xf:label>
-							<xf:action ev:event="DOMActivate">
-								<xf:load
-								resource="javascript:gwtXFormUpdate('xformId','1', null)"
-							>
-								</xf:load>
-							</xf:action>
-						</xf:trigger>
-					</div>
-				</td>
-			</tr>
-		</table>
+									<xf:action ev:event="DOMActivate"
+										if="(is-valid(instance('xformId_mainInstance'))=false())">
+										<xf:message>Заполнено с ошибкой</xf:message>
+									</xf:action>
+							</xf:trigger>
+						</div>
+					</td>
+					<td>
+						<div class="button200">
+							<xf:trigger>
+								<xf:label>Закрыть</xf:label>
+								<xf:action ev:event="DOMActivate">
+									<xf:load
+									resource="javascript:gwtXFormUpdate('xformId','1', null)"
+								>
+									</xf:load>
+								</xf:action>
+							</xf:trigger>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</xf:group>
 	</body>
 </html>

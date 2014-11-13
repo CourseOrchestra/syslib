@@ -33,7 +33,11 @@
 						'XPath(instance(quot(xformId_mainInstance))/data/@existing)' : 'existing'}"/>
 					<xf:trigger>
 						<xf:label>X</xf:label>
-						<xf:action ev:event="DOMActivate">					
+						<xf:action ev:event="DOMActivate">
+							<xf:load
+								resource="javascript:gwtXFormUpdate('xformId','2', null)"
+							>
+							</xf:load>
 							<xf:setvalue ref="instance('xformId_mainInstance')/data/@processKey" value=""/>  
 							<xf:setvalue ref="instance('xformId_mainInstance')/data/@processName" value=""/>  
 							<xf:setvalue ref="instance('xformId_mainInstance')/data/@existing" value="'false'"/>
@@ -49,6 +53,7 @@
                         resource="javascript:gwtXFormUpdate('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"
                     >
 						</xf:load>
+						<xf:setvalue ref="instance('xformId_mainInstance')/data/@existing" value="'true'"/>
 					</xf:action>
 				</xf:trigger>
 			</div>		
