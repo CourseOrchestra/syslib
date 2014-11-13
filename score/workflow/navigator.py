@@ -23,8 +23,7 @@ def testNavigator(context, session):
 def manageProcessesNav(context, session):
 
     session = json.loads(session)["sessioncontext"]
-    # raise Exception(session)
-    if 'urlparams' in session:
+    if 'urlparams' in session and 'urlparam' in session['urlparams']:
         drawProcess = False
         startProcess = False
         documentTask = False
@@ -182,7 +181,7 @@ def navSettings(context, session):
         "@hideOnLoad": "false"
     }
     session = json.loads(session)["sessioncontext"]
-    if 'urlparams' in session:
+    if 'urlparams' in session and 'urlparam' in 'session['urlparams']:
         if isinstance(session['urlparams']['urlparam'], list):
             for params in session['urlparams']['urlparam']:
                 if params['@name'] == 'mode':
