@@ -8,13 +8,14 @@ Created on 12.11.2014
 
 
 
-
+import re
 import simplejson as json
 
 from common.sysfunctions import toHexForXml
 from workflow.processUtils import ActivitiObject
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject, getBase64Image
+
 
 from workflow._workflow_orm import matchingCircuitCursor
 
@@ -32,7 +33,14 @@ from org.xml.sax.helpers import XMLReaderFactory
 from org.xml.sax.ext import DefaultHandler2
 from org.xml.sax import InputSource
 from  javax.xml.stream import XMLOutputFactory
-from java.io import FileInputStream, StringWriter
+from java.io import FileInputStream, StringWriter, ByteArrayInputStream
+from java.lang import String
+import javax.xml.stream.XMLInputFactory as XMLInputFactory
+import java.io.InputStreamReader as InputStreamReader
+from org.activiti.engine.impl.util.io import InputStreamSource
+from org.activiti.engine.impl.util.io import StreamSource
+import org.activiti.bpmn.BpmnAutoLayout as BpmnAutoLayout
+import org.activiti.bpmn.converter.BpmnXMLConverter as BpmnXMLConverter
 
 def webtextData(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None):
@@ -68,6 +76,7 @@ def webtextData(context, main=None, add=None, filterinfo=None,
         matchingCircuitClone.setRange('processKey',processKey)
         matchingCircuit.setRange('type','parallel')
         parallelFlag = True
+        #Проверка на то, что в каждом параллельном согласовании не менее двух задач
         for matchingCircuit in matchingCircuit.iterate():
             matchingCircuitClone.setFilter('number',"'%s.'%%" % matchingCircuit.number)
             if matchingCircuitClone.count() < 2:
@@ -80,8 +89,27 @@ def webtextData(context, main=None, add=None, filterinfo=None,
         matchingCircuit.orderBy('sort')
         matchingCircuitClone.setRange('processKey',processKey)
         if parallelFlag:
-            processXML = getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName)
-            data = {'div':processXML}
+#             processXML = getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName)
+#             data = {'div':processXML}
+            actObj = ActivitiObject()
+            #raise Exception(getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName).encode('utf-8'))
+            #Получение xml-описания процесса
+            stream = ByteArrayInputStream(getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName).encode('utf-8'))
+#             xif = XMLInputFactory.newInstance()
+#             xin = InputStreamReader(stream)
+#             xtr = xif.createXMLStreamReader(xin)
+#             model = BpmnXMLConverter().convertToBpmnModel(xtr)
+            #Генерация картинки процесса
+            xmlSource = InputStreamSource(stream)
+            model = BpmnXMLConverter().convertToBpmnModel(xmlSource, False, False, String('UTF-8'));
+            actObj.repositoryService.validateProcess(model)
+            BpmnAutoLayout(model).execute()
+            generator = actObj.conf.getProcessDiagramGenerator()
+            imageStream = generator.generatePngDiagram(model)
+            #data = {'div':getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName)}
+            data = {"image":{"@align":"center",
+                      "@src": u"data:image/png;base64," + getBase64Image(imageStream)}}        
+
         else:
             data = {'div':u'В одном из параллельных согласований содержится меньше двух элементов'}
     
@@ -89,20 +117,20 @@ def webtextData(context, main=None, add=None, filterinfo=None,
 
 
 def getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName):
-    u'''Функция для склейки карточки с блоками правил'''
+    u'''Функция генерации XML-описания процесса'''
     try:
         #rootPath = AppInfoSingleton.getAppInfo().getCurUserData().getPath() + '/xforms/workflow/'
         rootPath = 'C:/jprojects/celesta/manage/general/xforms/workflow/'
     except:
         rootPath = 'C:/jprojects/celesta/manage/general/xforms/workflow/'
-
+    #Пути к шаблонам частей описания процесса
     startAndEndPath = rootPath + 'typicalProcessTemplate.bpmn.xml' #путь к блоку со стартом и концом описания процесса
     consecPath = rootPath + 'consecutiveTaskTemplate.bpmn.xml' #путь к блоку, описывающему последовательную задачу
     parallelMatchingPath = rootPath + 'parallelMatchingTemplate.bpmn.xml' #путь к блоку, описываюшему параллельное выполнение задач
     parallelTaskPath  = rootPath + 'parallelTaskTemplate.bpmn.xml' #путь к блоку, описываюшему параллельную задачу
     stringWriter = StringWriter()
     xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stringWriter)
-
+    
     parser = XMLReaderFactory.createXMLReader()
     handler = XformsProcessTemplate(startAndEndPath, consecPath, parallelMatchingPath, parallelTaskPath, matchingCircuit, matchingCircuitClone,processKey, processName, xmlWriter)
     parser.setContentHandler(handler)
@@ -115,7 +143,32 @@ def getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, proc
     xmlWriter.close()
     stringWriter.close()
     stream.close()
-    return unicode(stringWriter)
+    return stringWriter.toString()
+
+def transformToVar(exp,var):
+    u'''Функция трансформации переменных в вид, понятный activiti'''
+    if exp.match(var):
+        var = var.replace('[','{')
+        var = var.replace(']','}')
+        return var
+    else:
+        return var
+    
+def extractAssigneeAndCandidates(assJSON):
+    u'''Получение ответственного за задачу и кандидатов'''
+    pattern = '\$\[\w+\]'
+    exp = re.compile(pattern)
+    assJSON = json.loads(assJSON)
+    assignee = transformToVar(exp,assJSON['assignee'])
+    userList = list()
+    for user in assJSON['users']:
+        userList.append(transformToVar(exp,user))
+    groupList = list()
+    for group in assJSON['groups']:
+        groupList.append(transformToVar(exp,group))
+    return assignee, ','.join(userList),','.join(groupList)
+    
+    
 
 class XformsProcessTemplate(DefaultHandler2):
     u'''SAX-parser для описания процесса старта и конца процесса'''
@@ -138,11 +191,11 @@ class XformsProcessTemplate(DefaultHandler2):
         self.xmlWriter.flush()
 
     def startElement(self, namespaceURI, lname, qname, attrs):
-        if qname != 'startDescriptionTasks' and qname != 'process':
+        if qname != 'startDescriptionTasks' and qname != 'process':#Обыные элементы просто переписываем
             self.xmlWriter.writeStartElement(qname)
             for i in range(0, attrs.getLength()):
                 self.xmlWriter.writeAttribute(attrs.getQName(i), attrs.getValue(i))
-        elif qname == 'process':
+        elif qname == 'process':#Подменяем название и ключ процесса
             self.xmlWriter.writeStartElement(qname)
             for i in range(0, attrs.getLength()):
                 if attrs.getQName(i) == 'id':
@@ -151,23 +204,23 @@ class XformsProcessTemplate(DefaultHandler2):
                     self.xmlWriter.writeAttribute(attrs.getQName(i), self.processName)
                 else:
                     self.xmlWriter.writeAttribute(attrs.getQName(i), attrs.getValue(i))
-        elif qname == 'startDescriptionTasks':
+        elif qname == 'startDescriptionTasks':#Начало описания задач процесса
             inGatewayId = 'deleteDocumentExclusivegateway'
-            assignee = 'QUQU'
             self.matchingCircuitClone.setFilter('number',"!%'.'%")
             topTasksCount = self.matchingCircuitClone.count()
             self.matchingCircuitClone.setRange('number')
             counter = 0
             parallelGatewayCounter = 1
             for matchingCircuit in self.matchingCircuit.iterate():
-                if matchingCircuit.type == 'task':
+                if matchingCircuit.type == 'task':#Обработка последовательной задачи
                     counter += 1
                     if topTasksCount == counter:
                         outGatewayId = 'finalApprovementExclusivegateway'
                     else:
                         outGatewayId = 'outGateway'+str(matchingCircuit.id)
+                    assignee,candidates,groups = extractAssigneeAndCandidates(matchingCircuit.assJSON)
                     consecParser = XMLReaderFactory.createXMLReader()
-                    consecHandler = consecWriter(inGatewayId,str(matchingCircuit.id),matchingCircuit.name, assignee, outGatewayId,self.xmlWriter)
+                    consecHandler = consecWriter(inGatewayId,'task' + str(matchingCircuit.id),matchingCircuit.name, assignee,candidates,groups,outGatewayId,self.xmlWriter)
                     consecParser.setContentHandler(consecHandler)
                     consecParser.setErrorHandler(consecHandler)
                     consecParser.setFeature("http://xml.org/sax/features/namespace-prefixes", True)
@@ -175,7 +228,8 @@ class XformsProcessTemplate(DefaultHandler2):
                     stream = FileInputStream(self.consecPath)
                     consecParser.parse(InputSource(stream))
                     inGatewayId = outGatewayId
-                else:
+                    #raise Exception(consecHandler.char)
+                else:#Обработка параллельного согласования
                     self.matchingCircuitClone.setFilter('number',"'%s.'%%" % matchingCircuit.number)
                     counter += 1
                     if topTasksCount == counter:
@@ -225,28 +279,38 @@ class XformsProcessTemplate(DefaultHandler2):
 
 class consecWriter(DefaultHandler2):
     u'''SAX-parser для блока последовательной задачи'''
-    def __init__(self,inGatewayId,taskId,taskName, assignee, outGatewayId,xmlWriter):
+    def __init__(self,inGatewayId,taskId,taskName, assignee, candidates, groups, outGatewayId,xmlWriter):
         self.inGatewayId = inGatewayId
+        self.candidates = candidates
+        self.groups = groups
         self.taskId = taskId
         self.taskName = taskName
         self.assignee = assignee
         self.outGatewayId = outGatewayId
         self.xmlWriter = xmlWriter
+        self.char = list()
 
     def startElement(self, namespaceURI, lname, qname, attrs):
         if qname != "specialTag":
             self.xmlWriter.writeStartElement(qname)
-            if qname == 'userTask':               
+            if qname == 'userTask':#Описание задачи процесса             
                 for i in range(0, attrs.getLength()):
                     if attrs.getQName(i) == 'id':
                         self.xmlWriter.writeAttribute(attrs.getQName(i), self.taskId)
                     if attrs.getQName(i) == 'name':
                         self.xmlWriter.writeAttribute(attrs.getQName(i), self.taskName)
                     if attrs.getQName(i) == 'activiti:assignee':
-                        self.xmlWriter.writeAttribute(attrs.getQName(i), self.assignee)
-            elif qname == 'sequenceFlow':
+                        if self.assignee != '':
+                            self.xmlWriter.writeAttribute(attrs.getQName(i), self.assignee)
+                    if attrs.getQName(i) == 'activiti:candidateUsers':
+                        if self.candidates != '':
+                            self.xmlWriter.writeAttribute(attrs.getQName(i), self.candidates)
+                    if attrs.getQName(i) == 'activiti:candidateGroups':
+                        if self.groups != '':
+                            self.xmlWriter.writeAttribute(attrs.getQName(i), self.groups)
+            elif qname == 'sequenceFlow':#Описание рёбер
                 id = attrs.getValue('id')
-                if id == 'inFlow':
+                if id == 'inFlow':#Входящее ребро
                     for i in range(0, attrs.getLength()):
                         if attrs.getQName(i) == 'id':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), 'inFlow'+self.taskId)
@@ -254,7 +318,7 @@ class consecWriter(DefaultHandler2):
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.inGatewayId)
                         if attrs.getQName(i) == 'targetRef':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.taskId)
-                elif id == 'outFlow':
+                elif id == 'outFlow':#Исходящее ребро
                     for i in range(0, attrs.getLength()):
                         if attrs.getQName(i) == 'id':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), 'outFlow'+self.taskId)
@@ -262,7 +326,7 @@ class consecWriter(DefaultHandler2):
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.taskId)
                         if attrs.getQName(i) == 'targetRef':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.outGatewayId)
-                elif id == 'reworkFlow':
+                elif id == 'reworkFlow':#Ребро к доработк процесса
                     for i in range(0, attrs.getLength()):
                         if attrs.getQName(i) == 'id':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), 'reworkFlow'+self.taskId)
@@ -276,7 +340,7 @@ class consecWriter(DefaultHandler2):
                         self.xmlWriter.writeAttribute(attrs.getQName(i), self.outGatewayId)
                     if attrs.getQName(i) == 'name':
                         self.xmlWriter.writeAttribute(attrs.getQName(i), 'ExclusiveGateway')
-            else:
+            else:#Остальные элементы
                 for i in range(0, attrs.getLength()):
                     self.xmlWriter.writeAttribute(attrs.getQName(i), attrs.getValue(i))
 
@@ -286,7 +350,23 @@ class consecWriter(DefaultHandler2):
             self.xmlWriter.writeEndElement()
 
     def characters(self, ch, start, length):
-        self.xmlWriter.writeCharacters(ch, start, length)
+        u'''Для первой задачи надо изменить условия выхода из шлюза'''
+        if self.inGatewayId == 'deleteDocumentExclusivegateway':
+            rep = '${deleteDocument == "false"}'
+            pattern = list('${orderApproved == "true"}')
+            flag = True
+            if len(pattern) == length:
+                for i in range(length):
+                    if ch[start+i] != pattern[i]:
+                        flag = False
+            else:
+                flag = False
+            if flag:
+                self.xmlWriter.writeCharacters(rep, 0, len(rep))
+            else:
+                self.xmlWriter.writeCharacters(ch, start, length)
+        else:
+            self.xmlWriter.writeCharacters(ch, start, length)
 
     def comment(self, ch, start, length):
         self.xmlWriter.writeComment(''.join(ch[start:start + length]))
@@ -305,7 +385,7 @@ class consecWriter(DefaultHandler2):
         
 
 class parallelWriter(DefaultHandler2):
-    u'''SAX-parser для блока последовательной задачи'''
+    u'''SAX-parser для параллельного блока'''
     def __init__(self,inGatewayId, parallelGatewayIn, parallelGatewayOut, matchingCircuit, outGatewayId, parallelId, parallelTaskPath,xmlWriter):
         self.inGatewayId = inGatewayId
         self.parallelGatewayIn = parallelGatewayIn
@@ -319,7 +399,7 @@ class parallelWriter(DefaultHandler2):
     def startElement(self, namespaceURI, lname, qname, attrs):
         if qname != "specialTag" and qname != "parallelTasksDescription":
             self.xmlWriter.writeStartElement(qname)
-            if qname == 'parallelGateway':
+            if qname == 'parallelGateway':#Входной шлюз параллельного согласования
                 id = attrs.getValue('id')
                 if id == 'parallelGatewayIn':
                     for i in range(0, attrs.getLength()):
@@ -327,7 +407,7 @@ class parallelWriter(DefaultHandler2):
                             self.xmlWriter.writeAttribute(attrs.getQName(i), 'parallelGatewayIn' + str(self.parallelGatewayIn))
                         if attrs.getQName(i) == 'name':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), 'paralleGatewayIn')                    
-                elif id == 'parallelGatewayOut':              
+                elif id == 'parallelGatewayOut':#Выходной шлюз параллельного согласования              
                     for i in range(0, attrs.getLength()):
                         if attrs.getQName(i) == 'id':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), 'parallelGatewayOut' + str(self.parallelGatewayOut))
@@ -369,10 +449,10 @@ class parallelWriter(DefaultHandler2):
                 for i in range(0, attrs.getLength()):
                     self.xmlWriter.writeAttribute(attrs.getQName(i), attrs.getValue(i))
         elif qname == 'parallelTasksDescription':
-            assignee = 'QUQU'
             for matchingCircuit in self.matchingCircuit.iterate():
                 parallelTaskParser = XMLReaderFactory.createXMLReader()
-                parallelTaskHandler = parallelTaskWriter(str(matchingCircuit.id),matchingCircuit.name,assignee, 'parallelGatewayIn' + str(self.parallelGatewayIn),'parallelGatewayOut' + str(self.parallelGatewayOut),self.xmlWriter)
+                assignee, candidates, groups = extractAssigneeAndCandidates(matchingCircuit.assJSON)
+                parallelTaskHandler = parallelTaskWriter('task' + str(matchingCircuit.id),matchingCircuit.name,assignee,candidates,groups, 'parallelGatewayIn' + str(self.parallelGatewayIn),'parallelGatewayOut' + str(self.parallelGatewayOut),self.xmlWriter)
                 parallelTaskParser.setContentHandler(parallelTaskHandler)
                 parallelTaskParser.setErrorHandler(parallelTaskHandler)
                 parallelTaskParser.setFeature("http://xml.org/sax/features/namespace-prefixes", True)
@@ -385,7 +465,22 @@ class parallelWriter(DefaultHandler2):
             self.xmlWriter.writeEndElement()
 
     def characters(self, ch, start, length):
-        self.xmlWriter.writeCharacters(ch, start, length)
+        if self.inGatewayId == 'deleteDocumentExclusivegateway':
+            rep = '${deleteDocument == "false"}'
+            pattern = list('${orderApproved == "true"}')
+            flag = True
+            if len(pattern) == length:
+                for i in range(length):
+                    if ch[start+i] != pattern[i]:
+                        flag = False
+            else:
+                flag = False
+            if flag:
+                self.xmlWriter.writeCharacters(rep, 0, len(rep))
+            else:
+                self.xmlWriter.writeCharacters(ch, start, length)
+        else:
+            self.xmlWriter.writeCharacters(ch, start, length)
 
     def comment(self, ch, start, length):
         self.xmlWriter.writeComment(''.join(ch[start:start + length]))
@@ -403,14 +498,16 @@ class parallelWriter(DefaultHandler2):
         self.xmlWriter.writeEntityRef(name)
         
 class parallelTaskWriter(DefaultHandler2):
-    u'''SAX-parser для блока последовательной задачи'''
-    def __init__(self,taskId,taskName, assignee, flowIn,flowOut,xmlWriter):
+    u'''SAX-parser для одной параллельной задачи'''
+    def __init__(self,taskId,taskName, assignee, candidates,groups, flowIn,flowOut,xmlWriter):
         self.flowIn = flowIn
         self.flowOut = flowOut
         self.taskId = taskId
         self.taskName = taskName
         self.assignee = assignee
         self.xmlWriter = xmlWriter
+        self.candidates = candidates
+        self.groups = groups
 
     def startElement(self, namespaceURI, lname, qname, attrs):
         if qname != "specialTag":
@@ -422,7 +519,14 @@ class parallelTaskWriter(DefaultHandler2):
                     if attrs.getQName(i) == 'name':
                         self.xmlWriter.writeAttribute(attrs.getQName(i), self.taskName)
                     if attrs.getQName(i) == 'activiti:assignee':
-                        self.xmlWriter.writeAttribute(attrs.getQName(i), self.assignee)
+                        if self.assignee != '':
+                            self.xmlWriter.writeAttribute(attrs.getQName(i), self.assignee)
+                    if attrs.getQName(i) == 'activiti:candidateUsers':
+                        if self.candidates != '':
+                            self.xmlWriter.writeAttribute(attrs.getQName(i), self.candidates)
+                    if attrs.getQName(i) == 'activiti:candidateGroups':
+                        if self.groups != '':
+                            self.xmlWriter.writeAttribute(attrs.getQName(i), self.groups)
             elif qname == 'sequenceFlow':
                 id = attrs.getValue('id')
                 if id == 'flowIn':
