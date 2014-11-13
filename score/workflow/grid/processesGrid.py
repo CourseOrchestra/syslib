@@ -68,7 +68,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             link = form.link
             link = link.replace("$[processKey]", process.key)
         else:  # Стандартная форма инициализации процесса
-            link = "./?userdata=%s&mode=process&processKey=" % (session["userdata"], process.key)
+            link = "./?userdata=%s&mode=process&processKey=%s" % (session["userdata"], process.key)
         procDict[_header["startProcess"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
