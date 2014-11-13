@@ -71,6 +71,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     userRoles = UserRolesCursor(context)
     roles = RolesCursor(context)
     userRoles.setRange('userid', sid)
+    form = formCursor(context)
 
     for task in groupTaskList:
         taskDict = {}
@@ -97,10 +98,14 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         taskDict[_header["date"][1]] = SimpleDateFormat("HH:mm dd.MM.yyyy").format(task.getCreateTime())
         taskDict[_header["name"][1]] = task.name
 
+        if form.tryGet(processDefinition.key, task.formKey):
+            link = form.link.replace('&[processId]', processInstanceId).replace('&[taskId]', task.id)
+        else:
+            link = "./?userdata=%s&mode=task&processId=%s&taskId=%s" % (session["userdata"], processInstanceId, task.id)
         taskDict[_header["document"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
-                                             {"@href": "./?mode=task&processId=%s&taskId=%s" % (processInstanceId, task.id),
+                                             {"@href": link,
                                               "@target": "_blank",
                                               "img":
                                                 {"@src": "solutions/default/resources/play.png"}}}}
