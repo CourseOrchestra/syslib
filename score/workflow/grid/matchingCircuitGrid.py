@@ -101,7 +101,7 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
                     {"@type": "current",
                      "@tab": "current"}}]},
                  "labels":
-                    {"header": u"Диагностические заключения"},
+                    {"header": u"Порядок согласования"},
                  "columns":
                     {"col":
                      [{"@id": u"Название"}
@@ -169,7 +169,7 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
               {"modalwindow":
                 {"@caption": u"Добавление элемента",
                  "@height": "600",
-                 "@width": "600"}},
+                 "@width": "700"}},
               {"datapanel":
                 {"@type": "current",
                  "@tab": "current",
@@ -187,7 +187,7 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
               {"modalwindow":
                 {"@caption": u"Редактирование элемента",
                  "@height": "600",
-                 "@width": "600"}},
+                 "@width": "700"}},
               {"datapanel":
                 {"@type": "current",
                  "@tab": "current",
