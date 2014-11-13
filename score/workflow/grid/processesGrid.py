@@ -19,9 +19,9 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     u'''Функция получения списка всех развернутых процессов. '''
     form = formCursor(context)
     activiti = ActivitiObject()
-    #Получение списка развернутых процессов
+    # Получение списка развернутых процессов
     processesList = activiti.getActualVersionOfProcesses()
-    #Извлечение фильтра из related-контекста
+    # Извлечение фильтра из related-контекста
     session = json.loads(session)['sessioncontext']
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
@@ -41,7 +41,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
-    # Проходим по таблице и заполняем data    
+    # Проходим по таблице и заполняем data
     for process in processesList:
         procDict = {}
         if processName.lower() not in process.name.lower():
@@ -52,22 +52,23 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict[_header["description"][1]] = process.description
         procDict[_header["version"][1]] = process.version
         procDict[_header["file"][1]] = u'Загрузить'
-        #Поле-ссылка для отрисовки изображения процесса
+        # Поле-ссылка для отрисовки изображения процесса
         procDict[_header["schema"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
-                                             {"@href": "./?mode=image&processKey="+process.key+"",
+                                             {"@href": "./?userdata=%s&mode=image&processKey=%s" % \
+                                                    (session["userdata"], process.key),
                                               "@target": "_blank",
                                               "img":
-                                                {"@src": "solutions/default/resources/flowblock.png"}}}} 
-        #Формирование ссылки для запуска процесса
+                                                {"@src": "solutions/default/resources/flowblock.png"}}}}
+        # Формирование ссылки для запуска процесса
         form.setRange('processKey', process.key)
-        form.setRange('isStartForm',True)
-        if form.tryFirst():#Для процесса задана форма инициализации
+        form.setRange('isStartForm', True)
+        if form.tryFirst():  # Для процесса задана форма инициализации
             link = form.link
-            link = link.replace("$[processKey]",process.key)
-        else:#Стандартная форма инициализации процесса
-            link = "./?mode=process&processKey="+process.key
+            link = link.replace("$[processKey]", process.key)
+        else:  # Стандартная форма инициализации процесса
+            link = "./?userdata=%s&mode=process&processKey=" % (session["userdata"], process.key)
         procDict[_header["startProcess"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
@@ -76,7 +77,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                               "img":
                                                 {"@src": "solutions/default/resources/play.png"}}}}
 
-        
+
         procDict[_header["properties"][1]] = {"event":{"@name":"row_single_click",
                                          "action":{"#sorted":[{"main_context": 'current'},
                                                               {"datapanel":{'@type':"current",
@@ -95,7 +96,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                 "properties": {"@pagesize":"50",
                                                "@gridWidth": "1100px",
                                                "@gridHeight": "300",
-                                               
+
                                                "@totalCount": len(processesList),
                                                "@profile":"default.properties"}
                                 }
