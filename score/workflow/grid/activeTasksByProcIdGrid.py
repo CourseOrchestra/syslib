@@ -96,7 +96,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         taskDict[_header["schema"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
-                                             {"@href": "./?mode=image&processId=%s" % processInstanceId,
+                                             {"@href": "./?userdata=%s&mode=image&processId=%s" \
+                                                % (session["userdata"], processInstanceId,),
                                               "@target": "_blank",
                                               "img":
                                                 {"@src": "solutions/default/resources/flowblock.png"}}}}
