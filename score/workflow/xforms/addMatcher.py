@@ -85,6 +85,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             parentId = ''
             parentName = ''
             parallelAlignment = 'false'
+    name = name.replace('{','\{')
+    name = name.replace('}','\}')
     xformsdata = {"schema":{"@xmlns":'',
                         "data":{
                                 "@id":id,
@@ -109,6 +111,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                                                      "@tab": "current",
                                                                      "element":[
                                                                                 {"@id":'matchingCircuitGrid'},
+                                                                                {"@id":'generateProcessImage'}
                                                                                 ]
                                                                      }
                                                         }
@@ -155,6 +158,8 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
         assJSON = {'assignee':assignee,
                    'users':usersList,
                    'groups':groupsList}
+        if assignee == '' and groupsList == [] and usersList == []:
+            return context.error(u"Необходимо заполнить хотя бы одно из полей: 'Ответственный','Пользователи','Группы'")
         ass = json.dumps(assJSON)
     #Редактирование элемента
     if addContext == 'edit':

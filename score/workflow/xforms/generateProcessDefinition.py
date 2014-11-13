@@ -32,7 +32,6 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Карточка выбора процесса'''
-
     xformsdata = {"schema":
                     {"@xmlns":"",
                      "data":
@@ -59,30 +58,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                          },
                                       {"@id": 'generateProcessDefinition',
                                          "add_context": 'current'
-                                         },
-                                      {"@id": 'generateProcessImage',
-                                       "add_context":'current'}
-                                     ]
-                                     }
-                                 }
-                           },
-                          {"@name": "single_click",
-                           "@linkId": "2",
-                           "action":
-                                {"main_context": "current",
-                                 "datapanel":
-                                    {"@type": "current",
-                                     "@tab": "current",
-                                     "element":
-                                     [
-                                        {"@id": 'matchingCircuitGrid',
-                                         "add_context": "hide"
-                                         },
-                                      {"@id": 'generateProcessDefinition',
-                                         "add_context": "hide"
-                                         },
-                                      {"@id": 'generateProcessImage',
-                                       "add_context":'hide'}
+                                         }
                                      ]
                                      }
                                  }
@@ -94,18 +70,5 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     return JythonDTO(jsonData, jsonSettings)
 
 
-def processListAndCount(context, main=None, add=None, filterinfo=None, session=None, params=None,
-                curvalue="", startswith=None, firstrecord=None, recordcount=None):
-    u'''Функция count селектора исследований. '''
-    activiti = ActivitiObject()
-    #Получение списка развернутых процессов
-    processesList = activiti.getActualVersionOfProcesses()
-    recordList = ArrayList()
-    for process in processesList[firstrecord:firstrecord+recordcount]:
-        rec = DataRecord()
-        rec.setId(process.key)
-        rec.setName(process.name)
-        rec.addParameter('existing', 'true')
-        recordList.add(rec)
-    return ResultSelectorData(recordList, len(processesList))
+
 
