@@ -62,7 +62,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict[_header["schema"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
-                                             {"@href": "./?mode=image&processId=" + process.getId() + "",
+                                             {"@href": "./?userdata=%s&mode=image&processId=%s" % \
+                                                            (session["userdata"], process.getId()),
                                               "@target": "_blank",
                                               "img":
                                                 {"@src": "solutions/default/resources/flowblock.png"}}}}
@@ -75,7 +76,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict[_header["activeTasks"][1]] = {"div":
                                                 {"@align": "center",
                                                  "a":
-                                                 {"@href": "./?mode=table&processId=%s" % process.getId(),
+                                                 {"@href": "./?userdata=%s&mode=table&processId=%s" \
+                                                            % (session["userdata"], process.getId()),
                                                   "@target": "_blank",
                                                   "img":
                                                     {"@src": "solutions/default/resources/table.png"}}}}
