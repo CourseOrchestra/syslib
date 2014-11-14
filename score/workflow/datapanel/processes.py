@@ -242,7 +242,15 @@ def editingProcesses(context,main=None,session=None):
                                             "@hideOnLoad":"true",
                                             "@type":"xforms",
                                             "@proc":"workflow.xforms.generateProcessDefinition.cardData.celesta",
-                                            "@template":"workflow/generateProcessDefinition.xml"
+                                            "@template":"workflow/generateProcessDefinition.xml",
+                                            "related":{
+                                                       "@id":"selectionProcess"
+                                                       },
+                                            "proc":[
+                                                    {
+                                                    "@id":"deployProcess",
+                                                    "@name":"workflow.xforms.generateProcessDefinition.cardSave.celesta",
+                                                    "@type":"SAVE"}]
                                             },
                                            {"@id":"addMatcher",
                                             "@neverShowInPanel":"true",
