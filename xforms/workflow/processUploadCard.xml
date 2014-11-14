@@ -36,7 +36,7 @@
 		</xf:model>
 	</head>
 	<body>
-	 <xf:output value="serialize(instance('xformId_mainInstance'))"/> 
+	 <!-- <xf:output value="serialize(instance('xformId_mainInstance'))"/>  -->
 		<div class="button200">
 			<xf:upload id="xformId_processUpload" singleFile="true"  filenamesMapping="XPath(instance(quot(xformId_mainInstance))/files)" needClearFilenames="true" />
 		</div>

@@ -16,19 +16,19 @@
 	<body>
 		<!-- <xf:output value="serialize(instance('xformId_mainInstance'))"/> -->
 
-	
+		<xf:group ref = "instance('xformId_mainInstance')/data[./@allowed='true']">	
 			<div class="button200 break">
 				<xf:trigger>
-					<xf:label>Создать описанние процесса</xf:label>
+					<xf:label>Развернуть процесс</xf:label>
 					<xf:action ev:event="DOMActivate">
 						<xf:load
-                        resource="javascript:gwtXFormUpdate('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"
+                        resource="javascript:gwtXFormSave('xformId',null,  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"
                     >
 						</xf:load>
 					</xf:action>
 				</xf:trigger>
 			</div>		
-
+		</xf:group>
 
 
 	</body>

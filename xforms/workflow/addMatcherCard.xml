@@ -29,7 +29,7 @@
 		</xf:model>
 	</head>
 	<body>
-		<xf:output value="serialize(instance('xformId_mainInstance'))"/> 
+		<!-- <xf:output value="serialize(instance('xformId_mainInstance'))"/>  -->
 		<xf:group ref = "instance('xformId_mainInstance')/data[./@add='add']">
 			<div class = "baseInput200 break" >
 				<xf:output ref="instance('xformId_mainInstance')/data/@parentName">
