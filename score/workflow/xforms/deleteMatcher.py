@@ -68,7 +68,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                                                      "@tab": "current",
                                                                      "element":[
                                                                                 {"@id":'matchingCircuitGrid'},
-																				{"@id":'generateProcessImage'}
+																				{"@id":'generateProcessImage'},
+                                                                                {"@id":'generateProcessDefinition'}
                                                                                 ]
                                                                      }
                                                         }
