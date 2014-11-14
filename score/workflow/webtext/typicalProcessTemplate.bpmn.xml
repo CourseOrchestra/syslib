@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://activiti.org/bpmn20" id="review-definitions">
+  <process id="documentApprovingProcess" name="Утверждение документа" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="createDocument" name="Создание документа" activiti:assignee="${initiator}">
+		<extensionElements>
+        <activiti:taskListener event="create" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
+          <activiti:field name="language">
+            <activiti:string><![CDATA[groovy]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="script">
+            <activiti:expression>docVersion = task.setVariable("documentVersion", "")
+			</activiti:expression>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="fromStartToCreate" sourceRef="startevent1" targetRef="createDocument"></sequenceFlow>
+    <exclusiveGateway id="deleteDocumentExclusivegateway" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="fromStartToDeleteGateway" sourceRef="createDocument" targetRef="deleteDocumentExclusivegateway"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="fromDeleteToEnd1" sourceRef="deleteDocumentExclusivegateway" targetRef="endevent1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${deleteDocument == "true"}]]></conditionExpression>
+    </sequenceFlow>
+	
+	<userTask id="reworkDocument" name="Доработка документа" activiti:assignee="${initiator}"></userTask>
+  
+	<sequenceFlow id="fromReworkToDelete" sourceRef="reworkDocument" targetRef="deleteDocumentExclusivegateway"></sequenceFlow>
+	
+  
+	<startDescriptionTasks> </startDescriptionTasks>
+	
+    <endEvent id="endevent2" name="End"></endEvent>
+
+    
+
+
+	<sequenceFlow id="finalFlow" sourceRef="finalApprovementExclusivegateway" targetRef="endevent2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderApproved == "true"}]]></conditionExpression>
+    </sequenceFlow>
+	
+  </process>
+
+</definitions>

@@ -8,7 +8,7 @@ Created on 12.11.2014
 
 
 
-import re
+import re, os
 import simplejson as json
 
 from common.sysfunctions import toHexForXml
@@ -101,7 +101,7 @@ def webtextData(context, main=None, add=None, filterinfo=None,
 #             model = BpmnXMLConverter().convertToBpmnModel(xtr)
             #Генерация картинки процесса
             xmlSource = InputStreamSource(stream)
-            model = BpmnXMLConverter().convertToBpmnModel(xmlSource, False, False, String('UTF-8'));
+            model = BpmnXMLConverter().convertToBpmnModel(xmlSource, False, False, String('UTF-8'))
             actObj.repositoryService.validateProcess(model)
             BpmnAutoLayout(model).execute()
             generator = actObj.conf.getProcessDiagramGenerator()
@@ -120,9 +120,13 @@ def getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, proc
     u'''Функция генерации XML-описания процесса'''
     try:
         #rootPath = AppInfoSingleton.getAppInfo().getCurUserData().getPath() + '/xforms/workflow/'
-        rootPath = 'C:/jprojects/celesta/manage/general/xforms/workflow/'
+        
+        rootPath = os.path.dirname(os.path.abspath(__file__)) + '/'
+        
+        #rootPath = 'C:/jprojects/celesta/manage/general/xforms/workflow/'
     except:
         rootPath = 'C:/jprojects/celesta/manage/general/xforms/workflow/'
+    #raise Exception(rootPath,type(rootPath))
     #Пути к шаблонам частей описания процесса
     startAndEndPath = rootPath + 'typicalProcessTemplate.bpmn.xml' #путь к блоку со стартом и концом описания процесса
     consecPath = rootPath + 'consecutiveTaskTemplate.bpmn.xml' #путь к блоку, описывающему последовательную задачу
