@@ -19,6 +19,10 @@ import org.activiti.engine.ProcessEngineConfiguration as ProcessEngineConfigurat
 import org.activiti.bpmn.BpmnAutoLayout as BpmnAutoLayout
 import org.activiti.bpmn.converter.BpmnXMLConverter as BpmnXMLConverter
 import org.activiti.image.ProcessDiagramGenerator as ProcessDiagramGenerator
+from java.lang import String
+from java.io import ByteArrayInputStream
+from org.activiti.engine.impl.util.io import InputStreamSource
+from org.activiti.engine.impl.util.io import StreamSource
 import simplejson as json
 
 class ActivitiObject():
@@ -83,10 +87,13 @@ class ActivitiObject():
             diagramResourceName = processDefinition.getDiagramResourceName()
             imageStream = self.repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), diagramResourceName)
         else:
-            xif = XMLInputFactory.newInstance()
-            xin = InputStreamReader(self.getProcessXml(key, vernum))
-            xtr = xif.createXMLStreamReader(xin)
-            model = BpmnXMLConverter().convertToBpmnModel(xtr)
+#             xif = XMLInputFactory.newInstance()
+#             xin = InputStreamReader(self.getProcessXml(key, vernum))
+#             xtr = xif.createXMLStreamReader(xin)
+            stream = self.getProcessXml(key, vernum)
+            xmlSource = InputStreamSource(stream)
+            model = BpmnXMLConverter().convertToBpmnModel(xmlSource, False, False, String('UTF-8'))
+#             model = BpmnXMLConverter().convertToBpmnModel(xtr)
             self.repositoryService.validateProcess(model)
             BpmnAutoLayout(model).execute()
             generator = self.conf.getProcessDiagramGenerator()
@@ -106,10 +113,13 @@ class ActivitiObject():
         if processDefinition.getDiagramResourceName():
             model = self.repositoryService.getBpmnModel(processDefinition.getId())
         else:
-            xif = XMLInputFactory.newInstance()
-            xin = InputStreamReader(self.getProcessXml(key, vernum))
-            xtr = xif.createXMLStreamReader(xin)
-            model = BpmnXMLConverter().convertToBpmnModel(xtr)
+#             xif = XMLInputFactory.newInstance()
+#             xin = InputStreamReader(self.getProcessXml(key, vernum))
+#             xtr = xif.createXMLStreamReader(xin)
+#             model = BpmnXMLConverter().convertToBpmnModel(xtr)
+            stream = self.getProcessXml(key, vernum)
+            xmlSource = InputStreamSource(stream)
+            model = BpmnXMLConverter().convertToBpmnModel(xmlSource, False, False, String('UTF-8'))
             self.repositoryService.validateProcess(model)
             BpmnAutoLayout(model).execute()
         actuals = self.runtimeService.createExecutionQuery().processInstanceId(processInstance.getId()).singleResult()
