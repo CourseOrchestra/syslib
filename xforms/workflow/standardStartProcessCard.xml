@@ -28,7 +28,7 @@
 			</xf:group>
 			<xf:group ref="instance('xformId_mainInstance')/data[@type = 'hide']">
 			<div class="baseInput400 break">
-				Запуск процесса произошёл успешно. Данную вкладку можно закрыть.
+				Процесс стартуется из внешнего приложения.
 			</div>
 			</xf:group>	
 
