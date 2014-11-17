@@ -3,12 +3,13 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderApproved == "true"}]]></conditionExpression>
     </sequenceFlow>
     <parallelGateway id="parallelGatewayIn" name="Exclusive Gateway"></parallelGateway>
+	<parallelTasksDescription>
+	</parallelTasksDescription>
     <parallelGateway id="parallelGatewayOut" name="Exclusive Gateway"></parallelGateway>
+	<sequenceFlow id="parallelTOexclusive" sourceRef="parallelgateway2" targetRef="servicesApprovementExclusivegateway"></sequenceFlow>
     <exclusiveGateway id="gatewayOut" name="Exclusive Gateway"></exclusiveGateway>
-    <sequenceFlow id="parallelTOexclusive" sourceRef="parallelgateway2" targetRef="servicesApprovementExclusivegateway"></sequenceFlow>
 	<sequenceFlow id="reworkFlow" sourceRef="outGateway" targetRef="reworkDocument">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderApproved == "false"}]]></conditionExpression>
     </sequenceFlow>	
-	<parallelTasksDescription>
-	</parallelTasksDescription>
+
 </specialTag>

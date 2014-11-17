@@ -27,11 +27,8 @@
   
 	<sequenceFlow id="fromReworkToDelete" sourceRef="reworkDocument" targetRef="deleteDocumentExclusivegateway"></sequenceFlow>
 	
-  
-	<startDescriptionTasks> </startDescriptionTasks>
-	
-    <endEvent id="endevent2" name="End"></endEvent>
-
+	<startDescriptionTasks>
+	</startDescriptionTasks>
     
 
 
@@ -39,6 +36,11 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderApproved == "true"}]]></conditionExpression>
     </sequenceFlow>
 	
+	<endEvent id="endevent2" name="End"></endEvent>
+	
   </process>
-
+  <bpmndi:BPMNDiagram id="BPMNDiagram_documentApprovingProcess">
+	<bpmndi:BPMNPlane bpmnElement="documentApprovingProcess" id="BPMNPlane_documentApprovingProcess">
+	</bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
 </definitions>
