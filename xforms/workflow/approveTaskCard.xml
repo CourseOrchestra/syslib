@@ -10,7 +10,7 @@
 				</schema>
 			</xf:instance>
 			<xf:bind>
-				<xf:bind ref="instance('xformId_mainInstance')/data/@newStatus" required="true()"></xf:bind>
+				<xf:bind ref="instance('xformId_mainInstance')/data/@newStatus" required="true()"/>
 			</xf:bind>
 		</xf:model>
 	</head>
@@ -18,7 +18,7 @@
 	<body>
 		<!-- <xf:output value="serialize(instance('xformId_mainInstance'))"/> -->
 		<xf:group ref="instance('xformId_mainInstance')/data[@type = 'add']">
-			<xf:select1 ref="@status" class="break baseInput200" appearance="full">
+			<xf:select1 ref="@approveValue" class="break baseInput200" appearance="full">
 				<xf:itemset nodeset="../approves/approve">
 					<xf:label ref="@label"/>
 					<xf:value ref="@value"/>
@@ -26,9 +26,28 @@
 				<xf:label>Операция</xf:label>
 			</xf:select1>
 
+			<xf:group ref=".[@docDescription!='']" class="break">
+				<xf:output class="break baseInput400" ref="@docDescription">
+					<xf:label>Описание документа</xf:label>
+				</xf:output>
+			</xf:group>
+
 			<xf:textarea class="break baseInput400" ref="@comment">
 				<xf:label>Комментарий</xf:label>
 			</xf:textarea>
+
+			<xf:group ref="docRefs" class="break">
+				<xf:output  value="'Ссылки документа'"/>
+				<ul>
+					<xf:repeat id="ref" nodeset="ref">
+						<li>
+							<a href="{@value}" target="_blank">
+								<xf:output ref="@value"/>
+							</a>
+						</li>
+					</xf:repeat>
+				</ul>
+			</xf:group>
 
 			<div class="break button200">
 				<xf:trigger>
