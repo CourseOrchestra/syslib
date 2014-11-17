@@ -46,7 +46,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                         {"@type":'add',
                          "@approveValue": "",
                          "@docDescription": activiti.taskService.getVariable(taskId, 'docDescription'),
-                         "docRefs": {"ref": [{"@value": ref} for ref in json.loads(activiti.taskService.getVariable(taskId, 'docRef'))]},
+                         "docRefs": {"ref": [{"@value": ref} for ref in json.loads(activiti.taskService.getVariable(taskId, 'docRef'))]} if activiti.taskService.getVariable(taskId, 'docRef') not in ('', None) else '',
                          "approves":
                             {"approve":
                              [{"@value": "True",
