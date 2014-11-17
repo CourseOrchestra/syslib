@@ -14,6 +14,7 @@ import simplejson as json
 from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
+from workflow import processUtils
 from workflow._workflow_orm import formCursor
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
@@ -36,10 +37,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
         taskName = "%%%s%%" % ' '.join(info["@task"].split())
-        processName = ' '.join(info["@process"].split())
+        processName = "%%%s%%" % ' '.join(info["@process"].split())
     else:
         taskName = '%'
-        processName = ''
+        processName = '%'
     userRoles.setRange('userid', sid)
 
     rolesList = []
@@ -49,9 +50,9 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             if not userRoles.next():
                 break
 #     задачи, у которых кандидат - группа
-    groupTasksList = activiti.taskService.createTaskQuery().taskCandidateGroupIn(rolesList).taskNameLike(taskName).list()
+    groupTasksList = activiti.taskService.createTaskQuery().taskCandidateGroupIn(rolesList).taskNameLike(taskName).processDefinitionNameLike(processName).list()
 #     задачи, у которых кандидат или исполнитель - юзер
-    userTasksList = activiti.taskService.createTaskQuery().taskCandidateOrAssigned(sid).taskNameLike(taskName).list()
+    userTasksList = activiti.taskService.createTaskQuery().taskCandidateOrAssigned(sid).taskNameLike(taskName).processDefinitionNameLike(processName).list()
     taskDict = {}
 #     чтобы не дублировались задачи
     for task in userTasksList:
@@ -73,7 +74,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
 
-    runtimeService = activiti.runtimeService
+#     runtimeService = activiti.runtimeService
     taskService = activiti.taskService
     logins = loginsCursor(context)
 
@@ -98,9 +99,9 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 #         получаем процесс, чтобы потом получить его имя
         process = activiti.repositoryService.createProcessDefinitionQuery()\
             .processDefinitionId(task.getProcessDefinitionId()).singleResult()
-        docName = "%s. %s" % (runtimeService.getVariable(processInstanceId, 'docId'), \
-                              runtimeService.getVariable(processInstanceId, 'docName'))
-        taskDict[_header["process"][1]] = "%s: %s" % (process.name, docName)
+#         docName = "%s. %s" % (runtimeService.getVariable(processInstanceId, 'docId'), \
+#                               runtimeService.getVariable(processInstanceId, 'docName'))
+        taskDict[_header["process"][1]] = "%s" % (process.name)
 #         картинка, по нажатию переходим на схему
 
         taskDict[_header["schema"][1]] = {"div":
@@ -140,7 +141,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             taskDict[_header["assign"][1]] = ""
 
         if form.tryGet(process.key, task.formKey):
-            link = form.link.replace('&[processId]', processInstanceId).replace('&[taskId]', task.id)
+            link = processUtils.setVariablesInLink(activiti, processInstanceId, task.id, form.link)
         else:
             link = "./?userdata=%s&mode=task&processId=%s&taskId=%s" % (session["userdata"], processInstanceId, task.id)
         taskDict[_header["document"][1]] = {"div":
@@ -182,8 +183,9 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         else:
             taskDict[_header["reassign"][1]] = ""
 
-        if processName == '' or processName in taskDict[_header["process"][1]]:
-            data["records"]["rec"].append(taskDict)
+#         if processName == '' or processName in taskDict[_header["process"][1]]:
+#
+        data["records"]["rec"].append(taskDict)
 
     # Определяем список полей таблицы для отображения
     settings = {}
