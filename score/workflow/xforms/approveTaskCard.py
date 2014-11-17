@@ -34,11 +34,19 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                        "data":
                         {"@type":'hide'}}}
     else:
+        activiti = ActivitiObject()
+        session = json.loads(session)['sessioncontext']
+        if isinstance(session['urlparams']['urlparam'], list):
+            for params in session['urlparams']['urlparam']:
+                if params['@name'] == 'taskId':
+                    taskId = params['@value'][0]
         xformsdata = {"schema":
                       {"@xmlns":'',
                        "data":
                         {"@type":'add',
-                         "@status": "",
+                         "@approveValue": "",
+                         "@docDescription": activiti.taskService.getVariable(taskId, 'docDescription'),
+                         "docRefs": {"ref": [{"@value": ref} for ref in json.loads(activiti.taskService.getVariable(taskId, 'docRef'))]},
                          "approves":
                             {"approve":
                              [{"@value": "True",
