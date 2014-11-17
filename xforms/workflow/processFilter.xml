@@ -32,7 +32,7 @@
 			<xf:group ref="@processName">
 				<div class="baseInput200 break">
 					<xf:input ref=".">
-						<xf:label>Название задачи</xf:label>
+						<xf:label>Название процесса</xf:label>
 					</xf:input>
 				</div>
 			</xf:group>
