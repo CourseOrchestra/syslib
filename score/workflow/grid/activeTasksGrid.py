@@ -107,7 +107,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         taskDict[_header["schema"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
-                                             {"@href": "./?userdata=%s&mode=image&processId=%&formType=approve" \
+                                             {"@href": "./?userdata=%s&mode=image&processId=%s&formType=approve" \
                                                             % (session["userdata"], processInstanceId),
                                               "@target": "_blank",
                                               "img":
