@@ -24,6 +24,7 @@ from java.io import ByteArrayInputStream
 from org.activiti.engine.impl.util.io import InputStreamSource
 from org.activiti.engine.impl.util.io import StreamSource
 import simplejson as json
+from common.sysfunctions import tableCursorImport
 
 class ActivitiObject():
     def __init__(self):
@@ -252,3 +253,22 @@ def checkFormAccess(userId, processInstanceId, formId):
             else:
                 result = 'read'
     return result
+
+def getUserGroups(context, sid):
+    tableName = 'UserRoles'
+    grainName = 'celesta'
+    userField = 'userid'
+    roleField = 'roleid'
+    if grainName != 'celesta':
+        userRoles = tableCursorImport(grainName, tableName)(context)
+    else:
+        from ru.curs.celesta.syscursors import UserRolesCursor
+        userRoles = UserRolesCursor(context)
+    userRoles.setRange(userField, sid)
+    rolesList = []
+    if userRoles.tryFirst():
+        while True:
+            rolesList.append(getattr(userRoles, roleField))
+            if not userRoles.next():
+                break
+    return rolesList
