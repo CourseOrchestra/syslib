@@ -36,8 +36,8 @@
 				<xf:label>Комментарий</xf:label>
 			</xf:textarea>
 
-			<xf:group ref="docRefs" class="break">
-				<xf:output  value="'Ссылки документа'"/>
+			<xf:group ref="docRefs[count(ref)&gt;0]" class="break">
+				<xf:output value="'Ссылки документа'"/>
 				<ul>
 					<xf:repeat id="ref" nodeset="ref">
 						<li>
