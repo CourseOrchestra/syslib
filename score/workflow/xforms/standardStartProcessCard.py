@@ -19,28 +19,28 @@ try:
     from ru.beta2.extra.gwt.ui.selector.api import DataRecord
 except:
     from ru.curs.celesta.showcase import ResultSelectorData, DataRecord
-    
+
 try:
     from ru.curs.showcase.activiti import  EngineFactory
 except:
     from workflow import testConfig as EngineFactory
-    
+
 from java.io import InputStream, FileInputStream
 from jarray import zeros
 
-#from common.xmlutils import XMLJSONConverter
+# from common.xmlutils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Карточка стандартного запуска процесса'''
-    if add == "added":     
+    if add != "added":
         xformsdata = {"schema":{"@xmlns":'',
-                                "data":{"@type":'hide'},                            
+                                "data":{"@type":'hide'},
                                 }
                       }
     else:
         xformsdata = {"schema":{"@xmlns":'',
-                                "data":{"@type":'add'},                            
+                                "data":{"@type":'add'},
                                 }
                       }
     xformssettings = {"properties":{
@@ -59,18 +59,18 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     jsonData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))
     jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
     return JythonDTO(jsonData, jsonSettings)
-                 
+
 
 
 def cardSave(context, main, add, filterinfo, session, elementId, data):
     u'''Запуск процесса'''
     session = json.loads(session)['sessioncontext']
-    if isinstance(session['urlparams']['urlparam'],list):
+    if isinstance(session['urlparams']['urlparam'], list):
         for params in session['urlparams']['urlparam']:
             if params['@name'] == 'processKey':
                 processKey = params['@value'][0]
     activiti = ActivitiObject()
     vars = {}
-    #vars = {"initiator":'cock',"troll":'stock'}
-    activiti.runtimeService.startProcessInstanceByKey(processKey,vars)
+    # vars = {"initiator":'cock',"troll":'stock'}
+    activiti.runtimeService.startProcessInstanceByKey(processKey, vars)
     return context.message(u'Процесс запущен')
