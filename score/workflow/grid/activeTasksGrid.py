@@ -107,7 +107,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         taskDict[_header["schema"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
-                                             {"@href": "./?userdata=%s&mode=image&processId=%s&formType=approve" \
+                                             {"@href": "./?userdata=%s&mode=image&processId=%s" \
                                                             % (session["userdata"], processInstanceId),
                                               "@target": "_blank",
                                               "img":
@@ -143,7 +143,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         if form.tryGet(process.key, task.formKey):
             link = processUtils.setVariablesInLink(activiti, processInstanceId, task.id, form.link)
         else:
-            link = "./?userdata=%s&mode=task&processId=%s&taskId=%s" % (session["userdata"], processInstanceId, task.id)
+            link = "./?userdata=%s&mode=task&processId=%s&taskId=%s&formType=approve" % (session["userdata"], processInstanceId, task.id)
         taskDict[_header["document"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
