@@ -256,21 +256,31 @@ def checkFormAccess(userId, processInstanceId, formId):
 
 def getUserGroups(context, sid):
     u'''функция, которая возвращает список групп, в которые входит пользователь'''
-    tableName = 'UserRoles'  # имя таблицы, из которой берется список групп
-    grainName = 'celesta'  # имя гранулы, из которой берется список групп
-    userField = 'userid'  # название поля, в котором находится id пользователя
-    roleField = 'roleid'  # название поля, в котором находится id группы пользователя
-
-    if grainName != 'celesta':
-        userRoles = tableCursorImport(grainName, tableName)(context)
-    else:
-        from ru.curs.celesta.syscursors import UserRolesCursor
-        userRoles = UserRolesCursor(context)
-    userRoles.setRange(userField, sid)
     rolesList = []
-    if userRoles.tryFirst():
-        while True:
-            rolesList.append(getattr(userRoles, roleField))
-            if not userRoles.next():
-                break
+    infoDictList = [{"tableName": "UserRoles",  # имя таблицы, из которой берется список групп
+                     "grainName": "celesta",  # имя гранулы, из которой берется список групп
+                     "userField": "userid",  # название поля, в котором находится id пользователя
+                     "roleField": "roleid"  # название поля, в котором находится id группы пользователя
+                     },
+                    ]
+#     для добавления таблицы, из которой дополнительно будут браться группы пользователя,
+#     добавить в infoDictList словарь вида {"tableName": "...",
+#                                           "grainName": "...",
+#                                           "userField": "...",
+#                                           "roleField": "..."
+#                                           }
+#     в котором вместо многоточий подставить соответствующие данные добавляемой таблицы
+    for infoDict in infoDictList:
+        if infoDict['grainName'] != 'celesta':
+            userRoles = tableCursorImport(infoDict["grainName"], infoDict["tableName"])(context)
+        else:
+            from ru.curs.celesta.syscursors import UserRolesCursor
+            userRoles = UserRolesCursor(context)
+        userRoles.setRange(infoDict["userField"], sid)
+
+        if userRoles.tryFirst():
+            while True:
+                rolesList.append(getattr(userRoles, infoDict["roleField"]))
+                if not userRoles.next():
+                    break
     return rolesList
