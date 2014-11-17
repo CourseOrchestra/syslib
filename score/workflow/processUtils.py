@@ -255,10 +255,12 @@ def checkFormAccess(userId, processInstanceId, formId):
     return result
 
 def getUserGroups(context, sid):
-    tableName = 'UserRoles'
-    grainName = 'celesta'
-    userField = 'userid'
-    roleField = 'roleid'
+    u'''функция, которая возвращает список групп, в которые входит пользователь'''
+    tableName = 'UserRoles'  # имя таблицы, из которой берется список групп
+    grainName = 'celesta'  # имя гранулы, из которой берется список групп
+    userField = 'userid'  # название поля, в котором находится id пользователя
+    roleField = 'roleid'  # название поля, в котором находится id группы пользователя
+
     if grainName != 'celesta':
         userRoles = tableCursorImport(grainName, tableName)(context)
     else:
