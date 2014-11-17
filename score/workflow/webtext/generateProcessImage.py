@@ -662,11 +662,26 @@ class parallelWriter(DefaultHandler2):
                 for i in range(0, attrs.getLength()):
                     self.xmlWriter.writeAttribute(attrs.getQName(i), attrs.getValue(i))
         elif qname == 'parallelTasksDescription':
+            parallelTaskNumber = self.matchingCircuit.count()
+            if parallelTaskNumber % 2 == 0:
+                leftCorner = self.startX - self.gatewayAxis/2 - (parallelTaskNumber/2)*self.defaultTaskWidth - (parallelTaskNumber/2-1)*self.gatewayAxis                
+            else:
+                leftCorner = self.startX - self.defaultTaskWidth/2 - (parallelTaskNumber-1)/2*self.defaultTaskWidth - ((parallelTaskNumber-1)/2-1)*self.gatewayAxis
             for matchingCircuit in self.matchingCircuit.iterate():
                 parallelTaskParser = XMLReaderFactory.createXMLReader()
-                assignee, candidates, groups = extractAssigneeAndCandidates(matchingCircuit.assJSON)
-                leftCorner = self.defaultTaskWidth/2
-                parallelTaskHandler = parallelTaskWriter('task' + str(matchingCircuit.id),matchingCircuit.name,assignee,candidates,groups, 'parallelGatewayIn' + str(self.parallelGatewayIn),'parallelGatewayOut' + str(self.parallelGatewayOut),self.xmlWriter, self.xmlDiagramWriter, self.startX, self.currentY, leftCorner)
+                assignee, candidates, groups = extractAssigneeAndCandidates(matchingCircuit.assJSON)                
+                parallelTaskHandler = parallelTaskWriter('task' + str(matchingCircuit.id),
+                                                         matchingCircuit.name,
+                                                         assignee,
+                                                         candidates,
+                                                         groups,
+                                                         'parallelGatewayIn' + str(self.parallelGatewayIn),
+                                                         'parallelGatewayOut' + str(self.parallelGatewayOut),
+                                                         self.xmlWriter,
+                                                         self.xmlDiagramWriter,
+                                                         self.startX,
+                                                         self.currentY,
+                                                         leftCorner)
                 leftCorner = leftCorner + self.defaultTaskWidth + self.gatewayAxis
                 parallelTaskParser.setContentHandler(parallelTaskHandler)
                 parallelTaskParser.setErrorHandler(parallelTaskHandler)
@@ -768,9 +783,9 @@ class parallelTaskWriter(DefaultHandler2):
                         if attrs.getQName(i) == 'targetRef':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.taskId)
                     addBPMNEdge(self.flowIn+self.taskId+'parallelTask',
-                                 [(self.startX, self.currentY - self.gatewayAxis/2),
+                                 [(self.startX - self.gatewayAxis/2, self.currentY - self.gatewayAxis/2),
                                  (self.leftCorner+self.defaultTaskWidth/2, self.currentY - self.gatewayAxis/2),
-                                 (self.leftCorner+self.defaultTaskWidth/2,self.currentY + 2*self.gatewayAxis)],
+                                 (self.leftCorner+self.defaultTaskWidth/2,self.currentY + self.defaultFlowLength)],
                                  self.xmlDiagramWriter)   
                 elif id == 'flowOut':
                     for i in range(0, attrs.getLength()):
@@ -781,9 +796,9 @@ class parallelTaskWriter(DefaultHandler2):
                         if attrs.getQName(i) == 'targetRef':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.flowOut)
                     addBPMNEdge(self.flowOut+self.taskId+'parallelTask',
-                                 [(self.leftCorner+self.defaultTaskWidth/2,self.currentY + 2*self.gatewayAxis + self.defaultTaskHeight),
-                                  (self.leftCorner+self.defaultTaskWidth/2,self.currentY + 4*self.gatewayAxis + self.defaultTaskHeight),
-                                  (self.startX,self.currentY + 4*self.gatewayAxis + self.gatewayAxis/2 + self.defaultTaskHeight)],
+                                 [(self.leftCorner+self.defaultTaskWidth/2, self.currentY + self.defaultFlowLength + self.defaultTaskHeight),
+                                  (self.leftCorner+self.defaultTaskWidth/2, self.currentY + 2*self.defaultFlowLength + self.defaultTaskHeight + self.gatewayAxis/2),
+                                  (self.startX - self.gatewayAxis/2, self.currentY + 2*self.defaultFlowLength + self.defaultTaskHeight + self.gatewayAxis/2)],
                                  self.xmlDiagramWriter)                                            
             else:
                 for i in range(0, attrs.getLength()):
