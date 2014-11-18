@@ -54,12 +54,14 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                               {"@value": "False",
                                "@label": u"Отклонить"}]},
                          "@comment": ""}}}
-
-    	docRef = json.loads(activiti.taskService.getVariable(taskId, 'docRef')) if not isinstance(activiti.taskService.getVariable(taskId, 'docRef'), dict) else activiti.taskService.getVariable(taskId, 'docRef')
-    	docName = json.loads(activiti.taskService.getVariable(taskId, 'docName')) if not isinstance(activiti.taskService.getVariable(taskId, 'docName'), dict) else activiti.taskService.getVariable(taskId, 'docName')
-    	docIdList = docRef.keys()
-    	for docId in docIdList:
-        	xformsdata["schema"]["data"]["docRefs"]["ref"].append({"@value": docRef[docId],
+        docRef = activiti.taskService.getVariable(taskId, 'docRef')
+        docName = activiti.taskService.getVariable(taskId, 'docName')
+        if docRef is not None and docName is not None:
+            docRef = json.loads(activiti.taskService.getVariable(taskId, 'docRef')) if not isinstance(docRef, dict) else docRef
+            docName = json.loads(activiti.taskService.getVariable(taskId, 'docName')) if not isinstance(docName, dict) else docName
+            docIdList = docRef.keys()
+            for docId in docIdList:
+                xformsdata["schema"]["data"]["docRefs"]["ref"].append({"@value": docRef[docId],
                                                                	   "@name": docName[docId]})
     xformssettings = {"properties":
                       {"event":
