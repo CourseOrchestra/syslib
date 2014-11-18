@@ -98,12 +98,11 @@ def webtextData(context, main=None, add=None, filterinfo=None,
             #Получение xml-описания процесса
             processDefinition = getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName, maxParallelTasks)
             stream = ByteArrayInputStream(processDefinition.encode('utf-8'))
- 
             #Генерация картинки процесса
             xmlSource = InputStreamSource(stream)
             model = BpmnXMLConverter().convertToBpmnModel(xmlSource, False, False, String('UTF-8'))
             actObj.repositoryService.validateProcess(model)
-            BpmnAutoLayout(model).execute()
+            #BpmnAutoLayout(model).execute()
             generator = actObj.conf.getProcessDiagramGenerator()
             imageStream = generator.generatePngDiagram(model)
             #a1,a2 = getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName,maxParallelTasks)
