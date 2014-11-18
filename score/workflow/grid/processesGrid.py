@@ -60,7 +60,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                     (session["userdata"], process.key),
                                               "@target": "_blank",
                                               "img":
-                                                {"@src": "solutions/default/resources/flowblock.png"}}}}
+                                                {"@src": "solutions/default/resources/imagesingrid/flowblock.png"}}}}
         # Формирование ссылки для запуска процесса
         form.setRange('processKey', process.key)
         form.setRange('isStartForm', True)
@@ -75,7 +75,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                              {"@href": link,
                                               "@target": "_blank",
                                               "img":
-                                                {"@src": "solutions/default/resources/play.png"}}}}
+                                                {"@src": "solutions/default/resources/imagesingrid/play.png"}}}}
 
 
         procDict[_header["properties"][1]] = {"event":{"@name":"row_single_click",

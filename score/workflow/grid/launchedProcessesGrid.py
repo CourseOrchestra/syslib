@@ -66,13 +66,13 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                             (session["userdata"], process.getId()),
                                               "@target": "_blank",
                                               "img":
-                                                {"@src": "solutions/default/resources/flowblock.png"}}}}
+                                                {"@src": "solutions/default/resources/imagesingrid/flowblock.png"}}}}
         # Поле-кнопка для остановки процесса
         procDict[_header["stop"][1]] = {"div":
                                                 {"@align": "center",
                                                  "@class": "gridCellCursor",
                                                  "img":
-                                                    {"@src": "solutions/default/resources/stop.png"}}}
+                                                    {"@src": "solutions/default/resources/imagesingrid/stop.png"}}}
         procDict[_header["activeTasks"][1]] = {"div":
                                                 {"@align": "center",
                                                  "a":
@@ -80,7 +80,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                             % (session["userdata"], process.getId()),
                                                   "@target": "_blank",
                                                   "img":
-                                                    {"@src": "solutions/default/resources/table.png"}}}}
+                                                    {"@src": "solutions/default/resources/imagesingrid/table.png"}}}}
         # procDict[_header["description"][1]] = process.description
         # procDict[_header["version"][1]] = process.version
         procDict[_header["properties"][1]] = {"event":
