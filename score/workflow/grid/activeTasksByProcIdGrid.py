@@ -100,7 +100,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                 % (session["userdata"], processInstanceId,),
                                               "@target": "_blank",
                                               "img":
-                                                {"@src": "solutions/default/resources/flowblock.png"}}}}
+                                                {"@src": "solutions/default/resources/imagesingrid/flowblock.png"}}}}
 
         taskDict[_header["name"][1]] = task.name
         taskDict[_header["properties"][1]] = {"event":
