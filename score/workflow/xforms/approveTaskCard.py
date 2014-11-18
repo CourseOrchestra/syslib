@@ -91,5 +91,5 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
 
     if ' '.join(jsonData["@comment"].split(' ')) != '':
         activiti.taskService.addComment(taskId, processId, jsonData["@comment"])
-    activiti.taskService.setVariableLocal(taskId, 'approved', jsonData["@status"])
-    return context.message(u'Задача %s' % (u'утверждена' if jsonData["@status"] == 'True' else u'отклонена'))
+    activiti.taskService.setVariableLocal(taskId, 'approved', jsonData["@approveValue"])
+    return context.message(u'Задача %s' % (u'утверждена' if jsonData["@approveValue"] == 'True' else u'отклонена'))
