@@ -72,7 +72,7 @@ def manageProcesses(context, main=None, session=None):
                                                     "@name":"workflow.xforms.processFormDeleteCard.cardSave.celesta",
                                                     "@type":"SAVE"}]
 
-                                            },                                           
+                                            },
                                            {"@id":"processesImage",
                                             "@type":"webtext",
                                             "@hideOnLoad":"true",
@@ -103,7 +103,7 @@ def manageProcesses(context, main=None, session=None):
                                            ]
                                 },
                                 {"@id":"launchedProcesses",
-                                "@name":u"Запущенные процессы",
+                                "@name":u"Активные процессы",
                                 "element":[{"@id":"launchedProcessFilter",
                                             "@type":"xforms",
                                             "@template": "workflow/processFilter.xml",
@@ -160,7 +160,7 @@ def manageProcesses(context, main=None, session=None):
                                                     "@type":"TOOLBAR"}
                                                     ]
                                             }
-                                           
+
                                            ]
                                 },
                                 {"@id":"finishedProcesses",
@@ -197,15 +197,15 @@ def manageProcesses(context, main=None, session=None):
                                                     "@type":"TOOLBAR"}
                                                     ]
                                             }
-                                           
+
                                            ]
-                                }                                
+                                }
                                 ]
                          }
             }
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 
-def editingProcesses(context,main=None,session=None):
+def editingProcesses(context, main=None, session=None):
     u'''Датапанель редактирования процессов'''
     data = {"datapanel":{"tab":[ {"@id":"editProcess",
                                 "@name":u"Редактирование процесса",
@@ -279,15 +279,15 @@ def editingProcesses(context,main=None,session=None):
                                                     "@id":"deleteMatcherSave",
                                                     "@name":"workflow.xforms.deleteMatcher.cardSave.celesta",
                                                     "@type":"SAVE"}]
-                                            }               
+                                            }
                                            ]
                                 }
                                 ]
                          }
             }
     return XMLJSONConverter.jsonToXml(json.dumps(data))
-  
-    
+
+
 def drawProcesses(context, main=None, session=None):
     u'''Датапанель отрисовки изображения запущенного процесса или определения процесса'''
     data = {"datapanel":{"tab":[ {"@id":"schemaProcess",
@@ -297,7 +297,7 @@ def drawProcesses(context, main=None, session=None):
                                             "@type":"webtext",
                                             "@proc":"workflow.webtext.launchedProcessImage.webtextData.celesta"
                                             }
-                                           
+
                                            ]
                                 }
                                 ]
@@ -306,7 +306,7 @@ def drawProcesses(context, main=None, session=None):
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 
 
-def standardStartProcess(context,main=None, session=None):
+def standardStartProcess(context, main=None, session=None):
     u'''Датапанель стандартного запуска процесса'''
     data = {"datapanel":{"tab":[ {"@id":"schemaProcess",
                                 "@name":u"Старт процесса",
@@ -320,7 +320,7 @@ def standardStartProcess(context,main=None, session=None):
                                                     "@id":"standardStartProcessCardSave",
                                                     "@name":"workflow.xforms.standardStartProcessCard.cardSave.celesta",
                                                     "@type":"SAVE"}]}
-                                           
+
                                            ]
                                 }
                                 ]
