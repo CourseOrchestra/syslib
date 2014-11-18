@@ -66,7 +66,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                "name":[u"Название задачи"],
                "assign":[u"Принять"],
                "process": [u"Название процесса"],
-               "document": [u"Документ"],
+               "document": [u"Выполнить"],
                "reassign": [u"Передать задачу"],
                "userAss": [u"Назначена на"],
                "properties":[u"properties"]}
@@ -111,7 +111,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                             % (session["userdata"], processInstanceId),
                                               "@target": "_blank",
                                               "img":
-                                                {"@src": "solutions/default/resources/flowblock.png"}}}}
+                                                {"@src": "solutions/default/resources/imagesingrid/flowblock.png"}}}}
 
         taskDict[_header["name"][1]] = task.name
         taskDict[_header["properties"][1]] = {"event":
@@ -150,7 +150,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                              {"@href": link,
                                               "@target": "_blank",
                                               "img":
-                                                {"@src": "solutions/default/resources/play.png"}}}} \
+                                                {"@src": "solutions/default/resources/imagesingrid/play.png"}}}} \
                                                     if taskDict[_header["userAss"][1]] == logins.userName else ""
 #         {"link":
 #                                               {"@href":"./?mode=task&processId=%s&taskId=%s" % (processInstanceId, task.id),
