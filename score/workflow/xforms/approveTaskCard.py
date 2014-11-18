@@ -46,7 +46,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                         {"@type":'add',
                          "@approveValue": "",
                          "@docDescription": activiti.taskService.getVariable(taskId, 'docDescription'),
-                         "docRefs": {"ref": [{"@value": ref} for ref in json.loads(activiti.taskService.getVariable(taskId, 'docRef'))]} if activiti.taskService.getVariable(taskId, 'docRef') not in ('', None) else '',
+                         "docRefs": {"ref": []},
                          "approves":
                             {"approve":
                              [{"@value": "True",
@@ -54,6 +54,13 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                               {"@value": "False",
                                "@label": u"Отклонить"}]},
                          "@comment": ""}}}
+
+    docRef = json.loads(activiti.taskService.getVariable(taskId, 'docRef'))
+    docName = json.loads(activiti.taskService.getVariable(taskId, 'docName'))
+    docIdList = docRef.keys()
+    for docId in docIdList:
+        xformsdata["schema"]["data"]["docRefs"]["ref"].append({"@value": docRef[docId],
+                                                               "@name": docName[docId]})
     xformssettings = {"properties":
                       {"event":
                        [{"@name": "single_click",
