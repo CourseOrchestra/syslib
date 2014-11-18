@@ -55,11 +55,11 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                "@label": u"Отклонить"}]},
                          "@comment": ""}}}
 
-    docRef = json.loads(activiti.taskService.getVariable(taskId, 'docRef'))
-    docName = json.loads(activiti.taskService.getVariable(taskId, 'docName'))
-    docIdList = docRef.keys()
-    for docId in docIdList:
-        xformsdata["schema"]["data"]["docRefs"]["ref"].append({"@value": docRef[docId],
+        docRef = json.loads(activiti.taskService.getVariable(taskId, 'docRef'))
+        docName = json.loads(activiti.taskService.getVariable(taskId, 'docName'))
+        docIdList = docRef.keys()
+        for docId in docIdList:
+            xformsdata["schema"]["data"]["docRefs"]["ref"].append({"@value": docRef[docId],
                                                                "@name": docName[docId]})
     xformssettings = {"properties":
                       {"event":
