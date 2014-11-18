@@ -83,7 +83,7 @@ def webtextData(context, main=None, add=None, filterinfo=None,
             if matchingCircuitClone.count() < 2:
                 parallelFlag = False
             if matchingCircuitClone.count() > maxParallelTasks:
-                maxParallelTasks = matchingCircuit.count()
+                maxParallelTasks = matchingCircuitClone.count()
         matchingCircuit.clear()
         matchingCircuitClone.clear()
         matchingCircuit.setRange('processKey',processKey)
@@ -96,8 +96,8 @@ def webtextData(context, main=None, add=None, filterinfo=None,
             actObj = ActivitiObject()
             #raise Exception(getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName).encode('utf-8'))
             #Получение xml-описания процесса
-            a1, a2 = getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName, maxParallelTasks)
-            stream = ByteArrayInputStream(a1.encode('utf-8'))
+            processDefinition = getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName, maxParallelTasks)
+            stream = ByteArrayInputStream(processDefinition.encode('utf-8'))
  
             #Генерация картинки процесса
             xmlSource = InputStreamSource(stream)
@@ -138,7 +138,7 @@ def getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, proc
     xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stringWriter)
     xmlDiagramWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(diagramWriter)
     parser = XMLReaderFactory.createXMLReader()
-    handler = XformsProcessTemplate(startAndEndPath, consecPath, parallelMatchingPath, parallelTaskPath, matchingCircuit, matchingCircuitClone,processKey, processName, xmlWriter, xmlDiagramWriter, maxParallelTasks)
+    handler = XformsProcessTemplate(startAndEndPath, consecPath, parallelMatchingPath, parallelTaskPath, matchingCircuit, matchingCircuitClone,processKey, processName, xmlWriter, xmlDiagramWriter, diagramWriter, maxParallelTasks)
     parser.setContentHandler(handler)
     parser.setErrorHandler(handler)
     parser.setFeature("http://xml.org/sax/features/namespace-prefixes", True)
@@ -149,8 +149,9 @@ def getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, proc
     xmlWriter.close()
     stringWriter.close()
     diagramWriter.close()
+    xmlDiagramWriter.close()
     stream.close()
-    return stringWriter.toString(), diagramWriter.toString()
+    return stringWriter.toString()
 
 def transformToVar(exp,var):
     u'''Функция трансформации переменных в вид, понятный activiti'''
@@ -177,6 +178,7 @@ def extractAssigneeAndCandidates(assJSON):
     
     
 def addBPMNShape(id, height, width, x, y, diagramWriter):
+    u'''Функция записи в xml-файл объекта процесса по id с заданной шириной, высотой и координатами'''
     diagramWriter.writeStartElement('bpmndi:BPMNShape')
     diagramWriter.writeAttribute('bpmnElement',id)
     diagramWriter.writeAttribute('id','BPNMShape_'+id)
@@ -190,6 +192,7 @@ def addBPMNShape(id, height, width, x, y, diagramWriter):
     return y+height
 
 def addBPMNEdge(id, points, diagramWriter):
+    u'''Функция записи в xml-файл ребра по заданным точкам'''
     diagramWriter.writeStartElement('bpmndi:BPMNEdge')
     diagramWriter.writeAttribute('bpmnElement',id)
     diagramWriter.writeAttribute('id','BPMNEdge_'+id)
@@ -200,17 +203,33 @@ def addBPMNEdge(id, points, diagramWriter):
         diagramWriter.writeEndElement()  
     diagramWriter.writeEndElement()
 
-
+def addSpecialTag(writer):
+    u'''Функция записи в xml-файл специального тэга'''
+    writer.writeStartElement('specialTag')
+    writer.writeAttribute('xmlns','http://www.omg.org/spec/BPMN/20100524/MODEL')
+    writer.writeAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance')
+    writer.writeAttribute('xmlns:xsd','http://www.w3.org/2001/XMLSchema')
+    writer.writeAttribute('xmlns:activiti','http://activiti.org/bpmn')
+    writer.writeAttribute('xmlns:bpmndi','http://www.omg.org/spec/BPMN/20100524/DI')
+    writer.writeAttribute('xmlns:omgdc','http://www.omg.org/spec/DD/20100524/DC')
+    writer.writeAttribute('xmlns:omgdi','http://www.omg.org/spec/DD/20100524/DI')
+    writer.writeAttribute('typeLanguage','http://www.w3.org/2001/XMLSchema')
+    writer.writeAttribute('expressionLanguage','http://www.w3.org/1999/XPath')
+    writer.writeAttribute('targetNamespace','http://activiti.org/bpmn20')
+    writer.writeAttribute('id','specTa')
+    
+    
 class XformsProcessTemplate(DefaultHandler2):
     u'''SAX-parser для описания процесса старта и конца процесса'''
     def __init__(self, startAndEndPath, consecPath, parallelMatchingPath,\
                  parallelTaskPath,matchingCircuit,matchingCircuitClone, processKey,\
-                 processName,xmlWriter, xmlDiagramWriter, maxParallelTasks):
+                 processName,xmlWriter, xmlDiagramWriter,diagramWriter, maxParallelTasks):
         self.startAndEndPath = startAndEndPath
         self.consecPath = consecPath
         self.parallelMatchingPath = parallelMatchingPath
         self.parallelTaskPath = parallelTaskPath
         self.xmlWriter = xmlWriter
+        self.diagramWriter = diagramWriter
         self.xmlDiagramWriter = xmlDiagramWriter
         self.matchingCircuit = matchingCircuit
         self.matchingCircuitClone = matchingCircuitClone
@@ -222,7 +241,7 @@ class XformsProcessTemplate(DefaultHandler2):
         self.defaultTaskHeight = 55
         self.defaultTaskWidth = 300
         self.defaultFlowLength = 75
-        self.startX = ((self.defaultTaskWidth+self.gatewayAxis)*self.maxParallelTasks+self.defaultTaskWidth)/2
+        self.startX = ((self.defaultTaskWidth)*(self.maxParallelTasks+1)+self.gatewayAxis*(self.maxParallelTasks-1))/2
         self.currentY = int()
         self.processName = processName
 
@@ -234,7 +253,7 @@ class XformsProcessTemplate(DefaultHandler2):
         self.xmlWriter.flush()
 
     def startElement(self, namespaceURI, lname, qname, attrs):
-        if qname != 'startDescriptionTasks' and qname != 'process':#Обыные элементы просто переписываем
+        if qname != 'startDescriptionTasks' and qname != 'process' and qname != 'diagramDescription':#Обыные элементы просто переписываем
             self.xmlWriter.writeStartElement(qname)
             for i in range(0, attrs.getLength()):
                 if qname == 'bpmndi:BPMNDiagram' and attrs.getQName(i) == 'id':
@@ -264,7 +283,7 @@ class XformsProcessTemplate(DefaultHandler2):
                     self.currentY = addBPMNShape("reworkDocument",
                                       self.defaultTaskHeight,
                                       self.defaultTaskWidth,
-                                      self.startX*2,
+                                      self.startX*2 - self.defaultTaskWidth/2,
                                       self.startY+self.defaultStartEndDiametr/2+self.defaultFlowLength,
                                       self.xmlDiagramWriter)
             elif qname == 'endEvent':
@@ -307,11 +326,11 @@ class XformsProcessTemplate(DefaultHandler2):
                                   self.xmlDiagramWriter)                             
                 elif attrs.getValue('id') == "fromReworkToDelete":
                     addBPMNEdge("fromReworkToDelete",
-                                 [(self.startX*2,
+                                 [(self.startX*2 - self.defaultTaskWidth/2,
                                     self.startY+self.defaultStartEndDiametr/2+self.defaultFlowLength+self.defaultTaskHeight/2),
-                                  (self.startX*2-self.defaultStartEndDiametr,
+                                  (self.startX*2-self.defaultStartEndDiametr - self.defaultTaskWidth/2,
                                    self.startY+self.defaultStartEndDiametr/2+self.defaultFlowLength+self.defaultTaskHeight/2),
-                                  (self.startX*2-self.defaultStartEndDiametr,
+                                  (self.startX*2-self.defaultStartEndDiametr - self.defaultTaskWidth/2,
                                     self.startY+self.defaultStartEndDiametr/2+2*self.defaultFlowLength+self.defaultTaskHeight+self.gatewayAxis/2),
                                   (self.startX,
                                    self.startY+self.defaultStartEndDiametr/2+2*self.defaultFlowLength+self.defaultTaskHeight+self.gatewayAxis/2),  
@@ -324,6 +343,7 @@ class XformsProcessTemplate(DefaultHandler2):
                                   self.xmlDiagramWriter)           
         elif qname == 'process':#Подменяем название и ключ процесса
             self.xmlWriter.writeStartElement(qname)
+            addSpecialTag(self.xmlDiagramWriter)
             for i in range(0, attrs.getLength()):
                 if attrs.getQName(i) == 'id':
                     self.xmlWriter.writeAttribute(attrs.getQName(i), self.processKey)
@@ -381,10 +401,23 @@ class XformsProcessTemplate(DefaultHandler2):
                     stream = FileInputStream(self.parallelMatchingPath)
                     parallelParser.parse(InputSource(stream))
                     inGatewayId = outGatewayId
+        elif qname == 'diagramDescription':
+            diagramParser = XMLReaderFactory.createXMLReader()
+            diagramHandler = diagramWriter(self.xmlWriter)
+            diagramParser.setContentHandler(diagramHandler)
+            diagramParser.setErrorHandler(diagramHandler)
+            diagramParser.setFeature("http://xml.org/sax/features/namespace-prefixes", True)
+            diagramParser.setProperty("http://xml.org/sax/properties/lexical-handler", diagramHandler)
+            stream = ByteArrayInputStream(self.diagramWriter.toString().encode('utf-8'))
+            diagramParser.parse(InputSource(stream))
     
 
     def endElement(self, uri, lname, qname):
-        if qname != 'startDescriptionTasks':
+        if qname != 'startDescriptionTasks' and qname != 'diagramDescription':
+            if qname == 'process':
+                self.xmlDiagramWriter.writeEndElement()
+                self.diagramWriter.close()
+                self.xmlDiagramWriter.close
             self.xmlWriter.writeEndElement()
 
     def comment(self, ch, start, length):
@@ -495,8 +528,8 @@ class consecWriter(DefaultHandler2):
                             self.xmlWriter.writeAttribute(attrs.getQName(i), 'reworkDocument')
                     addBPMNEdge('reworkFlow'+self.taskId, 
                                 [(self.startX+self.gatewayAxis/2, self.currentY-self.gatewayAxis/2),
-                                (self.startX*2+self.defaultTaskWidth/2, self.currentY-self.gatewayAxis/2),
-                                (self.startX*2+self.defaultTaskWidth/2,self.startY+self.defaultStartEndDiametr/2+self.defaultFlowLength+self.defaultTaskHeight)],
+                                (self.startX*2, self.currentY-self.gatewayAxis/2),
+                                (self.startX*2,self.startY+self.defaultStartEndDiametr/2+self.defaultFlowLength+self.defaultTaskHeight)],
                                 self.xmlDiagramWriter)            
             elif qname == 'exclusiveGateway':
                 for i in range(0, attrs.getLength()):
@@ -604,7 +637,7 @@ class parallelWriter(DefaultHandler2):
                               self.gatewayAxis,
                               self.gatewayAxis,
                               self.startX-self.gatewayAxis/2,
-                              self.currentY,
+                              self.currentY-self.gatewayAxis/2,
                               self.xmlDiagramWriter)                 
             elif qname == 'sequenceFlow':
                 id = attrs.getValue('id')
@@ -632,7 +665,8 @@ class parallelWriter(DefaultHandler2):
                     addBPMNEdge('outFlowParallel'+str(self.parallelId),
                                  [(self.startX, self.currentY),
                                  (self.startX, self.currentY+self.defaultFlowLength)],
-                                 self.xmlDiagramWriter) 
+                                 self.xmlDiagramWriter)
+                    self.currentY = self.currentY + self.defaultFlowLength
                 elif id == 'reworkFlow':
                     for i in range(0, attrs.getLength()):
                         if attrs.getQName(i) == 'id':
@@ -641,10 +675,10 @@ class parallelWriter(DefaultHandler2):
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.outGatewayId)
                         if attrs.getQName(i) == 'targetRef':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), 'reworkDocument')                
-                    addBPMNEdge('reworkFlowParallel'+self.parallelId, 
+                    addBPMNEdge('reworkFlowParallel'+str(self.parallelId), 
                                 [(self.startX+self.gatewayAxis/2, self.currentY-self.gatewayAxis/2),
-                                (self.startX*2+self.defaultTaskWidth/2, self.currentY-self.gatewayAxis/2),
-                                (self.startX*2+self.defaultTaskWidth/2,self.startY+self.defaultStartEndDiametr/2+self.defaultFlowLength+self.defaultTaskHeight)],
+                                (self.startX*2, self.currentY-self.gatewayAxis/2),
+                                (self.startX*2,self.startY+self.defaultStartEndDiametr/2+self.defaultFlowLength+self.defaultTaskHeight)],
                                 self.xmlDiagramWriter)           
             elif qname == 'exclusiveGateway':
                 for i in range(0, attrs.getLength()):
@@ -656,20 +690,22 @@ class parallelWriter(DefaultHandler2):
                           self.gatewayAxis,
                           self.gatewayAxis,
                           self.startX-self.gatewayAxis/2,
-                          self.currentY+self.defaultFlowLength,
+                          self.currentY,
                           self.xmlDiagramWriter)   
             else:
                 for i in range(0, attrs.getLength()):
                     self.xmlWriter.writeAttribute(attrs.getQName(i), attrs.getValue(i))
         elif qname == 'parallelTasksDescription':
             parallelTaskNumber = self.matchingCircuit.count()
-            if parallelTaskNumber % 2 == 0:
-                leftCorner = self.startX - self.gatewayAxis/2 - (parallelTaskNumber/2)*self.defaultTaskWidth - (parallelTaskNumber/2-1)*self.gatewayAxis                
-            else:
-                leftCorner = self.startX - self.defaultTaskWidth/2 - (parallelTaskNumber-1)/2*self.defaultTaskWidth - ((parallelTaskNumber-1)/2-1)*self.gatewayAxis
+            counter = 0
+            leftCorner = self.startX - (parallelTaskNumber*self.defaultTaskWidth + (parallelTaskNumber-1)*self.gatewayAxis)/2
             for matchingCircuit in self.matchingCircuit.iterate():
                 parallelTaskParser = XMLReaderFactory.createXMLReader()
-                assignee, candidates, groups = extractAssigneeAndCandidates(matchingCircuit.assJSON)                
+                assignee, candidates, groups = extractAssigneeAndCandidates(matchingCircuit.assJSON)
+                if parallelTaskNumber % 2 == 1 and parallelTaskNumber/2 == counter:
+                    isCentral = True
+                else:
+                    isCentral = False
                 parallelTaskHandler = parallelTaskWriter('task' + str(matchingCircuit.id),
                                                          matchingCircuit.name,
                                                          assignee,
@@ -681,15 +717,18 @@ class parallelWriter(DefaultHandler2):
                                                          self.xmlDiagramWriter,
                                                          self.startX,
                                                          self.currentY,
-                                                         leftCorner)
+                                                         leftCorner,
+                                                         isCentral)
                 leftCorner = leftCorner + self.defaultTaskWidth + self.gatewayAxis
                 parallelTaskParser.setContentHandler(parallelTaskHandler)
                 parallelTaskParser.setErrorHandler(parallelTaskHandler)
                 parallelTaskParser.setFeature("http://xml.org/sax/features/namespace-prefixes", True)
                 parallelTaskParser.setProperty("http://xml.org/sax/properties/lexical-handler", parallelTaskHandler)
                 stream = FileInputStream(self.parallelTaskPath)
-                parallelTaskParser.parse(InputSource(stream))             
-
+                parallelTaskParser.parse(InputSource(stream))  
+                counter = counter + 1           
+            self.currentY = self.currentY + 3.5*self.gatewayAxis + self.defaultTaskHeight
+            
     def endElement(self, uri, lname, qname):
         if qname != "specialTag" and qname != 'parallelTasksDescription':
             self.xmlWriter.writeEndElement()
@@ -729,7 +768,7 @@ class parallelWriter(DefaultHandler2):
         
 class parallelTaskWriter(DefaultHandler2):
     u'''SAX-parser для одной параллельной задачи'''
-    def __init__(self,taskId,taskName, assignee, candidates,groups, flowIn,flowOut,xmlWriter, xmlDiagramWriter, startX, currentY, leftCorner):
+    def __init__(self,taskId,taskName, assignee, candidates,groups, flowIn,flowOut,xmlWriter, xmlDiagramWriter, startX, currentY, leftCorner, isCentral):
         self.flowIn = flowIn
         self.flowOut = flowOut
         self.taskId = taskId
@@ -746,6 +785,7 @@ class parallelTaskWriter(DefaultHandler2):
         self.defaultTaskHeight = 55
         self.defaultTaskWidth = 300
         self.defaultFlowLength = 75
+        self.isCentral = isCentral
         self.xmlDiagramWriter = xmlDiagramWriter
 
     def startElement(self, namespaceURI, lname, qname, attrs):
@@ -766,11 +806,11 @@ class parallelTaskWriter(DefaultHandler2):
                     if attrs.getQName(i) == 'activiti:candidateGroups':
                         if self.groups != '':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.groups)
-                self.currentY = addBPMNShape(self.taskId,
-                          self.gatewayAxis,
-                          self.gatewayAxis,
-                          self.startX-self.gatewayAxis/2,
-                          self.currentY+self.defaultFlowLength,
+                addBPMNShape(self.taskId,
+                          self.defaultTaskHeight,
+                          self.defaultTaskWidth,
+                          self.leftCorner,
+                          self.currentY+self.gatewayAxis*1.5,
                           self.xmlDiagramWriter)
             elif qname == 'sequenceFlow':
                 id = attrs.getValue('id')
@@ -782,11 +822,17 @@ class parallelTaskWriter(DefaultHandler2):
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.flowIn)
                         if attrs.getQName(i) == 'targetRef':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.taskId)
-                    addBPMNEdge(self.flowIn+self.taskId+'parallelTask',
-                                 [(self.startX - self.gatewayAxis/2, self.currentY - self.gatewayAxis/2),
-                                 (self.leftCorner+self.defaultTaskWidth/2, self.currentY - self.gatewayAxis/2),
-                                 (self.leftCorner+self.defaultTaskWidth/2,self.currentY + self.defaultFlowLength)],
-                                 self.xmlDiagramWriter)   
+                    if self.isCentral:
+                        addBPMNEdge(self.flowIn+self.taskId+'parallelTask',
+                                     [(self.startX, self.currentY),
+                                      (self.leftCorner+self.defaultTaskWidth/2,self.currentY + 2*self.gatewayAxis)],
+                                     self.xmlDiagramWriter)  
+                    else:
+                        addBPMNEdge(self.flowIn+self.taskId+'parallelTask',
+                                     [(self.startX - self.gatewayAxis/2, self.currentY - self.gatewayAxis/2),
+                                     (self.leftCorner+self.defaultTaskWidth/2, self.currentY - self.gatewayAxis/2),
+                                     (self.leftCorner+self.defaultTaskWidth/2,self.currentY + 2*self.gatewayAxis)],
+                                     self.xmlDiagramWriter)   
                 elif id == 'flowOut':
                     for i in range(0, attrs.getLength()):
                         if attrs.getQName(i) == 'id':
@@ -795,11 +841,18 @@ class parallelTaskWriter(DefaultHandler2):
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.taskId)
                         if attrs.getQName(i) == 'targetRef':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.flowOut)
-                    addBPMNEdge(self.flowOut+self.taskId+'parallelTask',
-                                 [(self.leftCorner+self.defaultTaskWidth/2, self.currentY + self.defaultFlowLength + self.defaultTaskHeight),
-                                  (self.leftCorner+self.defaultTaskWidth/2, self.currentY + 2*self.defaultFlowLength + self.defaultTaskHeight + self.gatewayAxis/2),
-                                  (self.startX - self.gatewayAxis/2, self.currentY + 2*self.defaultFlowLength + self.defaultTaskHeight + self.gatewayAxis/2)],
-                                 self.xmlDiagramWriter)                                            
+                    if self.isCentral:
+                        addBPMNEdge(self.flowOut+self.taskId+'parallelTask',
+                                     [(self.leftCorner+self.defaultTaskWidth/2, self.currentY + 2*self.gatewayAxis + self.defaultTaskHeight),
+                    
+                                      (self.startX, self.currentY + self.defaultTaskHeight + 3*self.gatewayAxis)],
+                                     self.xmlDiagramWriter)                           
+                    else:
+                        addBPMNEdge(self.flowOut+self.taskId+'parallelTask',
+                                     [(self.leftCorner+self.defaultTaskWidth/2, self.currentY + 2*self.gatewayAxis + self.defaultTaskHeight),
+                                      (self.leftCorner+self.defaultTaskWidth/2, self.currentY + self.defaultTaskHeight + 3.5*self.gatewayAxis),
+                                      (self.startX - self.gatewayAxis/2, self.currentY + self.defaultTaskHeight + 3.5*self.gatewayAxis)],
+                                     self.xmlDiagramWriter)                                            
             else:
                 for i in range(0, attrs.getLength()):
                     self.xmlWriter.writeAttribute(attrs.getQName(i), attrs.getValue(i))
@@ -807,6 +860,42 @@ class parallelTaskWriter(DefaultHandler2):
 
     def endElement(self, uri, lname, qname):
         if qname != "specialTag":
+            self.xmlWriter.writeEndElement()
+
+    def characters(self, ch, start, length):
+        self.xmlWriter.writeCharacters(ch, start, length)
+
+    def comment(self, ch, start, length):
+        self.xmlWriter.writeComment(''.join(ch[start:start + length]))
+
+    def startPrefixMapping(self, prefix, uri):
+        if prefix == "":
+            self.xmlWriter.setDefaultNamespace(uri)
+        else:
+            self.xmlWriter.setPrefix(prefix, uri)
+
+    def processingInstruction(self, target, data):
+        self.xmlWriter.writeProcessingInstruction(target, data)
+
+    def skippedEntity(self, name):
+        self.xmlWriter.writeEntityRef(name)
+        
+        
+class diagramWriter(DefaultHandler2):
+    u'''SAX-parser для блока последовательной задачи'''
+    def __init__(self,xmlWriter):
+        self.xmlWriter = xmlWriter
+
+
+    def startElement(self, namespaceURI, lname, qname, attrs):
+        if qname != 'specialTag':
+            self.xmlWriter.writeStartElement(qname)
+            for i in range(0, attrs.getLength()):
+                self.xmlWriter.writeAttribute(attrs.getQName(i), attrs.getValue(i))
+
+
+    def endElement(self, uri, lname, qname):
+        if qname != 'specialTag':
             self.xmlWriter.writeEndElement()
 
     def characters(self, ch, start, length):

@@ -41,6 +41,7 @@
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_documentApprovingProcess">
 	<bpmndi:BPMNPlane bpmnElement="documentApprovingProcess" id="BPMNPlane_documentApprovingProcess">
+		<diagramDescription> </diagramDescription>
 	</bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </definitions>
