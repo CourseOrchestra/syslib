@@ -2,7 +2,8 @@
 import simplejson as json
 import os
 from security.functions import userHasPermission
-from workflow.processUtils import parse_json
+from workflow.processUtils import parse_json, ActivitiObject
+
 
 def testNavigator(context, session):
     myNavigator = {"group":{"@id": "journals",
@@ -21,7 +22,6 @@ def testNavigator(context, session):
     return myNavigator
 
 def manageProcessesNav(context, session):
-
     session = json.loads(session)["sessioncontext"]
     if 'urlparams' in session and 'urlparam' in session['urlparams']:
         drawProcess = False
@@ -75,29 +75,8 @@ def manageProcessesNav(context, session):
                                         {"@type": "workflow.datapanel.tasks.drawTasksByProcId.celesta",
                                          "@tab": "firstOrCurrent"}}}]}}
             return myNavigator
-        elif startProcess:
-            filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
-            datapanelSettings = parse_json(filePath)
-            myNavigator = {
-                               "group":{
-                                        "@id": "workflow",
-                                        "@name": u"Организация рабочего процесса",
-                                        "@icon": "flowblock.png",
-                                        "level1":[{
-                                                  "@id": "startProcess",
-                                                  "@selectOnLoad": "true",
-                                                  "@name": u"Схема процесса",
-                                                  "action":{"main_context": "current",
-                                                             "datapanel":{"@type": datapanelSettings["startingProcess"],
-                                                                          }
-                                                             }
-                                                  }]
-                                        }
-                               }
-            return myNavigator
-        elif documentTask:
-            filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
-            datapanelSettings = parse_json(filePath)
+        elif documentTask or startProcess:
+            formType = 'startingProcess' if startProcess else 'documentTask'
             myNavigator = {"group":
                            {"@id": "workflow",
                             "@name": u"Организация рабочего процесса",
@@ -105,11 +84,27 @@ def manageProcessesNav(context, session):
                             "level1":
                                 [{"@id": "startProcess",
                                   "@selectOnLoad": "true",
-                                  "@name": u"Завершение задачи",
+                                  "@name": u"Схема процесса",
                                   "action":
                                     {"main_context": "current",
-                                     "datapanel":{"@type": datapanelSettings["documentTask"]}}
-                                  }]}}
+                                     "datapanel":
+                                        {"@type": datapanelSetup(formType, session)}}}]}}
+            return myNavigator
+#         elif documentTask:
+#             filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
+#             datapanelSettings = parse_json(filePath)
+#             myNavigator = {"group":
+#                            {"@id": "workflow",
+#                             "@name": u"Организация рабочего процесса",
+#                             "@icon": "flowblock.png",
+#                             "level1":
+#                                 [{"@id": "startProcess",
+#                                   "@selectOnLoad": "true",
+#                                   "@name": u"Завершение задачи",
+#                                   "action":
+#                                     {"main_context": "current",
+#                                      "datapanel":{"@type": datapanelSettings["documentTask"]}}
+#                                   }]}}
             return myNavigator
     sid = session["sid"]
     # Пункт меню управление процессами
@@ -188,3 +183,17 @@ def navSettings(context, session):
                     if params['@value'][0] in ('image', 'process', 'task', 'table'):
                         myNavigator["@hideOnLoad"] = "true"
     return myNavigator
+
+def datapanelSetup(formType, session):
+    activiti = ActivitiObject()
+    for params in session['urlparams']['urlparam']:
+        if params['@name'] == 'taskId':
+            taskId = params['@value'][0]
+    filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
+    datapanelSettings = parse_json(filePath)
+    try:
+        formKey = activiti.taskService.createTaskQuery().taskId(taskId).singleResult().getFormKey()
+        return datapanelSettings['manual'][formKey]
+    except:
+        return datapanelSettings["default"][formType]
+
