@@ -42,7 +42,7 @@
 					<xf:repeat id="ref" nodeset="ref">
 						<li>
 							<a href="{@value}" target="_blank">
-								<xf:output ref="@value"/>
+								<xf:output ref="@name"/>
 							</a>
 						</li>
 					</xf:repeat>
