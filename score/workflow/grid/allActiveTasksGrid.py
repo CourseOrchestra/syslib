@@ -60,7 +60,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                "process": [u"Название процесса"],
                "assignee": [u"Исполнитель"],
                "date": [u"Дата"],
-               "document": [u"Документ"],
+               "document": [u"Выполнить"],
                "properties":[u"properties"]}
 
     for column in _header:
@@ -108,7 +108,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                              {"@href": link,
                                               "@target": "_blank",
                                               "img":
-                                                {"@src": "solutions/default/resources/play.png"}}}}
+                                                {"@src": "solutions/default/resources/imagesingrid/play.png"}}}}
 
         if processName in taskDict[_header["process"][1]] and assignee in taskDict[_header["assignee"][1]]:
             data["records"]["rec"].append(taskDict)
