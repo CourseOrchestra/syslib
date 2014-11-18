@@ -213,7 +213,12 @@ def editingProcesses(context, main=None, session=None):
                                            {"@id":"selectionProcess",
                                             "@type":"xforms",
                                             "@proc":"workflow.xforms.selectionProcess.cardData.celesta",
-                                            "@template":"workflow/selectionProcessCard.xml"
+                                            "@template":"workflow/selectionProcessCard.xml",
+                                            "proc":[
+                                                    {
+                                                    "@id":"selectionProcessSave",
+                                                    "@name":"workflow.xforms.selectionProcess.cardSave.celesta",
+                                                    "@type":"SAVE"}]                                            
                                             },
                                            {"@id":"matchingCircuitGrid",
                                             "@type":"grid",

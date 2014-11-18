@@ -37,6 +37,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                     {"@xmlns":"",
                      "data":
                         {
+                         "@newProcess":"false",
                          "@processName": "",
                          "@processKey": "",
                          "@existing": "false"
@@ -93,6 +94,19 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
     return JythonDTO(jsonData, jsonSettings)
 
+def cardSave(context, main, add, filterinfo, session, elementId, data):
+    u'''Действия после нажатия на кнопку 'Редактировать' или 'Создать процесс' в конструкторе процессов'''
+    session = json.loads(session)
+    data = json.loads(data)
+    isNew = True if data["schema"]["data"]["@newProcess"] == 'true' else False
+    processKey = data["schema"]["data"]["@processKey"]
+    processName = data["schema"]["data"]["@processName"]
+    if isNew:
+        activiti = ActivitiObject()
+        #Указанный ключ для нового процесса уже занят
+        id = activiti.repositoryService.createProcessDefinitionQuery().processDefinitionKey(processKey).latestVersion().singleResult()
+        if id is not None:
+            return context.error(u'Процесс с таким ключом уже существует')
 
 def processListAndCount(context, main=None, add=None, filterinfo=None, session=None, params=None,
                 curvalue="", startswith=None, firstrecord=None, recordcount=None):

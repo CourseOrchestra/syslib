@@ -42,13 +42,14 @@ except:
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
-    u'''Карточка выбора процесса'''
+    u'''Карточка разворачивания процесса по сгенерированному конструктором процессов описанию'''
     session = json.loads(session)
     processKey = session['sessioncontext']['related']['xformsContext']['formData']['schema']['data']['@processKey']
     processName = session['sessioncontext']['related']['xformsContext']['formData']['schema']['data']['@processName']
     matchingCircuit = matchingCircuitCursor(context)
     matchingCircuitClone = matchingCircuitCursor(context)
     matchingCircuit.setRange('processKey',processKey)
+    #Проверка, того что в параллельных согласованиях больше двух элементов и подсчёт максимального количества параллельных задач
     allowed = 'false'
     maxParallelTasks = ''
     if matchingCircuit.count() == 0:
@@ -110,8 +111,6 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     session = json.loads(session)
     data = json.loads(data)
     maxTasks = data["schema"]["data"]["@maxTasks"]
-    processKey = session['sessioncontext']['related']['xformsContext']['formData']['schema']['data']['@processKey']
-    processName = session['sessioncontext']['related']['xformsContext']['formData']['schema']['data']['@processName']
     matchingCircuit = matchingCircuitCursor(context)
     matchingCircuitClone = matchingCircuitCursor(context)
     processKey = session['sessioncontext']['related']['xformsContext']['formData']['schema']['data']['@processKey']
@@ -121,7 +120,9 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     matchingCircuit.setFilter('number',"!%'.'%")
     matchingCircuit.orderBy('sort')
     matchingCircuitClone.setRange('processKey',processKey)
+    #Генерация описания процесса
     stream = ByteArrayInputStream(getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName, int(maxTasks)).encode('utf-8'))
+    #Разворачивание процесса
     processEngine = EngineFactory.getActivitiProcessEngine()
     repositoryService = processEngine.getRepositoryService()
     repositoryService.createDeployment().addInputStream(processName+'.bpmn', stream).deploy()

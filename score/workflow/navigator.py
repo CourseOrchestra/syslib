@@ -125,7 +125,7 @@ def manageProcessesNav(context, session):
                    }
     # Пункт меню редактирования процессов
     myNavigator["group"]["level1"].append({"@id": "editingProcesses",
-                                          "@name": u"Редактирование процессов",
+                                          "@name": u"Конструктор процессов",
                                           "action":
                                             {"main_context": "current",
                                              "datapanel":
