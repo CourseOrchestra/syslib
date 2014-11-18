@@ -88,14 +88,14 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     return JythonDTO(XMLJSONConverter(input=xformsdata).parse(), XMLJSONConverter(input=xformssettings).parse())
 
 
-def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
+def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):    
     u'''Функция сохранения карточки редактирования содержимого справочника разрешений. '''    
     linesOfNumbersSeries = linesOfNumbersSeriesCursor(context)
     content = json.loads(xformsdata)["schema"]["numberSeries"]
     #raise Exception(xformsdata)
     sdf = SimpleDateFormat("yyyy-MM-dd")
     linesOfNumbersSeries.seriesId = content["@seriesId"]
-    linesOfNumbersSeries.numberOfLine = content["@numberOfLine"]
+    linesOfNumbersSeries.numberOfLine = int(content["@numberOfLine"])
     if content["@startingDate"]=='':
         linesOfNumbersSeries.startingDate = sdf.parse(datetime.datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d"))
     else:
@@ -137,8 +137,8 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
         linesOfNumbersSeriesOld.get(currentId["numbersSeriesGrid"], int(currentId["linesNumbersSeriesGrid"]))
         if content["@lastUsedNumber"]=='':
             linesOfNumbersSeries.lastUsedNumber = linesOfNumbersSeriesOld.lastUsedNumber
-        if linesOfNumbersSeriesOld.seriesId==linesOfNumbersSeries.seriesId and \
-                linesOfNumbersSeriesOld.numberOfLine==linesOfNumbersSeries.numberOfLine:
+        if linesOfNumbersSeriesOld.numberOfLine==linesOfNumbersSeries.numberOfLine:
+            #linesOfNumbersSeriesOld.seriesId==linesOfNumbersSeries.seriesId and \
             linesOfNumbersSeries.recversion = linesOfNumbersSeriesOld.recversion
             linesOfNumbersSeries.update()
         elif linesOfNumberSeriesTest.tryGet(linesOfNumbersSeries.seriesId, int(linesOfNumbersSeries.numberOfLine)):
