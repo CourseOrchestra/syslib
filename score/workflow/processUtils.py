@@ -36,6 +36,7 @@ class ActivitiObject():
         self.runtimeService = self.processEngine.getRuntimeService()
         self.identityService = self.processEngine.getIdentityService()
         self.taskService = self.processEngine.getTaskService()
+        self.formService = self.processEngine.getFormService()
     def getActualVersionOfProcesses(self):
         u'''Функция получения списка всех развернутых процессов'''
         return self.repositoryService.createProcessDefinitionQuery().orderByProcessDefinitionName(). \
