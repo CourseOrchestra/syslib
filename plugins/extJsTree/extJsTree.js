@@ -1,8 +1,11 @@
 function createExtJsTree(parentId, pluginParams, data) {
 	//////////////////////// ExtJsTree ////////////////////////
-	var ExtJsTree = function(el, pluginParams) {
+	var ExtJsTree = function(el, pluginParams, data) {
 		var self = this;
 		this.el = el;
+		if (data) {
+			this.data = eval('(' + data + ')');
+		}
 		this.filter = {};//данные относящиеся к фильтру поиска
 		this.pluginParams = pluginParams || {};
 		var treePanel = this.pluginParams.treePanel;
@@ -40,7 +43,7 @@ function createExtJsTree(parentId, pluginParams, data) {
 			], modelOptions.fields||[]);
 			Ext.define('ExtJsTree.DataModel', modelOptions);
 			
-			this.store=this._createStore();
+			this.store=this._createStore(this.data);
 			this.dataLoader = this._createDataLoader();
 			this.dataLoader.callback = {
 				'target':this,
@@ -64,7 +67,7 @@ function createExtJsTree(parentId, pluginParams, data) {
 					id:'findButton'+inputId,
 					type:'button',
 					value:'Найти',
-					style:'float:right;',
+					style:'float:right;'
 				}
 			}
 			var filterEl = new Ext.dom.Element(dh.createDom({
@@ -75,7 +78,7 @@ function createExtJsTree(parentId, pluginParams, data) {
 					id:inputId,
 					type:'text',
 					autocomplete:'off',
-					style:'width:'+(parentEl.getWidth()-(pluginParams.core.filter.autofilter==false?60:0)-5)+'px;',
+					style:'width:'+(parentEl.getWidth()-(pluginParams.core.filter.autofilter==false?60:0)-5)+'px;'
 				}, findButton,
 				{
 					tag:'div',
@@ -124,7 +127,7 @@ function createExtJsTree(parentId, pluginParams, data) {
 			
 			var columns =
 				[
-				 {xtype: 'treecolumn', header: 'Название', dataIndex: 'name', flex: 1},
+				 {xtype: 'treecolumn', header: 'Название', dataIndex: 'name', flex: 1}
 				];
 			if(pluginParams.view){
 				columns.push(pluginParams.view);				
@@ -210,7 +213,7 @@ function createExtJsTree(parentId, pluginParams, data) {
 			}
 			return result;
 		},
-		_createStore: function() {
+		_createStore: function(data) {
 			var root = !data ? [] : {
 				id:'root',
 				name:'/',
@@ -266,6 +269,7 @@ function createExtJsTree(parentId, pluginParams, data) {
 			load:function(operation, callback, scope) {
 				var self = this;
 				gwtGetDataPlugin({
+					pluginParam:pluginParams.all,
 					id:pluginParams.elementPanelId,
 					parentId:parentId,
 					params: Ext.apply(operation.params, {generalFilters:this.generalFilters}),
@@ -344,7 +348,7 @@ function createExtJsTree(parentId, pluginParams, data) {
         ]);    		
     Ext.onReady(function() {
 		var parentEl = Ext.get(parentId);
-		var extJsTree = new ExtJsTree(parentEl, pluginParams);
+		var extJsTree = new ExtJsTree(parentEl, pluginParams, data);
 		Ext.ExtJsTree = extJsTree;
 		extJsTree.utils = {
 			singleXpathMapping: function(xpathMapping) {
@@ -352,7 +356,7 @@ function createExtJsTree(parentId, pluginParams, data) {
 				if (records!=undefined) {
 					for (i in records) {
 						var selected = records[i].getData();
-						setXFormByXPath(true, selected, xpathMapping)
+						setXFormByXPath(true, selected, xpathMapping, pluginParams.elementPanelId+"_");
 						break;
 					}
 				}				
@@ -363,9 +367,11 @@ function createExtJsTree(parentId, pluginParams, data) {
 					var selected = [];
 					for (i in records) {
 						var selectedItem = records[i].getData();
-						selected.push(selectedItem);
+						if(selectedItem.id != ""){
+							selected.push(selectedItem);							
+						}
 					}
-					insertXFormByXPath(true, selected, xpath.xpathRoot, xpath.xpathMapping, needClear)
+					insertXFormByXPath(true, selected, xpath.xpathRoot, xpath.xpathMapping, needClear, pluginParams.elementPanelId+"_");
 				}				
 			}
 		};

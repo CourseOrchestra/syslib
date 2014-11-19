@@ -1,6 +1,6 @@
 function createFlashD(parentId, data) {	
     var obj = document.createElement('object'); 
-    obj.data = "solutions/default/plugins/flashD/Components/ComponentD.swf"; 
+    obj.data = "solutions/general/plugins/flashD/Components/ComponentD.swf"; 
     obj.align="top";
     obj.id="ComponentD";
     obj.title="";

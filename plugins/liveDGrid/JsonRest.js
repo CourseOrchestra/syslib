@@ -73,17 +73,25 @@ return declare("JsonRest", null, {
 		options = options || {};
 		var id = ("id" in options) ? options.id : this.getIdentity(object);
 		var hasId = typeof id != "undefined";
-		return xhr(hasId && !options.incremental ? "PUT" : "POST", {
-				url: hasId ? this.target + id : this.target,
-				postData: JSON.stringify(object),
-				handleAs: "json",
-				headers:{
-					"Content-Type": "application/json",
-					Accept: this.accepts,
-					"If-Match": options.overwrite === true ? "*" : null,
-					"If-None-Match": options.overwrite === false ? "*" : null
-				}
-			});
+		return xhr("POST", {
+				url: hasId ? this.target +"?"+ id : this.target,
+				handleAs: "json",						
+						
+				content: object,						
+//				postData: JSON.stringify(object),
+				
+				headers:{Accept: this.accepts}
+		
+/*		
+		headers:{
+			"Content-Type": "application/json",
+			Accept: this.accepts,
+			"If-Match": options.overwrite === true ? "*" : null,
+			"If-None-Match": options.overwrite === false ? "*" : null
+		}
+*/		
+				
+		});
 	},
 	add: function(object, options){
 		// summary:
