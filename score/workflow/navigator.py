@@ -3,6 +3,7 @@ import simplejson as json
 import os
 from security.functions import userHasPermission
 from workflow.processUtils import parse_json, ActivitiObject
+from workflow._workflow_orm import formCursor
 
 
 def testNavigator(context, session):
@@ -88,7 +89,7 @@ def manageProcessesNav(context, session):
                                   "action":
                                     {"main_context": "current",
                                      "datapanel":
-                                        {"@type": datapanelSetup(formType, session)}}}]}}
+                                        {"@type": datapanelSetup(context, formType, session)}}}]}}
             return myNavigator
 #         elif documentTask:
 #             filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
@@ -184,16 +185,39 @@ def navSettings(context, session):
                         myNavigator["@hideOnLoad"] = "true"
     return myNavigator
 
-def datapanelSetup(formType, session):
+def datapanelSetup(context, formType, session):
     activiti = ActivitiObject()
+    processId = None
+    processKey = None
     for params in session['urlparams']['urlparam']:
         if params['@name'] == 'taskId':
             taskId = params['@value'][0]
+        elif params['@name'] == 'processId':
+            processId = params['@value'][0]
+        elif params['@name'] == 'processKey':
+            processKey = params['@value'][0]
     filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
     datapanelSettings = parse_json(filePath)
     try:
-        formKey = activiti.taskService.createTaskQuery().taskId(taskId).singleResult().getFormKey()
+        if 'Task' in formType:
+            task = activiti.taskService.createTaskQuery().taskId(taskId).singleResult()
+            formKey = task.getFormKey()
+        elif not processKey:
+            processInstance = activiti.runtimeService.createProcessInstanceQuery()\
+                .processInstanceId(processId).singleResult()
+            formKey = activiti.formService.getStartFormData(processInstance.getProcessDefinitionId()).getFormKey()
+        else:
+#             processDefinitions = activiti.repositoryService.createProcessDefinitionQuery()\
+#                 .processDefinitionKey(processKey).list()
+#             for processDefinition in processDefinitions:
+#                 formKey = activiti.formService.getStartFormData(processDefinition.getProcessDefinitionId()).getFormKey()
+#                 if formKey is not None:
+#                     break
+            form = formCursor(context)
+            form.setRange('processKey', processKey)
+            form.setRange('isStartForm', True)
+            form.first()
+            formKey = form.id
         return datapanelSettings['manual'][formKey]
     except:
         return datapanelSettings["default"][formType]
-
