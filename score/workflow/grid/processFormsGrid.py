@@ -16,7 +16,7 @@ except:
 
 def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
-    u'''Функция получения списка всех форм процесса развернутых процессов. '''
+    u'''Функция получения списка всех форм процесса. '''
     session = json.loads(session)
     processKey = session['sessioncontext']['related']['gridContext']['currentRecordId']
     form = formCursor(context)
@@ -24,9 +24,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     data = {"records":{"rec":[]}}
     _header = {"id":["~~id"],
              "pid":[u"Код процесса"],
-             "name":[u"Название процесса"],
+             "name":[u"Название формы"],
              "description":[u"Описание"],
              "version":[u"Версия"],
+             "isStartForm":[u'Форма инициализации'],
              "file":[u"Файл"],
              "schema":[u"Схема"],
              "startProcess":[u"Старт процесса"],
@@ -42,7 +43,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict = {}
         procDict[_header["id"][1]] = form.id
         procDict[_header["name"][1]] = form.id
-        procDict[_header["link"][1]] = form.link        
+        procDict[_header["link"][1]] = form.link
+        if form.isStartForm:
+            procDict[_header["isStartForm"][1]] = u'Форма инициализации'
+        else:
+            procDict[_header["isStartForm"][1]] = u'Обычная форма'
         procDict[_header["properties"][1]] = {}
         data["records"]["rec"].append(procDict)
 
@@ -60,6 +65,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     #settings["gridsettings"]["columns"]["col"].append({"@id":_header["pid"][0], "@width": "150px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "300px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["link"][0], "@width": "300px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["isStartForm"][0], "@width": "100px"})
     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
 
