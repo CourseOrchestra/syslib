@@ -72,16 +72,19 @@ def webtextData(context, main=None, add=None, filterinfo=None,
     matchingCircuit.setRange('processKey',processKey)
     if matchingCircuit.count() == 0:
         data = {'div':u'В процессе не задано задач'}
-    else:
+    else:  
         matchingCircuitClone.setRange('processKey',processKey)
         matchingCircuit.setRange('type','parallel')
         parallelFlag = True
+        taskFlag = True
         maxParallelTasks = 1
         #Проверка на то, что в каждом параллельном согласовании не менее двух задач
         for matchingCircuit in matchingCircuit.iterate():
             matchingCircuitClone.setFilter('number',"'%s.'%%" % matchingCircuit.number)
             if matchingCircuitClone.count() < 2:
                 parallelFlag = False
+            if matchingCircuit.statusId is None:
+                taskFlag = False
             if matchingCircuitClone.count() > maxParallelTasks:
                 maxParallelTasks = matchingCircuitClone.count()
         matchingCircuit.clear()
@@ -90,7 +93,7 @@ def webtextData(context, main=None, add=None, filterinfo=None,
         matchingCircuit.setFilter('number',"!%'.'%")
         matchingCircuit.orderBy('sort')
         matchingCircuitClone.setRange('processKey',processKey)
-        if parallelFlag:#Схема согласования корректна
+        if parallelFlag and taskFlag:#Схема согласования корректна
 #             processXML = getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, processName)
 #             data = {'div':processXML}
             actObj = ActivitiObject()
@@ -110,9 +113,10 @@ def webtextData(context, main=None, add=None, filterinfo=None,
             data = {"image":{"@align":"center",
                        "@src": u"data:image/png;base64," + getBase64Image(imageStream)}}        
 
-        else:
+        elif not parallelFlag:
             data = {'div':u'В одном из параллельных согласований содержится меньше двух элементов'}
-    
+        else:
+            data = {'div':u'В процессе есть задачи с неназначенными статусами'}
     return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(data)), None)
 
 
@@ -175,6 +179,21 @@ def extractAssigneeAndCandidates(assJSON):
     for group in assJSON['groups']:
         groupList.append(transformToVar(exp,group))
     return assignee, ','.join(userList),','.join(groupList)
+    
+def findAndReplacePattern(ch,start,length,rep,pattern,xmlWriter):
+    u'''Функция для замены паттерна на другую строку'''
+    flag = True
+    if len(pattern) == length:
+        for i in range(length):
+            if ch[start+i] != pattern[i]:
+                flag = False
+    else:
+        flag = False
+    if flag:
+        xmlWriter.writeCharacters(rep, 0, len(rep))
+        return True
+    else:
+        return False 
     
     
 def addBPMNShape(id, height, width, x, y, diagramWriter):
@@ -379,7 +398,12 @@ class XformsProcessTemplate(DefaultHandler2):
                     #Получение ответственных
                     assignee,candidates,groups = extractAssigneeAndCandidates(matchingCircuit.assJSON)
                     consecParser = XMLReaderFactory.createXMLReader()
-                    consecHandler = consecWriter(inGatewayId,'task' + str(matchingCircuit.id),matchingCircuit.name, assignee,candidates,groups,outGatewayId,self.xmlWriter,self.xmlDiagramWriter,self.currentY, self.startX)
+                    consecHandler = consecWriter(inGatewayId,'task' + str(matchingCircuit.id),
+                                                 matchingCircuit.name, assignee,
+                                                 candidates,groups,outGatewayId,
+                                                 self.xmlWriter,self.xmlDiagramWriter,
+                                                 self.currentY, self.startX,
+                                                 matchingCircuit.statusId)
                     #Изменям текущую абсциссу, добавляя к ней высоту описания последовательной задачи
                     self.currentY = self.currentY + 2*self.defaultFlowLength + self.defaultTaskHeight + self.gatewayAxis
                     consecParser.setContentHandler(consecHandler)
@@ -464,7 +488,7 @@ class consecWriter(DefaultHandler2):
     u'''SAX-parser для блока последовательной задачи'''
     def __init__(self,inGatewayId,taskId,taskName, assignee,\
                   candidates, groups, outGatewayId,xmlWriter,\
-                  xmlDiagramWriter, currentY, startX):
+                  xmlDiagramWriter, currentY, startX, statusId):
         #инициализация идентификатора входного шлюза
         self.inGatewayId = inGatewayId
         #ответственные
@@ -487,6 +511,8 @@ class consecWriter(DefaultHandler2):
         self.defaultTaskHeight = 55
         self.defaultTaskWidth = 300
         self.defaultFlowLength = 75
+        #Идентификатор статуса
+        self.statusId = statusId
 
     def startElement(self, namespaceURI, lname, qname, attrs):
         if qname != "specialTag":#спецтег не пишется
@@ -581,19 +607,18 @@ class consecWriter(DefaultHandler2):
         if self.inGatewayId == 'deleteDocumentExclusivegateway':
             rep = '${deleteDocument == "false"}'
             pattern = list('${orderApproved == "true"}')
-            flag = True
-            if len(pattern) == length:
-                for i in range(length):
-                    if ch[start+i] != pattern[i]:
-                        flag = False
-            else:
-                flag = False
-            if flag:
-                self.xmlWriter.writeCharacters(rep, 0, len(rep))
-            else:
+            flowFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
+            rep = 'task.setVariableLocal("status", "%s")' % self.statusId
+            pattern = list('task.setVariableLocal("status", "createStatus")')
+            statusFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
+            if not flowFlag and not statusFlag:
                 self.xmlWriter.writeCharacters(ch, start, length)
         else:
-            self.xmlWriter.writeCharacters(ch, start, length)
+            rep = 'task.setVariableLocal("status", "%s")' % self.statusId
+            pattern = list('task.setVariableLocal("status", "createStatus")')
+            statusFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
+            if not statusFlag:
+                self.xmlWriter.writeCharacters(ch, start, length)
 
     def comment(self, ch, start, length):
         self.xmlWriter.writeComment(''.join(ch[start:start + length]))
@@ -748,7 +773,8 @@ class parallelWriter(DefaultHandler2):
                                                          self.startX,
                                                          self.currentY,
                                                          leftCorner,
-                                                         isCentral)
+                                                         isCentral,
+                                                         matchingCircuit.statusId)
                 leftCorner = leftCorner + self.defaultTaskWidth + self.gatewayAxis
                 parallelTaskParser.setContentHandler(parallelTaskHandler)
                 parallelTaskParser.setErrorHandler(parallelTaskHandler)
@@ -801,7 +827,10 @@ class parallelWriter(DefaultHandler2):
         
 class parallelTaskWriter(DefaultHandler2):
     u'''SAX-parser для одной параллельной задачи'''
-    def __init__(self,taskId,taskName, assignee, candidates,groups, flowIn,flowOut,xmlWriter, xmlDiagramWriter, startX, currentY, leftCorner, isCentral):
+    def __init__(self,taskId,taskName, assignee, candidates,groups,
+                 flowIn,flowOut,xmlWriter, xmlDiagramWriter,
+                  startX, currentY, leftCorner, isCentral,
+                  statusId):
         #идентификатор входного и выходного шлюза
         self.flowIn = flowIn
         self.flowOut = flowOut
@@ -824,6 +853,8 @@ class parallelTaskWriter(DefaultHandler2):
         self.defaultFlowLength = 75
         self.isCentral = isCentral
         self.xmlDiagramWriter = xmlDiagramWriter
+        #Идентификтаор статуса задачи
+        self.statusId = statusId
 
     def startElement(self, namespaceURI, lname, qname, attrs):
         if qname != "specialTag":#специальные тег не пишем
@@ -900,7 +931,12 @@ class parallelTaskWriter(DefaultHandler2):
             self.xmlWriter.writeEndElement()
 
     def characters(self, ch, start, length):
-        self.xmlWriter.writeCharacters(ch, start, length)
+        u'''Надо подставить значение статуса'''
+        rep = 'task.setVariableLocal("status", "%s")' % self.statusId
+        pattern = list('task.setVariableLocal("status", "createStatus")')
+        statusFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
+        if not statusFlag:
+            self.xmlWriter.writeCharacters(ch, start, length)
 
     def comment(self, ch, start, length):
         self.xmlWriter.writeComment(''.join(ch[start:start + length]))
