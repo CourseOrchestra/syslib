@@ -23,7 +23,8 @@ try:
     from ru.curs.showcase.core.jython import JythonDTO
 except:
     from ru.curs.celesta.showcase import JythonDTO
-
+    
+from java.util import ArrayList
 try:
     from ru.curs.showcase.core.selector import ResultSelectorData
     from ru.beta2.extra.gwt.ui.selector.api import DataRecord
@@ -35,7 +36,7 @@ try:
 except:
     from workflow import testConfig as EngineFactory
     
-from workflow._workflow_orm import matchingCircuitCursor 
+from workflow._workflow_orm import matchingCircuitCursor, statusCursor, processStatusModelCursor
     
 from java.io import InputStream, FileInputStream
 from jarray import zeros
@@ -49,12 +50,17 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     add = json.loads(add)
     addContext = add[0]
     processKey = add[1]
+    modelId = add[2]
     matchingCircuit = matchingCircuitCursor(context)
+    processStatusModel = processStatusModelCursor(context)
+    status = statusCursor(context)
     currentId = json.loads(session["sessioncontext"]["related"]["gridContext"]["currentRecordId"])
     assignee = ''
     users = {"@tag":"tag"}
     groups = {"@tag":"tag"}
-    #Фиктивный жлемент верхнего уровня
+    statusId = ''
+    statusName = ''
+    #Фиктивный элемент верхнего уровня
     if currentId['id'] == 'top':
         parallelAlignment = 'false'
         id = ''
@@ -74,6 +80,13 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             name = ''
         else:
             ass = json.loads(matchingCircuit.assJSON)
+            statusId = matchingCircuit.statusId
+            if statusId is not None:
+                processStatusModel.get(processKey)
+                status.get(statusId,processStatusModel.modelId)
+                statusName = status.name
+            else:
+                statusId = ''
             #Получение ответственного лица и списка кандидатов
             assignee = ass['assignee']
             users = {'@tag':'tag','user':[]}
@@ -96,7 +109,10 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                 "@processKey" : processKey,
                                 "@parallel": parallelAlignment,
                                 "@isParallel": 'false',
+                                "@statusId":statusId,
+                                "@statusName":statusName,
                                 "@add":addContext,
+                                "@modelId":modelId,
                                 "@assignee":assignee,
                                 "users":users,
                                  "groups":groups                            
@@ -136,6 +152,7 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     name = data_dict["schema"]["data"]["@name"]
     assignee = data_dict["schema"]["data"]["@assignee"]
     isParallel = data_dict["schema"]["data"]["@isParallel"]
+    statusId = data_dict["schema"]["data"]["@statusId"]
     addContext = data_dict["schema"]["data"]["@add"]
     id = data_dict["schema"]["data"]["@id"]
     #Если добавляем не параллельное согласование, то получаем список кандидатов
@@ -166,6 +183,7 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     if addContext == 'edit':
         id = int(id)
         matchingCircuit.get(processKey,id)
+        matchingCircuit.statusId = statusId
         matchingCircuit.name = name
         matchingCircuit.assJSON = ass
         matchingCircuit.update()
@@ -197,6 +215,7 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
             matchingCircuit.processKey = processKey
             matchingCircuit.id = getNextNo.getNextNoOfSeries(context,processKey)
             matchingCircuit.name = name
+            matchingCircuit.statusId = statusId
             #Параллельное согласование
             if isParallel == 'true':
                 matchingCircuit.type = 'parallel'
@@ -219,7 +238,33 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
             matchingCircuit.type = 'user'
             matchingCircuit.number = number
             matchingCircuit.assJSON = ass
+            matchingCircuit.statusId = statusId
             matchingCircuit.insert()
+            
+def statusListAndCount(context, main=None, add=None, filterinfo=None, session=None, params=None,
+                curvalue="", startswith=None, firstrecord=None, recordcount=None):
+    u'''Селектор статусов. '''
+    params = XMLJSONConverter.xmlToJson(params)
+    params = json.loads(params)
+    modelId = params["schema"]["filter"]["data"]["@modelId"]
+    status = statusCursor(context)
+    status.setRange('modelId',modelId)
+    filterString = curvalue.replace("'", "''") + "'%"
+    if not startswith:
+        filterString = "@%'" + filterString
+    else:
+        filterString = "@'" + filterString
+    recCount = status.count()
+    status.setFilter('name',filterString)
+    status.limit(firstrecord,recordcount)
+    recordList = ArrayList()
+    for status in status.iterate():
+        rec = DataRecord()
+        rec.setId(status.id)
+        rec.setName(status.name)
+        recordList.add(rec)
+    return ResultSelectorData(recordList, recCount)            
+            
             
             
 def matchingCircuitPreInsert(rec):

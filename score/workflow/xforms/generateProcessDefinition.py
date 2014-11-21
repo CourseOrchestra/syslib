@@ -55,18 +55,22 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     if matchingCircuit.count() == 0:
         pass
     else:
+        matchingCircuit.setRange('statusId')
         matchingCircuitClone.setRange('processKey',processKey)
         matchingCircuit.setRange('type','parallel')
         parallelFlag = True
+        taskFlag = True
         maxParallelTasks = 1
         #Проверка на то, что в каждом параллельном согласовании не менее двух задач
         for matchingCircuit in matchingCircuit.iterate():
             matchingCircuitClone.setFilter('number',"'%s.'%%" % matchingCircuit.number)
             if matchingCircuitClone.count() < 2:
                 parallelFlag = False
+            if matchingCircuit.statusId is None:
+                taskFlag = False
             if matchingCircuitClone.count() > maxParallelTasks:
                 maxParallelTasks = matchingCircuitClone.count()
-        if parallelFlag:
+        if parallelFlag and taskFlag:
             allowed = 'true'
     
     
