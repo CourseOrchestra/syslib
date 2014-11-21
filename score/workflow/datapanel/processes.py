@@ -208,7 +208,7 @@ def manageProcesses(context, main=None, session=None):
 def editingProcesses(context, main=None, session=None):
     u'''Датапанель редактирования процессов'''
     data = {"datapanel":{"tab":[ {"@id":"editProcess",
-                                "@name":u"Редактирование процесса",
+                                "@name":u"Конструктор процессов",
                                 "element":[
                                            {"@id":"selectionProcess",
                                             "@type":"xforms",
