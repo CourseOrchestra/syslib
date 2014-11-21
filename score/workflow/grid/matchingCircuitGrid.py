@@ -7,6 +7,8 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO
 
+
+
 from workflow._workflow_orm import matchingCircuitCursor
 
 from common.sysfunctions import toHexForXml
@@ -131,6 +133,7 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
     session = json.loads(session)
     sid = session['sessioncontext']['sid']
     processKey = session['sessioncontext']['related']['xformsContext']['formData']['schema']['data']['@processKey']
+    modelId =  session['sessioncontext']['related']['xformsContext']['formData']['schema']['data']['@modelId']
     textAdd = u"Добавить"
     hintAdd = u"Добавление элемента"
     textEdit = u"Редактировать"
@@ -175,7 +178,7 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
                  "@tab": "current",
                     "element":
                      {"@id": "addMatcher",
-                      "add_context": json.dumps(['add',processKey])}}}]}},
+                      "add_context": json.dumps(['add',processKey, modelId])}}}]}},
           {"@text": textEdit,
            "@img": "gridToolBar/editDocument.png",
            "@hint": hintEdit,
@@ -193,7 +196,7 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
                  "@tab": "current",
                     "element":
                      {"@id": "addMatcher",
-                      "add_context": json.dumps(['edit',processKey])}}}]}},
+                      "add_context": json.dumps(['edit',processKey, modelId])}}}]}},
 
 
           {"@text": u"Удалить",
@@ -213,7 +216,7 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
                  "@tab": "current",
                     "element":
                      {"@id": "deleteMatcher",
-                      "add_context": json.dumps(['edit',processKey])}}}]}}]}}
+                      "add_context": json.dumps(['edit',processKey, modelId])}}}]}}]}}
 
     res = XMLJSONConverter.jsonToXml(json.dumps(data))
     return res
