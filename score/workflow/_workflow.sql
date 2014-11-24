@@ -29,6 +29,7 @@ CREATE TABLE matchingCircuit(
 	type varchar(50) NOT NULL,
 	assJSON TEXT,
 	statusId varchar(50),
+	modelId varchar(50),
 	number varchar(30) NOT NULL,
 	sort varchar(100) NOT NULL,
 	CONSTRAINT pk_matchingCircuit PRIMARY KEY(processKey,id)
@@ -38,6 +39,7 @@ CREATE TABLE status(
   id VARCHAR(50) NOT NULL,
   name VARCHAR(100) NOT NULL,
   modelId VARCHAR(50) NOT NULL,
+  varName varchar(50),
   CONSTRAINT Pk_statuses PRIMARY KEY (id, modelId)
 );
 
@@ -61,7 +63,7 @@ ALTER TABLE status ADD CONSTRAINT fk_status FOREIGN KEY (modelId) REFERENCES wor
 ALTER TABLE statusTransition ADD CONSTRAINT fk_statustransition_status FOREIGN KEY (statusFrom, modelFrom) REFERENCES workflow.status(id, modelId);
 ALTER TABLE statusTransition ADD CONSTRAINT fk_statustransition_status2 FOREIGN KEY (statusTo, modelTo) REFERENCES workflow.status(id, modelId);
 ALTER TABLE processStatusModel ADD CONSTRAINT fk_procStatModel FOREIGN KEY (modelId) REFERENCES workflow.statusModel(id);
-
+ALTER TABLE matchingCircuit ADD CONSTRAINT fk_matchStatModel FOREIGN KEY (statusId,modelId) REFERENCES workflow.status(id,modelId);
 -- *** INDICES ***
 CREATE INDEX idx_statusTransition ON statusTransition(statusFrom, modelFrom);
 CREATE INDEX idx_statusTransition_0 ON statusTransition(statusTo, modelTo);

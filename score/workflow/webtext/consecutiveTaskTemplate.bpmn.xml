@@ -52,6 +52,9 @@ task.setVariable("documentVersion", docVersion)</activiti:expression>
           <activiti:field name="script">
             <activiti:expression>task.setVariableLocal("status", "createStatus")</activiti:expression>
           </activiti:field>
+		  <activiti:field name="script">
+            <activiti:expression>task.setVariableLocal("transitions", "createTransitions")</activiti:expression>
+          </activiti:field>
         </activiti:taskListener>
       </extensionElements>
     </userTask>

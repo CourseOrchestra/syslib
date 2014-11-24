@@ -64,6 +64,9 @@ if (approved != "unknown"){
             <activiti:expression>task.setVariableLocal("complete", "false")
 task.setVariableLocal("approved", "unknown")</activiti:expression>
           </activiti:field>
+		  <activiti:field name="script">
+            <activiti:expression>task.setVariableLocal("transitions", "createTransitions")</activiti:expression>
+          </activiti:field>
           <activiti:field name="script">
             <activiti:expression>task.setVariableLocal("status", "createStatus")</activiti:expression>
           </activiti:field>

@@ -9,7 +9,7 @@ except:
 
 
 
-from workflow._workflow_orm import matchingCircuitCursor
+from workflow._workflow_orm import matchingCircuitCursor, statusCursor
 
 from common.sysfunctions import toHexForXml
 
@@ -23,12 +23,14 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
     _headers = {'id': '~~id',
                 'name': u'Название',
                 'type': u'Тип',
+                'status': u'Статус',
                 'isMain': u'Тип заключения/атрибута',
                 'hasChildren': 'HasChildren',
                 'properties': 'properties'}
     processKey = session['sessioncontext']['related']['xformsContext']['formData']['schema']['data']['@processKey']
     matchingCircuit = matchingCircuitCursor(context)
     matchingCircuitClone = matchingCircuitCursor(context)
+    status = statusCursor(context)
     for col in _headers:
         _headers[col] = toHexForXml(_headers[col])
 
@@ -45,6 +47,7 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
         row = dict()
         row[_headers['id']] = json.dumps(id_dict)
         row[_headers['name']] = u'===Процесс==='
+        row[_headers['status']] = u''
         matchingCircuit.setRange('processKey',processKey)
         row[_headers['hasChildren']] = 1 if matchingCircuit.count() > 0 else False
         row[_headers['properties']] = event
@@ -66,13 +69,18 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
                 row[_headers['id']] = json.dumps(id_dict)
                 if matchingCircuit.type == 'parallel':
                     row[_headers['name']] = u'Параллельное согласование'
+                    row[_headers['status']] = u''
                 else:
                     row[_headers['name']] = matchingCircuit.name
+                    row[_headers['status']] = u''
+                    if matchingCircuit.statusId is not None:
+                        status.get(matchingCircuit.statusId,matchingCircuit.modelId)
+                        row[_headers['status']] = status.name
                 row[_headers['hasChildren']] = hasChildren(context,matchingCircuit.number,matchingCircuitClone)
                 row[_headers['properties']] = event
                 _data["records"]["rec"].append(row)
         else:       
-            #Вывод параллельного согласования
+            #Вывод элементов параллельного согласования
             isEmptyFlag = True
             id_dict = parentId
             matchingCircuit.get(id_dict["procKey"],id_dict["id"])
@@ -89,6 +97,10 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
                 row = dict()
                 row[_headers['id']] = json.dumps(id_dict)
                 row[_headers['name']] = matchingCircuit.name
+                row[_headers['status']] = u''
+                if matchingCircuit.statusId is not None:
+                    status.get(matchingCircuit.statusId,matchingCircuit.modelId)
+                    row[_headers['status']] = status.name
                 row[_headers['hasChildren']] = hasChildren(context,matchingCircuit.number,matchingCircuitClone)
                 row[_headers['properties']] = event   
                 _data["records"]["rec"].append(row)
@@ -106,7 +118,8 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
                     {"header": u"Порядок согласования"},
                  "columns":
                     {"col":
-                     [{"@id": u"Название"}
+                     [{"@id": u"Название"},
+                      {"@id": u"Статус"}
                       ]},
                  "properties":
                     {"@flip": "false",

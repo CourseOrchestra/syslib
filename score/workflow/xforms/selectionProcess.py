@@ -123,9 +123,9 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     if deleteFlag:
         matchingCircuit.setRange('processKey',processKey)
         for matchingCircuit in matchingCircuit.iterate():
-            if matchingCircuit.type == 'task':
-                matchingCircuit.statusId = None
-                matchingCircuit.update()
+            matchingCircuit.statusId = None
+            matchingCircuit.modelId = None
+            matchingCircuit.update()
     if isNew:
         activiti = ActivitiObject()
         #Указанный ключ для нового процесса уже занят

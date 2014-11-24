@@ -60,6 +60,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     groups = {"@tag":"tag"}
     statusId = ''
     statusName = ''
+    varName = ''
     #Фиктивный элемент верхнего уровня
     if currentId['id'] == 'top':
         parallelAlignment = 'false'
@@ -85,6 +86,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                 processStatusModel.get(processKey)
                 status.get(statusId,processStatusModel.modelId)
                 statusName = status.name
+                varName = status.varName
             else:
                 statusId = ''
             #Получение ответственного лица и списка кандидатов
@@ -114,6 +116,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                 "@add":addContext,
                                 "@modelId":modelId,
                                 "@assignee":assignee,
+                                "@varName":varName,
                                 "users":users,
                                  "groups":groups                            
                                  }
@@ -153,6 +156,7 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     assignee = data_dict["schema"]["data"]["@assignee"]
     isParallel = data_dict["schema"]["data"]["@isParallel"]
     statusId = data_dict["schema"]["data"]["@statusId"]
+    modelId = data_dict["schema"]["data"]["@modelId"]
     addContext = data_dict["schema"]["data"]["@add"]
     id = data_dict["schema"]["data"]["@id"]
     #Если добавляем не параллельное согласование, то получаем список кандидатов
@@ -185,6 +189,7 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
         matchingCircuit.get(processKey,id)
         matchingCircuit.statusId = statusId
         matchingCircuit.name = name
+        matchingCircuit.modelId = modelId
         matchingCircuit.assJSON = ass
         matchingCircuit.update()
         return context.message(u'Элемент изменён')
@@ -215,6 +220,7 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
             matchingCircuit.processKey = processKey
             matchingCircuit.id = getNextNo.getNextNoOfSeries(context,processKey)
             matchingCircuit.name = name
+            
             matchingCircuit.statusId = statusId
             #Параллельное согласование
             if isParallel == 'true':
@@ -223,6 +229,7 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
             else:#Задача
                 matchingCircuit.type = 'task'
                 matchingCircuit.assJSON = ass
+                matchingCircuit.modelId = modelId
             matchingCircuitClone.setRange('processKey',processKey)
             matchingCircuitClone.setFilter('number',"!%'.'%")
             matchingCircuit.number = matchingCircuitClone.count() + 1
@@ -237,6 +244,7 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
             matchingCircuit.name = name
             matchingCircuit.type = 'user'
             matchingCircuit.number = number
+            matchingCircuit.modelId = modelId
             matchingCircuit.assJSON = ass
             matchingCircuit.statusId = statusId
             matchingCircuit.insert()
@@ -262,6 +270,7 @@ def statusListAndCount(context, main=None, add=None, filterinfo=None, session=No
         rec = DataRecord()
         rec.setId(status.id)
         rec.setName(status.name)
+        rec.addParameter('varName', status.varName)
         recordList.add(rec)
     return ResultSelectorData(recordList, recCount)            
             

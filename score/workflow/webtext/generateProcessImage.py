@@ -17,7 +17,7 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject, getBase64Image
 
 
-from workflow._workflow_orm import matchingCircuitCursor
+from workflow._workflow_orm import matchingCircuitCursor, statusCursor, statusTransitionCursor
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -83,7 +83,7 @@ def webtextData(context, main=None, add=None, filterinfo=None,
             matchingCircuitClone.setFilter('number',"'%s.'%%" % matchingCircuit.number)
             if matchingCircuitClone.count() < 2:
                 parallelFlag = False
-            if matchingCircuit.statusId is None:
+            if matchingCircuit.statusId is None and matchingCircuit.type == 'task':
                 taskFlag = False
             if matchingCircuitClone.count() > maxParallelTasks:
                 maxParallelTasks = matchingCircuitClone.count()
@@ -137,12 +137,20 @@ def getProcessXML(context,matchingCircuit,matchingCircuitClone, processKey, proc
     parallelMatchingPath = rootPath + 'parallelMatchingTemplate.bpmn.xml' #путь к блоку, описываюшему параллельное выполнение задач
     parallelTaskPath  = rootPath + 'parallelTaskTemplate.bpmn.xml' #путь к блоку, описываюшему параллельную задачу
     #Объявление переменных
+    status = statusCursor(context)
+    statusTransition = statusTransitionCursor(context)
     stringWriter = StringWriter()
     diagramWriter = StringWriter()
     xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stringWriter)
     xmlDiagramWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(diagramWriter)
     parser = XMLReaderFactory.createXMLReader()
-    handler = XformsProcessTemplate(startAndEndPath, consecPath, parallelMatchingPath, parallelTaskPath, matchingCircuit, matchingCircuitClone,processKey, processName, xmlWriter, xmlDiagramWriter, diagramWriter, maxParallelTasks)
+    handler = XformsProcessTemplate(startAndEndPath, consecPath, parallelMatchingPath,
+                                    parallelTaskPath, matchingCircuit,
+                                    matchingCircuitClone,processKey,
+                                    processName, xmlWriter,
+                                    xmlDiagramWriter, diagramWriter,
+                                    maxParallelTasks, status,
+                                    statusTransition)
     parser.setContentHandler(handler)
     parser.setErrorHandler(handler)
     parser.setFeature("http://xml.org/sax/features/namespace-prefixes", True)
@@ -195,6 +203,16 @@ def findAndReplacePattern(ch,start,length,rep,pattern,xmlWriter):
     else:
         return False 
     
+def getStatusAndTransitionVal(status,statusTransition):
+    statusValue = json.dumps([status.id,status.varName])
+    statusTransition.setRange('statusFrom',status.id)
+    statusTransition.setRange('modelFrom',status.modelId)
+    transitionValue = dict()
+    for statusTransition in statusTransition.iterate():
+        status.get(statusTransition.statusTo,statusTransition.modelTo)
+        transitionValue[status.id] = status.varName
+    transitionValue = json.dumps(transitionValue)
+    return statusValue,transitionValue   
     
 def addBPMNShape(id, height, width, x, y, diagramWriter):
     u'''Функция записи в xml-файл объекта процесса по id с заданной шириной, высотой и координатами'''
@@ -242,7 +260,8 @@ class XformsProcessTemplate(DefaultHandler2):
     u'''SAX-parser для описания процесса старта и конца процесса'''
     def __init__(self, startAndEndPath, consecPath, parallelMatchingPath,\
                  parallelTaskPath,matchingCircuit,matchingCircuitClone, processKey,\
-                 processName,xmlWriter, xmlDiagramWriter,diagramWriter, maxParallelTasks):
+                 processName,xmlWriter, xmlDiagramWriter,diagramWriter, maxParallelTasks,
+                 status, transition):
         #Пути к шаблонам процессов
         self.startAndEndPath = startAndEndPath
         self.consecPath = consecPath
@@ -269,6 +288,9 @@ class XformsProcessTemplate(DefaultHandler2):
         self.startX = ((self.defaultTaskWidth)*(self.maxParallelTasks+1)+self.gatewayAxis*(self.maxParallelTasks-1))/2
         #Текущее положение абсциссы
         self.currentY = int()
+        #Курсоры статусов и соединений между статусами для генерации значений сответствющих переменных
+        self.status = status
+        self.statusTransition = transition
         
 
     def startDocument(self):
@@ -397,13 +419,15 @@ class XformsProcessTemplate(DefaultHandler2):
                         outGatewayId = 'outGateway'+str(matchingCircuit.id)
                     #Получение ответственных
                     assignee,candidates,groups = extractAssigneeAndCandidates(matchingCircuit.assJSON)
+                    self.status.get(matchingCircuit.statusId,matchingCircuit.modelId)
+                    statusVal, transitionsVal = getStatusAndTransitionVal(self.status, self.statusTransition)
                     consecParser = XMLReaderFactory.createXMLReader()
                     consecHandler = consecWriter(inGatewayId,'task' + str(matchingCircuit.id),
                                                  matchingCircuit.name, assignee,
                                                  candidates,groups,outGatewayId,
                                                  self.xmlWriter,self.xmlDiagramWriter,
                                                  self.currentY, self.startX,
-                                                 matchingCircuit.statusId)
+                                                 statusVal,transitionsVal)
                     #Изменям текущую абсциссу, добавляя к ней высоту описания последовательной задачи
                     self.currentY = self.currentY + 2*self.defaultFlowLength + self.defaultTaskHeight + self.gatewayAxis
                     consecParser.setContentHandler(consecHandler)
@@ -432,7 +456,13 @@ class XformsProcessTemplate(DefaultHandler2):
                     parallelGatewayOut += 1
                     parallelId = parallelGatewayCounter
                     parallelGatewayCounter += 1
-                    parallelHandler = parallelWriter(inGatewayId, parallelGatewayIn, parallelGatewayOut, self.matchingCircuitClone, outGatewayId, parallelId,self.parallelTaskPath,self.xmlWriter, self.xmlDiagramWriter, self.startX, self.currentY)
+                    parallelHandler = parallelWriter(inGatewayId, parallelGatewayIn,
+                                                     parallelGatewayOut,
+                                                     self.matchingCircuitClone, outGatewayId,
+                                                     parallelId,self.parallelTaskPath,self.xmlWriter,
+                                                     self.xmlDiagramWriter,
+                                                     self.startX, self.currentY,
+                                                     self.status, self.statusTransition)
                     #обновление  текущей абсциссы
                     self.currentY = self.currentY + 2*self.defaultFlowLength + self.defaultTaskHeight + 7*self.gatewayAxis
                     parallelParser.setContentHandler(parallelHandler)
@@ -488,7 +518,7 @@ class consecWriter(DefaultHandler2):
     u'''SAX-parser для блока последовательной задачи'''
     def __init__(self,inGatewayId,taskId,taskName, assignee,\
                   candidates, groups, outGatewayId,xmlWriter,\
-                  xmlDiagramWriter, currentY, startX, statusId):
+                  xmlDiagramWriter, currentY, startX, statusVal, transitionsVal):
         #инициализация идентификатора входного шлюза
         self.inGatewayId = inGatewayId
         #ответственные
@@ -511,8 +541,9 @@ class consecWriter(DefaultHandler2):
         self.defaultTaskHeight = 55
         self.defaultTaskWidth = 300
         self.defaultFlowLength = 75
-        #Идентификатор статуса
-        self.statusId = statusId
+        #Значение статуса и переходов
+        self.statusVal = statusVal
+        self.transitionsVal = transitionsVal
 
     def startElement(self, namespaceURI, lname, qname, attrs):
         if qname != "specialTag":#спецтег не пишется
@@ -608,16 +639,22 @@ class consecWriter(DefaultHandler2):
             rep = '${deleteDocument == "false"}'
             pattern = list('${orderApproved == "true"}')
             flowFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
-            rep = 'task.setVariableLocal("status", "%s")' % self.statusId
+            rep = "task.setVariableLocal('status', '%s')" % self.statusId
             pattern = list('task.setVariableLocal("status", "createStatus")')
             statusFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
-            if not flowFlag and not statusFlag:
+            rep = "task.setVariableLocal('transitions', '%s')" % self.transitionsVal
+            pattern = list('task.setVariableLocal("transitions", "createTransitions")')
+            transitionsFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
+            if not flowFlag and not statusFlag and not transitionsFlag:
                 self.xmlWriter.writeCharacters(ch, start, length)
         else:
-            rep = 'task.setVariableLocal("status", "%s")' % self.statusId
+            rep = "task.setVariableLocal('status', '%s')" % self.statusVal
             pattern = list('task.setVariableLocal("status", "createStatus")')
             statusFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
-            if not statusFlag:
+            rep = "task.setVariableLocal('transitions', '%s')" % self.transitionsVal
+            pattern = list('task.setVariableLocal("transitions", "createTransitions")')
+            transitionsFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
+            if not statusFlag and not transitionsFlag:
                 self.xmlWriter.writeCharacters(ch, start, length)
 
     def comment(self, ch, start, length):
@@ -640,7 +677,8 @@ class parallelWriter(DefaultHandler2):
     u'''SAX-parser для параллельного блока'''
     def __init__(self,inGatewayId, parallelGatewayIn, parallelGatewayOut,
                   matchingCircuit, outGatewayId, parallelId,
-                  parallelTaskPath,xmlWriter, xmlDiagramWriter, startX, currentY):
+                  parallelTaskPath,xmlWriter, xmlDiagramWriter, startX, currentY,
+                  status, transition):
         #идентификаторы входного шлюза, выходного шлюза, входного и выходного шлбза паралелльного согласования
         self.inGatewayId = inGatewayId
         self.parallelGatewayIn = parallelGatewayIn
@@ -661,6 +699,9 @@ class parallelWriter(DefaultHandler2):
         self.currentY = currentY
         self.xmlDiagramWriter = xmlDiagramWriter
         self.xmlWriter = xmlWriter
+        #Курсоры для статусов и переходов
+        self.status = status
+        self.statusTransition = transition
 
     def startElement(self, namespaceURI, lname, qname, attrs):
         if qname != "specialTag" and qname != "parallelTasksDescription":#специальные теги не пишем
@@ -761,6 +802,8 @@ class parallelWriter(DefaultHandler2):
                     isCentral = True
                 else:
                     isCentral = False
+                self.status.get(matchingCircuit.statusId,matchingCircuit.modelId)
+                statusVal, transitionVal = getStatusAndTransitionVal(self.status, self.statusTransition)
                 parallelTaskHandler = parallelTaskWriter('task' + str(matchingCircuit.id),
                                                          matchingCircuit.name,
                                                          assignee,
@@ -774,7 +817,8 @@ class parallelWriter(DefaultHandler2):
                                                          self.currentY,
                                                          leftCorner,
                                                          isCentral,
-                                                         matchingCircuit.statusId)
+                                                         statusVal,
+                                                         transitionVal)
                 leftCorner = leftCorner + self.defaultTaskWidth + self.gatewayAxis
                 parallelTaskParser.setContentHandler(parallelTaskHandler)
                 parallelTaskParser.setErrorHandler(parallelTaskHandler)
@@ -830,7 +874,7 @@ class parallelTaskWriter(DefaultHandler2):
     def __init__(self,taskId,taskName, assignee, candidates,groups,
                  flowIn,flowOut,xmlWriter, xmlDiagramWriter,
                   startX, currentY, leftCorner, isCentral,
-                  statusId):
+                  statusVal, transitionVal):
         #идентификатор входного и выходного шлюза
         self.flowIn = flowIn
         self.flowOut = flowOut
@@ -854,7 +898,8 @@ class parallelTaskWriter(DefaultHandler2):
         self.isCentral = isCentral
         self.xmlDiagramWriter = xmlDiagramWriter
         #Идентификтаор статуса задачи
-        self.statusId = statusId
+        self.statusVal = statusVal
+        self.transtionVal = transitionVal
 
     def startElement(self, namespaceURI, lname, qname, attrs):
         if qname != "specialTag":#специальные тег не пишем
@@ -932,10 +977,13 @@ class parallelTaskWriter(DefaultHandler2):
 
     def characters(self, ch, start, length):
         u'''Надо подставить значение статуса'''
-        rep = 'task.setVariableLocal("status", "%s")' % self.statusId
+        rep = "task.setVariableLocal('status', '%s')" % self.statusVal
         pattern = list('task.setVariableLocal("status", "createStatus")')
         statusFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
-        if not statusFlag:
+        rep = "task.setVariableLocal('transitions', '%s')" % self.transtionVal
+        pattern = list('task.setVariableLocal("transitions", "createTransitions")')
+        transitionFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
+        if not statusFlag and not transitionFlag:
             self.xmlWriter.writeCharacters(ch, start, length)
 
     def comment(self, ch, start, length):
