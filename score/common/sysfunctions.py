@@ -1,6 +1,7 @@
 # coding: utf-8
 import os
 from ru.curs.celesta import CelestaException
+import simplejson as json
 
 def toHexForXml(s):
     '''Функция модифицирует спецсимволы в строке в формат пригодный для имен тегов xml'''
@@ -25,4 +26,10 @@ def tableCursorImport(grainName, tableName):
 
     return getattr(_grain_orm, "%sCursor" % tableName)
 
-
+def getGridWidth(session, delta = 51):
+    u"""Функция получает ширину грида, в зависимости от ширины датапанели.
+    """
+    if not isinstance(session, dict):
+        return unicode(int(json.loads(session)["sessioncontext"]["currentDatapanelWidth"])-delta) + "px"
+    else:
+        return unicode(int(session["sessioncontext"]["currentDatapanelWidth"])-delta) + "px"
