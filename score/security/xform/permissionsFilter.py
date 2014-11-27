@@ -2,7 +2,7 @@
 '''
 Created on 07.02.2014
 
-@author: Maria P.
+@author: d.bozhenko P.
 '''
 
 import simplejson as json
