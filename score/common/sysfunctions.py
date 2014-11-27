@@ -27,9 +27,15 @@ def tableCursorImport(grainName, tableName):
     return getattr(_grain_orm, "%sCursor" % tableName)
 
 def getGridWidth(session, delta = 51):
-    u"""Функция получает ширину грида, в зависимости от ширины датапанели.
-    """
+    u"""Функция получает ширину грида, в зависимости от ширины датапанели."""
     if not isinstance(session, dict):
         return unicode(int(json.loads(session)["sessioncontext"]["currentDatapanelWidth"])-delta) + "px"
     else:
         return unicode(int(session["sessioncontext"]["currentDatapanelWidth"])-delta) + "px"
+
+def getGridHeight(session, delta = 107):
+    u"""Функция получает высоту грида, в зависимости от высоты датапанели."""
+    if not isinstance(session, dict):
+        return unicode(int(json.loads(session)["sessioncontext"]["currentDatapanelHeight"])-delta)
+    else:
+        return unicode(int(session["sessioncontext"]["currentDatapanelWidth"])-delta)
