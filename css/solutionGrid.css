@@ -356,3 +356,18 @@ padding: 3px !important;
 .gridCellCursor{
 	cursor: pointer;
 }
+
+
+
+.dgrid-footer
+{
+padding: 3px !important;
+}
+.dgrid-scroller
+{
+border-bottom: 1px solid #99b9e9 !important;
+}
+.dgrid-resize-header-container
+{
+height: inherit !important;
+}
