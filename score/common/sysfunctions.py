@@ -33,9 +33,10 @@ def getGridWidth(session, delta = 51):
     else:
         return unicode(int(session["sessioncontext"]["currentDatapanelWidth"])-delta) + "px"
 
-def getGridHeight(session, delta = 107):
+def getGridHeight(session, numberOfGrids = 1, gridHeaderHeight = 55, delta = 59):
     u"""Функция получает высоту грида, в зависимости от высоты датапанели."""
+    #raise Exception(session)
     if not isinstance(session, dict):
-        return unicode(int(json.loads(session)["sessioncontext"]["currentDatapanelHeight"])-delta)
+        return unicode(((int(json.loads(session)["sessioncontext"]["currentDatapanelHeight"])-gridHeaderHeight)/numberOfGrids)-delta)
     else:
-        return unicode(int(session["sessioncontext"]["currentDatapanelWidth"])-delta)
+        return unicode(((int(session["sessioncontext"]["currentDatapanelHeight"])-gridHeaderHeight)/numberOfGrids)-delta)
