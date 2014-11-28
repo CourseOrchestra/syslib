@@ -11,7 +11,7 @@ except:
 
 from workflow._workflow_orm import matchingCircuitCursor, statusCursor
 
-from common.sysfunctions import toHexForXml
+from common.sysfunctions import toHexForXml,getGridWidth
 
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
@@ -19,6 +19,7 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList, parentId=None):
     u'''Функция получения данных для грида. '''
     session = json.loads(session)
+    gridWidth = getGridWidth(session, 60)
     sid = session['sessioncontext']['sid']
     _headers = {'id': '~~id',
                 'name': u'Название',
@@ -124,7 +125,7 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
                  "properties":
                     {"@flip": "false",
                      "@pagesize": "30",
-                     "@gridWidth": "800px",
+                     "@gridWidth": gridWidth,
                      "@totalCount": "0"}
                  }}
     settings = XMLJSONConverter.jsonToXml(json.dumps(settings))

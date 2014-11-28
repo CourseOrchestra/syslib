@@ -2,7 +2,7 @@
 
 import simplejson as json
 import base64
-from common.sysfunctions import toHexForXml
+from common.sysfunctions import toHexForXml, getGridWidth
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 try:
@@ -18,6 +18,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     u'''Функция получения списка всех версий развернутых процессов. '''
 
     session = json.loads(session)
+    gridWidth = getGridWidth(session, 60)
     processKey = session['sessioncontext']['related']['gridContext']['currentRecordId']
 
     activiti = ActivitiObject()
@@ -55,7 +56,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "1200px",
+                                               "@gridWidth": gridWidth,
                                                "@gridHeight": "300",
                                                "@totalCount": len(processesList),
                                                "@profile":"default.properties"},

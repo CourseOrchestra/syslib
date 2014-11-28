@@ -6,6 +6,8 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 from workflow._workflow_orm import formCursor
 
+from common.sysfunctions import getGridWidth
+
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
@@ -22,7 +24,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     # Получение списка развернутых процессов
     processesList = activiti.getActualVersionOfProcesses()
     # Извлечение фильтра из related-контекста
-    session = json.loads(session)['sessioncontext']
+    #raise Exception(session)
+    session = json.loads(session)
+    gridWidth = getGridWidth(session,60)
+    session = session['sessioncontext']
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
         processName = info["@processName"]
@@ -38,7 +43,6 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              "schema":[u"Схема"],
              "startProcess":[u"Старт процесса"],
              "properties":[u"properties"]}
-
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
     # Проходим по таблице и заполняем data
@@ -92,9 +96,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
     # Определяем список полей таблицы для отображения
     settings = {}
+    
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "1100px",
+                                               "@gridWidth": gridWidth,
                                                "@gridHeight": "300",
 
                                                "@totalCount": len(processesList),

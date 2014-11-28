@@ -6,6 +6,8 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 from workflow._workflow_orm import formCursor
 
+from common.sysfunctions import getGridWidth
+
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
@@ -18,6 +20,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
     u'''Функция получения списка всех форм процесса. '''
     session = json.loads(session)
+    gridWidth = getGridWidth(session,60)
     processKey = session['sessioncontext']['related']['gridContext']['currentRecordId']
     form = formCursor(context)
     
@@ -55,7 +58,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "800px",
+                                               "@gridWidth": gridWidth,
                                                "@gridHeight": "300",
                                                "@totalCount": form.count(),
                                                "@profile":"default.properties"},

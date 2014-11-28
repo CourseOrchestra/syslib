@@ -11,6 +11,9 @@ import simplejson as json
 from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
+
+from common.sysfunctions import getGridWidth
+
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
@@ -26,7 +29,9 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     activiti = ActivitiObject()
     processesList = activiti.runtimeService.createProcessInstanceQuery().orderByProcessInstanceId().active().asc().list()
     # Извлечение фильтра из related-контекста
-    session = json.loads(session)['sessioncontext']
+    session = json.loads(session)
+    gridWidth = getGridWidth(session, 60)
+    session = session['sessioncontext']
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
         processName = info["@processName"]
@@ -53,11 +58,15 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict = {}
         procDict[_header["id"][1]] = process.getId()
         procDict[_header["pid"][1]] = process.getId()
+        procDesc = activiti.runtimeService.getVariable(process.getProcessInstanceId(), 'processDescription')
+        if procDesc is not None:
+            procDict[_header["description"][1]] = procDesc
+        else:
+            procDict[_header["description"][1]] = ''
         defId = process.getProcessDefinitionId()
         procDict[_header["name"][1]] = activiti.repositoryService.createProcessDefinitionQuery().processDefinitionId(defId).singleResult().getName()
         if processName.lower() not in procDict[_header["name"][1]].lower():
             continue
-        procDict[_header["comment"][1]] = ''
         # Поле-ссылка для показа изображения процесса
         procDict[_header["schema"][1]] = {"div":
                                             {"@align": "center",
@@ -125,7 +134,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "1000px",
+                                               "@gridWidth": gridWidth,
                                                "@gridHeight": "300",
                                                "@totalCount": len(processesList),
                                                "@profile":"default.properties"}
@@ -136,7 +145,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["activeTasks"][0], "@width": "50px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["pid"][0], "@width": "150px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "300px"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":_header["comment"][0], "@width": "300px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "300px"})
     # settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
     # settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "400px"})
     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))

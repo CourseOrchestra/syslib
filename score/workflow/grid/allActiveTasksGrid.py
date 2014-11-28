@@ -9,7 +9,7 @@ Created on 21.10.2014
 '''
 
 import simplejson as json
-from common.sysfunctions import toHexForXml
+from common.sysfunctions import toHexForXml, getGridWidth
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 from workflow._workflow_orm import formCursor
@@ -24,7 +24,9 @@ from ru.curs.celesta.syscursors import UserRolesCursor, RolesCursor
 def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
     u'''Функция получения списка всех развернутых процессов. '''
-    session = json.loads(session)["sessioncontext"]
+    session = json.loads(session)
+    gridWidth = getGridWidth(session, 60)
+    session = session["sessioncontext"]
     sid = session["sid"]
     activiti = ActivitiObject()
     inputFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
@@ -60,6 +62,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                "process": [u"Название процесса"],
                "assignee": [u"Исполнитель"],
                "date": [u"Дата"],
+               "description":[u"Описание процесса"],
                "document": [u"Выполнить"],
                "properties":[u"properties"]}
 
@@ -79,6 +82,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         processInstanceId = task.getProcessInstanceId()
         processInstance = runtimeService.createProcessInstanceQuery()\
             .processInstanceId(processInstanceId).singleResult()
+        procDesc = activiti.runtimeService.getVariable(processInstanceId, 'processDescription')
+        if procDesc is not None:
+            taskDict[_header["description"][1]] = procDesc
+        else:
+            taskDict[_header["description"][1]] = ''
         processDefinition = activiti.repositoryService.createProcessDefinitionQuery()\
             .processDefinitionId(processInstance.getProcessDefinitionId()).singleResult()
         docName = "%s. %s" % (runtimeService.getVariable(processInstanceId, 'docId'), \
@@ -117,7 +125,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "1300px",
+                                               "@gridWidth": gridWidth,
                                                "@gridHeight": "500",
                                                "@totalCount": len(data["records"]["rec"]),
                                                "@profile":"default.properties"}
@@ -129,7 +137,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                        "@width": "250px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0],
                                                        "@width": "550px"})
-
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0],
+                                                       "@width": "550px"})
     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
 

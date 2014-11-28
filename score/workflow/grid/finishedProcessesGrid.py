@@ -11,6 +11,7 @@ import simplejson as json
 from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
+from common.sysfunctions import getGridWidth
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
@@ -24,8 +25,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     u'''Функция получения списка всех запущенных процессов. '''
 
     activiti = ActivitiObject()
-    processesList = activiti.historyService.createHistoricProcessInstanceQuery().finished().orderByProcessInstanceEndTime().asc().list()
-    session = json.loads(session)['sessioncontext']
+    processesList = activiti.historyService.createHistoricProcessInstanceQuery().finished().orderByProcessInstanceEndTime().includeProcessVariables().asc().list()
+    session = json.loads(session)
+    gridWidth = getGridWidth(session, 60)
+    session = session['sessioncontext']
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
         processName = info["@processName"]
@@ -51,6 +54,12 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict = {}
         procDict[_header["id"][1]] = process.getId()
         procDict[_header["pid"][1]] = process.getId()
+        variables = process.getProcessVariables()
+        if "processDescription" in variables:
+            procDesc = variables["processDescription"]
+        else:
+            procDesc = ''
+        procDict[_header["description"][1]] = procDesc
         defId = process.getProcessDefinitionId()
         procDict[_header["name"][1]] = activiti.repositoryService.createProcessDefinitionQuery().processDefinitionId(defId).singleResult().getName()        
         if processName.lower() not in procDict[_header["name"][1]].lower():
@@ -107,7 +116,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "1000px",
+                                               "@gridWidth": gridWidth,
                                                "@gridHeight": "300",
                                                "@totalCount": len(processesList),
                                                "@profile":"default.properties"}
@@ -116,6 +125,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     #settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0], "@width": "40px", "@type": "LINK"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["pid"][0], "@width": "150px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "300px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "300px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["reason"][0], "@width": "300px"})
     #settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
     #settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "400px"})

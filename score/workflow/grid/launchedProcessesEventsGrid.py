@@ -12,6 +12,7 @@ from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 from java.text import SimpleDateFormat
+from common.sysfunctions import getGridWidth
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
@@ -24,6 +25,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
     u'''Функция получения списка всех событий для запущенных процессов. '''
     session = json.loads(session)
+    gridWidth = getGridWidth(session, 60)
     # raise Exception(session)
     procId = session["sessioncontext"]['related']['gridContext']["currentRecordId"]
     activiti = ActivitiObject()
@@ -115,7 +117,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "1000px",
+                                               "@gridWidth": gridWidth,
                                                "@gridHeight": "300",
                                                "@totalCount": len(answerList),
                                                "@profile":"default.properties"},

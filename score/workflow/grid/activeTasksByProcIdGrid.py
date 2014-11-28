@@ -9,7 +9,7 @@ Created on 10.11.2014
 '''
 
 import simplejson as json
-from common.sysfunctions import toHexForXml
+from common.sysfunctions import toHexForXml, getGridWidth
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 from workflow._workflow_orm import formCursor
@@ -24,7 +24,9 @@ from security._security_orm import loginsCursor
 def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
     u'''Функция получения списка всех развернутых процессов. '''
-    session = json.loads(session)["sessioncontext"]
+    session = json.loads(session)
+    gridWidth = getGridWidth(session, 60)
+    session = session["sessioncontext"]
     sid = session["sid"]
     activiti = ActivitiObject()
     userRoles = UserRolesCursor(context)
@@ -55,6 +57,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                "name":[u"Название задачи"],
 #                "assign":[u"Принять"],
                "process": [u"Название процесса"],
+               "description": [u"Описание процесса"],
 #                "document": [u"Документ"],
 #                "reassign": [u"Передать задачу"],
                "userAss": [u"Назначена на"],
@@ -85,6 +88,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
         taskDict[_header["id"][1]] = task.id
         processInstanceId = task.getProcessInstanceId()
+#         procDesc = activiti.runtimeService.getVariable(processInstanceId, 'processDescription')
+#         if procDesc is not None:
+#             taskDict[_header["description"][1]] = procDesc
+#         else:
+#             taskDict[_header["description"][1]] = ''
 #         получаем процесс, чтобы потом получить его имя
         process = activiti.repositoryService.createProcessDefinitionQuery()\
             .processDefinitionId(task.getProcessDefinitionId()).singleResult()
@@ -168,7 +176,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "1100px",
+                                               "@gridWidth": gridWidth,
                                                "@gridHeight": "500",
                                                "@totalCount": len(data["records"]["rec"]),
                                                "@profile":"default.properties"}

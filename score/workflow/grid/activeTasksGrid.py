@@ -11,7 +11,7 @@ Created on 21.10.2014
 '''
 
 import simplejson as json
-from common.sysfunctions import toHexForXml
+from common.sysfunctions import toHexForXml, getGridWidth
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 from workflow import processUtils
@@ -27,7 +27,9 @@ from security._security_orm import loginsCursor
 def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
     u'''Функция получения списка всех развернутых процессов. '''
-    session = json.loads(session)["sessioncontext"]
+    session = json.loads(session)
+    gridWidth = getGridWidth(session, 60)
+    session = session["sessioncontext"]
     sid = session["sid"]
     activiti = ActivitiObject()
     userRoles = UserRolesCursor(context)
@@ -67,6 +69,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                "assign":[u"Принять"],
                "process": [u"Название процесса"],
                "document": [u"Выполнить"],
+               "description":[u'Описание процесса'],
                "reassign": [u"Передать задачу"],
                "userAss": [u"Назначена на"],
                "properties":[u"properties"]}
@@ -99,6 +102,12 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 #         получаем процесс, чтобы потом получить его имя
         process = activiti.repositoryService.createProcessDefinitionQuery()\
             .processDefinitionId(task.getProcessDefinitionId()).singleResult()
+        #Получаем описание процесса
+        procDesc = activiti.runtimeService.getVariable(processInstanceId, 'processDescription')
+        if procDesc is not None:
+            taskDict[_header["description"][1]] = procDesc
+        else:
+            taskDict[_header["description"][1]] = ''
 #         docName = "%s. %s" % (runtimeService.getVariable(processInstanceId, 'docId'), \
 #                               runtimeService.getVariable(processInstanceId, 'docName'))
         taskDict[_header["process"][1]] = "%s" % (process.name)
@@ -191,7 +200,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "1100px",
+                                               "@gridWidth": gridWidth,
                                                "@gridHeight": "500",
                                                "@totalCount": len(data["records"]["rec"]),
                                                "@profile":"default.properties"}
@@ -209,6 +218,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                        "@width": "215px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0],
                                                        "@width": "500px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0],
+                                                       "@width": "200px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["userAss"][0],
                                                        "@width": "100px"})
 
