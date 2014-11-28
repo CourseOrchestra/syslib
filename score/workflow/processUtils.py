@@ -124,9 +124,9 @@ class ActivitiObject():
             model = BpmnXMLConverter().convertToBpmnModel(xmlSource, False, False, String('UTF-8'))
             self.repositoryService.validateProcess(model)
             BpmnAutoLayout(model).execute()
-        actuals = self.runtimeService.createExecutionQuery().processInstanceId(processInstance.getId()).singleResult()
+        #actuals = self.runtimeService.createExecutionQuery().processInstanceId(processInstance.getId()).singleResult()
         generator = self.conf.getProcessDiagramGenerator()
-        definitionImageStream = generator.generateDiagram(model, "png", self.runtimeService.getActiveActivityIds(actuals.getId()))
+        definitionImageStream = generator.generateDiagram(model, "png", self.runtimeService.getActiveActivityIds(processInstance.getProcessInstanceId()))
         return definitionImageStream
 
     def stopProcess(self, processId, reason='stopped manually'):
