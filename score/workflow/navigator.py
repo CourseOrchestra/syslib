@@ -110,31 +110,35 @@ def manageProcessesNav(context, session):
     sid = session["sid"]
     # Пункт меню управление процессами
     myNavigator = {
-                   "group":{
-                            "@id": "workflow",
-                            "@name": u"Организация рабочего процесса",
-                            "@icon": "flowblock.png",
-                            "level1":[{
-                                      "@id": "w1",
-                                      "@name": u"Управление процессами",
-                                      "action":{"main_context": "current",
-                                                 "datapanel":{"@type": "workflow.datapanel.processes.manageProcesses.celesta",
-                                                              "@tab": "firstOrCurrent"}
-                                                 }
-                                      }]
-                            }
-                   }
-    # Пункт меню редактирования процессов
-    myNavigator["group"]["level1"].append({"@id": "editingProcesses",
-                                          "@name": u"Конструктор процессов",
-                                          "action":
-                                            {"main_context": "current",
-                                             "datapanel":
-                                                {"@type": "workflow.datapanel.processes.editingProcesses.celesta",
-                                                 "@tab": "firstOrCurrent"
-                                                 }
-                                             }
+                       "group":{
+                                "@id": "workflow",
+                                "@name": u"Организация рабочего процесса",
+                                "@icon": "flowblock.png",
+                                "level1":[
+                                          ]
+                                }
+                       }
+    if userHasPermission(context, sid, 'processManagement'):
+        myNavigator["group"]["level1"].append({
+                                          "@id": "w1",
+                                          "@name": u"Управление процессами",
+                                          "action":{"main_context": "current",
+                                                     "datapanel":{"@type": "workflow.datapanel.processes.manageProcesses.celesta",
+                                                                  "@tab": "firstOrCurrent"}
+                                                     }
                                           })
+    # Пункт меню редактирования процессов
+    if userHasPermission(context, sid, 'processDesigner'):
+        myNavigator["group"]["level1"].append({"@id": "editingProcesses",
+                                              "@name": u"Конструктор процессов",
+                                              "action":
+                                                {"main_context": "current",
+                                                 "datapanel":
+                                                    {"@type": "workflow.datapanel.processes.editingProcesses.celesta",
+                                                     "@tab": "firstOrCurrent"
+                                                     }
+                                                 }
+                                              })
     if userHasPermission(context, sid, 'activeTasks'):
         myNavigator["group"]["level1"].append({"@id": "activeTasks",
                                               "@name": u"Текущие задачи",
