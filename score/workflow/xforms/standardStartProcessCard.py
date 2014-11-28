@@ -35,12 +35,12 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     u'''Карточка стандартного запуска процесса'''
     if add != "added":
         xformsdata = {"schema":{"@xmlns":'',
-                                "data":{"@type":'add'},
+                                "data":{"@type":'hide'},
                                 }
                       }
     else:
         xformsdata = {"schema":{"@xmlns":'',
-                                "data":{"@type":'hide'},
+                                "data":{"@type":'add'},
                                 }
                       }
     xformssettings = {"properties":{
