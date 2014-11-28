@@ -3,5 +3,7 @@
 			 //"documentTask" : "workflow.datapanel.tasks.standardCompleteTaskWithStatus.celesta"
 			 //"documentTask": "workflow.datapanel.tasks.approveTask.celesta"
 			 },
- "manual": {"simpleStatusForm": "workflow.datapanel.tasks.approveTask.celesta"}
+ "manual": {"simpleStatusForm": "workflow.datapanel.tasks.approveTask.celesta",
+			"approving":"workflow.datapanel.tasks.approveTask.celesta",
+			"workWithDocument":"workflow.datapanel.tasks.reworkDoc.celesta"}
 }
