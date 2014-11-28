@@ -12,7 +12,7 @@ from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 from java.text import SimpleDateFormat
-from common.sysfunctions import getGridWidth
+from common.sysfunctions import getGridWidth, getGridHeight
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
@@ -26,6 +26,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     u'''Функция получения списка всех событий для запущенных процессов. '''
     session = json.loads(session)
     gridWidth = getGridWidth(session, 60)
+    gridHeight = getGridHeight(session,2,55, 100)
     # raise Exception(session)
     procId = session["sessioncontext"]['related']['gridContext']["currentRecordId"]
     activiti = ActivitiObject()
@@ -76,7 +77,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         pushList.append(variable.getName())
         pushList.append(u'Изменение переменной')
         pushList.append(variable.getId())
-        pushList.append(variable.getValue())
+        pushList.append(unicode(variable.getValue()))
         pushList.append('')
         answerList.append(pushList)
     data = {"records":{"rec":[]}}
@@ -118,7 +119,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
                                                "@gridWidth": gridWidth,
-                                               "@gridHeight": "300",
+                                               "@gridHeight": gridHeight,
                                                "@totalCount": len(answerList),
                                                "@profile":"default.properties"},
                                 "labels":{"header":"События"}
