@@ -1,8 +1,8 @@
 # coding: utf-8
 '''
-Created on 11.11.2014
+Created on 28.11.2014
 
-@author: m.prudyvus
+@author: tr0gLo)|(IH
 '''
 
 import simplejson as json
@@ -27,7 +27,7 @@ from jarray import zeros
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
-    u'''Карточка стандартного запуска процесса'''
+    u'''Карточка отправки на согласование'''
     if add == "added":
         xformsdata = {"schema":
                       {"@xmlns":'',
@@ -49,10 +49,10 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                          "docRefs": {"ref": []},
                          "approves":
                             {"approve":
-                             [{"@value": "true",
-                               "@label": u"Утвердить"},
-                              {"@value": "false",
-                               "@label": u"Отклонить"}]},
+                             [{"@value": "false",
+                               "@label": u"Отправить на согласование"},
+                              {"@value": "true",
+                               "@label": u"Удалить"}]},
                          "@comment": ""}}}
         docRef = activiti.taskService.getVariable(taskId, 'docRef')
         docName = activiti.taskService.getVariable(taskId, 'docName')
@@ -62,7 +62,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             docIdList = docRef.keys()
             for docId in docIdList:
                 xformsdata["schema"]["data"]["docRefs"]["ref"].append({"@value": docRef[docId],
-                                                               	   "@name": docName[docId]})
+                                                                      "@name": docName[docId]})
     xformssettings = {"properties":
                       {"event":
                        [{"@name": "single_click",
@@ -73,7 +73,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                 {"@type": "current",
                                  "@tab": "current",
                                  "element":
-                                    {"@id":'approveTaskCard',
+                                    {"@id":'reworkDocCard',
                                      "add_context":"added"}}}}]}}
     jsonData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))
     jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
@@ -93,6 +93,6 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
 
     if ' '.join(jsonData["@comment"].split(' ')) != '':
         activiti.taskService.addComment(taskId, processId, jsonData["@comment"])
-    activiti.taskService.setVariableLocal(taskId, 'approved', jsonData["@approveValue"])
+    activiti.taskService.setVariable(taskId, 'deleteDocument', jsonData["@approveValue"])
     activiti.taskService.complete(taskId)
-    return context.message(u'Задача %s' % (u'утверждена' if jsonData["@approveValue"] == 'true' else u'отклонена'))
+    return context.message(u'Документ %s' % (u'отправлен на согласование' if jsonData["@approveValue"] == 'false' else u'удалён'))
