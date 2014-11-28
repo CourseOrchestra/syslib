@@ -2,7 +2,7 @@
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://activiti.org/bpmn20" id="review-definitions">
   <process id="documentApprovingProcess" name="Утверждение документа" isExecutable="true">
     <startEvent id="startevent1" name="Start"></startEvent>
-    <userTask id="createDocument" name="Создание документа" activiti:assignee="${initiator}">
+    <userTask id="createDocument" name="Создание документа" activiti:assignee="${initiator}" activiti:formKey="workWithDocument">
 		<extensionElements>
         <activiti:taskListener event="create" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
           <activiti:field name="language">
@@ -23,7 +23,7 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${deleteDocument == "true"}]]></conditionExpression>
     </sequenceFlow>
 	
-	<userTask id="reworkDocument" name="Доработка документа" activiti:assignee="${initiator}"></userTask>
+	<userTask id="reworkDocument" name="Доработка документа" activiti:assignee="${initiator}" activiti:formKey="workWithDocument"></userTask>
   
 	<sequenceFlow id="fromReworkToDelete" sourceRef="reworkDocument" targetRef="deleteDocumentExclusivegateway"></sequenceFlow>
 	

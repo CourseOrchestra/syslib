@@ -1,15 +1,17 @@
 <specialTag xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://activiti.org/bpmn20" id="review-definitions">
     
 	<sequenceFlow id="flowIn" sourceRef="parallelgateway1" targetRef="usertask3"></sequenceFlow>
-	<userTask id="usertask" name="ff" activiti:assignee="${lawyer}" activiti:candidateUsers="candidate1,candidate2,candidate3" activiti:candidateGroups="group1,group2,group3">
+	<userTask id="usertask" name="ff" activiti:assignee="${lawyer}" activiti:candidateUsers="candidate1,candidate2,candidate3" activiti:candidateGroups="group1,group2,group3" activiti:formKey="approving">
             <extensionElements>
         <activiti:taskListener event="complete" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
           <activiti:field name="language">
             <activiti:string><![CDATA[groovy]]></activiti:string>
           </activiti:field>
           <activiti:field name="script">
-            <activiti:expression>if (approved != "unknown"){
-	task.setVariable("orderApproved", approved)
+            <activiti:expression>
+			appr = task.getVariableLocal('approved')
+			if (appr != "unknown"){
+	task.setVariable("orderApproved", appr)
 }
 </activiti:expression>
           </activiti:field>
@@ -29,7 +31,8 @@
           <activiti:field name="script">
             <activiti:expression>import java.util.regex.Matcher
 import java.util.regex.Pattern
-if (approved != "unknown"){
+appr = task.getVariableLocal('approved')
+if (appr != "unknown"){
 	maxNumberLength = 3
 	taskKey = task.getTaskDefinitionKey()
 	docVersion = task.getVariable("documentVersion")
@@ -41,7 +44,7 @@ if (approved != "unknown"){
 	strNum = mtchr[0][taskKey.length()..taskKey.length()+maxNumberLength-1]
 	num = strNum.toInteger()
 	newNum=num+10
-	if (approved == "true"){
+	if (appr == "true"){
 		newNum=newNum.intdiv(10)*10+1
 	}
 	for (i=1; i&lt;=maxNumberLength; i++){
@@ -85,7 +88,9 @@ task.setVariableLocal("approved", "unknown")</activiti:expression>
 orderAppr = execution.getVariable("orderApproved")
 if (orderAppr == "false"){	
 	for (taskItem in query.list()){
-		if (taskItem.getVariableLocal("complete") != "true"){		
+	
+		if (taskItem.getVariableLocal("complete") != "true"){
+			taskItem.setVariableLocal("approved", "false")
 			execution.getEngineServices().getTaskService().complete(taskItem.getId())
 		}
 	}

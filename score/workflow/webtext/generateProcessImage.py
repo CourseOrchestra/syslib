@@ -552,17 +552,19 @@ class consecWriter(DefaultHandler2):
                 for i in range(0, attrs.getLength()):
                     if attrs.getQName(i) == 'id':
                         self.xmlWriter.writeAttribute(attrs.getQName(i), self.taskId)
-                    if attrs.getQName(i) == 'name':
+                    elif attrs.getQName(i) == 'name':
                         self.xmlWriter.writeAttribute(attrs.getQName(i), self.taskName)
-                    if attrs.getQName(i) == 'activiti:assignee':
+                    elif attrs.getQName(i) == 'activiti:assignee':
                         if self.assignee != '':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.assignee)
-                    if attrs.getQName(i) == 'activiti:candidateUsers':
+                    elif attrs.getQName(i) == 'activiti:candidateUsers':
                         if self.candidates != '':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.candidates)
-                    if attrs.getQName(i) == 'activiti:candidateGroups':
+                    elif attrs.getQName(i) == 'activiti:candidateGroups':
                         if self.groups != '':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.groups)
+                    else:
+                        self.xmlWriter.writeAttribute(attrs.getQName(i),attrs.getValue(i))
                 self.currentY = addBPMNShape(self.taskId,
                               self.defaultTaskHeight,
                               self.defaultTaskWidth,
@@ -908,17 +910,19 @@ class parallelTaskWriter(DefaultHandler2):
                 for i in range(0, attrs.getLength()):
                     if attrs.getQName(i) == 'id':
                         self.xmlWriter.writeAttribute(attrs.getQName(i), self.taskId)
-                    if attrs.getQName(i) == 'name':
+                    elif attrs.getQName(i) == 'name':
                         self.xmlWriter.writeAttribute(attrs.getQName(i), self.taskName)
-                    if attrs.getQName(i) == 'activiti:assignee':
+                    elif attrs.getQName(i) == 'activiti:assignee':
                         if self.assignee != '':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.assignee)
-                    if attrs.getQName(i) == 'activiti:candidateUsers':
+                    elif attrs.getQName(i) == 'activiti:candidateUsers':
                         if self.candidates != '':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.candidates)
-                    if attrs.getQName(i) == 'activiti:candidateGroups':
+                    elif attrs.getQName(i) == 'activiti:candidateGroups':
                         if self.groups != '':
                             self.xmlWriter.writeAttribute(attrs.getQName(i), self.groups)
+                    else:
+                        self.xmlWriter.writeAttribute(attrs.getQName(i),attrs.getValue(i))
                 addBPMNShape(self.taskId,
                           self.defaultTaskHeight,
                           self.defaultTaskWidth,

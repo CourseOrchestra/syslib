@@ -2,7 +2,7 @@
 	<sequenceFlow id="inFlow" sourceRef="deleteDocumentExclusivegateway" targetRef="d">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderApproved == "true"}]]></conditionExpression>
 	</sequenceFlow>
-	<userTask id="d" name="Декан" activiti:assignee="${dean}" activiti:candidateUsers="candidate1,candidate2,candidate3" activiti:candidateGroups="group1,group2,group3">
+	<userTask id="d" name="Декан" activiti:assignee="${dean}" activiti:formKey="approving" activiti:candidateUsers="candidate1,candidate2,candidate3" activiti:candidateGroups="group1,group2,group3">
       <extensionElements>
         <activiti:taskListener event="complete" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
           <activiti:field name="language">
