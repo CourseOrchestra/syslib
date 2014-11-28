@@ -203,3 +203,20 @@ def approveTask(context, main=None, session=None):
                       "@name":"workflow.xforms.approveTaskCard.cardDataSave.celesta",
                       "@type":"SAVE"}]}]}}}
     return XMLJSONConverter.jsonToXml(json.dumps(data))
+
+def reworkDoc(context, main=None, session=None):
+    u'''Датапанель утверждения задачи'''
+    data = {"datapanel":
+            {"tab":
+             {"@id":"reworkDoc",
+              "@name":u"Отправка на согласование",
+              "element":
+                [{"@id":"reworkDocCard",
+                  "@type":"xforms",
+                  "@proc":"workflow.xforms.reworkDocCard.cardData.celesta",
+                  "@template":"workflow/reworkDocCard.xml",
+                  "proc":
+                    [{"@id":"reworkDocCardSave",
+                      "@name":"workflow.xforms.reworkDocCard.cardDataSave.celesta",
+                      "@type":"SAVE"}]}]}}}
+    return XMLJSONConverter.jsonToXml(json.dumps(data))
