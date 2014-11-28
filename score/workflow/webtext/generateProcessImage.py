@@ -639,7 +639,7 @@ class consecWriter(DefaultHandler2):
             rep = '${deleteDocument == "false"}'
             pattern = list('${orderApproved == "true"}')
             flowFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
-            rep = "task.setVariableLocal('status', '%s')" % self.statusId
+            rep = "task.setVariableLocal('status', '%s')" % self.statusVal
             pattern = list('task.setVariableLocal("status", "createStatus")')
             statusFlag = findAndReplacePattern(ch,start,length,rep,pattern,self.xmlWriter)
             rep = "task.setVariableLocal('transitions', '%s')" % self.transitionsVal
