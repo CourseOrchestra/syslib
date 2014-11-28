@@ -12,7 +12,7 @@ from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 from java.text import SimpleDateFormat
-from common.sysfunctions import getGridWidth
+from common.sysfunctions import getGridWidth, getGridHeight
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
@@ -26,6 +26,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     u'''Функция получения списка всех запущенных процессов. '''
     session = json.loads(session)
     gridWidth = getGridWidth(session, 60)
+    gridHeight = getGridHeight(session,2)
     # raise Exception(session)
     procId = session["sessioncontext"]['related']['gridContext']["currentRecordId"]
     activiti = ActivitiObject()
@@ -74,7 +75,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             pushList.append(' '.join([comment.getFullMessage() for comment in activiti.taskService.getTaskComments(task.id)]))
             answerList.append(pushList)
     # raise Exception(answerList)
-    variableList = activiti.historyService.createHistoricDetailQuery().processInstanceId(procInstance.getId()).list()
+    variableList = activiti.historyService.createHistoricDetailQuery().processInstanceId(procInstance.getId()).excludeTaskDetails().list()
     for variable in variableList:
         pushList = list()
         pushList.append(variable.getTime())
@@ -82,7 +83,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         pushList.append(variable.getName())
         pushList.append(u'Изменение переменной')
         pushList.append(variable.getId())
-        pushList.append(variable.getValue())
+        pushList.append(unicode(variable.getValue()))
         pushList.append('')
         answerList.append(pushList)
     data = {"records":{"rec":[]}}
@@ -118,7 +119,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         # procDict[_header["version"][1]] = process.version
         procDict[_header["properties"][1]] = { }
         data["records"]["rec"].append(procDict)
-
+    #raise Exception(data)
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},

@@ -11,7 +11,7 @@ import simplejson as json
 from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
-from common.sysfunctions import getGridWidth
+from common.sysfunctions import getGridWidth, getGridHeight
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
@@ -28,6 +28,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     processesList = activiti.historyService.createHistoricProcessInstanceQuery().finished().orderByProcessInstanceEndTime().includeProcessVariables().asc().list()
     session = json.loads(session)
     gridWidth = getGridWidth(session, 60)
+    gridHeigth = getGridHeight(session,2)
     session = session['sessioncontext']
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
@@ -117,7 +118,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
                                                "@gridWidth": gridWidth,
-                                               "@gridHeight": "300",
+                                               "@gridHeight": gridHeigth,
                                                "@totalCount": len(processesList),
                                                "@profile":"default.properties"}
                                 }

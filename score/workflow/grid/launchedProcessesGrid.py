@@ -31,7 +31,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     # Извлечение фильтра из related-контекста
     session = json.loads(session)
     gridWidth = getGridWidth(session, 60)
-    gridHeight = getGridHeight(session,2,55,100)
+    gridHeight = getGridHeight(session,2,55,80)
     session = session['sessioncontext']
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]

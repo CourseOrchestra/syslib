@@ -9,7 +9,7 @@ Created on 21.10.2014
 '''
 
 import simplejson as json
-from common.sysfunctions import toHexForXml, getGridWidth
+from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 from workflow._workflow_orm import formCursor
@@ -26,6 +26,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     u'''Функция получения списка всех развернутых процессов. '''
     session = json.loads(session)
     gridWidth = getGridWidth(session, 60)
+    gridHeight = getGridHeight(session,1,55,75)
     session = session["sessioncontext"]
     sid = session["sid"]
     activiti = ActivitiObject()
@@ -126,7 +127,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
                                                "@gridWidth": gridWidth,
-                                               "@gridHeight": "500",
+                                               "@gridHeight": gridHeight,
                                                "@totalCount": len(data["records"]["rec"]),
                                                "@profile":"default.properties"}
                                 }
@@ -134,11 +135,16 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["document"][0],
                                                        "@width": "60px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0],
-                                                       "@width": "250px"})
+                                                       "@width": "200px"})
+
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0],
-                                                       "@width": "550px"})
+                                                       "@width": "200px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0],
-                                                       "@width": "550px"})
+                                                       "@width": "200px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["assignee"][0],
+                                                       "@width": "200px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["date"][0],
+                                                       "@width": "200px"})
     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
 

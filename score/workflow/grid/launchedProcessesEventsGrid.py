@@ -26,7 +26,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     u'''Функция получения списка всех событий для запущенных процессов. '''
     session = json.loads(session)
     gridWidth = getGridWidth(session, 60)
-    gridHeight = getGridHeight(session,2,55, 100)
+    gridHeight = getGridHeight(session,2,55,80)
     # raise Exception(session)
     procId = session["sessioncontext"]['related']['gridContext']["currentRecordId"]
     activiti = ActivitiObject()

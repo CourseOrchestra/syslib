@@ -11,7 +11,7 @@ Created on 21.10.2014
 '''
 
 import simplejson as json
-from common.sysfunctions import toHexForXml, getGridWidth
+from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 from workflow import processUtils
@@ -29,6 +29,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     u'''Функция получения списка всех развернутых процессов. '''
     session = json.loads(session)
     gridWidth = getGridWidth(session, 60)
+    gridHeight = getGridHeight(session,1)
     session = session["sessioncontext"]
     sid = session["sid"]
     activiti = ActivitiObject()
@@ -201,7 +202,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
                                                "@gridWidth": gridWidth,
-                                               "@gridHeight": "500",
+                                               "@gridHeight": gridHeight,
                                                "@totalCount": len(data["records"]["rec"]),
                                                "@profile":"default.properties"}
                                 }
@@ -217,7 +218,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0],
                                                        "@width": "215px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0],
-                                                       "@width": "500px"})
+                                                       "@width": "200px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0],
                                                        "@width": "200px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["userAss"][0],
