@@ -126,7 +126,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         taskDict[_header["name"][1]] = task.name
         taskDict[_header["properties"][1]] = {"event":
                                               []}
-        if taskDict[_header["userAss"][1]] != sid:
+        if taskDict[_header["userAss"][1]] != function(context, sid):
             taskDict[_header["assign"][1]] = {"div":
                                                 {"@align": "center",
                                                  "@class": "gridCellCursor",
@@ -161,7 +161,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                               "@target": "_blank",
                                               "img":
                                                 {"@src": "solutions/default/resources/imagesingrid/play.png"}}}} \
-                                                    if taskDict[_header["userAss"][1]] == sid else ""
+                                                    if taskDict[_header["userAss"][1]] == function(context, sid) else ""
 #         {"link":
 #                                               {"@href":"./?mode=task&processId=%s&taskId=%s" % (processInstanceId, task.id),
 #                                                "@image":"solutions/default/resources/play.png",
