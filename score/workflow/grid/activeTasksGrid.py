@@ -11,10 +11,10 @@ Created on 21.10.2014
 '''
 
 import simplejson as json
+import os
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from workflow.processUtils import ActivitiObject
-from workflow import processUtils
+from workflow.processUtils import ActivitiObject, parse_json, functionImport, setVariablesInLink
 from workflow._workflow_orm import formCursor
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
@@ -79,6 +79,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
 #     runtimeService = activiti.runtimeService
     taskService = activiti.taskService
+    filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                'datapanelSettings.json')
+    datapanelSettings = parse_json(filePath)["specialFunction"]["getUserName"]
+    function = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
 
 #     Проходим по таблице и заполняем data
     for task in taskDict.values():
@@ -89,7 +93,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         for link in identityLinks:
             if link.userId == sid:
                 if not (link.type == 'candidate' and _header["userAss"][1] in taskDict):
-                    taskDict[_header["userAss"][1]] = link.userId
+                    taskDict[_header["userAss"][1]] = function(context, link.userId)
             elif link.groupId in rolesList:
                 roles.get(link.groupId)
                 taskDict[_header["userAss"][1]] = u"""Группа "%s\"""" % roles.description
@@ -147,7 +151,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             taskDict[_header["assign"][1]] = ""
 
         if form.tryGet(process.key, task.formKey):
-            link = processUtils.setVariablesInLink(activiti, processInstanceId, task.id, form.link)
+            link = setVariablesInLink(activiti, processInstanceId, task.id, form.link)
         else:
             link = "./?userdata=%s&mode=task&processId=%s&taskId=%s" % (session["userdata"], processInstanceId, task.id)
         taskDict[_header["document"][1]] = {"div":

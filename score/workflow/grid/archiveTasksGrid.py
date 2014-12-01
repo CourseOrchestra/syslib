@@ -10,7 +10,6 @@ import simplejson as json
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
-from workflow._workflow_orm import formCursor
 from java.text import SimpleDateFormat
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
@@ -83,11 +82,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                 procDesc = variables["processDescription"]
             else:
                 procDesc = ''
-        else:            
+        else:
             procDesc = activiti.runtimeService.getVariable(processInstanceId, 'processDescription')
             if procDesc is None:
                 procDesc = ''
-        #Получаем описание процесса
+        # Получаем описание процесса
         processDefinition = activiti.repositoryService.createProcessDefinitionQuery()\
             .processDefinitionId(processInstance.getProcessDefinitionId()).singleResult()
         historicVariables = activiti.historyService.createHistoricVariableInstanceQuery()\

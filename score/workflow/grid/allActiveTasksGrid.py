@@ -9,9 +9,10 @@ Created on 21.10.2014
 '''
 
 import simplejson as json
+import os
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from workflow.processUtils import ActivitiObject
+from workflow.processUtils import ActivitiObject, parse_json, functionImport
 from workflow._workflow_orm import formCursor
 from java.text import SimpleDateFormat
 try:
@@ -25,7 +26,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     u'''Функция получения списка всех развернутых процессов. '''
     session = json.loads(session)
     gridWidth = getGridWidth(session, 60)
-    gridHeight = getGridHeight(session,1,55,75)
+    gridHeight = getGridHeight(session, 1, 55, 75)
     session = session["sessioncontext"]
     sid = session["sid"]
     activiti = ActivitiObject()
@@ -74,6 +75,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     roles = RolesCursor(context)
     userRoles.setRange('userid', sid)
     form = formCursor(context)
+    filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            'datapanelSettings.json')
+    datapanelSettings = parse_json(filePath)["specialFunction"]["getUserName"]
+    function = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
 
     for task in groupTaskList:
         taskDict = {}
@@ -92,10 +97,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                               runtimeService.getVariable(processInstanceId, 'docName'))
         taskDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
         identityLinks = activiti.taskService.getIdentityLinksForTask(task.id)
+
 #         taskDict[_header["assignee"][1]] = 'error'
         for link in identityLinks:
             if link.userId is not None:
-                taskDict[_header["assignee"][1]] = link.userId
+                taskDict[_header["assignee"][1]] = function(context, link.userId)
             elif link.groupId is not None:
                 roles.get(link.groupId)
                 taskDict[_header["assignee"][1]] = u"""Группа "%s\"""" % roles.description

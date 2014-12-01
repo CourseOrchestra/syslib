@@ -9,10 +9,10 @@ Created on 10.11.2014
 '''
 
 import simplejson as json
+import os
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from workflow.processUtils import ActivitiObject
-from workflow._workflow_orm import formCursor
+from workflow.processUtils import ActivitiObject, parse_json, functionImport
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
@@ -27,9 +27,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     gridWidth = getGridWidth(session, 60)
     gridHeight = getGridHeight(session, 1)
     session = session["sessioncontext"]
-    sid = session["sid"]
     activiti = ActivitiObject()
-    userRoles = UserRolesCursor(context)
     if isinstance(session['urlparams']['urlparam'], list):
         for params in session['urlparams']['urlparam']:
             if params['@name'] == 'processId':
@@ -69,6 +67,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     runtimeService = activiti.runtimeService
     taskService = activiti.taskService
 
+    filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            'datapanelSettings.json')
+    datapanelSettings = parse_json(filePath)["specialFunction"]["getUserName"]
+    function = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
+
 #     Проходим по таблице и заполняем data
     for task in tasksList:
 #         смотрим связи задачи
@@ -78,7 +81,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         for link in identityLinks:
             if link.userId is not None:
                 if not (link.type == 'candidate' and _header["userAss"][1] in taskDict):
-                    taskDict[_header["userAss"][1]] = link.userId
+                    taskDict[_header["userAss"][1]] = function(context, link.userId)
             else:
                 roles.get(link.groupId)
                 taskDict[_header["userAss"][1]] = u"""Группа "%s\"""" % roles.description
