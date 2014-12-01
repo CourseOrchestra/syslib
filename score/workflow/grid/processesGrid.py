@@ -108,11 +108,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                              {"@caption": "Остановка процесса"
                                                               }
                                                            },
-                                                          {"server":
-                                                           {"activity":
-                                                            {"@id": "stop",
-                                                             "@name": "workflow.grid.processesGrid.stopAll.celesta",
-                                                             "add_context": ""}}}
+                                                          {"datapanel":{'@type':"current",
+                                                                            '@tab':"current",
+                                                                            'element':{'@id':'suspendAllProcessCard'}
+                                                                            }
+                                                               }
                                                           ]
                                                       }
                                                 }]
@@ -201,10 +201,3 @@ def downloadProcFile(context, main=None, add=None, filterinfo=None, session=None
     fileName = process.resourceName
     data = activiti.getProcessXml(recordId)
     return JythonDownloadResult(data, fileName)
-
-def stopAll(context, main=None, add=None, filterinfo=None,
-             session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
-    activiti = ActivitiObject()
-    activePerocess = activiti.runtimeService.createProcessInstanceQuery().active().list()
-    for activeProcess in activePerocess:
-        activiti.runtimeService.stopProcess(activeProcess.getId())

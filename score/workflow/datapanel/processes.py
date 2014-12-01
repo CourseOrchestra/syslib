@@ -26,6 +26,21 @@ def manageProcesses(context, main=None, session=None):
                                                     "@type":"DOWNLOAD"}],
                                             "related":{"@id":"processFilter"}
                                             },
+                                           {"@id":"suspendAllProcessCard",
+                                            "@type":"xforms",
+                                            "@neverShowInPanel":"true",
+                                            "@proc":"workflow.xforms.suspendAllProcessCard.cardData.celesta",
+                                            "@template":"workflow/suspendProcessCard.xml",
+                                            "related":{
+                                                       "@id":"processesGrid"
+                                                       },
+                                            "proc":[
+                                                    {
+                                                    "@id":"suspendProcessCardSave",
+                                                    "@name":"workflow.xforms.suspendAllProcessCard.cardSave.celesta",
+                                                    "@type":"SAVE"}]
+
+                                            },
                                            {"@id":"processFormsGrid",
                                             "@type":"grid",
                                             "@hideOnLoad":"true",
@@ -218,7 +233,7 @@ def editingProcesses(context, main=None, session=None):
                                                     {
                                                     "@id":"selectionProcessSave",
                                                     "@name":"workflow.xforms.selectionProcess.cardSave.celesta",
-                                                    "@type":"SAVE"}]                                            
+                                                    "@type":"SAVE"}]
                                             },
                                            {"@id":"matchingCircuitGrid",
                                             "@type":"grid",
