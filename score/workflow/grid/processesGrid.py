@@ -24,10 +24,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     # Получение списка развернутых процессов
     processesList = activiti.getActualVersionOfProcesses()
     # Извлечение фильтра из related-контекста
-    #raise Exception(session)
+    # raise Exception(session)
     session = json.loads(session)
-    gridWidth = getGridWidth(session,60)
-    gridHeigth = getGridHeight(session,2,55,80)
+    gridWidth = getGridWidth(session, 60)
+    gridHeigth = getGridHeight(session, 2, 55, 80)
     session = session['sessioncontext']
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
@@ -40,6 +40,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              "name":[u"Название процесса"],
              "description":[u"Описание"],
              "version":[u"Версия"],
+             "stop":[u'Остановка'],
              "file":[u"Файл"],
              "schema":[u"Схема"],
              "startProcess":[u"Старт процесса"],
@@ -57,6 +58,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict[_header["description"][1]] = process.description
         procDict[_header["version"][1]] = process.version
         procDict[_header["file"][1]] = u'Загрузить'
+        procDict[_header["stop"][1]] = {"div":
+                                                {"@align": "center",
+                                                 "@class": "gridCellCursor",
+                                                 "img":
+                                                    {"@src": "solutions/default/resources/imagesingrid/stop.png"}}}
         # Поле-ссылка для отрисовки изображения процесса
         procDict[_header["schema"][1]] = {"div":
                                             {"@align": "center",
@@ -83,7 +89,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                 {"@src": "solutions/default/resources/imagesingrid/play.png"}}}}
 
 
-        procDict[_header["properties"][1]] = {"event":{"@name":"row_single_click",
+        procDict[_header["properties"][1]] = {"event":[{"@name":"row_single_click",
                                          "action":{"#sorted":[{"main_context": 'current'},
                                                               {"datapanel":{'@type':"current",
                                                                             '@tab':"current",
@@ -91,13 +97,31 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                                             }
                                                                }]
                                                    }
-                                         }
+                                         },
+                                                       {"@name":"cell_single_click",
+                                                "@column": _header["stop"][0],
+                                                "action":
+                                                     {"@show_in": "MODAL_WINDOW",
+                                                      "#sorted":
+                                                         [{"main_context":"current"},
+                                                          {"modalwindow":
+                                                             {"@caption": "Остановка процесса"
+                                                              }
+                                                           },
+                                                          {"server":
+                                                           {"activity":
+                                                            {"@id": "stop",
+                                                             "@name": "workflow.grid.processesGrid.stopAll.celesta",
+                                                             "add_context": ""}}}
+                                                          ]
+                                                      }
+                                                }]
                                 }
         data["records"]["rec"].append(procDict)
 
     # Определяем список полей таблицы для отображения
     settings = {}
-    
+
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
                                                "@gridWidth": gridWidth,
@@ -111,6 +135,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     # Добавляем поля для отображения в gridsettings
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["schema"][0], "@width": "40px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["startProcess"][0], "@width": "40px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["stop"][0], "@width": "40px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["pid"][0], "@width": "150px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "300px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
@@ -176,3 +201,10 @@ def downloadProcFile(context, main=None, add=None, filterinfo=None, session=None
     fileName = process.resourceName
     data = activiti.getProcessXml(recordId)
     return JythonDownloadResult(data, fileName)
+
+def stopAll(context, main=None, add=None, filterinfo=None,
+             session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
+    activiti = ActivitiObject()
+    activePerocess = activiti.runtimeService.createProcessInstanceQuery().active().list()
+    for activeProcess in activePerocess:
+        activiti.runtimeService.stopProcess(activeProcess.getId())
