@@ -5,5 +5,9 @@
 			 },
  "manual": {"simpleStatusForm": "workflow.datapanel.tasks.approveTask.celesta",
 			"approving":"workflow.datapanel.tasks.approveTask.celesta",
-			"workWithDocument":"workflow.datapanel.tasks.reworkDoc.celesta"}
+			"workWithDocument":"workflow.datapanel.tasks.reworkDoc.celesta"},
+"specialFunction": {"getUserName": "workflow.processUtils.getUserName.celesta",
+					"getUserGroups": "workflow.processUtils.getUserName.celesta",
+					"checkFormAccess": "workflow.processUtils.checkFormAccess.celesta",
+					"listFormAccess": "workflow.processUtils.listFormAccess.celesta"}
 }
