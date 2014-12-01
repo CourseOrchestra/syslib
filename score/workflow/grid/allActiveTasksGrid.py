@@ -13,7 +13,6 @@ from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 from workflow._workflow_orm import formCursor
-from security._security_orm import loginsCursor
 from java.text import SimpleDateFormat
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
@@ -71,7 +70,6 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         _header[column].append(toHexForXml(_header[column][0]))
     # Проходим по таблице и заполняем data
     runtimeService = activiti.runtimeService
-    logins = loginsCursor(context)
     userRoles = UserRolesCursor(context)
     roles = RolesCursor(context)
     userRoles.setRange('userid', sid)
@@ -97,9 +95,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 #         taskDict[_header["assignee"][1]] = 'error'
         for link in identityLinks:
             if link.userId is not None:
-                logins.setRange("subjectId", link.userId)
-                logins.first()
-                taskDict[_header["assignee"][1]] = logins.userName
+                taskDict[_header["assignee"][1]] = link.userId
             elif link.groupId is not None:
                 roles.get(link.groupId)
                 taskDict[_header["assignee"][1]] = u"""Группа "%s\"""" % roles.description
