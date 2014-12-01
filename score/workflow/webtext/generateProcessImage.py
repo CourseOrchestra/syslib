@@ -83,8 +83,6 @@ def webtextData(context, main=None, add=None, filterinfo=None,
             matchingCircuitClone.setFilter('number',"'%s.'%%" % matchingCircuit.number)
             if matchingCircuitClone.count() < 2:
                 parallelFlag = False
-            if matchingCircuit.statusId is None and matchingCircuit.type == 'task':
-                taskFlag = False
             if matchingCircuitClone.count() > maxParallelTasks:
                 maxParallelTasks = matchingCircuitClone.count()
         matchingCircuit.clear()
@@ -419,8 +417,8 @@ class XformsProcessTemplate(DefaultHandler2):
                         outGatewayId = 'outGateway'+str(matchingCircuit.id)
                     #Получение ответственных
                     assignee,candidates,groups = extractAssigneeAndCandidates(matchingCircuit.assJSON)
-                    self.status.get(matchingCircuit.statusId,matchingCircuit.modelId)
-                    statusVal, transitionsVal = getStatusAndTransitionVal(self.status, self.statusTransition)
+                    
+                    statusVal, transitionsVal = '',''
                     consecParser = XMLReaderFactory.createXMLReader()
                     consecHandler = consecWriter(inGatewayId,'task' + str(matchingCircuit.id),
                                                  matchingCircuit.name, assignee,
@@ -804,8 +802,7 @@ class parallelWriter(DefaultHandler2):
                     isCentral = True
                 else:
                     isCentral = False
-                self.status.get(matchingCircuit.statusId,matchingCircuit.modelId)
-                statusVal, transitionVal = getStatusAndTransitionVal(self.status, self.statusTransition)
+                statusVal, transitionVal = '',''
                 parallelTaskHandler = parallelTaskWriter('task' + str(matchingCircuit.id),
                                                          matchingCircuit.name,
                                                          assignee,

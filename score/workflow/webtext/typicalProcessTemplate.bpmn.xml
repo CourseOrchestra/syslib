@@ -13,6 +13,37 @@
 			</activiti:expression>
           </activiti:field>
         </activiti:taskListener>
+        <activiti:taskListener event="create" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
+          <activiti:field name="language">
+            <activiti:string><![CDATA[groovy]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="script">
+            <activiti:expression>task.setVariable("docEditable", "true")</activiti:expression>
+          </activiti:field>
+        </activiti:taskListener>
+		 <activiti:taskListener event="create" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
+          <activiti:field name="language">
+            <activiti:string><![CDATA[groovy]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="script">
+            <activiti:expression>task.setVariable("processStatus", "underConstruction")</activiti:expression>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
+          <activiti:field name="language">
+            <activiti:string><![CDATA[groovy]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="script">
+            <activiti:expression>task.setVariable("docEditable", "false")
+								deleteDocument = task.getVariable("deleteDocument")
+if (deleteDocument == "false"){	
+	task.setVariable("processStatus","onAgreement")
+}
+if (deleteDocument == "true"){	
+	task.setVariable("processStatus","rejected")
+}</activiti:expression>
+          </activiti:field>
+        </activiti:taskListener>
       </extensionElements>
     </userTask>
     <sequenceFlow id="fromStartToCreate" sourceRef="startevent1" targetRef="createDocument"></sequenceFlow>
@@ -23,7 +54,34 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${deleteDocument == "true"}]]></conditionExpression>
     </sequenceFlow>
 	
-	<userTask id="reworkDocument" name="Доработка документа" activiti:assignee="${initiator}" activiti:formKey="workWithDocument"></userTask>
+	<userTask id="reworkDocument" name="Доработка документа" activiti:assignee="${initiator}" activiti:formKey="workWithDocument">
+		<extensionElements>
+		 <activiti:taskListener event="create" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
+          <activiti:field name="language">
+            <activiti:string><![CDATA[groovy]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="script">
+            <activiti:expression>task.setVariable("processStatus", "refinement")</activiti:expression>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
+          <activiti:field name="language">
+            <activiti:string><![CDATA[groovy]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="script">
+            <activiti:expression>
+								deleteDocument = task.getVariable("deleteDocument")
+if (deleteDocument == "false"){	
+	task.setVariable("processStatus","onAgreement")
+}
+if (deleteDocument == "true"){	
+	task.setVariable("processStatus","rejected")
+}</activiti:expression>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>	
+	
+	</userTask>
   
 	<sequenceFlow id="fromReworkToDelete" sourceRef="reworkDocument" targetRef="deleteDocumentExclusivegateway"></sequenceFlow>
 	
@@ -33,7 +91,21 @@
 
 
 	<sequenceFlow id="finalFlow" sourceRef="finalApprovementExclusivegateway" targetRef="endevent2">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderApproved == "true"}]]></conditionExpression>
+      
+		      		 <extensionElements>
+			<activiti:executionListener event="take" class="org.activiti.engine.impl.bpmn.listener.ScriptExecutionListener">
+			  <activiti:field name="language">
+				<activiti:string>groovy</activiti:string>
+			  </activiti:field>
+			  <activiti:field name="script">
+				<activiti:expression>
+query = execution.getEngineServices().getTaskService().createTaskQuery().processInstanceId(execution.getProcessInstanceId()).orderByTaskName().asc()
+execution.setVariable("processStatus","agreed")
+				</activiti:expression>
+			  </activiti:field>
+			</activiti:executionListener>
+      </extensionElements> 
+	  <conditionExpression xsi:type="tFormalExpression"><![CDATA[${orderApproved == "true"}]]></conditionExpression>
     </sequenceFlow>
 	
 	<endEvent id="endevent2" name="End"></endEvent>

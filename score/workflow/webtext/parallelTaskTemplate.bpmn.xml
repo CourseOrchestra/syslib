@@ -67,12 +67,6 @@ if (appr != "unknown"){
             <activiti:expression>task.setVariableLocal("complete", "false")
 task.setVariableLocal("approved", "unknown")</activiti:expression>
           </activiti:field>
-		  <activiti:field name="script">
-            <activiti:expression>task.setVariableLocal("transitions", "createTransitions")</activiti:expression>
-          </activiti:field>
-          <activiti:field name="script">
-            <activiti:expression>task.setVariableLocal("status", "createStatus")</activiti:expression>
-          </activiti:field>
         </activiti:taskListener>
       </extensionElements>
     </userTask>
@@ -90,7 +84,7 @@ if (orderAppr == "false"){
 	for (taskItem in query.list()){
 	
 		if (taskItem.getVariableLocal("complete") != "true"){
-			taskItem.setVariableLocal("approved", "false")
+			taskItem.setVariableLocal("approved", "unknown")
 			execution.getEngineServices().getTaskService().complete(taskItem.getId())
 		}
 	}

@@ -45,17 +45,7 @@ docVersion = docVersion.replaceAll(taskKey+strNum, taskKey+strNewNum)
 task.setVariable("documentVersion", docVersion)</activiti:expression>
           </activiti:field>
         </activiti:taskListener>
-		 <activiti:taskListener event="create" class="org.activiti.engine.impl.bpmn.listener.ScriptTaskListener">
-          <activiti:field name="language">
-            <activiti:string><![CDATA[groovy]]></activiti:string>
-          </activiti:field>
-          <activiti:field name="script">
-            <activiti:expression>task.setVariableLocal("status", "createStatus")</activiti:expression>
-          </activiti:field>
-		  <activiti:field name="script">
-            <activiti:expression>task.setVariableLocal("transitions", "createTransitions")</activiti:expression>
-          </activiti:field>
-        </activiti:taskListener>
+
       </extensionElements>
     </userTask>
 
