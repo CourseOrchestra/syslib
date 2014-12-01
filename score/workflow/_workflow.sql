@@ -1,6 +1,13 @@
 CREATE GRAIN workflow VERSION '1.0';
 
 -- *** TABLES ***
+
+CREATE TABLe processes(
+	processKey varchar(30) NOT NULL,
+	processName varchar(100) NOT NULL,
+	CONSTRAINT pk_processes PRIMARY KEY (processKey)
+);
+
 CREATE TABLE form(
   processKey varchar(30) NOT NULL,
   id varchar(30) NOT NULL,
@@ -28,8 +35,6 @@ CREATE TABLE matchingCircuit(
 	name varchar(50) NOT NULL,
 	type varchar(50) NOT NULL,
 	assJSON TEXT,
-	statusId varchar(50),
-	modelId varchar(50),
 	number varchar(30) NOT NULL,
 	sort varchar(100) NOT NULL,
 	CONSTRAINT pk_matchingCircuit PRIMARY KEY(processKey,id)
@@ -60,10 +65,10 @@ CREATE TABLE statusTransition(
 
 -- *** FOREIGN KEYS ***
 ALTER TABLE status ADD CONSTRAINT fk_status FOREIGN KEY (modelId) REFERENCES workflow.statusModel(id);
+ALTER TABLE matchingCircuit ADD CONSTRAINT fk_processKey FOREIGN KEY (processKey) REFERENCES workflow.processes(processKey);
 ALTER TABLE statusTransition ADD CONSTRAINT fk_statustransition_status FOREIGN KEY (statusFrom, modelFrom) REFERENCES workflow.status(id, modelId);
 ALTER TABLE statusTransition ADD CONSTRAINT fk_statustransition_status2 FOREIGN KEY (statusTo, modelTo) REFERENCES workflow.status(id, modelId);
 ALTER TABLE processStatusModel ADD CONSTRAINT fk_procStatModel FOREIGN KEY (modelId) REFERENCES workflow.statusModel(id);
-ALTER TABLE matchingCircuit ADD CONSTRAINT fk_matchStatModel FOREIGN KEY (statusId,modelId) REFERENCES workflow.status(id,modelId);
 -- *** INDICES ***
 CREATE INDEX idx_statusTransition ON statusTransition(statusFrom, modelFrom);
 CREATE INDEX idx_statusTransition_0 ON statusTransition(statusTo, modelTo);
