@@ -28,7 +28,7 @@ try:
 except:
     pass
 
-from workflow._workflow_orm import statusModelCursor,processStatusModelCursor, matchingCircuitCursor
+from workflow._workflow_orm import statusModelCursor,processStatusModelCursor, matchingCircuitCursor, processesCursor
 
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
@@ -102,73 +102,63 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     u'''Действия после нажатия на кнопку 'Редактировать' или 'Создать процесс' в конструкторе процессов'''
     session = json.loads(session)
     data = json.loads(data)
-    processStatusModel = processStatusModelCursor(context)
+    #processStatusModel = processStatusModelCursor(context)
     matchingCircuit = matchingCircuitCursor(context)
     isNew = True if data["schema"]["data"]["@newProcess"] == 'true' else False
     processKey = data["schema"]["data"]["@processKey"]
     processName = data["schema"]["data"]["@processName"]
-    modelId = data["schema"]["data"]["@modelId"]
-    processStatusModel.setRange('processKey',processKey)
+    #modelId = data["schema"]["data"]["@modelId"]
+    #processStatusModel.setRange('processKey',processKey)
     deleteFlag = True
-    if processStatusModel.count() == 0:
-        processStatusModel.processKey = processKey
-        processStatusModel.modelId = modelId
-        processStatusModel.insert()
-    else:
-        processStatusModel.first()
-        if processStatusModel.modelId == modelId:
-            deleteFlag = False
-        processStatusModel.modelId = modelId
-        processStatusModel.update()
-    if deleteFlag:
-        matchingCircuit.setRange('processKey',processKey)
-        for matchingCircuit in matchingCircuit.iterate():
-            matchingCircuit.statusId = None
-            matchingCircuit.modelId = None
-            matchingCircuit.update()
+#     if processStatusModel.count() == 0:
+#         processStatusModel.processKey = processKey
+#         processStatusModel.modelId = modelId
+#         processStatusModel.insert()
+#     else:
+#         processStatusModel.first()
+#         if processStatusModel.modelId == modelId:
+#             deleteFlag = False
+#         processStatusModel.modelId = modelId
+#         processStatusModel.update()
+#     if deleteFlag:
+#         matchingCircuit.setRange('processKey',processKey)
+#         for matchingCircuit in matchingCircuit.iterate():
+#             matchingCircuit.statusId = None
+#             matchingCircuit.modelId = None
+#             matchingCircuit.update()
     if isNew:
         activiti = ActivitiObject()
         #Указанный ключ для нового процесса уже занят
         id = activiti.repositoryService.createProcessDefinitionQuery().processDefinitionKey(processKey).latestVersion().singleResult()
         if id is not None:
-            return context.error(u'Процесс с таким ключом уже существует')
-        matchingCircuit.clear()
-        matchingCircuit.setRange('processKey',processKey)
-        matchingCircuit.deleteAll()
+            return context.message(u'Процесс с таким ключом развёрнут. При редактировании процесса описание процесса будет сформировано по схеме согласования, а старое описание процесса будет удалено.')
+        processes = processesCursor(context)
+        if processes.tryGet(processKey):
+            return context.error(u'Процесс с таким ключом уже существует.')
+        processes.processKey = processKey
+        processes.processName = processName
+        processes.insert()
 
 def processListAndCount(context, main=None, add=None, filterinfo=None, session=None, params=None,
                 curvalue="", startswith=None, firstrecord=None, recordcount=None):
     u'''Селектор развернутых процессов. '''
-    activiti = ActivitiObject()
+    processes = processesCursor(context)
     #Получение списка развернутых процессов
-    processesList = activiti.getActualVersionOfProcesses()
-    processStatusModel = processStatusModelCursor(context)
-    statusModel = statusModelCursor(context)
-    processesListFiltered = list()
-    for process in processesList:
-        if startswith:
-            if process.name.lower().startswith(curvalue.lower()):
-                processesListFiltered.append(process)
-        else:
-            if curvalue.lower() in  process.name.lower():
-                processesListFiltered.append(process)
     recordList = ArrayList()
-    for process in processesListFiltered[firstrecord:firstrecord+recordcount]:
+    processes.limit(firstrecord,recordcount)
+    filterString = curvalue.replace("'", "''") + "'%"
+    if not startswith:
+        filterString = "@%'" + filterString
+    else:
+        filterString = "@'" + filterString
+    processes.setFilter('processName', filterString)
+    for process in processes.iterate():
         rec = DataRecord()
-        rec.setId(process.key)
-        rec.setName(process.name)
-        processStatusModel.setRange('processKey', process.key)
-        if processStatusModel.count() == 0:
-            rec.addParameter('modelId','')
-            rec.addParameter('modelName','')
-        else:
-            processStatusModel.first()
-            statusModel.get(processStatusModel.modelId)
-            rec.addParameter('modelId',statusModel.id)
-            rec.addParameter('modelName',statusModel.name)
+        rec.setId(process.processKey)
+        rec.setName(process.processName)
         rec.addParameter('existing', 'true')
         recordList.add(rec)
-    return ResultSelectorData(recordList, len(processesList))
+    return ResultSelectorData(recordList, processes.count())
 
 
 def modelListAndCount(context, main=None, add=None, filterinfo=None, session=None, params=None,

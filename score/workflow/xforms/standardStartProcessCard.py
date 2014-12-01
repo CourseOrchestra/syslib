@@ -35,12 +35,12 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     u'''Карточка стандартного запуска процесса'''
     if add != "added":
         xformsdata = {"schema":{"@xmlns":'',
-                                "data":{"@type":'hide'},
+                                "data":{"@type":'add'},
                                 }
                       }
     else:
         xformsdata = {"schema":{"@xmlns":'',
-                                "data":{"@type":'add'},
+                                "data":{"@type":'hide'},
                                 }
                       }
     xformssettings = {"properties":{
@@ -72,7 +72,11 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     activiti = ActivitiObject()
     process = activiti.repositoryService.createProcessDefinitionQuery().processDefinitionKey(processKey).latestVersion().singleResult()
     variables = {"processDescription":process.name,
-                 "initiator":'admin'}
+                 "initiator":'admin',
+                 "dean":'admin',
+                 "lawyer":'admin',
+                 "service":'admin',
+                 "final":'admin'}
     # vars = {"initiator":'cock',"troll":'stock'}
     activiti.runtimeService.startProcessInstanceByKey(processKey, variables)
     return context.message(u'Процесс запущен')
