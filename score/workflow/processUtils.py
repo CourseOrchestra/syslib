@@ -124,7 +124,7 @@ class ActivitiObject():
             model = BpmnXMLConverter().convertToBpmnModel(xmlSource, False, False, String('UTF-8'))
             self.repositoryService.validateProcess(model)
             BpmnAutoLayout(model).execute()
-        #actuals = self.runtimeService.createExecutionQuery().processInstanceId(processInstance.getId()).singleResult()
+        # actuals = self.runtimeService.createExecutionQuery().processInstanceId(processInstance.getId()).singleResult()
         generator = self.conf.getProcessDiagramGenerator()
         definitionImageStream = generator.generateDiagram(model, "png", self.runtimeService.getActiveActivityIds(processInstance.getProcessInstanceId()))
         return definitionImageStream
@@ -228,6 +228,14 @@ def parse_json(filename):
     # Return json file
     return json.loads(content)
 
+def functionImport(functionName):
+    u'''импортирует функцию по ее адресу в строке'''
+    mod = __import__(functionName.split('.')[0])
+    components = functionName.split('.')
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
+
 def listFormAccess(userId):
     u'''из userId выдает список доступных пользователю форм'''
     activiti = ActivitiObject()
@@ -285,3 +293,17 @@ def getUserGroups(context, sid):
                 if not userRoles.next():
                     break
     return rolesList
+
+def getUserName(context, sid):
+    u'''фукнция, возвращающая имя пользователя из его логина'''
+    grainName = 'security'  # имя гранулы, в которой находится таблица пользователей
+    tableName = 'logins'  # имя таблицы пользователей
+    sidField = 'subjectId'
+    nameField = 'userName'  # поле таблицы пользователей, в котором находится имя пользователя
+
+    users = tableCursorImport(grainName, tableName)(context)
+    users.setRange(sidField, sid)
+    if users.tryFirst():
+        return getattr(users, nameField)
+    else:
+        return u'Пользователь не найден'
