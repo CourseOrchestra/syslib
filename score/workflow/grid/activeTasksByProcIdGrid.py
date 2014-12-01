@@ -9,7 +9,7 @@ Created on 10.11.2014
 '''
 
 import simplejson as json
-from common.sysfunctions import toHexForXml, getGridWidth,getGridHeight
+from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 from workflow._workflow_orm import formCursor
@@ -19,14 +19,13 @@ except:
     from ru.curs.celesta.showcase import JythonDTO, JythonDownloadResult
 
 from ru.curs.celesta.syscursors import UserRolesCursor, RolesCursor
-from security._security_orm import loginsCursor
 
 def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
     u'''Функция получения списка всех развернутых процессов. '''
     session = json.loads(session)
     gridWidth = getGridWidth(session, 60)
-    gridHeight = getGridHeight(session,1)
+    gridHeight = getGridHeight(session, 1)
     session = session["sessioncontext"]
     sid = session["sid"]
     activiti = ActivitiObject()
@@ -69,7 +68,6 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
     runtimeService = activiti.runtimeService
     taskService = activiti.taskService
-    logins = loginsCursor(context)
 
 #     Проходим по таблице и заполняем data
     for task in tasksList:
@@ -79,10 +77,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 #         отображается немного разное в зав-ти юзер или группа
         for link in identityLinks:
             if link.userId is not None:
-                logins.setRange("subjectId", link.userId)
-                logins.first()
                 if not (link.type == 'candidate' and _header["userAss"][1] in taskDict):
-                    taskDict[_header["userAss"][1]] = logins.userName
+                    taskDict[_header["userAss"][1]] = link.userId
             else:
                 roles.get(link.groupId)
                 taskDict[_header["userAss"][1]] = u"""Группа "%s\"""" % roles.description

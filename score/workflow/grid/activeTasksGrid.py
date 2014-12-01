@@ -22,14 +22,13 @@ except:
     from ru.curs.celesta.showcase import JythonDTO, JythonDownloadResult
 
 from ru.curs.celesta.syscursors import UserRolesCursor, RolesCursor
-from security._security_orm import loginsCursor
 
 def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
     u'''Функция получения списка всех развернутых процессов. '''
     session = json.loads(session)
     gridWidth = getGridWidth(session, 60)
-    gridHeight = getGridHeight(session,1)
+    gridHeight = getGridHeight(session, 1)
     session = session["sessioncontext"]
     sid = session["sid"]
     activiti = ActivitiObject()
@@ -80,7 +79,6 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
 #     runtimeService = activiti.runtimeService
     taskService = activiti.taskService
-    logins = loginsCursor(context)
 
 #     Проходим по таблице и заполняем data
     for task in taskDict.values():
@@ -90,10 +88,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 #         отображается немного разное в зав-ти юзер или группа
         for link in identityLinks:
             if link.userId == sid:
-                logins.setRange("subjectId", sid)
-                logins.first()
                 if not (link.type == 'candidate' and _header["userAss"][1] in taskDict):
-                    taskDict[_header["userAss"][1]] = logins.userName
+                    taskDict[_header["userAss"][1]] = link.userId
             elif link.groupId in rolesList:
                 roles.get(link.groupId)
                 taskDict[_header["userAss"][1]] = u"""Группа "%s\"""" % roles.description
@@ -103,7 +99,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 #         получаем процесс, чтобы потом получить его имя
         process = activiti.repositoryService.createProcessDefinitionQuery()\
             .processDefinitionId(task.getProcessDefinitionId()).singleResult()
-        #Получаем описание процесса
+        # Получаем описание процесса
         procDesc = activiti.runtimeService.getVariable(processInstanceId, 'processDescription')
         if procDesc is not None:
             taskDict[_header["description"][1]] = procDesc
@@ -126,7 +122,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         taskDict[_header["name"][1]] = task.name
         taskDict[_header["properties"][1]] = {"event":
                                               []}
-        if taskDict[_header["userAss"][1]] != logins.userName:
+        if taskDict[_header["userAss"][1]] != sid:
             taskDict[_header["assign"][1]] = {"div":
                                                 {"@align": "center",
                                                  "@class": "gridCellCursor",
@@ -161,7 +157,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                               "@target": "_blank",
                                               "img":
                                                 {"@src": "solutions/default/resources/imagesingrid/play.png"}}}} \
-                                                    if taskDict[_header["userAss"][1]] == logins.userName else ""
+                                                    if taskDict[_header["userAss"][1]] == sid else ""
 #         {"link":
 #                                               {"@href":"./?mode=task&processId=%s&taskId=%s" % (processInstanceId, task.id),
 #                                                "@image":"solutions/default/resources/play.png",
