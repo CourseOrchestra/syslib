@@ -133,6 +133,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["comment"][0], "@width": "200px"})
     # settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
     # settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "400px"})
+    #raise Exception(data)
     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
 
