@@ -28,7 +28,7 @@ from jarray import zeros
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
-    u'''Карточка стандартного запуска процесса'''
+    u'''Карточка стандартного завершения задачи без смены статуса'''
     if add == "added":
         xformsdata = {"schema":
                       {"@xmlns":'',
@@ -57,7 +57,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     return JythonDTO(jsonData, jsonSettings)
 
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
-    u'''Запуск процесса'''
+    u'''Процедура завершения задачи'''
     session = json.loads(session)['sessioncontext']
     if isinstance(session['urlparams']['urlparam'], list):
         for params in session['urlparams']['urlparam']:

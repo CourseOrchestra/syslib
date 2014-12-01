@@ -20,6 +20,7 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow._workflow_orm import statusCursor, statusTransitionCursor
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
+    u'''карточка стандартного завершения задачи со сменой статуса'''
     activiti = ActivitiObject()
     taskService = activiti.taskService
     session = json.loads(session)['sessioncontext']
@@ -66,8 +67,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                      XMLJSONConverter.jsonToXml(json.dumps(xformssettings)))
 
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
+    u'''процедура стандартного завершения задачи со сменой статуса'''
     session = json.loads(session)['sessioncontext']
-
     if isinstance(session['urlparams']['urlparam'], list):
         for params in session['urlparams']['urlparam']:
             if params['@name'] == 'taskId':
