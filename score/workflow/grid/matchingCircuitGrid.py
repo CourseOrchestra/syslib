@@ -96,8 +96,7 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
                 row[_headers['id']] = json.dumps(id_dict)
                 row[_headers['name']] = matchingCircuit.name
                 
-                if matchingCircuit.statusId is not None:
-                    status.get(matchingCircuit.statusId,matchingCircuit.modelId)
+
                     
                 row[_headers['hasChildren']] = hasChildren(context,matchingCircuit.number,matchingCircuitClone)
                 row[_headers['properties']] = event   
