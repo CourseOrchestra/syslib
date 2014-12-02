@@ -103,9 +103,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             if link.userId is not None:
                 taskDict[_header["assignee"][1]] = function(context, link.userId)
             elif link.groupId is not None:
-                roles.get(link.groupId)
-                taskDict[_header["assignee"][1]] = u"""Группа "%s\"""" % roles.description
-
+                if roles.tryGet(link.groupId):
+                    taskDict[_header["assignee"][1]] = u"""Группа "%s\"""" % roles.description
+                else:
+                    taskDict[_header["assignee"][1]] = u"""Группа "%s\"""" % link.groupId
         taskDict[_header["date"][1]] = SimpleDateFormat("HH:mm dd.MM.yyyy").format(task.getCreateTime())
         taskDict[_header["name"][1]] = task.name
 
