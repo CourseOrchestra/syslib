@@ -130,11 +130,14 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
         activiti = ActivitiObject()
         #Указанный ключ для нового процесса уже занят
         id = activiti.repositoryService.createProcessDefinitionQuery().processDefinitionKey(processKey).latestVersion().singleResult()
-        if id is not None:
-            return context.message(u'Процесс с таким ключом развёрнут. При редактировании процесса описание процесса будет сформировано по схеме согласования, а старое описание процесса будет удалено.')
         processes = processesCursor(context)
         if processes.tryGet(processKey):
             return context.error(u'Процесс с таким ключом уже существует.')
+        if id is not None:
+            processes.processKey = processKey
+            processes.processName = processName
+            processes.insert()
+            return context.message(u'Процесс с таким ключом развёрнут. При редактировании процесса описание процесса будет сформировано по схеме согласования, а старое описание процесса будет удалено.')        
         processes.processKey = processKey
         processes.processName = processName
         processes.insert()
