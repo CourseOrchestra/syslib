@@ -83,9 +83,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                 if not (link.type == 'candidate' and _header["userAss"][1] in taskDict):
                     taskDict[_header["userAss"][1]] = function(context, link.userId)
             else:
-                roles.get(link.groupId)
-                taskDict[_header["userAss"][1]] = u"""Группа "%s\"""" % roles.description
-
+                if roles.tryGet(link.groupId):
+                    taskDict[_header["userAss"][1]] = u"""Группа "%s\"""" % roles.description
+                else:
+                    taskDict[_header["userAss"][1]] = u"""Группа "%s\"""" % link.groupId
         taskDict[_header["id"][1]] = task.id
         processInstanceId = task.getProcessInstanceId()
 #         procDesc = activiti.runtimeService.getVariable(processInstanceId, 'processDescription')
