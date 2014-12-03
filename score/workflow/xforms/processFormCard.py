@@ -108,14 +108,19 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     type = data_dict["schema"]["data"]["@add"]
     form = formCursor(context)
     parsedLink = urlparse.urlparse(link)
+    if parsedLink.path == './' or parsedLink.path == '':
+        isInternal = True
+    else:
+        isInternal = False
     linkParams = cgi.parse_qs(parsedLink.query)
     if isStart:
-        if 'mode' not in linkParams:
-            return context.error(u'Не указан параметр mode. Добавьте в ссылку строку mode=process')
-        if len(linkParams['mode']) > 1:
-            return context.error(u'Указано больше одного значения параметра mode. Укажите только одно значение параметра mode')        
-        if linkParams['mode'][0] != 'process':
-            return context.error(u'Неправильное значение параметра mode. Параметр mode должен быть равным process')
+        if isInternal:
+            if 'mode' not in linkParams:
+                return context.error(u'Не указан параметр mode. Добавьте в ссылку строку mode=process')
+            if len(linkParams['mode']) > 1:
+                return context.error(u'Указано больше одного значения параметра mode. Укажите только одно значение параметра mode')        
+            if linkParams['mode'][0] != 'process':
+                return context.error(u'Неправильное значение параметра mode. Параметр mode должен быть равным process')
         if 'processKey' not in linkParams:
             return context.error(u'Не указан параметр processKey. Добавьте в ссылку строку processKey=$[processKey]')
         if len(linkParams['processKey']) > 1:
@@ -123,12 +128,13 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
         if linkParams['processKey'][0] != '$[processKey]' and linkParams['processKey'][0] != processKey:
             return context.error(u'Неправильное значение параметра processKey. Параметр processKey должен быть равен либо $[processKey], либо %s'% processKey)
     else:
-        if 'mode' not in linkParams:
-            return context.error(u'Не указан параметр mode. Добавьте в ссылку строку mode=task')
-        if len(linkParams['mode']) > 1:
-            return context.error(u'Указано больше одного значения параметра mode. Укажите только одно значение параметра mode')
-        if linkParams['mode'][0] != 'task':
-            return context.error(u'Неправильное значение параметра mode. Параметр mode должен быть равным task')
+        if isInternal:
+            if 'mode' not in linkParams:
+                return context.error(u'Не указан параметр mode. Добавьте в ссылку строку mode=task')
+            if len(linkParams['mode']) > 1:
+                return context.error(u'Указано больше одного значения параметра mode. Укажите только одно значение параметра mode')
+            if linkParams['mode'][0] != 'task':
+                return context.error(u'Неправильное значение параметра mode. Параметр mode должен быть равным task')
         if 'processId' not in linkParams:
             return context.error(u'Не указан параметр processId. Добавьте в ссылку строку processId=$[processId]')
         if len(linkParams['processId']) > 1:
