@@ -2,7 +2,7 @@
 import simplejson as json
 import os
 from security.functions import userHasPermission
-from workflow.processUtils import parse_json, ActivitiObject
+from workflow.processUtils import parse_json, ActivitiObject, getLinkPermisson
 from workflow._workflow_orm import formCursor
 
 
@@ -24,11 +24,15 @@ def testNavigator(context, session):
 
 def manageProcessesNav(context, session):
     session = json.loads(session)["sessioncontext"]
+    sid = session["sid"]
     if 'urlparams' in session and 'urlparam' in session['urlparams']:
         drawProcess = False
         startProcess = False
         documentTask = False
         drawTable = False
+        processKey = None
+        processId = None
+        taskId = None
         if isinstance(session['urlparams']['urlparam'], list):
             for params in session['urlparams']['urlparam']:
                 if params['@name'] == 'mode':
@@ -40,9 +44,21 @@ def manageProcessesNav(context, session):
                         documentTask = True
                     elif params['@value'][0] == 'table':
                         drawTable = True
+                if params['@name'] == 'processKey':
+                    processKey = params['@value'][0]
+                if params['@name'] == 'processId':
+                    processId = params['@value'][0]
+                if params['@name'] == 'taskId':
+                    taskId = params['@value'][0]
 #                 if params['@name'] == 'procInstId':
 #                     procInstId = params['@name'][1:-1]
         if drawProcess:
+            if processId is not None:
+                if not getLinkPermisson(context, sid, 'instanceImage', processKey, processId, taskId):
+                    return context.message(u'У вас нет разрешения на просмотр данной страницы')
+            if processKey is not None:
+                if not getLinkPermisson(context, sid, 'processImage', processKey, processId, taskId):
+                    return context.message(u'У вас нет разрешения на просмотр данной страницы')                
             myNavigator = {"group":
                            {"@id": "workflow",
                             "@name": u"Организация рабочего процесса",
@@ -62,6 +78,8 @@ def manageProcessesNav(context, session):
                            }
             return myNavigator
         elif drawTable:
+            if not getLinkPermisson(context, sid, 'table', processKey, processId, taskId):
+                return context.message(u'У вас нет разрешения на просмотр данной страницы')             
             myNavigator = {"group":
                            {"@id": "workflow",
                             "@name": u"Организация рабочего процесса",
@@ -77,6 +95,12 @@ def manageProcessesNav(context, session):
                                          "@tab": "firstOrCurrent"}}}]}}
             return myNavigator
         elif documentTask or startProcess:
+            if startProcess:
+                if not getLinkPermisson(context, sid, 'process', processKey, processId, taskId):
+                    return context.message(u'У вас нет разрешения на просмотр данной страницы')
+            if documentTask:
+                if not getLinkPermisson(context, sid, 'task', processKey, processId, taskId):
+                    return context.message(u'У вас нет разрешения на просмотр данной страницы')                       
             formType = 'startingProcess' if startProcess else 'documentTask'
             myNavigator = {"group":
                            {"@id": "workflow",
