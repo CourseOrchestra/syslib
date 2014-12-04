@@ -91,8 +91,18 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             .processDefinitionId(processInstance.getProcessDefinitionId()).singleResult()
         historicVariables = activiti.historyService.createHistoricVariableInstanceQuery()\
             .processInstanceId(processInstanceId)
-        docName = "%s. %s" % (historicVariables.variableName('docId').singleResult().textValue, \
-                              historicVariables.variableName('docName').singleResult().textValue)
+        docId = historicVariables.variableName('docId').singleResult()
+        if docId is None:
+            docId = ''
+        else:
+            docId = docId.textValue
+        dName = historicVariables.variableName('docName').singleResult()
+        if dName is None:
+            dName = ''
+        else:
+            dName = dName.textValue
+        docName = "%s. %s" % (docId, \
+                              dName)
         procDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
         procDict[_header["description"][1]] = procDesc
         procDict[_header["name"][1]] = task.getName()

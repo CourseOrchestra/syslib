@@ -360,8 +360,10 @@ def getLinkPermisson(context,sid,mode,processKey,processId,taskId):
             getUserGroups = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
             groupsList = getUserGroups(context,sid)
         #     задачи, у которых кандидат - группа, в которую входит текущий пользователь
-            groupTasksList = activiti.taskService.createTaskQuery().taskCandidateGroupIn(groupsList).processInstanceId(processId).list()
-          
+            if groupsList != []:
+                groupTasksList = activiti.taskService.createTaskQuery().taskCandidateGroupIn(groupsList).processInstanceId(processId).list()
+            else:
+                groupTasksList = []
             userTasksList = activiti.taskService.createTaskQuery().taskCandidateOrAssigned(sid).processInstanceId(processId).list()
             if len(userTasksList) == 0 and len(groupTasksList) == 0:
                 return False

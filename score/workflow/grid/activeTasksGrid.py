@@ -49,7 +49,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     getUserGroups = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
     groupsList = getUserGroups(context,sid)
 #     задачи, у которых кандидат - группа, в которую входит текущий пользователь
-    groupTasksList = activiti.taskService.createTaskQuery().taskCandidateGroupIn(groupsList).taskNameLike(taskName).processDefinitionNameLike(processName).list()
+    if groupsList != []:
+        groupTasksList = activiti.taskService.createTaskQuery().taskCandidateGroupIn(groupsList).taskNameLike(taskName).processDefinitionNameLike(processName).list()
+    else:
+        groupTasksList = []
 #     задачи, у которых кандидат или исполнитель - юзер
     userTasksList = activiti.taskService.createTaskQuery().taskCandidateOrAssigned(sid).taskNameLike(taskName).processDefinitionNameLike(processName).list()
     taskDict = {}
