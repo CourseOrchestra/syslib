@@ -24,8 +24,6 @@
 			<xf:bind>
 				<xf:bind nodeset="instance('xformId_mainInstance')/data/@isParallel" type="boolean" />
 				<xf:bind nodeset="instance('xformId_mainInstance')/data/@name" required="instance('xformId_mainInstance')/data/@isParallel='false'"/>
-				<xf:bind nodeset="instance('xformId_mainInstance')/data/@statusName" required="instance('xformId_mainInstance')/data/@isParallel='false'" readonly="true()"/>
-				<xf:bind nodeset="instance('xformId_mainInstance')/data/@varName" required="instance('xformId_mainInstance')/data/@isParallel='false'" readonly="true()"/>
 				<!-- <xf:bind nodeset="instance('xformId_mainInstance')/data/@assignee" required="instance('xformId_mainInstance')/data/@isParallel='false'"/> -->
 			</xf:bind>
 		</xf:model>
@@ -53,7 +51,7 @@
 						<xf:label>Название:</xf:label>
 					</xf:input>
 			</div>
-			<div class = "baseInput200 break">
+<!-- 			<div class = "baseInput200 break">
 				<xf:input ref="instance('xformId_mainInstance')/data/@statusName">
 					<xf:label>Статус:</xf:label>
 				</xf:input>
@@ -78,7 +76,7 @@
 								<xf:setvalue ref="instance('xformId_mainInstance')/data/@varName" value=""/> 
 							</xf:action>
 						</xf:trigger>
-			</div>
+			</div> -->
 			<hr style="margin-top:21px; margin-bottom: 10px; width: 100%;  float: left; clear: both;"/>
 
 

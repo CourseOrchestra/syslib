@@ -10,7 +10,7 @@ Created on 22.10.2014
 import simplejson as json
 
 from common.sysfunctions import toHexForXml
-from workflow.processUtils import ActivitiObject
+from workflow.processUtils import ActivitiObject, getLinkPermisson
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject, getBase64Image
 
@@ -25,6 +25,7 @@ def webtextData(context, main=None, add=None, filterinfo=None,
     taskService = activiti.taskService;
 
     session = json.loads(session)['sessioncontext']
+    sid = session["sid"]
     drawInstance = False
     drawProcess = False
     for params in session['urlparams']['urlparam']:
@@ -36,9 +37,8 @@ def webtextData(context, main=None, add=None, filterinfo=None,
             drawProcess = True
     if drawInstance:
         data = {"image":{"@align":"center",
-                     "@src": u"data:image/png;base64," + getBase64Image(activiti.getExecutionModel(procInstId))}}
+                         "@src": u"data:image/png;base64," + getBase64Image(activiti.getExecutionModel(procInstId))}}          
     elif drawProcess:
         data = {"image":{"@align":"center",
-                     "@src": u"data:image/png;base64," + getBase64Image(activiti.getDeployedProcessModel(procKey))}}        
-
+                         "@src": u"data:image/png;base64," + getBase64Image(activiti.getDeployedProcessModel(procKey))}}        
     return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(data)), None)

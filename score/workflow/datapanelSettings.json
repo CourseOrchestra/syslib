@@ -7,7 +7,8 @@
 			"approving":"workflow.datapanel.tasks.approveTask.celesta",
 			"workWithDocument":"workflow.datapanel.tasks.reworkDoc.celesta"},
 "specialFunction": {"getUserName": "workflow.processUtils.getUserName.celesta",
-					"getUserGroups": "workflow.processUtils.getUserName.celesta",
+					"getUserGroups": "workflow.processUtils.getUserGroups.celesta",
 					"checkFormAccess": "workflow.processUtils.checkFormAccess.celesta",
-					"listFormAccess": "workflow.processUtils.listFormAccess.celesta"}
+					"listFormAccess": "workflow.processUtils.listFormAccess.celesta",
+					"getGroupUsers": "workflow.processUtils.getGroupUsers.celesta"}
 }

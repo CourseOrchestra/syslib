@@ -12,7 +12,7 @@ import simplejson as json
 import os
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from workflow.processUtils import ActivitiObject, parse_json, functionImport
+from workflow.processUtils import ActivitiObject, parse_json, functionImport, getLinkPermisson
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
@@ -27,6 +27,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     gridWidth = getGridWidth(session, 60)
     gridHeight = getGridHeight(session, 1)
     session = session["sessioncontext"]
+    sid = session["sid"]
     activiti = ActivitiObject()
     if isinstance(session['urlparams']['urlparam'], list):
         for params in session['urlparams']['urlparam']:

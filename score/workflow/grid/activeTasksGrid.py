@@ -43,22 +43,20 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     else:
         taskName = '%'
         processName = '%'
-    userRoles.setRange('userid', sid)
-
-    rolesList = []
-    if userRoles.tryFirst():
-        while True:
-            rolesList.append(userRoles.roleid)
-            if not userRoles.next():
-                break
-#     задачи, у которых кандидат - группа
-    groupTasksList = activiti.taskService.createTaskQuery().taskCandidateGroupIn(rolesList).taskNameLike(taskName).processDefinitionNameLike(processName).list()
+    filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                'datapanelSettings.json')
+    datapanelSettings = parse_json(filePath)["specialFunction"]["getUserGroups"]
+    getUserGroups = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
+    groupsList = getUserGroups(context,sid)
+#     задачи, у которых кандидат - группа, в которую входит текущий пользователь
+    groupTasksList = activiti.taskService.createTaskQuery().taskCandidateGroupIn(groupsList).taskNameLike(taskName).processDefinitionNameLike(processName).list()
 #     задачи, у которых кандидат или исполнитель - юзер
     userTasksList = activiti.taskService.createTaskQuery().taskCandidateOrAssigned(sid).taskNameLike(taskName).processDefinitionNameLike(processName).list()
     taskDict = {}
 #     чтобы не дублировались задачи
     for task in userTasksList:
-        taskDict[task.id] = task
+        if task.id not in taskDict:
+            taskDict[task.id] = task
     for task in groupTasksList:
         if task.id not in taskDict:
             taskDict[task.id] = task
@@ -83,21 +81,18 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                 'datapanelSettings.json')
     datapanelSettings = parse_json(filePath)["specialFunction"]["getUserName"]
     function = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
-
 #     Проходим по таблице и заполняем data
     for task in taskDict.values():
 #         смотрим связи задачи
         identityLinks = taskService.getIdentityLinksForTask(task.id)
         taskDict = {}
-#         отображается немного разное в зав-ти юзер или группа
+        taskDict[_header["userAss"][1]] = '' 
+        reassignFlag = False
         for link in identityLinks:
-            if link.userId == sid:
-                if not (link.type == 'candidate' and _header["userAss"][1] in taskDict):
-                    taskDict[_header["userAss"][1]] = function(context, link.userId)
-            elif link.groupId in rolesList:
-                roles.get(link.groupId)
-                taskDict[_header["userAss"][1]] = u"""Группа "%s\"""" % roles.description
-
+            if link.userId == sid and link.type == 'assignee':
+                taskDict[_header["userAss"][1]] = function(context, link.userId)
+            else:
+                reassignFlag = True
         taskDict[_header["id"][1]] = task.id
         processInstanceId = task.getProcessInstanceId()
 #         получаем процесс, чтобы потом получить его имя
@@ -169,7 +164,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 #                                                "@openInNewTab":"true"
 #                                                  }
 #                                               } if taskDict[_header["userAss"][1]] == logins.userName else {"link": ""}
-        if len(identityLinks) > 1:
+        if reassignFlag:
             taskDict[_header["reassign"][1]] = {"div":
                                                 {"@align": "center",
                                                  "@class": "gridCellCursor",

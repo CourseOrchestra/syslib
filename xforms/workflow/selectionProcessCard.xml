@@ -11,7 +11,7 @@
 				<xf:bind nodeset="instance('xformId_mainInstance')/data/@processKey" required="true()" readonly="instance('xformId_mainInstance')/data/@existing = 'true' or instance('xformId_mainInstance')/data/@newProcess = 'false'"/>
 				<xf:bind nodeset="instance('xformId_mainInstance')/data/@processName" required="true()" readonly="instance('xformId_mainInstance')/data/@existing = 'true' or instance('xformId_mainInstance')/data/@newProcess = 'false'"/>
 				<xf:bind nodeset="instance('xformId_mainInstance')/data/@newProcess" type="boolean" readonly="instance('xformId_mainInstance')/data/@existing = 'true'"/>
-				<xf:bind nodeset="instance('xformId_mainInstance')/data/@modelName" required="true()" readonly="true()"/>
+				
 				
 			</xf:bind>
 		</xf:model>
@@ -24,8 +24,6 @@
 					<xf:action ev:event="xforms-value-changed">
 						<xf:setvalue ref="instance('xformId_mainInstance')/data/@processKey" value=""/>
 						<xf:setvalue ref="instance('xformId_mainInstance')/data/@processName" value=""/>
-						<xf:setvalue ref="instance('xformId_mainInstance')/data/@modelId" value=""/>
-						<xf:setvalue ref="instance('xformId_mainInstance')/data/@modelName" value=""/>
 					</xf:action>
 				</xf:input>
 			</div>
@@ -45,9 +43,7 @@
 						generalFilters=""
 						currentValue="''" windowCaption="'Выбор процесса'"
 						xpathMapping="{'XPath(instance(quot(xformId_mainInstance))/data/@processKey)' : 'id',
-							'XPath(instance(quot(xformId_mainInstance))/data/@processName)' : 'name',
-							'XPath(instance(quot(xformId_mainInstance))/data/@modelName)' : 'modelName',
-							'XPath(instance(quot(xformId_mainInstance))/data/@modelId)' : 'modelId'}"/>
+							'XPath(instance(quot(xformId_mainInstance))/data/@processName)' : 'name'}"/>
 						<xf:trigger>
 							<xf:label>X</xf:label>
 							<xf:action ev:event="DOMActivate">
@@ -56,9 +52,7 @@
 								>
 								</xf:load>
 								<xf:setvalue ref="instance('xformId_mainInstance')/data/@processKey" value=""/>  
-								<xf:setvalue ref="instance('xformId_mainInstance')/data/@processName" value=""/>  
-								<xf:setvalue ref="instance('xformId_mainInstance')/data/@modelId" value=""/>  
-								<xf:setvalue ref="instance('xformId_mainInstance')/data/@modelName" value=""/> 
+								<xf:setvalue ref="instance('xformId_mainInstance')/data/@processName" value=""/>   
 								<xf:setvalue ref="instance('xformId_mainInstance')/data/@existing" value="'false'"/>
 							</xf:action>
 						</xf:trigger>
@@ -77,13 +71,7 @@
 					</xf:input>
 					
 			</div>
-			<div  class="baseInput200" >
 
-					<xf:input ref="instance('xformId_mainInstance')/data/@modelName">
-						<xf:label>Статусная модель:</xf:label>
-					</xf:input>
-					
-			</div>
 		</xf:group>
 		<xf:group ref = "instance('xformId_mainInstance')/data[./@newProcess='true']">
 			<div class = "baseInput200 break" >
@@ -101,33 +89,12 @@
 
 		</xf:group>
 		<xf:group ref = "instance('xformId_mainInstance')/data[./@existing='false']">
-			<div  class="selectorLong200" >
 
-					<xf:input ref="instance('xformId_mainInstance')/data/@modelName">
-						<xf:label>Статусная модель:</xf:label>
-					</xf:input>
-					
-						<xf:selector buttonLabel="..." procListAndCount="'workflow.xforms.selectionProcess.modelListAndCount.celesta'"
-						generalFilters=""
-						currentValue="''" windowCaption="'Выбор процесса'"
-						xpathMapping="{
-							'XPath(instance(quot(xformId_mainInstance))/data/@modelName)' : 'name',
-							'XPath(instance(quot(xformId_mainInstance))/data/@modelId)' : 'id'}"/>
-						<xf:trigger>
-							<xf:label>X</xf:label>
-							<xf:action ev:event="DOMActivate">
-								<xf:setvalue ref="instance('xformId_mainInstance')/data/@modelName" value=""/>  
-								<xf:setvalue ref="instance('xformId_mainInstance')/data/@modelId" value=""/>  
-
-							</xf:action>
-						</xf:trigger>
-					
-			</div>
 		</xf:group>
 	<xf:group ref = "instance('xformId_mainInstance')/data[./@newProcess='false']">
-			<div class="button400 break">
+<!-- 			<div class="button400 break">
 			При редактировании процесса описание процесса будет сформировано по схеме согласования, а старое описание процесса будет удалено.
-			</div>
+			</div> -->
 			<div class="button200 break">
 				<xf:trigger>
 					<xf:label>Редактировать</xf:label>
@@ -149,7 +116,7 @@
 				<xf:trigger>
 					<xf:label>Создать процесс</xf:label>
 					<xf:action ev:event="DOMActivate" if="(is-valid(instance('xformId_mainInstance'))=false())">
-						<xf:message>Поля "Ключ", "Название" и "Статусная модель" обязательны для заполнения</xf:message>
+						<xf:message>Поля "Ключ" и "Название" обязательны для заполнения</xf:message>
 					</xf:action>
 					<xf:action ev:event="DOMActivate" if="(is-valid(instance('xformId_mainInstance'))=true())">
 						<xf:load

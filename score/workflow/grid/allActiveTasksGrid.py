@@ -62,6 +62,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                "name":[u"Название задачи"],
                "process": [u"Название процесса"],
                "assignee": [u"Исполнитель"],
+               "reassign": [u"Передать задачу"],
                "date": [u"Дата"],
                "description":[u"Описание процесса"],
                "document": [u"Выполнить"],
@@ -82,6 +83,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
     for task in groupTaskList:
         taskDict = {}
+        taskDict[_header["properties"][1]] = {"event":
+                                              []}
         taskDict[_header["id"][1]] = task.id
         processInstanceId = task.getProcessInstanceId()
         processInstance = runtimeService.createProcessInstanceQuery()\
@@ -97,19 +100,40 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                               runtimeService.getVariable(processInstanceId, 'docName'))
         taskDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
         identityLinks = activiti.taskService.getIdentityLinksForTask(task.id)
-
 #         taskDict[_header["assignee"][1]] = 'error'
+        taskDict[_header["assignee"][1]] = ''
+        reassignFlag = False
         for link in identityLinks:
-            if link.userId is not None:
+            if link.userId is not None and link.type == 'assignee':
                 taskDict[_header["assignee"][1]] = function(context, link.userId)
-            elif link.groupId is not None:
-                if roles.tryGet(link.groupId):
-                    taskDict[_header["assignee"][1]] = u"""Группа "%s\"""" % roles.description
-                else:
-                    taskDict[_header["assignee"][1]] = u"""Группа "%s\"""" % link.groupId
+            else:
+                reassignFlag = True
+
         taskDict[_header["date"][1]] = SimpleDateFormat("HH:mm dd.MM.yyyy").format(task.getCreateTime())
         taskDict[_header["name"][1]] = task.name
-
+        if reassignFlag:
+            taskDict[_header["reassign"][1]] = {"div":
+                                                {"@align": "center",
+                                                 "@class": "gridCellCursor",
+                                                 "img":
+                                                    {"@src": "solutions/default/resources/imagesingrid/user.png"}}}
+            taskDict[_header["properties"][1]]["event"].append({"@name":"cell_single_click",
+                                                                "@column": _header["reassign"][0],
+                                                                "action":
+                                                                    {"@show_in": "MODAL_WINDOW",
+                                                                     "#sorted":
+                                                                     [{"main_context": 'current'},
+                                                                      {"modalwindow":
+                                                                          {"@caption": "Выбор пользователя"
+                                                                           }
+                                                                        },
+                                                                      {"datapanel":
+                                                                        {'@type':"current",
+                                                                         '@tab':"current",
+                                                                         'element':
+                                                                            {'@id':'reassign'}}}]}})
+        else:
+            taskDict[_header["reassign"][1]] = ""
         if form.tryGet(processDefinition.key, task.formKey):
             link = form.link.replace('&[processId]', processInstanceId).replace('&[taskId]', task.id)
         else:
@@ -137,6 +161,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     # Добавляем поля для отображения в gridsettings
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["document"][0],
                                                        "@width": "60px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["reassign"][0],
+                                                       "@width": "85px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0],
                                                        "@width": "200px"})
 

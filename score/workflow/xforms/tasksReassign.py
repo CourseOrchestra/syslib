@@ -1,3 +1,4 @@
+# coding: utf-8
 '''
 Created on 31.10.2014
 
@@ -14,7 +15,8 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO, DataRecord, ResultSelectorData
 
-from workflow.processUtils import ActivitiObject
+import os
+from workflow.processUtils import ActivitiObject, parse_json, functionImport
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from security._security_orm import loginsCursor
 from ru.curs.celesta.syscursors import UserRolesCursor
@@ -27,34 +29,43 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     sid = session["sid"]
     taskId = session['related']['gridContext']['currentRecordId']
     identityLinks = taskService.getIdentityLinksForTask(taskId)
-    logins = loginsCursor(context)
-    userRoles = UserRolesCursor(context)
+    #raise Exception(identityLinks)
+
 
     xformsdata = {"schema":
                     {"data":{"newUser": "",
                              "users": {"user": []}}
                      }
                   }
+    filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                'datapanelSettings.json')
+    datapanelSettings = parse_json(filePath)["specialFunction"]["getGroupUsers"]
+    getGroupUsers = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
+    filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                'datapanelSettings.json')
+    datapanelSettings = parse_json(filePath)["specialFunction"]["getUserName"]
+    getUserName = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
+    assignee = ''
     for link in identityLinks:
-        if link.userId != sid:
+        if link.type == 'assignee':
+            assignee = link.userId
+    reassList = list()
+    for link in identityLinks:
+        if link.type != 'assignee':
             if link.userId is None:
-                userRoles.setRange('roleid', link.groupId)
-                if userRoles.tryFirst():
-                    while True:
-                        logins.setRange("subjectId", userRoles.userid)
-                        logins.first()
-                        if userRoles.userid != sid:
-                            xformsdata["schema"]["data"]["users"]["user"].append({"@name": logins.userName,
-                                                                                  "@id": userRoles.userid})
-                        if not userRoles.next():
-                            break
+                usersList = getGroupUsers(context,link.groupId)
+                for userId in usersList:
+                    if userId != assignee:
+                        if userId not in reassList:
+                            reassList.append(userId)
             else:
-                logins.setRange("subjectId", link.userId)
-                logins.first()
-                if link.userId != sid:
-                    xformsdata["schema"]["data"]["users"]["user"].append({"@name": logins.userName,
-                                                                          "@id": link.userId})
+                if link.userId != assignee:
+                    if link.userId not in reassList:
+                        reassList.append(link.userId)
 
+    for userId in reassList:
+        xformsdata["schema"]["data"]["users"]["user"].append({"@name": getUserName(context,userId),
+                                                       "@id": userId})       
     xformssettings = {"properties":{"event":{"@name":"single_click",
                                              "@linkId": "1",
                                              "action":{"main_context": "current",
@@ -75,5 +86,7 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
     session = json.loads(session)['sessioncontext']
     taskId = session['related']['gridContext']['currentRecordId']
     jsonData = json.loads(xformsdata)["schema"]["data"]
+    if jsonData["newUser"] == '':
+        return context.error(u'Не выбран назначенный на задачу')
     taskService.unclaim(taskId)
     taskService.claim(taskId, jsonData["newUser"])

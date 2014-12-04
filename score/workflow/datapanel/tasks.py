@@ -8,6 +8,7 @@ Created on 21.10.2014
 
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 import simplejson as json
+from workflow.processUtils import getLinkPermisson
 
 def activeTasks(context, main=None, session=None):
     data = {"datapanel":{"tab":{"@id":"1",
@@ -22,6 +23,8 @@ def activeTasks(context, main=None, session=None):
                                             "@proc":"workflow.grid.activeTasksGrid.gridDataAndMeta.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
+                                            "@refreshByTimer":"true",
+                                            "@refreshInterval":"20",
                                             "related":{"@id":"tasksFilter"}
                                             },
                                            {"@id":"tasksImage",
@@ -70,6 +73,8 @@ def allActiveTasks(context, main=None, session=None):
                                             "@proc":"workflow.grid.allActiveTasksGrid.gridDataAndMeta.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
+                                            "@refreshByTimer":"true",
+                                            "@refreshInterval":"20",
                                             "related":{"@id":"tasksFilter"},
                                             "proc":[{
                                                     "@id":1,
@@ -91,6 +96,16 @@ def allActiveTasks(context, main=None, session=None):
                                             "related":{"@id":"tasksGrid"},
                                             "proc": {"@id": "1",
                                                      "@name": "workflow.xforms.tasksStatus.cardDataSave.celesta",
+                                                     "@type": "SAVE"}
+                                            },
+                                           {"@id":"reassign",
+                                            "@type":"xforms",
+                                            "@neverShowInPanel":"true",
+                                            "@template": "workflow/tasksReassign.xml",
+                                            "@proc":"workflow.xforms.tasksReassign.cardData.celesta",
+                                            "related":{"@id":"tasksGrid"},
+                                            "proc": {"@id": "1",
+                                                     "@name": "workflow.xforms.tasksReassign.cardDataSave.celesta",
                                                      "@type": "SAVE"}
                                             }
                                            ]
@@ -164,6 +179,14 @@ def standardCompleteTaskWithStatus(context, main=None, session=None):
 
 def drawTasksByProcId(context, main=None, session=None):
     u'''Датапанель отрисовки таблицы активных задач'''
+    session = json.loads(session)["sessioncontext"]
+    sid = session["sid"]
+    if isinstance(session['urlparams']['urlparam'], list):
+        for params in session['urlparams']['urlparam']:
+            if params['@name'] == 'processId':
+                processInstanceId = params['@value'][0]
+    if not getLinkPermisson(context, sid, 'table', None, processInstanceId, None):
+        return context.error(u'У Вас нет разрешения на просмотр данной страницы')
     data = {"datapanel":
             {"tab":
              [{"@id":"activeTasks",

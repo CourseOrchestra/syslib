@@ -2,6 +2,7 @@
 
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 import simplejson as json
+from workflow.processUtils import getLinkPermisson
 
 def manageProcesses(context, main=None, session=None):
     data = {"datapanel":{"tab":[{"@id":"1",
@@ -323,6 +324,7 @@ def drawProcesses(context, main=None, session=None):
                                 ]
                          }
             }
+
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 
 

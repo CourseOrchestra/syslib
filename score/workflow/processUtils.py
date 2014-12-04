@@ -7,7 +7,7 @@ Created on 30.09.2014
 '''
 import base64
 import array
-import re
+import re, os
 try:
     from ru.curs.showcase.activiti import EngineFactory
 except:
@@ -24,6 +24,7 @@ from java.io import ByteArrayInputStream
 from org.activiti.engine.impl.util.io import InputStreamSource
 from org.activiti.engine.impl.util.io import StreamSource
 import simplejson as json
+from ru.curs.celesta.syscursors import UserRolesCursor
 from common.sysfunctions import tableCursorImport
 
 class ActivitiObject():
@@ -307,3 +308,69 @@ def getUserName(context, sid):
         return getattr(users, nameField)
     else:
         return u'Пользователь не найден'
+    
+def getGroupUsers(context,groupId):
+    userList = [] 
+    infoDictList = [{"tableName": "UserRoles",  # имя таблицы, из которой берется список групп
+                     "grainName": "celesta",  # имя гранулы, из которой берется список групп
+                     "userField": "userid",  # название поля, в котором находится id пользователя
+                     "roleField": "roleid"  # название поля, в котором находится id группы пользователя
+                     },
+                    ]
+    for infoDict in infoDictList:
+        if infoDict['grainName'] != 'celesta':
+            userRoles = tableCursorImport(infoDict["grainName"], infoDict["tableName"])(context)
+        else:
+            from ru.curs.celesta.syscursors import UserRolesCursor
+            userRoles = UserRolesCursor(context)
+        userRoles.setRange(infoDict["roleField"], groupId)
+
+        if userRoles.tryFirst():
+            while True:
+                userList.append(getattr(userRoles, infoDict["userField"]))
+                if not userRoles.next():
+                    break
+    return userList
+    
+def getLinkPermisson(context,sid,mode,processKey,processId,taskId):
+    userRoles = UserRolesCursor(context)
+    userRoles.setRange('userid',sid)
+    isUser = False
+    if userRoles.tryFirst():
+        while True:
+            if userRoles.roleid == 'dev':
+                return True
+            if userRoles.roleid == 'user':
+                isUser = True            
+            if not userRoles.next():
+                break
+
+    if isUser:
+        activiti = ActivitiObject()
+        if mode == 'processImage':
+            return False
+        elif mode == 'process':
+            return False
+        elif mode == 'table':
+            return False
+        elif mode == 'instanceImage':
+            filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                        'datapanelSettings.json')
+            datapanelSettings = parse_json(filePath)["specialFunction"]["getUserGroups"]
+            getUserGroups = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
+            groupsList = getUserGroups(context,sid)
+        #     задачи, у которых кандидат - группа, в которую входит текущий пользователь
+            groupTasksList = activiti.taskService.createTaskQuery().taskCandidateGroupIn(groupsList).processInstanceId(processId).list()
+          
+            userTasksList = activiti.taskService.createTaskQuery().taskCandidateOrAssigned(sid).processInstanceId(processId).list()
+            if len(userTasksList) == 0 and len(groupTasksList) == 0:
+                return False
+            else:
+                return True
+        elif mode == 'task':
+            userTasksList = activiti.taskService.createTaskQuery().taskAssignee(sid).processInstanceId(processId).list()
+            for task in userTasksList:
+                if taskId == task.getId():
+                    return True
+            return False
+            
