@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="roles">
+	<row>
+		<field name="id">
+			dev
+		</field>
+		<field name="description">
+			have tasks
+		</field>
+	</row>
+	<row>
+		<field name="id">
+			editor
+		</field>
+		<field name="description">
+			editor
+		</field>
+	</row>
+	<row>
+		<field name="id">
+			user
+		</field>
+		<field name="description">
+			user
+		</field>
+	</row>
+</table>

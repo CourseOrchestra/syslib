@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="rolesCustomPerms">
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="permissionId">
+			activeTasks
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="permissionId">
+			allActiveTasks
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="permissionId">
+			archiveTasks
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="permissionId">
+			operLog
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="permissionId">
+			processDesigner
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="permissionId">
+			processManagement
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			user
+		</field>
+		<field name="permissionId">
+			activeTasks
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			user
+		</field>
+		<field name="permissionId">
+			archiveTasks
+		</field>
+	</row>
+</table>

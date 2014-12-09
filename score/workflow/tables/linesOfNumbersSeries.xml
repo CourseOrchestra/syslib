@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="linesOfNumbersSeries">
+	<row>
+		<field name="seriesId">
+			documentApprovingProcess
+		</field>
+		<field name="numberOfLine">
+			1
+		</field>
+		<field name="startingDate">
+			2014-12-02 12:10:47.307
+		</field>
+		<field name="startingNumber">
+			1
+		</field>
+		<field name="endingNumber">
+			100000
+		</field>
+		<field name="incrimentByNumber">
+			1
+		</field>
+		<field name="lastUsedNumber">
+			5
+		</field>
+		<field name="prefix">
+			
+		</field>
+		<field name="postfix">
+			
+		</field>
+		<field name="isFixedLength">
+			False
+		</field>
+		<field name="isOpened">
+			True
+		</field>
+		<field name="lastUsedDate">
+			2014-12-02 12:13:13.827
+		</field>
+	</row>
+</table>

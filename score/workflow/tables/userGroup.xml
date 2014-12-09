@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="userGroup">
+	<row>
+		<field name="userId">
+			documentApprovingProcess
+		</field>
+		<field name="groupId">
+			dean
+		</field>
+		<field name="groupName">
+			Деканы
+		</field>
+	</row>
+</table>

@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="permissions">
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			celesta
+		</field>
+		<field name="tablename">
+			userroles
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			common
+		</field>
+		<field name="tablename">
+			linesOfNumbersSeries
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			True
+		</field>
+		<field name="m">
+			True
+		</field>
+		<field name="d">
+			True
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			common
+		</field>
+		<field name="tablename">
+			numbersSeries
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			True
+		</field>
+		<field name="m">
+			True
+		</field>
+		<field name="d">
+			True
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			security
+		</field>
+		<field name="tablename">
+			customPerms
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			security
+		</field>
+		<field name="tablename">
+			logins
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			security
+		</field>
+		<field name="tablename">
+			rolesCustomPerms
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			security
+		</field>
+		<field name="tablename">
+			subjects
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			form
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			True
+		</field>
+		<field name="m">
+			True
+		</field>
+		<field name="d">
+			True
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			matchingCircuit
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			True
+		</field>
+		<field name="m">
+			True
+		</field>
+		<field name="d">
+			True
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			processes
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			True
+		</field>
+		<field name="m">
+			True
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			status
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			statusModel
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			statusTransition
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			dev
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			userGroup
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			user
+		</field>
+		<field name="grainid">
+			celesta
+		</field>
+		<field name="tablename">
+			userroles
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			user
+		</field>
+		<field name="grainid">
+			security
+		</field>
+		<field name="tablename">
+			customPerms
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			user
+		</field>
+		<field name="grainid">
+			security
+		</field>
+		<field name="tablename">
+			logins
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			user
+		</field>
+		<field name="grainid">
+			security
+		</field>
+		<field name="tablename">
+			rolesCustomPerms
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			user
+		</field>
+		<field name="grainid">
+			security
+		</field>
+		<field name="tablename">
+			subjects
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			user
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			form
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			user
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			status
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			user
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			userGroup
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+</table>
