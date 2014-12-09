@@ -11,26 +11,4 @@
 			4f26aeafdb2367620a393c973eddbe8f8b846ebd
 		</field>
 	</row>
-	<row>
-		<field name="subjectId">
-			cock
-		</field>
-		<field name="userName">
-			cock
-		</field>
-		<field name="password">
-			4f26aeafdb2367620a393c973eddbe8f8b846ebd
-		</field>
-	</row>
-	<row>
-		<field name="subjectId">
-			petuk
-		</field>
-		<field name="userName">
-			petuk
-		</field>
-		<field name="password">
-			4f26aeafdb2367620a393c973eddbe8f8b846ebd
-		</field>
-	</row>
 </table>

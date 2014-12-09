@@ -10,14 +10,6 @@
 	</row>
 	<row>
 		<field name="id">
-			editor
-		</field>
-		<field name="description">
-			editor
-		</field>
-	</row>
-	<row>
-		<field name="id">
 			user
 		</field>
 		<field name="description">

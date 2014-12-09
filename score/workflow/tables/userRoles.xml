@@ -24,20 +24,4 @@
 			dev
 		</field>
 	</row>
-	<row>
-		<field name="userid">
-			admin
-		</field>
-		<field name="roleid">
-			editor
-		</field>
-	</row>
-	<row>
-		<field name="userid">
-			master
-		</field>
-		<field name="roleid">
-			editor
-		</field>
-	</row>
 </table>
