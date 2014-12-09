@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="customPermsTypes">
+	<row>
+		<field name="name">
+			buttons
+		</field>
+		<field name="description">
+			Разрешения на кнопки
+		</field>
+	</row>
+	<row>
+		<field name="name">
+			lines
+		</field>
+		<field name="description">
+			Разрешения на строки
+		</field>
+	</row>
+	<row>
+		<field name="name">
+			navigator
+		</field>
+		<field name="description">
+			Разрешения на пункты навигатора
+		</field>
+	</row>
+</table>
