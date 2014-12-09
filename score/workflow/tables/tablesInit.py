@@ -40,24 +40,26 @@ def initTables():
     context = CallContext(conn, sesContext)
     
     filePath = os.path.dirname(os.path.abspath(__file__))
+    
+    roles = RolesCursor(context)
+    importData(roles,filePath+'/roles.xml')
+    
+    userroles = UserRolesCursor(context)
+    importData(userroles,filePath+'/userRoles.xml')    
+    
     perms = PermissionsCursor(context)
     importData(perms,filePath+'/permissions.xml')
 
-    roles = RolesCursor(context)
-    importData(roles,filePath+'/roles.xml')
 
-    userroles = UserRolesCursor(context)
-    importData(userroles,filePath+'/userRoles.xml')
     
     importTables = [
                 {'grain':'security','table':'customPerms'},
                 {'grain':'security','table':'logins'},
                 {'grain':'security','table':'subjects'},
                 {'grain':'security','table':'rolesCustomPerms'},
-                {'grain':'security','table':'subjects'},
                 {'grain':'workflow','table':'form'},
-                {'grain':'workflow','table':'matchingCircuit'},
                 {'grain':'workflow','table':'processes'},
+                {'grain':'workflow','table':'matchingCircuit'},
                 {'grain':'common','table':'linesOfNumbersSeries'},
                 {'grain':'common','table':'numbersSeries'},
                 #{'grain':'workflow','table':'userGroup'}
@@ -90,7 +92,6 @@ def exportTables():
                     {'grain':'security','table':'logins'},
                     {'grain':'security','table':'subjects'},
                     {'grain':'security','table':'rolesCustomPerms'},
-                    {'grain':'security','table':'subjects'},
                     {'grain':'workflow','table':'form'},
                     {'grain':'workflow','table':'matchingCircuit'},
                     {'grain':'workflow','table':'processes'},
