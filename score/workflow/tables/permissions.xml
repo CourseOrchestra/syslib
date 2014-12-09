@@ -299,29 +299,7 @@
 			False
 		</field>
 	</row>
-	<row>
-		<field name="roleid">
-			dev
-		</field>
-		<field name="grainid">
-			workflow
-		</field>
-		<field name="tablename">
-			userGroup
-		</field>
-		<field name="r">
-			True
-		</field>
-		<field name="i">
-			False
-		</field>
-		<field name="m">
-			False
-		</field>
-		<field name="d">
-			False
-		</field>
-	</row>
+
 	<row>
 		<field name="roleid">
 			user
@@ -483,27 +461,5 @@
 			False
 		</field>
 	</row>
-	<row>
-		<field name="roleid">
-			user
-		</field>
-		<field name="grainid">
-			workflow
-		</field>
-		<field name="tablename">
-			userGroup
-		</field>
-		<field name="r">
-			True
-		</field>
-		<field name="i">
-			False
-		</field>
-		<field name="m">
-			False
-		</field>
-		<field name="d">
-			False
-		</field>
-	</row>
+
 </table>
