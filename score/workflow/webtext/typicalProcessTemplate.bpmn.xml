@@ -9,7 +9,7 @@
             <activiti:string><![CDATA[groovy]]></activiti:string>
           </activiti:field>
           <activiti:field name="script">
-            <activiti:expression>docVersion = task.setVariable("documentVersion", "")
+            <activiti:expression>docVersion = task.setVariable("documentVersion", "editing000")
 			</activiti:expression>
           </activiti:field>
         </activiti:taskListener>
@@ -38,9 +38,11 @@
 								deleteDocument = task.getVariable("deleteDocument")
 if (deleteDocument == "false"){	
 	task.setVariable("processStatus","onAgreement")
+	task.setVariable("documentVersion","editing011")
 }
 if (deleteDocument == "true"){	
 	task.setVariable("processStatus","rejected")
+	task.setVariable("documentVersion","editing010")
 }</activiti:expression>
           </activiti:field>
         </activiti:taskListener>
@@ -70,13 +72,32 @@ if (deleteDocument == "true"){
           </activiti:field>
           <activiti:field name="script">
             <activiti:expression>
-								deleteDocument = task.getVariable("deleteDocument")
+maxNumberLength = 3
+taskKey = "editing"
+docVersion = task.getVariable("documentVersion")
+pattern = taskKey + "[0-9]{3}"
+mtchr = docVersion =~ pattern
+strNum = mtchr[0][taskKey.length()..taskKey.length()+maxNumberLength-1]
+num = strNum.toInteger()
+newNum=num+10
+deleteDocument = task.getVariable("deleteDocument")
 if (deleteDocument == "false"){	
 	task.setVariable("processStatus","onAgreement")
+	newNum=newNum.intdiv(10)*10+1
 }
-if (deleteDocument == "true"){	
+if (deleteDocument == "true"){
+	newNum=newNum.intdiv(10)*10
 	task.setVariable("processStatus","rejected")
-}</activiti:expression>
+}
+for (i=1; i&lt;=maxNumberLength; i++){
+      	if (newNum.intdiv(10**i)==0){
+		strNewNum="0"*(maxNumberLength-i)+newNum.toString()
+              break
+      	}
+}
+docVersion = docVersion.replaceAll(taskKey+strNum, taskKey+strNewNum)
+task.setVariable("documentVersion", docVersion)
+</activiti:expression>
           </activiti:field>
         </activiti:taskListener>
       </extensionElements>	
