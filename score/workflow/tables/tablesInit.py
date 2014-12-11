@@ -1,4 +1,4 @@
-# coding: utf-8
+#coding:utf-8
 
 '''
 Created on 30.09.2014

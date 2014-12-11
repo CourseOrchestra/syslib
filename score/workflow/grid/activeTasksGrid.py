@@ -70,6 +70,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                "assign":[u"Принять"],
                "process": [u"Название процесса"],
                "document": [u"Выполнить"],
+               "abandon":[u"Отказаться"],
                "description":[u'Описание процесса'],
                "reassign": [u"Передать задачу"],
                "userAss": [u"Назначена на"],
@@ -124,6 +125,29 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         taskDict[_header["name"][1]] = task.name
         taskDict[_header["properties"][1]] = {"event":
                                               []}
+        if reassignFlag and taskDict[_header["userAss"][1]] == function(context, sid):
+            taskDict[_header["abandon"][1]] = {"div":
+                                                {"@align": "center",
+                                                 "@class": "gridCellCursor",
+                                                 "img":
+                                                    {"@src": "solutions/default/resources/imagesingrid/stop.png"}}}
+            taskDict[_header["properties"][1]]["event"].append({"@name":"cell_single_click",
+                                                                "@column": _header["abandon"][0],
+                                                                "action":
+                                                                    {"#sorted":
+                                                                     [{"main_context": 'current'},
+                                                                      {"server":
+                                                                       {"activity":
+                                                                        {"@id": "abandonTask",
+                                                                         "@name": "workflow.grid.activeTasksGrid.abandonTask.celesta",
+                                                                         "add_context": task.id}}},
+                                                                      {"datapanel":
+                                                                        {'@type':"current",
+                                                                         '@tab':"current",
+                                                                         'element':
+                                                                            {'@id':'tasksGrid'}}}]}})
+        else:
+            taskDict[_header["abandon"][1]] = ""
         if taskDict[_header["userAss"][1]] != function(context, sid):
             taskDict[_header["assign"][1]] = {"div":
                                                 {"@align": "center",
@@ -213,6 +237,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                        "@width": "85px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["document"][0],
                                                        "@width": "60px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["abandon"][0],
+                                                       "@width": "60px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0],
                                                        "@width": "215px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["process"][0],
@@ -230,3 +256,8 @@ def assign(context, main, add=None, filterinfo=None, session=None, elementId=Non
     activiti = ActivitiObject()
     activiti.taskService.claim(add, sid)
     context.message(u'Задача взята на исполнение')
+    
+def abandonTask(context, main, add=None, filterinfo=None, session=None, elementId=None):
+    activiti = ActivitiObject()
+    activiti.taskService.unclaim(add)
+    context.message(u'Вы отказались от задачи')
