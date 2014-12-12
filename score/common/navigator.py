@@ -1,5 +1,6 @@
 # coding: utf-8
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
+from common.grainssettings import SettingsManager
 # from common._common_orm import numbersSeriesCursor, linesOfNumbersSeriesCursor
 import simplejson as json
 import re
@@ -9,22 +10,24 @@ def standardNavigator(context, session=None):
     u"""
 Функция позволяет вернутть навигатор собранные из кусочков(групп),
 приходящих в список navigatorsParts в виде функций, которые возвращают JSON объект"""
-
+    settingsObject = SettingsManager()
+    session = json.loads(session)
+    userdataNavigator = settingsObject.getGrainSettings('common', 'navigator/userdata[@name=""]/group' % (session["sessioncontext"]["userdata"]))
     localNavigators = navigatorsParts.copy()
     resultJSON = {"navigator":{}}
 
     resultNavigators = dict()
     if localNavigators:
-        for set in localNavigators:
-            if re.search('^__set_.+$', set):
-                setOfPart = localNavigators[set]
+        for setItem in localNavigators:
+            if re.search('^__set_.+$', setItem) and setItem in userdataNavigator:
+                setOfPart = localNavigators[setItem]
                 setOfPartRes = setOfPart(context, session)
                 for part in setOfPartRes:
                     resultNavigators[part] = setOfPartRes[part]
-            else:
-                resultNavigators[set] = localNavigators[set](context, session)
+            elif setItem in userdataNavigator:
+                resultNavigators[setItem] = localNavigators[setItem](context, session)
         resultJSON["navigator"]["group"] = list()
-        for part in sorted(resultNavigators):
+        for part in userdataNavigator:
             if part == "__header__":
                 resultJSON["navigator"].update(resultNavigators[part])
             elif resultNavigators[part]["group"] is not None:
