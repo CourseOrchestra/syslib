@@ -111,8 +111,8 @@ def generateGridSettings(columns={}, pagesize=25, gridHeight=250, delta=40, tota
     settings = {"gridsettings":{"columns":{"col":[]}
                                 }
                 }
-    gridWidth=0
-    for key in columns.keys().sorted():
+    gridWidth=0              
+    for key in sorted(columns.keys()):
         gridWidth+=columns[key]
         settings["gridsettings"]["columns"]["col"].append({"@id":key, "@width": str(columns[key])+"px"})
     gridWidth+=delta    
