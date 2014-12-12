@@ -5,7 +5,7 @@ import re
 import uuid
 from org.xml.sax.helpers import XMLReaderFactory
 from org.xml.sax.ext import DefaultHandler2
-from org.xml.sax import InputSource 
+from org.xml.sax import InputSource
 from  javax.xml.stream import XMLOutputFactory
 from java.io import FileInputStream, StringWriter, FileOutputStream, OutputStreamWriter
 from java.lang import String
@@ -39,16 +39,20 @@ class SettingsManager():
         parser.setProperty("http://xml.org/sax/properties/lexical-handler", handler)
         stream = FileInputStream(self._getSettingsFilePath())
         parser.parse(InputSource(stream))
+        stream.close()
 
         return handler.result
 
     def _getSettings(self, path):
+        u'''функция получения настроек по указанному пути'''
         return self._createReader(path, None, None)
 
     def getGeneralSettings(self, path):
+        u'''функция получения общих настроек по указанному пути'''
         return self._getSettings('grainSettings/generalSettings/%s' % path)
 
     def getGrainSettings(self, grain, path):
+        u'''функция получения настроек гранулы по указанному пути'''
         return self._getSettings('grainSettings/grains/grain[@name="%s"]/%s' % (grain, path))
 
     def _setSettings(self, path, value):

@@ -12,22 +12,27 @@ def standardNavigator(context, session=None):
 приходящих в список navigatorsParts в виде функций, которые возвращают JSON объект"""
     settingsObject = SettingsManager()
     sessionDict = json.loads(session)
-    userdataNavigator = settingsObject.getGrainSettings('common', 'navigator/userdata[@name="%s"]/group' % sessionDict["sessioncontext"]["userdata"])
+    allNavigator = False
+    userdataNavigator = []
+    try:
+        userdataNavigator = settingsObject.getGrainSettings('common', 'navigator/userdata[@name="%s"]/group' % sessionDict["sessioncontext"]["userdata"])
+    except:
+        allNavigator = True
     localNavigators = navigatorsParts.copy()
     resultJSON = {"navigator":{}}
 
     resultNavigators = dict()
     if localNavigators:
         for setItem in localNavigators:
-            if re.search('^__set_.+$', setItem) and setItem in userdataNavigator:
+            if re.search('^__set_.+$', setItem) and (allNavigator or setItem in userdataNavigator):
                 setOfPart = localNavigators[setItem]
                 setOfPartRes = setOfPart(context, session)
                 for part in setOfPartRes:
                     resultNavigators[part] = setOfPartRes[part]
-            elif setItem in userdataNavigator:
+            elif  (allNavigator or setItem in userdataNavigator):
                 resultNavigators[setItem] = localNavigators[setItem](context, session)
         resultJSON["navigator"]["group"] = list()
-        for part in userdataNavigator:
+        for part in (sorted(resultNavigators) if allNavigator else userdataNavigator):
             if part == "__header__":
                 resultJSON["navigator"].update(resultNavigators[part])
             elif resultNavigators[part]["group"] is not None:
