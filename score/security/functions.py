@@ -107,12 +107,14 @@ def submissionGenPass(context, main=None, add=None, filterinfo=None, session=Non
     instance["schema"]["user"]["@password"]=id_generator()        
     return XMLJSONConverter.jsonToXml(json.dumps(instance))
 
-def generateGridSettings(columns={}, pagesize=25, gridHeight=250, delta=40, totalCount=0, profile="default.properties", header=""):
+def generateGridSettings(columns={}, pagesize=25, gridHeight=250, delta=40, totalCount=0, profile="default.properties", header="", columnsSorted = None):
     settings = {"gridsettings":{"columns":{"col":[]}
                                 }
                 }
-    gridWidth=0              
-    for key in sorted(columns.keys()):
+    gridWidth=0
+    if columnsSorted is None:
+        columnsSorted = sorted(columns.keys())
+    for key in columnsSorted:
         gridWidth+=columns[key]
         settings["gridsettings"]["columns"]["col"].append({"@id":key, "@width": str(columns[key])+"px"})
     gridWidth+=delta    
