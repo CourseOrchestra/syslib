@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grainSettings>
+	<!--Общие настройки для гранул-->
+	<generalSettings>
+	</generalSettings>
+	<!--Отдельные настройки для гранул-->
+	<grains>
+		<grain name="common">
+			<!--Указание необходимых групп навигатора для каждой userdata-->
+			<navigator>
+				<userdata name="workflow">
+					<group>0</group>
+					<group>1</group>
+					<group>3</group>
+				</userdata> 				
+			</navigator>
+		</grain>
+		<grain name="security">			
+		</grain>
+	</grains>
+</grainSettings>
