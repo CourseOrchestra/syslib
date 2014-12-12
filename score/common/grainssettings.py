@@ -5,14 +5,14 @@ import re
 import uuid
 from org.xml.sax.helpers import XMLReaderFactory
 from org.xml.sax.ext import DefaultHandler2
-from org.xml.sax import InputSource
+from org.xml.sax import InputSource 
 from  javax.xml.stream import XMLOutputFactory
 from java.io import FileInputStream, StringWriter, FileOutputStream, OutputStreamWriter
 from java.lang import String
 from ru.curs.celesta import CelestaException
 
 
-class settingsManager():
+class SettingsManager():
     u'''Класс получения настроек свойств для всех гранул'''
     def _getSettingsFilePath(self, isNew=''):
         u'''Функция получения пути с файлом настроек'''

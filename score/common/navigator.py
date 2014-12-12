@@ -11,8 +11,8 @@ def standardNavigator(context, session=None):
 Функция позволяет вернутть навигатор собранные из кусочков(групп),
 приходящих в список navigatorsParts в виде функций, которые возвращают JSON объект"""
     settingsObject = SettingsManager()
-    session = json.loads(session)
-    userdataNavigator = settingsObject.getGrainSettings('common', 'navigator/userdata[@name=""]/group' % (session["sessioncontext"]["userdata"]))
+    sessionDict = json.loads(session)
+    userdataNavigator = settingsObject.getGrainSettings('common', 'navigator/userdata[@name="%s"]/group' % sessionDict["sessioncontext"]["userdata"])
     localNavigators = navigatorsParts.copy()
     resultJSON = {"navigator":{}}
 
