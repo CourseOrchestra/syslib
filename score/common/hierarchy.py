@@ -25,19 +25,19 @@ def moveNodeInHierarchy(context, cursorInstance, numberField, position, isOneHie
     currentNumber = getattr(cursorInstance, numberField)
     numberList = currentNumber.split('.')
     level = len(numberList)
-    #Создаем клон основного курсора и копируем в него фильтры
+    # Создаем клон основного курсора и копируем в него фильтры
     cursorInstanceClone = cursorInstance.__class__(context)
     if not isOneHierarchy:
         cursorInstanceClone.copyFiltersFrom(cursorInstance)
     cursorInstanceClone.setFilter(numberField, '''('%s.'%%)''' % currentNumber)
     cursorInstanceClone.limit(0, 0)
-    #Меняем номер всех узлов куста, кроме корня
+    # Меняем номер всех узлов куста, кроме корня
     for cursorInstanceClone in cursorInstanceClone.iterate():
         numberListChild = getattr(cursorInstanceClone, numberField).split('.')
         numberListChild[level - 1] = unicode(position)
         cursorInstanceClone.__setattr__(numberField, '.'.join(numberListChild))
         cursorInstanceClone.update()
-    #Меняем номер корня
+    # Меняем номер корня
     numberList[-1] = unicode(position)
     cursorInstance.__setattr__(numberField, '.'.join(numberList))
     cursorInstance.update()
@@ -46,20 +46,20 @@ def deleteNodeFromHierarchy(context, cursorInstance, numberField, sortField, isO
     u'''Функция удаляет куст из иерархии, сдвигая все нижестоящие кусты на одну позицию вверх'''
     currentNumber = getattr(cursorInstance, numberField)
     numberList = currentNumber.split('.')
-    #Создаем клон основного курсора и копируем в него фильтры
+    # Создаем клон основного курсора и копируем в него фильтры
     cursorInstanceClone = cursorInstance.__class__(context)
     if not isOneHierarchy:
         cursorInstanceClone.copyFiltersFrom(cursorInstance)
     cursorInstanceClone.limit(0, 0)
     cursorInstanceClone.orderBy(sortField)
-    #Удаляем все узлы куста кроме корня
+    # Удаляем все узлы куста кроме корня
     cursorInstanceClone.setFilter(numberField, '''('%s.'%%)''' % currentNumber)
     for cursorInstanceClone in cursorInstanceClone.iterate():
         cursorInstanceClone.delete()
-    #Удаляем корень куста
+    # Удаляем корень куста
     currentSort = getattr(cursorInstance, sortField)
     cursorInstance.delete()
-    #Сдвигаем все нижестоящие кусты на одну позицию вверх
+    # Сдвигаем все нижестоящие кусты на одну позицию вверх
     if '.' in currentNumber:
         sqlPattern = '''('%s.'%%)&!('%s.'%%'.'%%)''' % ('.'.join(numberList[:-1]), '.'.join(numberList[:-1]))
     else:
@@ -76,15 +76,15 @@ def changeNodePositionInLevelOfHierarchy(context, cursorInstance, numberField, s
     u'''Функция перемещает куст на @shift позиций, сдвигая при этом необходимое количество соседних кустов'''
     currentNumber = getattr(cursorInstance, numberField)
     numberList = currentNumber.split('.')
-    #Создаем клон основного курсора и копируем в него фильтры
+    # Создаем клон основного курсора и копируем в него фильтры
     cursorInstanceClone = cursorInstance.__class__(context)
     if not isOneHierarchy:
         cursorInstanceClone.copyFiltersFrom(cursorInstance)
     cursorInstanceClone.limit(0, 0)
     currentSort = getattr(cursorInstance, sortField)
-    #Перемещаем указанный куст на нулевую позицию
+    # Перемещаем указанный куст на нулевую позицию
     moveNodeInHierarchy(context, cursorInstance, numberField, 0)
-    #Перемещаем необходимое количество соседних кустов
+    # Перемещаем необходимое количество соседних кустов
     if '.' in currentNumber:
         sqlPattern = '''('%s.'%%)&(!'%s.'%%'.'%%)''' % ('.'.join(numberList[:-1]), '.'.join(numberList[:-1]))
     else:
@@ -105,7 +105,7 @@ def changeNodePositionInLevelOfHierarchy(context, cursorInstance, numberField, s
     for cursorInstanceClone in cursorInstanceClone.iterate():
         numberListChild = getattr(cursorInstanceClone, numberField).split('.')
         moveNodeInHierarchy(context, cursorInstanceClone, numberField, int(numberListChild[-1]) - sign)
-    #Перемещаем указанный куст на свободную после перемещений позицию
+    # Перемещаем указанный куст на свободную после перемещений позицию
     moveNodeInHierarchy(context, cursorInstance, numberField, int(numberList[-1]) + countOfDownNodes * sign)
 
 def leftShiftNodeInHierarchy(context, cursorInstance, numberField, sortField):
@@ -119,12 +119,12 @@ def shiftNodeToOtherLevelInHierarchy(context, cursorInstance, numberField, sortF
     currentNumber = getattr(cursorInstance, numberField)
     numberList = currentNumber.split('.')
     parentNumberList = []
-    #Создаем клон основного курсора и копируем в него фильтры
+    # Создаем клон основного курсора и копируем в него фильтры
     cursorInstanceClone = cursorInstance.__class__(context)
     if not isOneHierarchy:
         cursorInstanceClone.copyFiltersFrom(cursorInstance)
     cursorInstanceClone.limit(0, 0)
-    #Находим правильное место вставки
+    # Находим правильное место вставки
     if parentNumber:
         parentNumberList = parentNumber.split('.')
         cursorInstanceClone.setFilter(numberField, '''('%s.'%%)&(!'%s.'%%'.'%%)''' % (parentNumber, parentNumber))
@@ -136,17 +136,17 @@ def shiftNodeToOtherLevelInHierarchy(context, cursorInstance, numberField, sortF
     elif numberList[:-1] == parentNumberList:
         return
     parentNumberList.append(unicode(cursorInstanceClone.count() + 1))
-    #Перемещаем все узлы текущего куста кроме корня
+    # Перемещаем все узлы текущего куста кроме корня
     cursorInstanceClone.setFilter(numberField, '''('%s.'%%)''' % currentNumber)
     for cursorInstanceClone in cursorInstanceClone.iterate():
         numberListChild = getattr(cursorInstanceClone, numberField).split('.')
         cursorInstanceClone.__setattr__(numberField, '.'.join(parentNumberList + numberListChild[level:]))
         cursorInstanceClone.update()
-    #Перемещаем корень текущего куста на правильную позицию
+    # Перемещаем корень текущего куста на правильную позицию
     currentSort = getattr(cursorInstance, sortField)
     cursorInstance.__setattr__(numberField, '.'.join(parentNumberList))
     cursorInstance.update()
-    #Перемещаем все нижестоящие кусты относительно текущего на одну позицию вверх   
+    # Перемещаем все нижестоящие кусты относительно текущего на одну позицию вверх
     if '.' in currentNumber:
         sqlPattern = '''('%s.'%%)&(!'%s.'%%'.'%%)''' % ('.'.join(numberList[:-1]), '.'.join(numberList[:-1]))
     else:
@@ -161,7 +161,7 @@ def shiftNodeToOtherLevelInHierarchy(context, cursorInstance, numberField, sortF
 def hasChildren(context, cursorInstance, numberField, isOneHierarchy=False):
     u'''Функция определяет наличие у элемента детей.'''
     currentNumber = getattr(cursorInstance, numberField)
-    #Создаем клон основного курсора и копируем в него фильтры    
+    # Создаем клон основного курсора и копируем в него фильтры
     cursorInstanceClone = cursorInstance.__class__(context)
     if not isOneHierarchy:
         cursorInstanceClone.copyFiltersFrom(cursorInstance)
@@ -173,20 +173,17 @@ def hasChildren(context, cursorInstance, numberField, isOneHierarchy=False):
 def getNewItemInLevelInHierarchy(context, cursorInstance, numberField, isOneHierarchy=False):
     u'''Функция возвращает номер для нового элемента в указанном уровне иерархии'''
     currentNumber = getattr(cursorInstance, numberField)
-    #Создаем клон основного курсора и копируем в него фильтры    
+    # Создаем клон основного курсора и копируем в него фильтры
     cursorInstanceClone = cursorInstance.__class__(context)
     if not isOneHierarchy:
         cursorInstanceClone.copyFiltersFrom(cursorInstance)
     cursorInstanceClone.limit(0, 0)
-    cursorInstanceClone.setFilter(numberField, "('%s.'%%)&(!'%s.'%%'.'%%)" % (currentNumber, currentNumber))
-    childCount = cursorInstanceClone.count()
-    if childCount:
+    # Отдельное условие, если вставляем на нулевой уровень иерархии
+    if currentNumber is not None:
+        cursorInstanceClone.setFilter(numberField, "('%s.'%%)&(!'%s.'%%'.'%%)" % (currentNumber, currentNumber))
+        childCount = cursorInstanceClone.count()
         return '%s.%d' % (currentNumber, childCount + 1)
     else:
-        return '%s.1' % currentNumber
-
-
-
-
-
-
+        cursorInstanceClone.setFilter(numberField, "!(%'.'%)")
+        childCount = cursorInstanceClone.count()
+        return unicode(childCount + 1)
