@@ -17,5 +17,14 @@
 		</grain>
 		<grain name="security">			
 		</grain>
+		<!--Настройки гранулы workflow-->
+		<grain name="workflow">
+			<!--Настройка обработчиков событий activiti-->
+			<activitiEvents>
+				<!--Параметр name - название события activiti, script - скрипт для обработки данного события-->
+				<event name="PROCESS_COMPLETED" script="processCompleteHandler.py" />
+				<event name="TASK_COMPLETED" script="workflow.eventHandler.taskCompleteHandler.cl" />
+			</activitiEvents>
+		</grain>
 	</grains>
 </grainSettings>
