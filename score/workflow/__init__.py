@@ -2,7 +2,7 @@
 
 from common.navigator import navigatorsParts
 
-from common.grainssettings import settingsManager
+from common.grainssettings import SettingsManager
 
 from workflow.navigator import manageProcessesNav, navSettings, testNavigator
 
@@ -19,19 +19,28 @@ from org.activiti.engine.delegate.event import ActivitiEventType
 navigatorsParts['54'] = manageProcessesNav
 #navigatorsParts['55'] = testNavigator
 navigatorsParts['__header__'] = navSettings
+from ru.curs.celesta import Celesta
+from ru.curs.celesta.score import Score
+from ru.curs.celesta import ConnectionPool
+from ru.curs.celesta import CallContext
+from ru.curs.celesta import SessionContext
 
 #Заполнение таблиц начальными данными, производится только в случае первого разворачивания решения
 initTables()
 
 #Настройка обработчиков событий activiti
 
+
 try:
     from ru.curs.showcase.runtime import AppInfoSingleton
 
-    settingsManager = settingsManager()
+
+
+    settingsManager = SettingsManager()
     
-    eventsList = settingsManager.getGrainSettings('workflow', 'activitiEvents/event/@name')
-    handlersList = settingsManager.getGrainSettings('workflow','activitiEvents/event/@script')
+    eventsList = settingsManager.getGrainSettings('activitiEvents/event/@name','workflow')
+    handlersList = settingsManager.getGrainSettings('activitiEvents/event/@script','workflow')
+    
     
     for i in range(len(eventsList)):
         AppInfoSingleton.getAppInfo().\
@@ -40,5 +49,6 @@ try:
 
 except:
     pass
+
 _workflow_orm.matchingCircuitCursor.onPreInsert.append(matchingCircuitPreInsert)
 _workflow_orm.matchingCircuitCursor.onPreUpdate.append(matchingCircuitPreInsert)
