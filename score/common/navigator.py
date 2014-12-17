@@ -10,7 +10,7 @@ def standardNavigator(context, session=None):
     u"""
 Функция позволяет вернутть навигатор собранные из кусочков(групп),
 приходящих в список navigatorsParts в виде функций, которые возвращают JSON объект"""
-    settingsObject = SettingsManager()
+    settingsObject = SettingsManager(context)
     sessionDict = json.loads(session)
     allNavigator = False
     userdataNavigator = []
