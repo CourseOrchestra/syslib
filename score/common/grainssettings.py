@@ -14,6 +14,8 @@ from ru.curs.celesta import CelestaException
 
 class SettingsManager():
     u'''Класс получения настроек свойств для всех гранул'''
+    def __init__ (self, context):
+        self.context = context
     def _getSettingsFilePath(self, isNew=''):
         u'''Функция получения пути с файлом настроек'''
         settingsPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'grainsSettings%s.xml' % isNew)
@@ -22,8 +24,8 @@ class SettingsManager():
     def _createReader(self, path, value, xmlWriter):
         u'''функция создания ридера для чтения файла настроек, с учетом указанного пути'''
         pathList = list()
-        name = "[a-zA-Z_А-Яа-я][a-zA-Z_А-Яа-я_0-9-]+"
-        elementPatern = re.compile(r"""(%s)(?:\[(?:@(%s)=(?:'([^']+)'|\"([^\"]+)\")|([0-9]+))\])?(?:/@(%s))?""" % (name, name, name), re.UNICODE)
+        name = r"[a-zA-Z_][a-zA-Z_0-9]+"
+        elementPatern = re.compile(r"""(%s)(?:\[(?:@(%s)(?:'([^']+)'|\"([^\"]+)\")|([0-9]+))\])?(?:/@(%s))?""" % (name, name, name), re.UNICODE)
         lastEnd = -1
         for a in elementPatern.finditer(unicode(path)):
             if lastEnd + 1 != a.start(0) or (lastEnd > 0 and path[lastEnd]not in ('/', '\\')) :
@@ -51,9 +53,10 @@ class SettingsManager():
         u'''функция получения общих настроек по указанному пути'''
         return self._getSettings('grainSettings/generalSettings/%s' % path)
 
-    def getGrainSettings(self, grain, path):
+    def getGrainSettings(self, path, grain=None):
+        grainLocal = self.context.grain.name if grain is None else grain
         u'''функция получения настроек гранулы по указанному пути'''
-        return self._getSettings('grainSettings/grains/grain[@name="%s"]/%s' % (grain, path))
+        return self._getSettings('grainSettings/grains/grain[@name="%s"]/%s' % (grainLocal, path))
 
     def _setSettings(self, path, value):
 
@@ -75,8 +78,9 @@ class SettingsManager():
     def setGeneralSettings(self, path, value):
         return self._setSettings('grainSettings/generalSettings/%s' % path, value)
 
-    def setGrainSettings(self, grain, path, value):
-        return self._setSettings('grainSettings/grains/[@name="%s"]/%s' % (grain, path), value)
+    def setGrainSettings(self, path, value, grain=None):
+        grainLocal = self.context.grain.name if grain is None else grain
+        return self._setSettings('grainSettings/grains/[@name="%s"]/%s' % (grainLocal, path), value)
 
 class NodeProperties():
     def __init__(self, properties, newValue=None):
