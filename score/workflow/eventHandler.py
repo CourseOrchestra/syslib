@@ -13,24 +13,29 @@ def taskCompleteHandler(context,event):
     act = ActivitiObject()
 #     processEngine = EngineFactory.getActivitiProcessEngine()
 #     runtimeService = processEngine.getRuntimeService()
-    pyConn = ConnectionFactory.getPyConnection();
-    pyConn.autocommit = True
     processInstanceId = event.getProcessInstanceId()
-    docVersion = act.runtimeService.getVariable(processInstanceId,'documentVersion')
-    docId = act.runtimeService.getVariable(processInstanceId,'docId')
-    #createProcessInstanceQuery().processInstanceId(processInstanceId).includeProcessVariables().singleResult()    
-    try:
-        cur = pyConn.cursor()
+    processInstance = act.runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult()
+    processDefId = processInstance.getProcessDefinitionId()
+    processDef = act.repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefId).singleResult()
+    processKey = processDef.getKey()
+    if processKey == 'documentApprovingProcess':
+        pyConn = ConnectionFactory.getPyConnection();
+        pyConn.autocommit = True
+        docVersion = act.runtimeService.getVariable(processInstanceId,'documentVersion')
+        docId = act.runtimeService.getVariable(processInstanceId,'docId')
+        #createProcessInstanceQuery().processInstanceId(processInstanceId).includeProcessVariables().singleResult()    
         try:
-#             cur.executemany("""update "testTable"
-#                                     set "orderVersion"=?
-#                                         where "ordersId"=?""", [(docVersion,docId)])
-            cur.executemany("""update [dbo].[orders]
-                                    set orderVersion=?
-                                        where ordersId=?""", [(docVersion,docId)])
-            print 'qwe'
-        except:     
-            print 'asd'
-    finally:
-        cur.close()
+            cur = pyConn.cursor()
+            try:
+                cur.executemany("""update "testTable"
+                                        set "orderVersion"=?
+                                            where "ordersId"=?""", [(docVersion,docId)])
+#                 cur.executemany("""update [dbo].[orders]
+#                                         set orderVersion=?
+#                                             where ordersId=?""", [(docVersion,docId)])
+                print 'qwe'
+            except:     
+                print 'asd'
+        finally:
+            cur.close()
     
