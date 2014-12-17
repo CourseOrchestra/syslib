@@ -1,7 +1,7 @@
 # coding: utf-8
 import os
 import sys
-import re
+import re as regexp
 import uuid
 from org.xml.sax.helpers import XMLReaderFactory
 from org.xml.sax.ext import DefaultHandler2
@@ -14,8 +14,8 @@ from ru.curs.celesta import CelestaException
 
 class SettingsManager():
     u'''Класс получения настроек свойств для всех гранул'''
-    def __init__ (self, context):
-        self.context = context
+    def __init__ (self, context=None):
+        self.grainName = context.grain.name if context is not None else None
     def _getSettingsFilePath(self, isNew=''):
         u'''Функция получения пути с файлом настроек'''
         settingsPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'grainsSettings%s.xml' % isNew)
@@ -25,7 +25,7 @@ class SettingsManager():
         u'''функция создания ридера для чтения файла настроек, с учетом указанного пути'''
         pathList = list()
         name = r"[a-zA-Z_][a-zA-Z_0-9]+"
-        elementPatern = re.compile(r"""(%s)(?:\[(?:@(%s)(?:'([^']+)'|\"([^\"]+)\")|([0-9]+))\])?(?:/@(%s))?""" % (name, name, name), re.UNICODE)
+        elementPatern = regexp.compile(r"""(%s)(?:\[(?:@(%s)=(?:'([^']+)'|\"([^\"]+)\")|([0-9]+))\])?(?:/@(%s))?""" % (name, name, name), regexp.UNICODE)
         lastEnd = -1
         for a in elementPatern.finditer(unicode(path)):
             if lastEnd + 1 != a.start(0) or (lastEnd > 0 and path[lastEnd]not in ('/', '\\')) :
@@ -54,7 +54,7 @@ class SettingsManager():
         return self._getSettings('grainSettings/generalSettings/%s' % path)
 
     def getGrainSettings(self, path, grain=None):
-        grainLocal = self.context.grain.name if grain is None else grain
+        grainLocal = grain or self.grainName
         u'''функция получения настроек гранулы по указанному пути'''
         return self._getSettings('grainSettings/grains/grain[@name="%s"]/%s' % (grainLocal, path))
 
@@ -79,7 +79,7 @@ class SettingsManager():
         return self._setSettings('grainSettings/generalSettings/%s' % path, value)
 
     def setGrainSettings(self, path, value, grain=None):
-        grainLocal = self.context.grain.name if grain is None else grain
+        grainLocal = grain or self.grainName
         return self._setSettings('grainSettings/grains/[@name="%s"]/%s' % (grainLocal, path), value)
 
 class NodeProperties():
