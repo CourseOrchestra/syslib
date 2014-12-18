@@ -15,7 +15,7 @@ def standardNavigator(context, session=None):
     allNavigator = False
     userdataNavigator = []
     try:
-        userdataNavigator = settingsObject.getGrainSettings('common', 'navigator/userdata[@name="%s"]/group' % sessionDict["sessioncontext"]["userdata"])
+        userdataNavigator = settingsObject.getGrainSettings('navigator/userdata[@name="%s"]/group' % sessionDict["sessioncontext"]["userdata"])
     except:
         allNavigator = True
     localNavigators = navigatorsParts.copy()
