@@ -14,7 +14,7 @@ import simplejson as json
 import os
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from workflow.processUtils import ActivitiObject, parse_json, functionImport, setVariablesInLink
+from workflow.processUtils import ActivitiObject, parse_json, functionImport, setVariablesInLink, getGroupUsers
 from workflow._workflow_orm import formCursor
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
@@ -96,7 +96,12 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
             if link.userId == sid and link.type == 'assignee':
                 taskDict[_header["userAss"][1]] = function(context, link.userId)
             else:
-                reassignFlag = True
+                if link.userId is None:
+                    userList = getGroupUsers(context,link.groupId)
+                    if userList != []:
+                        reassignFlag = True
+                else:
+                    reassignFlag = True
         taskDict[_header["id"][1]] = task.id
         processInstanceId = task.getProcessInstanceId()
 #         получаем процесс, чтобы потом получить его имя
