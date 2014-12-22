@@ -111,9 +111,9 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
     linesOfNumbersSeries.isFixedLength = content["@isFixedLength"]=="true"
     if add == 'add' and linesOfNumbersSeries.canInsert() and linesOfNumbersSeries.canModify():
         if content["@lastUsedNumber"]=='':
-            linesOfNumbersSeries.lastUsedNumber = content["@startingNumber"]
+            linesOfNumbersSeries.lastUsedNumber = int(content["@startingNumber"])
         else:
-            linesOfNumbersSeries.lastUsedNumber = content["@lastUsedNumber"]
+            linesOfNumbersSeries.lastUsedNumber = int(content["@lastUsedNumber"])
         if not linesOfNumbersSeries.tryInsert():
             linesOfNumbersSeriesOld = linesOfNumbersSeriesCursor(context)
             linesOfNumbersSeriesOld.get(content["@seriesId"], int(content["@numberOfLine"]))
@@ -121,9 +121,9 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
             linesOfNumbersSeries.update()
     elif add == 'add' and linesOfNumbersSeries.canInsert():
         if content["@lastUsedNumber"]=='':
-            linesOfNumbersSeries.lastUsedNumber = content["@startingNumber"]
+            linesOfNumbersSeries.lastUsedNumber = int(content["@startingNumber"])
         else:
-            linesOfNumbersSeries.lastUsedNumber = content["@lastUsedNumber"]
+            linesOfNumbersSeries.lastUsedNumber = int(content["@lastUsedNumber"])
         linesOfNumbersSeries.insert()
     elif add == 'edit' and linesOfNumbersSeries.canModify():
         linesOfNumbersSeriesOld = linesOfNumbersSeriesCursor(context)
