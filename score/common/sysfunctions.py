@@ -22,21 +22,24 @@ def tableCursorImport(grainName, tableName):
     u'''Функция, импортирующая  класс курсора на таблицу'''
 
     # Bмпорт гранулы
-    _grain_orm = __import__("%s._%s_orm" % (grainName, grainName), globals(), locals(), "%sCursor" % tableName, -1)
+    _grain_orm = __import__("%s._%s_orm" % (grainName, grainName),
+                            globals(), locals(), "%sCursor" % tableName, -1)
 
     return getattr(_grain_orm, "%sCursor" % tableName)
 
-def getGridWidth(session, delta = 51):
+def getGridWidth(session, delta=51):
     u"""Функция получает ширину грида, в зависимости от ширины датапанели."""
     if not isinstance(session, dict):
-        return unicode(int(json.loads(session)["sessioncontext"]["currentDatapanelWidth"])-delta) + "px"
+        return unicode(int(json.loads(session)["sessioncontext"]["currentDatapanelWidth"]) - delta) + "px"
     else:
-        return unicode(int(session["sessioncontext"]["currentDatapanelWidth"])-delta) + "px"
+        return unicode(int(session["sessioncontext"]["currentDatapanelWidth"]) - delta) + "px"
 
-def getGridHeight(session, numberOfGrids = 1, gridHeaderHeight = 55, delta = 59):
+def getGridHeight(session, numberOfGrids=1, gridHeaderHeight=55, delta=59):
     u"""Функция получает высоту грида, в зависимости от высоты датапанели."""
-    #raise Exception(session)
+    # raise Exception(session)
     if not isinstance(session, dict):
-        return unicode(((int(json.loads(session)["sessioncontext"]["currentDatapanelHeight"])-gridHeaderHeight)/numberOfGrids)-delta)
+        return unicode(int((int(json.loads(session)["sessioncontext"]["currentDatapanelHeight"])\
+                         - gridHeaderHeight) / numberOfGrids) - delta)
     else:
-        return unicode(((int(session["sessioncontext"]["currentDatapanelHeight"])-gridHeaderHeight)/numberOfGrids)-delta)
+        return unicode(int((int(session["sessioncontext"]["currentDatapanelHeight"])\
+                         - gridHeaderHeight) / numberOfGrids) - delta)
