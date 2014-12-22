@@ -137,6 +137,8 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
         linesOfNumbersSeriesOld.get(currentId["numbersSeriesGrid"], int(currentId["linesNumbersSeriesGrid"]))
         if content["@lastUsedNumber"]=='':
             linesOfNumbersSeries.lastUsedNumber = linesOfNumbersSeriesOld.lastUsedNumber
+        else:
+            linesOfNumbersSeries.lastUsedNumber = int(content["@lastUsedNumber"])
         if linesOfNumbersSeriesOld.numberOfLine==linesOfNumbersSeries.numberOfLine:
             #linesOfNumbersSeriesOld.seriesId==linesOfNumbersSeries.seriesId and \
             linesOfNumbersSeries.recversion = linesOfNumbersSeriesOld.recversion
