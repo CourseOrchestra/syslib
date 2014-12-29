@@ -287,10 +287,10 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
-                                "properties": {"@pagesize":"45",
+                                "properties": {"@pagesize":"50",
                                                "@gridWidth": gridWidth,
                                                "@gridHeight": gridHeight,
-                                               "@totalCount": 1000,
+                                               "@totalCount": len(taskDict),
                                                "@profile":"default.properties"}
                                 }
     # Добавляем поля для отображения в gridsettings
