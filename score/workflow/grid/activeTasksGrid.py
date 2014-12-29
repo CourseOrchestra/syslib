@@ -52,7 +52,7 @@ def getData(context, main=None, add=None, filterinfo=None,
         groupTasksList = activiti.taskService.createTaskQuery().taskCandidateGroupIn(groupsList)\
             .taskNameLike(taskName).processDefinitionNameLike(processName).list()
         if len(groupTasksList) >= 50:
-            groupTasksList = groupTasksList.subList(firstrecord, firstrecord + 50)
+            groupTasksList = groupTasksList
     else:
         groupTasksList = []
 #     задачи, у которых кандидат или исполнитель - юзер
@@ -60,7 +60,7 @@ def getData(context, main=None, add=None, filterinfo=None,
             .taskNameLike(taskName).processDefinitionNameLike(processName).list()
 
     if len(userTasksList) >= 50:
-        userTasksList = userTasksList.subList(firstrecord, firstrecord + 50)
+        userTasksList = userTasksList
     taskDict = {}
 #     чтобы не дублировались задачи
     for task in userTasksList:
@@ -252,11 +252,13 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
     groupsList = getUserGroups(context, sid)
 #     задачи, у которых кандидат - группа, в которую входит текущий пользователь
     if groupsList != []:
-        groupTasksList = activiti.taskService.createTaskQuery().taskCandidateGroupIn(groupsList).taskNameLike(taskName).processDefinitionNameLike(processName).list()
+        groupTasksList = activiti.taskService.createTaskQuery()\
+                .taskCandidateGroupIn(groupsList).taskNameLike(taskName).processDefinitionNameLike(processName).list()
     else:
         groupTasksList = []
 #     задачи, у которых кандидат или исполнитель - юзер
-    userTasksList = activiti.taskService.createTaskQuery().taskCandidateOrAssigned(sid).taskNameLike(taskName).processDefinitionNameLike(processName).list()
+    userTasksList = activiti.taskService.createTaskQuery().taskCandidateOrAssigned(sid)\
+                .taskNameLike(taskName).processDefinitionNameLike(processName).list()
     taskDict = {}
 #     чтобы не дублировались задачи
     for task in userTasksList:
@@ -285,10 +287,10 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
-                                "properties": {"@pagesize":"50",
+                                "properties": {"@pagesize":"45",
                                                "@gridWidth": gridWidth,
                                                "@gridHeight": gridHeight,
-                                               "@totalCount": len(taskDict),
+                                               "@totalCount": 1000,
                                                "@profile":"default.properties"}
                                 }
     # Добавляем поля для отображения в gridsettings
@@ -311,7 +313,8 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["userAss"][0],
                                                        "@width": "100px"})
 
-    return JythonDTO(None, XMLJSONConverter.jsonToXml(json.dumps(settings)))
+    jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(settings))
+    return JythonDTO(None, jsonSettings)
 
 def assign(context, main, add=None, filterinfo=None, session=None, elementId=None):
     sid = json.loads(session)['sessioncontext']["sid"]
