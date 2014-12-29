@@ -73,7 +73,7 @@ def allActiveTasks(context, main=None, session=None):
                                             },
                                            {"@id":"tasksGrid",
                                             "@type":"grid",
-                                            "@proc":"workflow.grid.allActiveTasksGrid.gridDataAndMeta.celesta",
+                                            "@proc":"workflow.grid.allActiveTasksGrid.getData.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
                                             "@refreshByTimer":"true",
@@ -82,7 +82,10 @@ def allActiveTasks(context, main=None, session=None):
                                             "proc":[{
                                                     "@id":1,
                                                     "@name":"workflow.grid.allActiveTasksGrid.gridToolBar.celesta",
-                                                    "@type":"TOOLBAR"}]
+                                                    "@type":"TOOLBAR"},
+                                                    {"@id": "tasksSettings",
+                                                     "@name": "workflow.grid.allActiveTasksGrid.getSettings.celesta",
+                                                     "@type": "METADATA"}]
                                             },
                                            {"@id":"tasksImage",
                                             "@type":"webtext",

@@ -21,12 +21,11 @@ except:
     from ru.curs.celesta.showcase import JythonDTO, JythonDownloadResult
 from ru.curs.celesta.syscursors import UserRolesCursor, RolesCursor
 
-def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
-             session=None, elementId=None, sortColumnList=[]):
+def getData(context, main=None, add=None, filterinfo=None,
+             session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
     u'''Функция получения списка всех развернутых процессов. '''
     session = json.loads(session)
-    gridWidth = getGridWidth(session, 60)
-    gridHeight = getGridHeight(session, 1, 55, 75)
+
     session = session["sessioncontext"]
     sid = session["sid"]
     activiti = ActivitiObject()
@@ -55,7 +54,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                             .taskCreatedAfter(dateFrom)\
                             .taskCreatedBefore(dateTo)\
                             .orderByTaskCreateTime().desc().list()
-
+    if len(groupTaskList) > 50:
+        groupTaskList = groupTaskList.subList(firstrecord, firstrecord + 50)
     data = {"records":{"rec":[]}}
     _header = {"id":["~~id"],
 #                "schema":[u"Схема"],
@@ -148,14 +148,54 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
         if processName in taskDict[_header["process"][1]] and assignee in taskDict[_header["assignee"][1]]:
             data["records"]["rec"].append(taskDict)
+    res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
+
+    return JythonDTO(res1, None)
 
     # Определяем список полей таблицы для отображения
+
+def getSettings(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
+    gridWidth = getGridWidth(session, 60)
+    gridHeight = getGridHeight(session, 1, 55, 75)
+    session = json.loads(session)["sessioncontext"]
+    activiti = ActivitiObject()
+    inputFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+    dateFrom = '0001-01-01 00:00:00'
+    dateTo = '9999-12-31 23:59:59'
+    if "formData" in session["related"]["xformsContext"]:
+        info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
+        taskName = "%%%s%%" % ' '.join(info["@task"].split())
+        if info["@dateFrom"]:
+            dateFrom = info["@dateFrom"].replace('T', ' ')
+        if info["@dateTo"]:
+            dateTo = info["@dateTo"].replace('T', ' ')
+    else:
+        taskName = '%'
+
+    dateFrom = SimpleDateFormat.parse(inputFormat, dateFrom)
+    dateTo = SimpleDateFormat.parse(inputFormat, dateTo)
+
+    groupTaskList = activiti.taskService.createTaskQuery()\
+                            .taskNameLike(taskName)\
+                            .taskCreatedAfter(dateFrom)\
+                            .taskCreatedBefore(dateTo)\
+                            .orderByTaskCreateTime().desc().list()
+    _header = {"id":["~~id"],
+#                "schema":[u"Схема"],
+               "name":[u"Название задачи"],
+               "process": [u"Название процесса"],
+               "assignee": [u"Исполнитель"],
+               "reassign": [u"Передать задачу"],
+               "date": [u"Дата"],
+               "description":[u"Описание процесса"],
+               "document": [u"Выполнить"],
+               "properties":[u"properties"]}
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
                                                "@gridWidth": gridWidth,
                                                "@gridHeight": gridHeight,
-                                               "@totalCount": len(data["records"]["rec"]),
+                                               "@totalCount": len(groupTaskList),
                                                "@profile":"default.properties"}
                                 }
     # Добавляем поля для отображения в gridsettings
@@ -174,10 +214,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                        "@width": "200px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["date"][0],
                                                        "@width": "200px"})
-    res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
+
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
 
-    return JythonDTO(res1, res2)
+    return JythonDTO(None, res2)
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Toolbar для грида. '''
