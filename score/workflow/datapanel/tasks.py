@@ -23,7 +23,7 @@ def activeTasks(context, main=None, session=None):
                                             "@proc":"workflow.grid.activeTasksGrid.getData.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
-                                            "@refreshByTimer":"true",
+                                            "@refreshByTimer":"false",
                                             "@refreshInterval":"20",
                                             "proc": {"@id": "tasksSettings",
                                                      "@name": "workflow.grid.activeTasksGrid.getSettings.celesta",
@@ -76,7 +76,7 @@ def allActiveTasks(context, main=None, session=None):
                                             "@proc":"workflow.grid.allActiveTasksGrid.getData.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
-                                            "@refreshByTimer":"true",
+                                            "@refreshByTimer":"false",
                                             "@refreshInterval":"20",
                                             "related":{"@id":"tasksFilter"},
                                             "proc":[{
