@@ -19,19 +19,19 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO, JythonDownloadResult
 
-
-
-
-def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
-             session=None, elementId=None, sortColumnList=[]):
+def getData(context, main=None, add=None, filterinfo=None,
+             session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
     u'''Функция получения списка всех запущенных процессов. '''
 
     activiti = ActivitiObject()
-    processesList = activiti.runtimeService.createProcessInstanceQuery().orderByProcessInstanceId().active().asc().list()
+    processesList = activiti.runtimeService.createProcessInstanceQuery()\
+            .orderByProcessInstanceId().active().asc().list()
+    if len(processesList) > 50:
+        processesList = processesList.subList(firstrecord, firstrecord + 50)
     # Извлечение фильтра из related-контекста
     session = json.loads(session)
     gridWidth = getGridWidth(session, 60)
-    gridHeight = getGridHeight(session,2,55,80)
+    gridHeight = getGridHeight(session, 2, 55, 80)
     session = session['sessioncontext']
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
@@ -130,8 +130,30 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                ]
                                               }
         data["records"]["rec"].append(procDict)
+    res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
 
+    return JythonDTO(res1, None)
+
+def getSettings(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     # Определяем список полей таблицы для отображения
+    gridWidth = getGridWidth(session, 60)
+    gridHeight = getGridHeight(session, 2, 55, 80)
+
+    activiti = ActivitiObject()
+    processesList = activiti.runtimeService.createProcessInstanceQuery()\
+            .orderByProcessInstanceId().active().asc().list()
+
+
+    _header = {"id":["~~id"],
+             "pid":[u"Код процесса"],
+             "name":[u"Название процесса"],
+             "description":[u"Описание"],
+             "schema":[u"Схема"],
+             "stop":[u'Остановка'],
+             "activeTasks":[u'Активные задачи'],
+             "version":[u"Версия"],
+             "properties":[u"properties"],
+             "comment":[u"Комментарий"]}
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
@@ -149,10 +171,10 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "300px"})
     # settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
     # settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "400px"})
-    res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
+
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
 
-    return JythonDTO(res1, res2)
+    return JythonDTO(None, res2)
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Toolbar для грида. '''

@@ -16,12 +16,10 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO, JythonDownloadResult
 
-def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
-             session=None, elementId=None, sortColumnList=[]):
+def getData(context, main=None, add=None, filterinfo=None,
+             session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
     u'''Функция получения списка всех развернутых процессов. '''
     session = json.loads(session)
-    gridWidth = getGridWidth(session, 60)
-    gridHeight = getGridHeight(session, 1)
     session = session["sessioncontext"]
     inputFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
 #     данные по умолчанию, просто, чтобы фильтр ниже не менять
@@ -53,6 +51,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                 .taskCompletedAfter(endTimeFrom)\
                                 .taskCompletedBefore(endTimeTo)\
                                 .orderByHistoricTaskInstanceEndTime().desc().list()
+    if len(tasksList) > 50:
+        tasksList = tasksList.subList(firstrecord, firstrecord + 50)
 
     data = {"records":{"rec":[]}}
     _header = {"id":["~~id"],
@@ -111,8 +111,49 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
         if processName == '' or processName in procDict[_header["process"][1]]:
             data["records"]["rec"].append(procDict)
+    res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
 
+    return JythonDTO(res1, None)
+
+def getSettings(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     # Определяем список полей таблицы для отображения
+    session = json.loads(session)
+    gridWidth = getGridWidth(session, 60)
+    gridHeight = getGridHeight(session, 1)
+    inputFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+#     данные по умолчанию, просто, чтобы фильтр ниже не менять
+    dateFrom = '0001-01-01 00:00:00'
+    dateTo = '9999-12-31 23:59:59'
+    if "formData" in session["related"]["xformsContext"]:
+        info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
+        taskName = "%%%s%%" % ' '.join(info["@task"].split())
+        if info["@dateFrom"]:
+            dateFrom = info["@dateFrom"].replace('T', ' ')
+        if info["@dateTo"]:
+            dateTo = info["@dateTo"].replace('T', ' ')
+    else:
+        taskName = '%'
+    _header = {"id":["~~id"],
+               "name":[u"Название задачи"],
+               "process": [u"Название процесса"],
+               "description":[u"Описание процесса"],
+               "endTime": [u"Дата завершения"],
+               "comment": [u'Комментарий'],
+               "properties":[u"properties"]}
+#     парсим дату в формат, который понимает активити
+    endTimeFrom = SimpleDateFormat.parse(inputFormat, dateFrom)
+    endTimeTo = SimpleDateFormat.parse(inputFormat, dateTo)
+
+    sid = session["sid"]
+    activiti = ActivitiObject()
+    historyService = activiti.historyService
+
+    tasksList = historyService.createHistoricTaskInstanceQuery()\
+                                .taskAssignee(sid).finished()\
+                                .taskNameLike(taskName)\
+                                .taskCompletedAfter(endTimeFrom)\
+                                .taskCompletedBefore(endTimeTo)\
+                                .orderByHistoricTaskInstanceEndTime().desc().list()
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
@@ -133,7 +174,6 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 #     settings["gridsettings"]["columns"]["col"].append({"@id":_header["type"][0], "@width": "100px"})
 #     settings["gridsettings"]["columns"]["col"].append({"@id":_header["shift"][0], "@width": "150px"})
 
-    res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
 
-    return JythonDTO(res1, res2)
+    return JythonDTO(None, res2)
