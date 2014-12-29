@@ -127,13 +127,16 @@ def manageProcesses(context, main=None, session=None):
                                             },
                                            {"@id":"launchedProcessesGrid",
                                             "@type":"grid",
-                                            "@proc":"workflow.grid.launchedProcessesGrid.gridDataAndMeta.celesta",
+                                            "@proc":"workflow.grid.launchedProcessesGrid.getData.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
                                             "proc":[{
                                                     "@id":1,
                                                     "@name":"workflow.grid.launchedProcessesGrid.gridToolBar.celesta",
-                                                    "@type":"TOOLBAR"}
+                                                    "@type":"TOOLBAR"},
+                                                    {"@id": "processSettings",
+                                                     "@name": "workflow.grid.launchedProcessesGrid.getSettings.celesta",
+                                                     "@type": "METADATA"},
                                                     ],
                                             "related":{"@id":"launchedProcessFilter"}
                                             },
