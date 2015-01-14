@@ -15,7 +15,17 @@
 				</userdata> 				
 			</navigator>
 		</grain>
-		<grain name="security">			
+		<grain name="security">
+			<securitySettings>
+				<parameter name="employeesGrain" value=""/>
+				<parameter name="employeesTable" value=""/>
+				<parameter name="employeesId" value=""/>
+				<parameter name="employeesName" value=""/>
+				<parameter name="admin" value="admin"/>
+				<parameter name="isSystemInitialised" value="false"/>
+				<parameter name="useAuthServer" value="false"/>
+				<parameter name="loginEqualSubject" value="true"/>
+			</securitySettings>			
 		</grain>
 		<!--Настройки гранулы workflow-->
 		<grain name="workflow">
