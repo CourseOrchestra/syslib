@@ -19,7 +19,7 @@ from xml.dom import minidom
 from common.xmlutils import XMLJSONConverter
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders
 
-def selector(context, main=None, add=None,  filterinfo=None, session=None, params=None, atr1=None, atr2=None, atr3=None, atr4=None):
+def selector(context, main=None, add=None,  filterinfo=None, session=None, params=None, curvalue=None, startswith=None, firstrecord=None, recordcount=None):
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
    
@@ -32,16 +32,22 @@ def selector(context, main=None, add=None,  filterinfo=None, session=None, param
     table_meta = context.getCelesta().getScore().getGrain(grain_name).getTable(table_name)
     column_jsn = json.loads(currentTable.meta().getColumn(dbFieldName).getCelestaDoc())
     refTableName = column_jsn["refTable"]
+    refTableColumn = column_jsn["refTableColumn"]
     relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
     records = dict()
     recordList = ArrayList()
+    recordcount=relatedTable.count() if (relatedTable.count()>0) else 0
+    firstrecord=0
+    relatedTable.limit(firstrecord, recordcount)
+    relatedTable.setFilter(refTableColumn, """@%s'%s'%%""" % ("%"*(not startswith), curvalue.replace("'","''")))
+    relatedTable.orderBy(refTableColumn)
     for rec in relatedTable.iterate():
         keys = relatedTable.meta().getPrimaryKey()
         for item in keys:
             key = item
             
         refTableColumnId = getattr(rec, key)
-        refTableColumnValue = getattr(rec, column_jsn["refTableColumn"])
+        refTableColumnValue = getattr(rec, refTableColumn)
         print refTableColumnId, refTableColumnValue
         records[rec] = DataRecord()
         if str(refTableColumnId):
@@ -56,7 +62,7 @@ def selector(context, main=None, add=None,  filterinfo=None, session=None, param
     count=relatedTable.count()
     return ResultSelectorData(records, count)
 
-def multiSelector(context, main=None, add=None,  filterinfo=None, session=None, params=None, atr1=None, atr2=None, atr3=None, atr4=None):
+def multiSelector(context, main=None, add=None,  filterinfo=None, session=None, params=None, curvalue=None, startswith=None, firstrecord=None, recordcount=None):
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
     dom = minidom.parseString(params)
@@ -74,9 +80,14 @@ def multiSelector(context, main=None, add=None,  filterinfo=None, session=None, 
     refTableColumn = column_jsn["refTableColumn"]
     relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
     
-    
-    
     relatedTablePKs = relatedTable.meta().getPrimaryKey()
+    
+    recordcount=relatedTable.count() if (relatedTable.count()>0) else 0
+    firstrecord=0
+    relatedTable.limit(firstrecord, recordcount)
+    relatedTable.setFilter(refTableColumn, """@%s'%s'%%""" % ("%"*(not startswith), curvalue.replace("'","''")))
+    relatedTable.orderBy(refTableColumn)
+    
     for rec in relatedTable.iterate():
         relatedTablePKValues = []
         for pkValue in relatedTablePKs:

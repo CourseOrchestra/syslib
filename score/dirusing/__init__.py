@@ -6,18 +6,10 @@ Created on 01.03.2014
 @author: Kuzmin
 '''
 
-import os
 import simplejson as json
-import ru.curs.celesta.Celesta as Celesta
-import ru.curs.celesta.ConnectionPool as ConnectionPool
-import ru.curs.celesta.CallContext as CallContext
 
-from common.dbutils import DataBaseXMLExchange
-from java.io import FileOutputStream, FileInputStream
-
-from common.xmlutils import XMLJSONConverter
 from common import navigator
-from dirusing.multilevelnav import getFoldersList,getDirJson,fillLevel,fillDir
+from dirusing.multilevelnav import fillLevel,fillDir
 from dirusing.showgrains import showGrains
 from dirusing.commonfunctions import relatedTableCursorImport
 
@@ -26,7 +18,7 @@ from dirusing.commonfunctions import relatedTableCursorImport
 
 def navDirU(context, session):
     u'''Функция построения навигатора dirusing '''
-
+    
     jsonnav = {"group":{"@id":'test2', "@name":'Гранулы и справочники', "level1":[]}}
     # Вытаскиваем гранулы
     score = context.getCelesta().getScore()
@@ -66,14 +58,15 @@ def navDirU(context, session):
                     grainJsn = json.loads(grainMeta.getCelestaDoc())
                     # проходим по элементам и заполняем уровни
                     z=[]
-                    fillLevel(jsonnav["group"]["level1"][x],2,"",grainJsn,tableList,grain,z)               
+                    fillLevel(context,jsonnav["group"]["level1"][x],2,"",grainJsn,tableList,grain,z)               
                 except TypeError:
                     continue
                 # Проверка и заполнение справочников вне папок
                 if coreTables:
                     for coreTable in coreTables:
-                        fillDir(jsonnav["group"]["level1"][x],2,coreTable[0],grain,coreTable[1])
+                        fillDir(context,jsonnav["group"]["level1"][x],2,coreTable[0],grain,coreTable[1])
         except json.scanner.JSONDecodeError:
+            
             jsonnav = {"group":None}
             pass
     return jsonnav

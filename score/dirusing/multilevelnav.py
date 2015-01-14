@@ -4,6 +4,7 @@ Created on 01.03.2014
 
 @author: Kuzmin
 '''
+import simplejson as json
 
 def getFoldersList(grainJsn,folderLevel):
     u'''Функция для получения сортированного списка папок для отрисовки определенного уровня навигатора'''
@@ -19,28 +20,37 @@ def getFoldersList(grainJsn,folderLevel):
                     folderList.append(folder)
     return folderList
 
-def getDirJson(grain,dirId,dirName):
+def getDirJson(context,grain,dirId,dirName):
     u'''Функция заполнения части навигатора'''
     main = u'{"grain":"%s","table":"%s"}' % (grain,dirId)
-    dirAction = {"main_context": main,
+    table_jsn = json.loads(context.getCelesta().getScore().getGrain(grain).getTable(dirId).getCelestaDoc())
+    isHierarchical=table_jsn['isHierarchical']
+    if isHierarchical=='true':
+        dirAction = {"main_context": main,
                  "datapanel":
-                    {"@type": "dirusingDatapanel.xml", "@tab": "firstOrCurrent"}
+                    {"@type": "dirusing.datapanel.dirusing.datapanelHierarchical.celesta", "@tab": "firstOrCurrent"}
                 }
-    dirJson = {"@id": dirId, "@name": dirName, "action": dirAction}
+        dirJson = {"@id": dirId, "@name": dirName, "action": dirAction}
+    else:
+        dirAction = {"main_context": main,
+                 "datapanel":
+                    {"@type": "dirusing.datapanel.dirusing.datapanel.celesta", "@tab": "firstOrCurrent"}
+                }
+        dirJson = {"@id": dirId, "@name": dirName, "action": dirAction}
     return dirJson
 
-def fillDir(levelJson,levelNumber,dirId,grain,dirName):
+def fillDir(context,levelJson,levelNumber,dirId,grain,dirName):
     u'''Функция добавления справочника в определенную папку ''' 
     level = "level%s"%levelNumber
     if dirId:
         try:
-            dirJson = getDirJson(grain,dirId,dirName)
+            dirJson = getDirJson(context,grain,dirId,dirName)
             levelJson[level].append(dirJson)
         except KeyError:
             levelJson[level]=[]
             levelJson[level].append(dirJson) 
 
-def fillLevel(levelJson,levelNumber,parentLevel,grainJsn,tableList,grain,z):
+def fillLevel(context,levelJson,levelNumber,parentLevel,grainJsn,tableList,grain,z):
     u'''Функция заполнения одного уровня навигатора '''
     level = "level%s"%levelNumber
     foldersList = getFoldersList(grainJsn,parentLevel)
@@ -64,8 +74,8 @@ def fillLevel(levelJson,levelNumber,parentLevel,grainJsn,tableList,grain,z):
                         if len(folderId)>2:
                             if folderId[:-2] in z:
                                 x=z.count(folderId[:-2])
-                        fillDir(levelJson[level][i+x],levelNumber+1,sprav[0],grain,sprav[2])
+                        fillDir(context,levelJson[level][i+x],levelNumber+1,sprav[0],grain,sprav[2])
                         z.append(folderId)
-            fillLevel(levelJson[level][i],levelNumber+1,folderId,grainJsn,tableList,grain,z)
+            fillLevel(context,levelJson[level][i],levelNumber+1,folderId,grainJsn,tableList,grain,z)
 
 

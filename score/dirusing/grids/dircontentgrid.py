@@ -16,6 +16,155 @@ except:
 
 from common.xmlutils import XMLJSONConverter
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList, htmlDecode
+from common.hierarchy import generateSortValue, hasChildren, isExtr
+
+def getTree(context, main=None, add=None, filterinfo=None, session=None, elementId=None, sortColumnList=None, parentId=None):
+    u'''Функция получения данных для tree-грида. '''
+    # получение id grain и table
+    grain_name = json.loads(main)['grain']
+    table_name = json.loads(main)['table']
+    # Получение курсора на таблицу
+    currentTable = relatedTableCursorImport(grain_name, table_name)(context)
+    
+    # Получение метаданных таблицы
+    table_meta = context.getCelesta().getScore().getGrain(grain_name).getTable(table_name)
+    # Заголовки полей
+    _headers = getFieldsHeaders(table_meta,"grid")
+    for column in table_meta.getColumns():
+            #получаем названиe колонкu с кодом дьюи
+        if json.loads(table_meta.getColumn(column).getCelestaDoc())['name'] in (u'deweyCode',u'deweyCod',u'deweyKod'):
+            deweyColumn=column
+        if json.loads(table_meta.getColumn(column).getCelestaDoc())['name'] == u'sortNumber':
+            sortColumn=column
+                #генерируем номера сортировки и пишем в базу
+    for i in currentTable.iterate():
+        i.__setattr__(sortColumn, generateSortValue(getattr(i,deweyColumn)))
+        i.update()
+    context.commit()
+    textcolumns=[]
+    
+    #простановка фильтра на текстовые поля таблицы
+    filter=[]
+    if filterinfo is not None and filterinfo!='':
+        for col in json.loads(filterinfo)['schema']['columns']:
+            filter.append(col['column']['filter'])
+            textcolumns.append(col['column']['@id'])
+        if len(filter)!=0 and filter is not None:
+            for i,filtertext in enumerate(filter):
+                filtercol = "%'"+filtertext+"'%"
+                currentTable.setFilter(textcolumns[i], filtercol)
+    totalcount = currentTable.count()
+    if totalcount!=0:
+        # Определяем переменную для JSON данных
+        data = {"records":{"rec":[]}}
+        # Событие по клику на запись грида
+
+
+        event = {"event":
+                [{"@name":"row_single_click",
+                 "action":
+                    {"main_context":"current",
+                     "datapanel":
+                        {'@type':'current',
+                         '@tab':'current',
+                         "element":{"@id":"12",
+                                     "add_context":"row_clicked"}
+                         }
+                    }
+                 },
+                 {"@name":"row_double_click",
+                 "action":
+                    {"@show_in":"MODAL_WINDOW",
+                     "main_context":"current",
+                     "datapanel":
+                        {'@type':'current',
+                         '@tab':'current',
+                         "element":{"@id":"15",
+                                     "add_context":"edit"}
+                                     }
+                     }
+                  }
+                    ]
+                 }
+        currentTable.orderBy('%s asc' % sortColumn)
+        if sortColumnList:
+            for column in sortColumnList:
+                sortindex = '%s' % column.getSorting()        
+                for field in _headers:
+                    if _headers[field][0] == column.getId():
+                        if field in (u'deweyCode',u'deweyCod',u'deweyKod'):
+                            field=u'sortNumber'
+                        currentTable.orderBy(field +' '+sortindex)
+        if parentId is None:   
+            # Обработка иерархического справочника
+            for rec in currentTable.iterate():
+                rec_dict = {}
+                len_dewey = len(getattr(rec,deweyColumn).split('.'))
+                if len_dewey==1:
+                    rec_dict = appendRecord(currentTable,context,table_meta,grain_name,rec,_headers,rec_dict,event)
+                    rec_dict["HasChildren"] = '1' if hasChildren(context,rec,deweyColumn) else '0'
+                    data["records"]["rec"].append(rec_dict)
+        else:
+            selectedRecordId=json.loads(base64.b64decode(str(parentId)))
+            currentTable.get(*selectedRecordId)
+            parent=getattr(currentTable,deweyColumn)
+            len_parent=len(parent.split('.'))
+            for rec in currentTable.iterate():
+                rec_dict = {}
+                len_dewey=len(getattr(rec,deweyColumn).split('.'))
+                if getattr(rec,deweyColumn).startswith(parent):
+                    if len_dewey==len_parent+1:
+                        rec_dict = appendRecord(currentTable,context,table_meta,grain_name,rec,_headers,rec_dict,event)
+                        rec_dict["HasChildren"] = '1' if hasChildren(context,rec,deweyColumn) else '0'
+                        data["records"]["rec"].append(rec_dict)
+    else:
+        data = {"records":""}
+    
+    res = XMLJSONConverter(input=data).parse()
+    
+    try:
+        panelWidth = str(int(json.loads(session)['sessioncontext']['currentDatapanelWidth'])-55)+'px'
+        panelHeight = int(json.loads(session)['sessioncontext']['currentDatapanelHeight'])-115
+    except:
+        panelWidth = '900px'
+        panelHeight = 450
+    
+    # Заголовок таблицы
+    table_name = json.loads(table_meta.getCelestaDoc())["name"]
+    # Определяем список полей таблицы для отображения
+    settings = {}
+    settings["gridsettings"] = {"columns": {"col":[]},
+    "properties": {"@pagesize":"50", "@gridWidth": panelWidth, "@gridHeight": panelHeight, "@totalCount":totalcount, "@profile":"hierarchy.properties"},
+    "labels":{"header":table_name}
+    }
+    # Определяем список порядковых номеров полей для сортировки
+    sort_list = getSortList(table_meta)
+    sorted_list = []
+    # Добавляем поля для отображения в gridsettings
+    def _sortedHeaders(s_number):
+        try:
+            sort_number = sort_list[s_number]
+            for field in _headers:
+                order_grid = _headers[field][2]
+                if order_grid != sort_number or order_grid in sorted_list:
+                    continue
+                else:
+                    if field not in ('~~id') and _headers[field][1] not in (4,6,7,8):
+                        settings["gridsettings"]["columns"]["col"].append({"@id":htmlDecode(_headers[field][0])})
+                    elif field not in ('~~id') and _headers[field][1] in (4,):
+                        settings["gridsettings"]["columns"]["col"].append({"@id":htmlDecode(_headers[field][0]),
+																			"@type": "DOWNLOAD",
+																			"@linkId":"download1"})
+                    s_number += 1
+                    _sortedHeaders(s_number)
+                    break
+        except IndexError:
+            return None
+    s_number = 0            
+    _sortedHeaders(s_number)
+    res_set = XMLJSONConverter(input=settings).parse()
+    
+    return JythonDTO(res, res_set)
 
 def getData(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
@@ -31,9 +180,18 @@ def getData(context, main=None, add=None, filterinfo=None,
     table_meta = context.getCelesta().getScore().getGrain(grain_name).getTable(table_name)
     # Заголовки полей
     _headers = getFieldsHeaders(table_meta,"grid")
+    textcolumns=[]
     
-    #table_jsn = json.loads(table_meta.getCelestaDoc())
-    
+    #простановка фильтра на текстовые поля таблицы
+    filter=[]
+    if filterinfo is not None and filterinfo!='':
+        for col in json.loads(filterinfo)['schema']['columns']:
+            filter.append(col['column']['filter'])
+            textcolumns.append(col['column']['@id'])
+        if len(filter)!=0 and filter is not None:
+            for i,filtertext in enumerate(filter):
+                filtercol = "%'"+filtertext+"'%"
+                currentTable.setFilter(textcolumns[i], filtercol)
     
     totalcount = currentTable.count()
     if totalcount!=0:
@@ -80,73 +238,8 @@ def getData(context, main=None, add=None, filterinfo=None,
         currentTable.limit(firstrecord-1,pagesize)
         for rec in currentTable.iterate():
             rec_dict = {}
-            for field in _headers:
-                if field not in ('~~id',) and _headers[field][1] not in (4,6,7,1):
-                    rec_dict[_headers[field][0]] = getattr(rec, field)
-                # Преобразуем первичный ключ в base64
-                elif field == '~~id' and _headers[field][1] not in (4,6,7,1):
-                    rec_dict[_headers[field][0]] = base64.b64encode(json.dumps([elem for elem in rec._currentKeyValues()]))
-                #Обработка reference value
-                elif field not in ('~~id',) and _headers[field][1] == 1:
-                    refFieldId = getattr(rec, field)
-                    if getattr(rec, field)==True:
-                        rec_dict[_headers[field][0]] = 'Да'
-                    else:
-                        rec_dict[_headers[field][0]] = 'Нет'
-                    
-                elif field not in ('~~id',) and _headers[field][1] == 7:
-                    refFieldId = getattr(rec, field)
-                    if refFieldId!='' and refFieldId is not None:
-                        column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
-                        refTableName = column_jsn["refTable"]
-                        relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
-                        relatedTable.get(refFieldId)
-                        rec_dict[_headers[field][0]] = getattr(relatedTable, column_jsn["refTableColumn"])
-                    
-                #Обработка reference list
-                elif field not in ('~~id',) and _headers[field][1] == 6:
-                    column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
-                    refTableName = column_jsn["refTable"]
-                    mappingTableName = column_jsn["refMappingTable"]
-                    refTableColumn = column_jsn["refTableColumn"]
-                    relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
-                    mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
-                    #Получаем primarykey'и для таблиц
-                    currentTablePKs=[]
-                    relatedTablePKs=[]
-                    currentTablePKObject = currentTable.meta().getPrimaryKey()
-                    for key in currentTablePKObject:
-                        currentTablePKs.extend([key])
-                    relatedTablePKObject = relatedTable.meta().getPrimaryKey()
-                    for key in relatedTablePKObject:
-                        relatedTablePKs.extend([key])
-                    #получаем foreignkey'и для таблицы с меппингом
-                    foreignKeys = mappingTable.meta().getForeignKeys()
-                    for foreignKey in foreignKeys:
-                        #referencedTable = foreignKey.getReferencedTable()
-                        #проверяем к какой таблице относится ключ и получаем список зависимых полей
-                        if foreignKey.getReferencedTable() == currentTable.meta():
-                            aForeignKeyColumns = foreignKey.getColumns()
-                        else:
-                            bForeignKeyColumns = foreignKey.getColumns()
-                    #ставим фильтр на таблицу меппинга по текущему значению primarykey'ев главной таблицы
-                    for foreignKeyColumn,key in zip(aForeignKeyColumns, currentTablePKs):
-                        mappingTable.setRange(foreignKeyColumn,getattr(currentTable, key))
-                    refValue=""
-                    #для каждого значения в отфильтрованной таблице меппинга
-                    for mappingRec in mappingTable.iterate():
-                        currentRecordIds=[]
-                        #набиваем значения primarykey'ев для связанной таблицы, чтобы потом получить значения
-                        for foreignKeyColumn in bForeignKeyColumns:
-                            currentRecordIds.extend([getattr(mappingRec, foreignKeyColumn)])
-                        #находим запись по primarykey'ям и получаем значение теребуемого поля и добавляем к уже найденным
-                        relatedTable.get(*currentRecordIds)
-                        refValue = refValue+getattr(relatedTable, refTableColumn)+"; "
-                    rec_dict[_headers[field][0]] = refValue
-                       
-            # Заносим событие в properties
-            rec_dict['properties'] = event
-
+            rec_dict = appendRecord(currentTable,context,table_meta,grain_name,rec,_headers,rec_dict,event)            
+            
             data["records"]["rec"].append(rec_dict)
     else:
         data = {"records":""}
@@ -154,7 +247,96 @@ def getData(context, main=None, add=None, filterinfo=None,
     res = XMLJSONConverter(input=data).parse()
     print res
     return JythonDTO(res, None)
-   
+#метод для добавления новой строки в таблицу, возвращает dictionary значений
+def appendRecord(currentTable,context,table_meta,grain_name,rec,_headers,rec_dict,event):
+    for field in _headers:
+        if field not in ('~~id',) and _headers[field][1] not in (4,6,7,1):
+            if rec!=None:
+                rec_dict[_headers[field][0]] = getattr(rec, field)
+                # Преобразуем первичный ключ в base64
+            else:
+                rec_dict[_headers[field][0]]=''
+        elif field == '~~id' and _headers[field][1] not in (4,6,7,1):
+            if rec!=None:
+                rec_dict[_headers[field][0]] = base64.b64encode(json.dumps([elem for elem in rec._currentKeyValues()]))
+                #Обработка булевого значения
+            else:
+                rec_dict[_headers[field][0]]=''
+        elif field not in ('~~id',) and _headers[field][1] == 1:
+            if rec!=None:
+                refFieldId = getattr(rec, field)
+                if getattr(rec, field)==True:
+                    rec_dict[_headers[field][0]] = 'Да'
+                else:
+                    rec_dict[_headers[field][0]] = 'Нет'
+            else:
+                rec_dict[_headers[field][0]] = ''
+        #Обработка reference value    
+        elif field not in ('~~id',) and _headers[field][1] == 7:
+            if rec!=None:
+                refFieldId = getattr(rec, field)
+                if refFieldId!='' and refFieldId is not None:
+                    column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
+                    refTableName = column_jsn["refTable"]
+                    relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
+                    relatedTable.get(refFieldId)
+                    rec_dict[_headers[field][0]] = getattr(relatedTable, column_jsn["refTableColumn"])
+                else:
+                    rec_dict[_headers[field][0]]=''
+            else:
+                rec_dict[_headers[field][0]]=''
+                #Обработка reference list
+        elif field not in ('~~id',) and _headers[field][1] == 6:
+            if rec!=None:
+                column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
+                refTableName = column_jsn["refTable"]
+                mappingTableName = column_jsn["refMappingTable"]
+                refTableColumn = column_jsn["refTableColumn"]
+                relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
+                mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
+                #Получаем primarykey'и для таблиц
+                currentTablePKs=[]
+                relatedTablePKs=[]
+                currentTablePKObject = currentTable.meta().getPrimaryKey()
+                for key in currentTablePKObject:
+                    currentTablePKs.extend([key])
+                relatedTablePKObject = relatedTable.meta().getPrimaryKey()
+                for key in relatedTablePKObject:
+                    relatedTablePKs.extend([key])
+                    #получаем foreignkey'и для таблицы с меппингом
+                foreignKeys = mappingTable.meta().getForeignKeys()
+                aForeignKeyColumns=[]
+                bForeignKeyColumns=[]
+                
+                for foreignKey in foreignKeys:
+                    #referencedTable = foreignKey.getReferencedTable()
+                    #проверяем к какой таблице относится ключ и получаем список зависимых полей
+                    if foreignKey.getReferencedTable() == currentTable.meta():
+                        aForeignKeyColumns = foreignKey.getColumns()
+                    else:
+                        bForeignKeyColumns = foreignKey.getColumns()
+                    #ставим фильтр на таблицу меппинга по текущему значению primarykey'ев главной таблицы
+                refValue=""
+                if aForeignKeyColumns!=None and aForeignKeyColumns!='':
+                    for foreignKeyColumn,key in zip(aForeignKeyColumns, currentTablePKs):
+                        mappingTable.setRange(foreignKeyColumn,getattr(currentTable, key))
+                
+                    #для каждого значения в отфильтрованной таблице меппинга
+                if bForeignKeyColumns!=None and bForeignKeyColumns!='':
+                    for mappingRec in mappingTable.iterate():
+                        currentRecordIds=[]
+                            #набиваем значения primarykey'ев для связанной таблицы, чтобы потом получить значения
+                        for foreignKeyColumn in bForeignKeyColumns:
+                            currentRecordIds.extend([getattr(mappingRec, foreignKeyColumn)])
+                        #находим запись по primarykey'ям и получаем значение теребуемого поля и добавляем к уже найденным
+                        if len(currentRecordIds)>0:
+                            if relatedTable.tryGet(*currentRecordIds):
+                                refValue = refValue+getattr(relatedTable, refTableColumn)+"; "
+                rec_dict[_headers[field][0]] = refValue 
+            else:
+                rec_dict[_headers[field][0]]=''
+    rec_dict['properties'] = event
+    return rec_dict  
 
 def getSettings(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Функция получения настроек грида. '''
@@ -180,7 +362,7 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
-    "properties": {"@pagesize":"50", "@gridWidth": panelWidth, "@gridHeight": panelHeight, "@totalCount":totalcount, "@profile":"default.properties"},
+    "properties": {"@pagesize":"50", "@gridWidth": panelWidth, "@gridHeight": panelHeight, "@totalCount":totalcount, "@profile":"sprdata.properties"},
     "labels":{"header":table_name}
     }
     # Определяем список порядковых номеров полей для сортировки
@@ -214,11 +396,37 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Toolbar для грида. '''
     currentTable = relatedTableCursorImport(json.loads(main)['grain'],json.loads(main)['table'])(context)
-    
+    table_meta = currentTable.meta()
+    table_jsn = json.loads(table_meta.getCelestaDoc())
+    #признак иерархичности
+    isHierarchical=table_jsn['isHierarchical']
+    if isHierarchical == 'true':
+        for column in table_meta.getColumns():
+            #получаем названия колонок с кодом дьюи и сортировкой
+            if json.loads(table_meta.getColumn(column).getCelestaDoc())['name'] == u'deweyCode':
+                deweyColumn=column
+            if json.loads(table_meta.getColumn(column).getCelestaDoc())['name'] == u'sortNumber':
+                sortColumn=column
     if 'currentRecordId' not in json.loads(session)['sessioncontext']['related']['gridContext']:
         style_edit, style_del = "true","true"
+        style_up,style_down,style_left,style_right="true","true","true","true"
+        #if isHierarchical == 'true':
+            #style_add="true"
     else:
-        
+        currentRecordId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
+        style_up,style_down,style_left,style_right="false","false","false","false"
+        if isHierarchical == 'true':
+            selectedRecordId=json.loads(base64.b64decode(str(currentRecordId)))
+            currentTable.get(*selectedRecordId)
+            currentNumber=getattr(currentTable,deweyColumn)
+            if isExtr(context, currentTable, deweyColumn,sortColumn,'first'):
+                style_up='true'
+                style_right='true'
+            if isExtr(context, currentTable, deweyColumn,sortColumn,'last'):
+                style_down='true'
+            if len(currentNumber.split('.'))==1:
+                style_left='true'
+
         if currentTable.canModify(): style_edit = "false"
         else: style_edit = "true"
             
@@ -232,12 +440,13 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
     else: style_delall = "true"
     
     
-    data = {"gridtoolbar":{"item":[{"@img": 'gridToolBar/addFolder.png',
+    item_common = [{"@img": 'gridToolBar/addFolder.png',
                                     "@text":"Добавить",
                                    "@hint":"Добавить",
                                    "@disable": style_add,
                                    "action":{"@show_in": "MODAL_WINDOW",
-                                             "main_context":"current",
+                                             "#sorted":[{"main_context":"current"}],
+                                             "modalwindow":{"@width":"685","@height":"900","@caption":"Добавление"},
                                              "datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "15",
@@ -251,7 +460,8 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                    "@hint":"Редактировать",
                                    "@disable": style_edit,
                                    "action":{"@show_in": "MODAL_WINDOW",
-                                             "main_context":"current",
+                                             "#sorted":[{"main_context":"current"}],
+                                             "modalwindow":{"@width":"685","@height":"900","@caption":"Редактирование"},
                                              "datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "15",
@@ -304,11 +514,120 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                                                       }
                                                           }
                                              }
+                                   },
+                                    {"@img": "",
+                            "@text":"Импорт из старой системы",
+                                   "@hint":"Импорт из xls",
+                                   "@disable": style_add,
+                                   "action":{"@show_in": "MODAL_WINDOW",
+                                             "#sorted":[{"main_context":"current"}],
+                                             "modalwindow":{"@width":"430","@height":"160","@caption":"Импорт из xls"},
+                                             "datapanel":{"@type": "current",
+                                                          "@tab": "current",
+                                                          "element": {"@id": "19",
+                                                                      "add_context":"import"
+                                                                      }
+                                                          }
+                                             }
                                    }
                                 
                                    ]
+    item_export=[{"@img": 'gridToolBar/ExportToExcelAll.png',
+                                    "@text":"",
+                                   "@hint":"Экспорт в Excel всей таблицы",
+                                   "@disable": "false",
+                                   "action":{"@show_in": "MODAL_WINDOW",
+                                             "#sorted":[{"main_context":"current"}],
+                                             "modalwindow":{"@width":"430","@height":"170","@caption":"Экспорт в xls"},
+                                             "datapanel":{"@type": "current",
+                                                          "@tab": "current",
+                                                          "element": {"@id": "14",
+                                                                      "add_context":""
+                                                                      }
+                                                          }
+                                             }
+                                   }]
+    item_hierarchy=[{"@img": 'gridToolBar/up.png',
+                                    "@text":"",
+                                   "@hint":"Сдвинуть элемент вверх на том же уровне",
+                                   "@disable": style_up,
+                                   "action":{"main_context":"current",
+                                             "datapanel":{"@type": "current",
+                                                          "@tab": "current",
+                                                          "element": {"@id": "13",
+                                                                      "add_context":""
+                                                                      }
+                                                          },
+                                             "server": {"activity":{"@id":"1",
+                                                                   "@name":"dirusing.hierarchy.move.celesta",
+                                                                   "add_context": "up"
+                                                                   }
+                                                       }
+                                             }
+                                   },
+                           {"@img": 'gridToolBar/down.png',
+                            "@text":"",
+                                   "@hint":"Сдвинуть элемент вниз на том же уровне",
+                                   "@disable": style_down,
+                                   "action":{"main_context":"current",
+                                             "datapanel":{"@type": "current",
+                                                          "@tab": "current",
+                                                          "element": {"@id": "13",
+                                                                      "add_context":""
+                                                                      }
+                                                          },
+                                             "server": {"activity":{"@id":"2",
+                                                                   "@name":"dirusing.hierarchy.move.celesta",
+                                                                   "add_context":"down"
+                                                                   }
+                                                       }
+                                             }
+                                   },
+                                   {"@img": 'gridToolBar/left.png',
+                            "@text":"",
+                                   "@hint":"Сдвинуть элемент на уровень вверх",
+                                   "@disable": style_left,
+                                   "action":{"main_context":"current",
+                                            "datapanel":{"@type": "current",
+                                                          "@tab": "current",
+                                                          "element": {"@id": "13",
+                                                                      "add_context":""
+                                                                      }
+                                                          },
+                                             "server": {"activity":{"@id":"3",
+                                                                   "@name":"dirusing.hierarchy.move.celesta",
+                                                                   "add_context":"left"
+                                                                   }
+                                                       }
+                                             }
+                                   },
+                                    {"@img": 'gridToolBar/right.png',
+                            "@text":"",
+                                   "@hint":"Сдвинуть элемент на уровень вниз",
+                                   "@disable": style_right,
+                                   "action":{"main_context":"current",
+                                             "datapanel":{"@type": "current",
+                                                          "@tab": "current",
+                                                          "element": {"@id": "13",
+                                                                      "add_context":""
+                                                                      }
+                                                          },
+                                             "server": {"activity":{"@id":"4",
+                                                                   "@name":"dirusing.hierarchy.move.celesta",
+                                                                   "add_context":"right"
+                                                                   }
+                                                       }
+                                             }
+                                   }
+                                   ]
+    if isHierarchical == 'true':
+        data = {"gridtoolbar":{"item":item_export+item_hierarchy+item_common
                            }
             }
-    
+
+    else:
+        data = {"gridtoolbar":{"item":item_export+item_common
+                           }
+            }
     return XMLJSONConverter(input=data).parse()
 
