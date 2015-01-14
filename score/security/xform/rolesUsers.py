@@ -168,7 +168,7 @@ def usersList(context, main=None, add=None, filterinfo=None, session=None, param
                     not startswith and string.find(user.getAttribute("name"), curvalue)>0:
                 rec = DataRecord()
                 rec.setId(user.getAttribute("SID"))
-                rec.setName(user.getAttribute("SID"))
+                rec.setName(user.getAttribute("name"))
                 recordList.add(rec)        
     else:
         subject = subjectsCursor(context)        
@@ -178,6 +178,9 @@ def usersList(context, main=None, add=None, filterinfo=None, session=None, param
         for subject in subject.iterate():
             rec = DataRecord()
             rec.setId(subject.sid)
-            rec.setName(subject.sid)
+            if subject.name is not None or subject.name!='':
+                rec.setName(subject.name)
+            else:
+                rec.setName(u'[Имя не назначено!]')
             recordList.add(rec)
     return ResultSelectorData(recordList, 0)
