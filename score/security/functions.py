@@ -28,10 +28,10 @@ class Settings():
     def __init__(self):        
         self.settingsInstance = SettingsManager()
     
-    def getSettingsJSONPath(self):
-        #settingsPath=os.path.join(os.path.dirname(os.path.abspath(__file__)),'usersTypes.json')
-        settingsPath=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'common', 'grainsSettings.xml')
-        return settingsPath
+#    def getSettingsJSONPath(self):
+#        #settingsPath=os.path.join(os.path.dirname(os.path.abspath(__file__)),'usersTypes.json')
+#        settingsPath=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'common', 'grainsSettings.xml')
+#        return settingsPath
     
     def getSettingsJSON(self):
         if self.settings=={}:
