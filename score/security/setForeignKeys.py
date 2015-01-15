@@ -44,7 +44,7 @@ def setForeignKeys():
             logins_key.setDeleteRule(FKRule.SET_NULL)
         score.save()
         celesta.reInitialize()
-        settings.setEmployeesParam("isSystemInitialised", True)
+        settings.setEmployeesParam("isSystemInitialised", "true")
     finally:
         settings.settingsJSONSave()
     

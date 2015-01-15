@@ -78,7 +78,8 @@ class Settings():
     def setEmployeesParam(self, param, value):
         if param in self.settings.keys():
             self.settings[param]=value
-            self.settingsInstance.setGrainSettings("%s/parameter[@name='%s']/@value" % (self.settingsTag, param), value, self.grainName)
+            path = "%s/parameter[@name='%s']/@value" % (self.settingsTag, param)            
+            self.settingsInstance.setGrainSettings(path, value, self.grainName)
     
     def settingsJSONSave(self):
         pass
