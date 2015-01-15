@@ -19,11 +19,13 @@ try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
     from ru.curs.celesta.showcase import JythonDTO, JythonDownloadResult
+import datetime
 from ru.curs.celesta.syscursors import UserRolesCursor, RolesCursor
 
 def getData(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
     u'''Функция получения списка всех развернутых процессов. '''
+    a = datetime.datetime.now()
     session = json.loads(session)
 
     session = session["sessioncontext"]
@@ -49,14 +51,28 @@ def getData(context, main=None, add=None, filterinfo=None,
     dateFrom = SimpleDateFormat.parse(inputFormat, dateFrom)
     dateTo = SimpleDateFormat.parse(inputFormat, dateTo)
 
-    groupTaskList = activiti.taskService.createTaskQuery()\
-                            .taskNameLike(taskName)\
-                            .taskCreatedAfter(dateFrom)\
-                            .taskCreatedBefore(dateTo)\
-                            .orderByTaskCreateTime().desc().list()
-    if len(groupTaskList) > 50:
-        groupTaskList = groupTaskList.subList(firstrecord, firstrecord + 50)
+#     groupTaskList = activiti.taskService.createTaskQuery()\
+#                             .taskNameLike(taskName)\
+#                             .taskCreatedAfter(dateFrom)\
+#                             .taskCreatedBefore(dateTo)\
+#                             .orderByTaskCreateTime().desc().list()
+#     managementService = activiti.managementService
+
+    groupTaskList = activiti.taskService.createNativeTaskQuery()\
+                        .sql("""select *
+                                    from %s 
+                                    where name_ like('%%%s%%') and
+                                          create_time_>'%s' and
+                                          create_time_<'%s'
+                                    order by create_time_ desc
+                                    limit %i
+                                    offset %i""" % ('act_ru_task',
+                                                       taskName, dateFrom, dateTo, pagesize, firstrecord)).list()
+
+#     if len(groupTaskList) > 50:
+#         groupTaskList = groupTaskList.subList(firstrecord, firstrecord + 50)
     data = {"records":{"rec":[]}}
+
     _header = {"id":["~~id"],
 #                "schema":[u"Схема"],
                "name":[u"Название задачи"],
@@ -81,23 +97,23 @@ def getData(context, main=None, add=None, filterinfo=None,
     datapanelSettings = parse_json(filePath)["specialFunction"]["getUserName"]
     function = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
 
+
     for task in groupTaskList:
         taskDict = {}
         taskDict[_header["properties"][1]] = {"event":
                                               []}
         taskDict[_header["id"][1]] = task.id
         processInstanceId = task.getProcessInstanceId()
-        processInstance = runtimeService.createProcessInstanceQuery()\
-            .processInstanceId(processInstanceId).singleResult()
-        procDesc = activiti.runtimeService.getVariable(processInstanceId, 'processDescription')
+
+        procDesc = task.getProcessVariables()['processDescription']
         if procDesc is not None:
             taskDict[_header["description"][1]] = procDesc
         else:
             taskDict[_header["description"][1]] = ''
         processDefinition = activiti.repositoryService.createProcessDefinitionQuery()\
-            .processDefinitionId(processInstance.getProcessDefinitionId()).singleResult()
-        docName = "%s. %s" % (runtimeService.getVariable(processInstanceId, 'docId'), \
-                              runtimeService.getVariable(processInstanceId, 'docName'))
+             .processDefinitionId(task.getProcessDefinitionId()).singleResult()
+        docName = "%s. %s" % (task.getProcessVariables()['docId'], \
+                              task.getProcessVariables()['docName'])
         taskDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
         identityLinks = activiti.taskService.getIdentityLinksForTask(task.id)
 #         taskDict[_header["assignee"][1]] = 'error'
@@ -148,6 +164,7 @@ def getData(context, main=None, add=None, filterinfo=None,
 
         if processName in taskDict[_header["process"][1]] and assignee in taskDict[_header["assignee"][1]]:
             data["records"]["rec"].append(taskDict)
+    # raise Exception(a, datetime.datetime.now())
     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
 
     return JythonDTO(res1, None)
@@ -178,8 +195,8 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
     groupTaskList = activiti.taskService.createTaskQuery()\
                             .taskNameLike(taskName)\
                             .taskCreatedAfter(dateFrom)\
-                            .taskCreatedBefore(dateTo)\
-                            .orderByTaskCreateTime().desc().list()
+                            .taskCreatedBefore(dateTo)
+
     _header = {"id":["~~id"],
 #                "schema":[u"Схема"],
                "name":[u"Название задачи"],
@@ -192,12 +209,13 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
                "properties":[u"properties"]}
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
-                                "properties": {"@pagesize":"50",
+                                "properties": {"@pagesize":"30",
                                                "@gridWidth": gridWidth,
                                                "@gridHeight": gridHeight,
-                                               "@totalCount": len(groupTaskList),
+                                               "@totalCount": groupTaskList.count(),
                                                "@profile":"default.properties"}
                                 }
+
     # Добавляем поля для отображения в gridsettings
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["document"][0],
                                                        "@width": "60px"})
