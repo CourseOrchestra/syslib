@@ -79,8 +79,8 @@ class SettingsManager():
         return self._setSettings('grainSettings/generalSettings/%s' % path, value)
 
     def setGrainSettings(self, path, value, grain=None):
-        grainLocal = grain or self.grainName
-        return self._setSettings('grainSettings/grains/[@name="%s"]/%s' % (grainLocal, path), value)
+        grainLocal = grain or self.grainName        
+        return self._setSettings('grainSettings/grains/grain[@name="%s"]/%s' % (grainLocal, path), value)
 
 class NodeProperties():
     def __init__(self, properties, newValue=None):
