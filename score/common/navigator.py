@@ -12,19 +12,19 @@ def standardNavigator(context, session=None):
 приходящих в список navigatorsParts в виде функций, которые возвращают JSON объект"""
     settingsObject = SettingsManager(context)
     sessionDict = json.loads(session)
-    allNavigator = False
     userdataNavigator = []
     try:
         userdataNavigator = settingsObject.getGrainSettings('navigator/userdata[@name="%s"]/group' % sessionDict["sessioncontext"]["userdata"])
-    except:
-        allNavigator = True
+    finally:
+        allNavigator = userdataNavigator == []
     localNavigators = navigatorsParts.copy()
     resultJSON = {"navigator":{}}
 
     resultNavigators = dict()
     if localNavigators:
         for setItem in localNavigators:
-            if re.search('^__set_.+$', setItem) and (allNavigator or setItem in userdataNavigator):
+            if setItem.startswith('__set_') and (allNavigator or setItem in userdataNavigator):
+                #re.search(r'^__set_.+$', setItem) 
                 setOfPart = localNavigators[setItem]
                 setOfPartRes = setOfPart(context, session)
                 for part in setOfPartRes:

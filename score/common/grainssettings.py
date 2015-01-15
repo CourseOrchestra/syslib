@@ -15,7 +15,7 @@ from ru.curs.celesta import CelestaException
 class SettingsManager():
     u'''Класс получения настроек свойств для всех гранул'''
     def __init__ (self, context=None):
-        self.grainName = context.grain.name if context is not None else None
+        self.grainName = context.grain.name if context is not None and context.grain is not None else None
     def _getSettingsFilePath(self, isNew=''):
         u'''Функция получения пути с файлом настроек'''
         settingsPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'grainsSettings%s.xml' % isNew)
