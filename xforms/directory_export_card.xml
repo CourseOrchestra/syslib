@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="xsltforms/xsltforms.xsl" type="text/xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ev="http://www.w3.org/2001/xml-events" 
+	xmlns:xsd="http://www.w3.org/2001/XMLschema" xmlns:fs="http://www.curs.ru/ns/FormServer" 
+	xmlns:xf="http://www.w3.org/2002/xforms">
+	<head>
+
+		<xf:model id="xformId_mainModel">
+			<xf:instance id="xformId_mainInstance">
+				
+			</xf:instance>
+			<xf:instance id="xformId_SaveDisableInstance">
+				<schema xmlns="">
+					<PressedSaveButton>0</PressedSaveButton>
+				</schema>
+			</xf:instance>
+			
+			<xf:bind nodeset="instance('xformId_mainInstance')/reftables" type="boolean"/>
+			<xf:bind nodeset="instance('xformId_mainInstance')/parenttables" type="boolean"/>
+			
+
+		</xf:model>
+	</head>
+	
+	<body>
+	  <!--xf:output value="serialize(instance('xformId_mainInstance'))"/-->
+
+				<div class="newbutton" style=" clear:both; float:left; width: 140px; padding: 10px 0 0 20px;">
+					<SPAN class="blue xforms-trigger" id="xformId_Tab4Button">
+						<BUTTON class="TabButton" hasXFElement="false" type="submit">
+							<span class="xforms-label">Экспорт</span>
+						</BUTTON>
+					</SPAN>
+					<xf:trigger class="HideButton" id="xformId_Tab4Button">
+						<xf:action ev:event="DOMActivate">
+							<xf:load resource="javascript:gwtXFormDownload('xformId','download14',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
+							<xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"></xf:load>
+						</xf:action>
+					</xf:trigger>
+				</div>
+			
+			
+				<div class="dirusing newbutton" style="float:left; width: 140px; padding: 10px 0 0 20px;">
+					<xf:trigger class="blue">
+					  <xf:label>Отмена</xf:label>
+					  <xf:action ev:event="DOMActivate">
+						<xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"></xf:load>
+					  </xf:action>
+					</xf:trigger>
+				</div>
+				<div class="control" style="width: 350px; padding: 10px 0 0 20px; float: left; clear:both;">
+        <xf:input class="baseInput" ref="instance('xformId_mainInstance')/reftables">
+		<!--xf:label>Выгрузить связанные справочники</xf:label-->
+        </xf:input>
+		Выгрузить связанные справочники
+      </div>
+	  <!--div class="control" style="width: 200px; padding: 5px 0 0 5px; float: left; clear:both;">
+        <xf:input class="baseInput" ref="instance('xformId_mainInstance')/parenttables">
+        </xf:input>
+		<xf:label>Выгрузить справочники, ссылающиеся на выбранный</xf:label>
+      </div-->
+
+	</body>
+</html>

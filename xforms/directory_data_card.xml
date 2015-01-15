@@ -199,7 +199,7 @@
                             <xf:label>X</xf:label>
                             <xf:action ev:event="DOMActivate">
                               <xf:setvalue ref="./value" value=""></xf:setvalue>
-                              <xf:setvalue ref="./id" value=""></xf:setvalue>
+                              <xf:setvalue ref="./ref_values" value=""></xf:setvalue>
                             </xf:action>
                           </xf:trigger>
                         </div>

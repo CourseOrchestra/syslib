@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="xsltforms/xsltforms.xsl" type="text/xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ev="http://www.w3.org/2001/xml-events"
+  xmlns:xsd="http://www.w3.org/2001/XMLschema" xmlns:fs="http://www.curs.ru/ns/FormServer"
+  xmlns:xf="http://www.w3.org/2002/xforms">
+  <head>
+    <xf:model id="xformId_mainModel">
+      <xf:instance id="xformId_mainInstance">
+        <schema xmlns="">
+          <text></text>
+        </schema>
+      </xf:instance>
+	  <xf:instance id="test">
+        <schema xmlns="">
+          <text>qqq</text>
+        </schema>
+      </xf:instance>
+      
+      <xf:bind/>
+    </xf:model>
+	
+  </head>
+  <body>
+  <!--xf:output value="serialize(instance('xformId_mainInstance'))"/-->
+  <div style="width: 500px;">
+  <!--xf:output value="serialize(instance('xformId_mainInstance'))"/-->
+    <xf:repeat id="columnRow" nodeset="instance('xformId_mainInstance')/columns/column">
+	<div class="control" style="width: 200px; padding: 2px; float: left;">
+      <xf:output class="baseInput" ref=".@name"/>
+	  <xf:input class="baseInput" ref=".filter">
+      </xf:input>
+    </div>
+	</xf:repeat>
+    
+    <!--div class="control" style="width: 10px; padding: 2px; float: left; clear: both;"/-->
+	<table cellpadding="0px" cellspacing="1px" width="220px">
+	<tr>
+	<td style="padding-top: 30px;">
+    <div class="newbutton" style="width: 110px;">
+            <xf:trigger class="blue">
+              <xf:label ref="instance('xformId_mainInstance')/buttonClear"></xf:label>
+              <xf:action ev:event="DOMActivate">
+                <xf:setvalue ref="instance('xformId_mainInstance')/columns[1]/column/filter" value=""/>
+				<xf:setvalue ref="instance('xformId_mainInstance')/columns[2]/column/filter" value=""/>
+				<xf:setvalue ref="instance('xformId_mainInstance')/columns[3]/column/filter" value=""/>
+				<xf:setvalue ref="instance('xformId_mainInstance')/columns[4]/column/filter" value=""/>
+				<xf:setvalue ref="instance('xformId_mainInstance')/columns[5]/column/filter" value=""/>
+				<xf:setvalue ref="instance('xformId_mainInstance')/columns[6]/column/filter" value=""/>
+				<xf:setvalue ref="instance('xformId_mainInstance')/columns[7]/column/filter" value=""/>
+				<xf:setvalue ref="instance('xformId_mainInstance')/columns[8]/column/filter" value=""/>
+				<xf:setvalue ref="instance('xformId_mainInstance')/columns[9]/column/filter" value=""/>
+				<xf:setvalue ref="instance('xformId_mainInstance')/columns[10]/column/filter" value=""/>
+              </xf:action>
+            </xf:trigger>
+          </div>
+		  </td>
+		  <td style="padding-top: 30px;">
+          <div class="newbutton" style="width: 110px;">
+            <xf:trigger class="blue">
+              <xf:label ref="instance('xformId_mainInstance')/buttonShow"></xf:label>
+              <xf:action ev:event="DOMActivate">
+                <!--xf:load resource="javascript:gwtXFormFilter('xformId','1', Writer.toString(xforms.defaultModel.getInstanceDocument('xformId_mainInstance')))"/-->
+				<xf:load resource="javascript:gwtXFormFilter('xformId','1', Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
+			  </xf:action>
+            </xf:trigger>
+          </div>
+		  </td>
+		  </tr>
+		  </table>
+        </div>
+  </body>
+</html>
