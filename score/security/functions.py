@@ -13,6 +13,7 @@ from ru.curs.celesta.syscursors import PermissionsCursor, UserRolesCursor
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from common.dbutils import DataBaseXMLExchange
 from java.io import File, FileInputStream, FileOutputStream
+from common.grainssettings import SettingsManager
 
 try:
     from ru.curs.showcase.core.jython import JythonDownloadResult
@@ -21,32 +22,43 @@ except:
 
 class Settings():
     settings={}
+    settingsTag = 'securitySettings'
+    grainName = 'security'
     
-    def __init__(self):
-        pass
+    def __init__(self):        
+        self.settingsInstance = SettingsManager()
     
     def getSettingsJSONPath(self):
-        settingsPath=os.path.join(os.path.dirname(os.path.abspath(__file__)),'usersTypes.json')
+        #settingsPath=os.path.join(os.path.dirname(os.path.abspath(__file__)),'usersTypes.json')
+        settingsPath=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'common', 'grainsSettings.xml')
         return settingsPath
     
     def getSettingsJSON(self):
         if self.settings=={}:
-            settingsPath=self.getSettingsJSONPath()
-            f = open(settingsPath, 'r')
-            settingsJSON=json.loads(f.read())
-            f.close()
-            self.settings=settingsJSON
-        else:
-            settingsJSON=self.settings
-        return settingsJSON
+            names=self.settingsInstance.getGrainSettings("%s/parameter/@name" % self.settingsTag, self.grainName)
+            values = self.settingsInstance.getGrainSettings("%s/parameter/@value" % self.settingsTag, self.grainName)
+            settingsJson={}
+            for i in range(len(names)):
+                settingsJson[names[i]] = values[i]
+            self.settings = settingsJson                                                                     
+        return self.settings
+#        if self.settings=={}:
+#            settingsPath=self.getSettingsJSONPath()
+#            f = open(settingsPath, 'r')
+#            settingsJSON=json.loads(f.read())
+#            f.close()
+#            self.settings=settingsJSON
+#        else:
+#            settingsJSON=self.settings
+#        return settingsJSON
 
     def isUseAuthServer(self):
         useAuthServer=self.getSettingsJSON()    
-        return useAuthServer["useAuthServer"]==True
+        return useAuthServer["useAuthServer"]==True or useAuthServer["useAuthServer"]=="true"
     
     def loginIsSubject(self):
         loginSubject=self.getSettingsJSON()
-        return loginSubject["loginEqualSubject"]==True
+        return loginSubject["loginEqualSubject"]==True or loginSubject["loginEqualSubject"]=="true"
     
     def isEmployees(self):
         settingsJson=self.getSettingsJSON()
@@ -57,21 +69,25 @@ class Settings():
     
     def isSystemInitialised(self):
         system_init=self.getSettingsJSON()
-        return system_init["isSystemInitialised"]
+        return system_init["isSystemInitialised"]==True or system_init["isSystemInitialised"]=="true" 
 
     def getEmployeesParam(self, param):
         employeesParam=self.getSettingsJSON()
         return employeesParam[param]
-    
+
     def setEmployeesParam(self, param, value):
         if param in self.settings.keys():
             self.settings[param]=value
+            self.settingsInstance.setGrainSettings("%s/parameter[@name='%s']/@value" % (self.settingsTag, param), value, self.grainName)
     
     def settingsJSONSave(self):
-        settingsPath=self.getSettingsJSONPath()
-        f = open(settingsPath, 'w')        
-        f.write(json.dumps(self.settings))        
-        f.close()
+        pass
+        #оставляем на случай, если метод где-то используется.
+        #но теперь сохранение будет осуществляться методом setEmployeesParam             
+#        settingsPath=self.getSettingsJSONPath()
+#        f = open(settingsPath, 'w')        
+#        f.write(json.dumps(self.settings))        
+#        f.close()
 
 
 

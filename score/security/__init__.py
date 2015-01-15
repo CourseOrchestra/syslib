@@ -1,7 +1,5 @@
 # coding: utf-8
 
-
-from common.xmlutils import XMLJSONConverter
 from common.navigator import navigatorsParts
 from ru.curs.celesta.syscursors import RolesCursor
 from security.functions import Settings

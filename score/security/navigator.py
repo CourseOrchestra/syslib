@@ -48,5 +48,5 @@ def authentificationNavigator(context, session):
     if  not userHasPermission(context, sid, 'loginsSubjectsPoint') and \
         not userHasPermission(context, sid, 'rolesPoint') and \
         not userHasPermission(context, sid, 'permissionsPoint'):
-        resultJSON = {"group":None}
+        resultJSON = {"group": None}
     return resultJSON
