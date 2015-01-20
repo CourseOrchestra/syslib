@@ -198,7 +198,7 @@ def setVariablesInLink(activiti, processId, taskId, link):
             if par[2:-1] in variables:
                 replaceDict[par] = variables[par[2:-1]]
     for key in replaceDict:
-        link = link.replace(key, replaceDict[key])
+        link = link.replace(key, unicode(replaceDict[key]))
     return link
 
 def parse_json(filename):
