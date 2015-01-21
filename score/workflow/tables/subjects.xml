@@ -1,36 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <table name="subjects">
-	<row>
-		<field name="sid">
-			788BF9CE-5E3F-40D8-9795-673D14F85654
-		</field>
-		<field name="name">
-			Гром М. А.
-		</field>
-		<field name="employeeId">
-			None
-		</field>
-	</row>
-	<row>
-		<field name="sid">
-			8E495882-569B-45FE-97C4-9D7F68CCCBA5
-		</field>
-		<field name="name">
-			Артамкин С. А.
-		</field>
-		<field name="employeeId">
-			None
-		</field>
-	</row>
-	<row>
-		<field name="sid">
-			9FAAE0C3-C7C8-4B3A-95CB-00087B2E06B9
-		</field>
-		<field name="name">
-			Чен Д. Р.
-		</field>
-		<field name="employeeId">
-			None
-		</field>
-	</row>
+
 </table>

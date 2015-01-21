@@ -63,8 +63,8 @@ def initTables():
         importTables = [
                     {'grain':'security','table':'customPermsTypes'},
                     {'grain':'security','table':'customPerms'},
-                    {'grain':'security','table':'logins'},
-                    {'grain':'security','table':'subjects'},
+					{'grain':'security','table':'subjects'},
+                    {'grain':'security','table':'logins'},                    
                     {'grain':'security','table':'rolesCustomPerms'},
                     {'grain':'workflow','table':'form'},
                     {'grain':'workflow','table':'processes'},
