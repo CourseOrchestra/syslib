@@ -290,6 +290,20 @@ def editingProcesses(context, main=None, session=None):
                                                     "@name":"workflow.xforms.addMatcher.cardSave.celesta",
                                                     "@type":"SAVE"}]
                                             },
+                                           {"@id":"moveRight",
+                                            "@neverShowInPanel":"true",
+                                            "@type":"xforms",
+                                            "@proc":"workflow.xforms.moveRightCard.cardData.celesta",
+                                            "@template":"workflow/moveRightCard.xml",
+                                            "related":{
+                                                       "@id":"matchingCircuitGrid"
+                                                       },
+                                             "proc":[
+                                                    {
+                                                    "@id":"moveRightSave",
+                                                    "@name":"workflow.xforms.moveRightCard.cardSave.celesta",
+                                                    "@type":"SAVE"}]
+                                            },
                                            {"@id":"deleteMatcher",
                                             "@neverShowInPanel":"true",
                                             "@type":"xforms",
@@ -330,6 +344,114 @@ def drawProcesses(context, main=None, session=None):
 
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 
+
+def userGroups(context, main=None, session=None):
+    data = {"datapanel":{"tab":[{"@id":"1",
+                                "@name":u"Развёрнутые процессы",
+                                "element":[
+#                                            {"@id":"processFilter",
+#                                             "@type":"xforms",
+#                                             "@template": "workflow/processFilter.xml",
+#                                             "@proc":"workflow.xforms.processFilter.filterData.celesta",
+#                                             },
+                                           {"@id":"groupsGrid",
+                                            "@type":"grid",
+                                            "@proc":"workflow.grid.groupsGrid.gridDataAndMeta.celesta",
+                                            "@subtype":"JS_TREE_GRID",
+                                            "@plugin":"treeDGrid",
+                                            "proc":[{
+                                                    "@id":"groupsGridToolBar",
+                                                    "@name":"workflow.grid.groupsGrid.gridToolBar.celesta",
+                                                    "@type":"TOOLBAR"}],
+#                                             "related":{"@id":"processFilter"}
+                                            },
+                                            {"@id":"addGroupCard",
+                                             "@type":"xforms",
+                                             "@neverShowInPanel":"true",
+                                             "@proc":"workflow.xforms.addGroupCard.cardData.celesta",
+                                             "@template":"workflow/addGroupCard.xml",
+                                             "related":{
+                                                        "@id":"groupsGrid"
+                                                        },
+                                             "proc":[
+                                                     {
+                                                     "@id":"addGroupCardSave",
+                                                     "@name":"workflow.xforms.addGroupCard.cardDataSave.celesta",
+                                                     "@type":"SAVE"}]
+
+                                             },
+                                            {"@id":"delGroupCard",
+                                             "@type":"xforms",
+                                             "@neverShowInPanel":"true",
+                                             "@proc":"workflow.xforms.delGroupCard.cardData.celesta",
+                                             "@template":"workflow/delGroupCard.xml",
+                                             "related":{
+                                                        "@id":"groupsGrid"
+                                                        },
+                                             "proc":[
+                                                     {
+                                                     "@id":"delGroupCardSave",
+                                                     "@name":"workflow.xforms.delGroupCard.cardDataSave.celesta",
+                                                     "@type":"SAVE"}]
+
+                                             },
+                                           {"@id":"userGroupsGrid",
+                                            "@type":"grid",
+                                            "@hideOnLoad":"true",
+                                            "@proc":"workflow.grid.userGroupsGrid.gridDataAndMeta.celesta",
+                                            "@subtype":"JS_LIVE_GRID",
+                                            "@plugin":"liveDGrid",
+                                            "related":{
+                                                       "@id":"groupsGrid"
+                                                       },
+                                            "proc":[{
+                                                    "@id":"userGroupsGridToolBar",
+                                                    "@name":"workflow.grid.userGroupsGrid.gridToolBar.celesta",
+                                                    "@type":"TOOLBAR"}]
+
+                                            },
+                                            {"@id":"addUserToGroupCard",
+                                             "@type":"xforms",
+                                             "@neverShowInPanel":"true",
+                                             "@proc":"workflow.xforms.addUserToGroup.cardData.celesta",
+                                             "@template":"workflow/addUserToGroup.xml",
+                                             "related":[{
+                                                        "@id":"groupsGrid"
+                                                        },
+                                                        {
+                                                        "@id":"userGroupsGrid"
+                                                        }],
+                                             "proc":[
+                                                     {
+                                                     "@id":"addUserToGroupCardSave",
+                                                     "@name":"workflow.xforms.addUserToGroup.cardDataSave.celesta",
+                                                     "@type":"SAVE"}]
+
+                                             },
+                                            {"@id":"delUserFromGroupCard",
+                                             "@type":"xforms",
+                                             "@neverShowInPanel":"true",
+                                             "@proc":"workflow.xforms.delUserFromGroupCard.cardData.celesta",
+                                             "@template":"workflow/delUserFromGroupCard.xml",
+                                             "related":[{
+                                                        "@id":"groupsGrid"
+                                                        },
+                                                        {
+                                                        "@id":"userGroupsGrid"
+                                                        }],
+                                             "proc":[
+                                                     {
+                                                     "@id":"delUserFromGroupCardSave",
+                                                     "@name":"workflow.xforms.delUserFromGroupCard.cardDataSave.celesta",
+                                                     "@type":"SAVE"}]
+
+                                             },
+                                           ]
+                                }
+                                ]
+                         }
+            }
+    return XMLJSONConverter.jsonToXml(json.dumps(data))
 
 def standardStartProcess(context, main=None, session=None):
     u'''Датапанель стандартного запуска процесса'''

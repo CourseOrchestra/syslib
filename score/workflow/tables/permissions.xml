@@ -2,7 +2,7 @@
 <table name="permissions">
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			celesta
@@ -25,7 +25,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			common
@@ -48,7 +48,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			common
@@ -71,7 +71,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			security
@@ -94,7 +94,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			security
@@ -117,7 +117,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			security
@@ -140,7 +140,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			security
@@ -163,7 +163,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			workflow
@@ -186,7 +186,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			workflow
@@ -209,7 +209,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			workflow
@@ -232,7 +232,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			workflow
@@ -255,7 +255,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			workflow
@@ -278,7 +278,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="grainid">
 			workflow
@@ -299,10 +299,55 @@
 			False
 		</field>
 	</row>
-
 	<row>
 		<field name="roleid">
-			user
+			workflowDev
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			userGroup
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			True
+		</field>
+		<field name="m">
+			True
+		</field>
+		<field name="d">
+			True
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			workflowDev
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			groups
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			True
+		</field>
+		<field name="m">
+			True
+		</field>
+		<field name="d">
+			True
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			workflowUser
 		</field>
 		<field name="grainid">
 			celesta
@@ -325,7 +370,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			user
+			workflowUser
 		</field>
 		<field name="grainid">
 			security
@@ -348,7 +393,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			user
+			workflowUser
 		</field>
 		<field name="grainid">
 			security
@@ -371,7 +416,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			user
+			workflowUser
 		</field>
 		<field name="grainid">
 			security
@@ -394,7 +439,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			user
+			workflowUser
 		</field>
 		<field name="grainid">
 			security
@@ -417,7 +462,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			user
+			workflowUser
 		</field>
 		<field name="grainid">
 			workflow
@@ -440,7 +485,53 @@
 	</row>
 	<row>
 		<field name="roleid">
-			user
+			workflowUser
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			userGroup
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			workflowUser
+		</field>
+		<field name="grainid">
+			workflow
+		</field>
+		<field name="tablename">
+			groups
+		</field>
+		<field name="r">
+			True
+		</field>
+		<field name="i">
+			False
+		</field>
+		<field name="m">
+			False
+		</field>
+		<field name="d">
+			False
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			workflowUser
 		</field>
 		<field name="grainid">
 			workflow

@@ -180,10 +180,10 @@ def extractAssigneeAndCandidates(assJSON):
     assignee = transformToVar(exp,assJSON['assignee'])
     userList = list()
     for user in assJSON['users']:
-        userList.append(transformToVar(exp,user))
+        userList.append(transformToVar(exp,user['id']))
     groupList = list()
     for group in assJSON['groups']:
-        groupList.append(transformToVar(exp,group))
+        groupList.append(transformToVar(exp,group['id']))
     return assignee, ','.join(userList),','.join(groupList)
     
 def findAndReplacePattern(ch,start,length,rep,pattern,xmlWriter):
@@ -420,7 +420,7 @@ class XformsProcessTemplate(DefaultHandler2):
                     
                     statusVal, transitionsVal = '',''
                     consecParser = XMLReaderFactory.createXMLReader()
-                    consecHandler = consecWriter(inGatewayId,'task' + str(matchingCircuit.id),
+                    consecHandler = consecWriter(inGatewayId,matchingCircuit.taskKey,
                                                  matchingCircuit.name, assignee,
                                                  candidates,groups,outGatewayId,
                                                  self.xmlWriter,self.xmlDiagramWriter,
@@ -803,7 +803,7 @@ class parallelWriter(DefaultHandler2):
                 else:
                     isCentral = False
                 statusVal, transitionVal = '',''
-                parallelTaskHandler = parallelTaskWriter('task' + str(matchingCircuit.id),
+                parallelTaskHandler = parallelTaskWriter(matchingCircuit.taskKey,
                                                          matchingCircuit.name,
                                                          assignee,
                                                          candidates,

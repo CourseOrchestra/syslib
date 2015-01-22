@@ -66,4 +66,15 @@
 			navigator
 		</field>
 	</row>
+	<row>
+		<field name="name">
+			userGroups
+		</field>
+		<field name="description">
+			Разрешение на создание групп пользователей
+		</field>
+		<field name="type">
+			navigator
+		</field>
+	</row>
 </table>

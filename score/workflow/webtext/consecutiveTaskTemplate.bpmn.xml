@@ -23,22 +23,25 @@ import java.util.regex.Pattern
 maxNumberLength = 3
 taskKey = task.getTaskDefinitionKey()
 docVersion = task.getVariable("documentVersion")
-if (docVersion.indexOf(taskKey) == -1) {
-	docVersion+=taskKey+"000"
-} 
-pattern = taskKey + "[0-9]{3}"
+pattern = "^" + taskKey + "[0-9]{3}|(?&lt;=[0-9])" + taskKey + "[0-9]{3}"
 mtchr = docVersion =~ pattern
-strNum = mtchr[0][taskKey.length()..taskKey.length()+maxNumberLength-1]
+
+if (mtchr.size() &lt;= 0) {
+       strNum = "000"
+ docVersion+=taskKey+strNum
+} else {
+       strNum = mtchr[0][taskKey.length()..taskKey.length()+maxNumberLength-1]
+}
 num = strNum.toInteger()
 newNum=num+10
 if (approved == "true"){
-	newNum=newNum.intdiv(10)*10+1
+ newNum=newNum.intdiv(10)*10+1
 }
 for (i=1; i&lt;=maxNumberLength; i++){
-      	if (newNum.intdiv(10**i)==0){
-		strNewNum="0"*(maxNumberLength-i)+newNum.toString()
+       if (newNum.intdiv(10**i)==0){
+  strNewNum="0"*(maxNumberLength-i)+newNum.toString()
               break
-      	}
+       }
 }
 docVersion = docVersion.replaceAll(taskKey+strNum, taskKey+strNewNum)
 

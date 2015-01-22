@@ -2,7 +2,7 @@
 <table name="rolesCustomPerms">
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="permissionId">
 			activeTasks
@@ -10,7 +10,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="permissionId">
 			allActiveTasks
@@ -18,7 +18,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="permissionId">
 			archiveTasks
@@ -26,7 +26,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="permissionId">
 			operLog
@@ -34,7 +34,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
 		</field>
 		<field name="permissionId">
 			processDesigner
@@ -42,7 +42,15 @@
 	</row>
 	<row>
 		<field name="roleid">
-			dev
+			workflowDev
+		</field>
+		<field name="permissionId">
+			userGroups
+		</field>
+	</row>
+	<row>
+		<field name="roleid">
+			workflowDev
 		</field>
 		<field name="permissionId">
 			processManagement
@@ -50,7 +58,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			user
+			workflowUser
 		</field>
 		<field name="permissionId">
 			activeTasks
@@ -58,7 +66,7 @@
 	</row>
 	<row>
 		<field name="roleid">
-			user
+			workflowUser
 		</field>
 		<field name="permissionId">
 			archiveTasks

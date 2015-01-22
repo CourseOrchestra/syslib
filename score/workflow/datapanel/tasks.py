@@ -56,6 +56,13 @@ def activeTasks(context, main=None, session=None):
                                             "proc": {"@id": "1",
                                                      "@name": "workflow.xforms.tasksReassign.cardDataSave.celesta",
                                                      "@type": "SAVE"}
+                                            },
+                                            {"@id":"viewComments",
+                                            "@type":"xforms",
+                                            "@neverShowInPanel":"true",
+                                            "@template": "workflow/viewComments.xml",
+                                            "@proc":"workflow.xforms.viewComments.cardData.celesta",
+                                            "related":{"@id":"tasksGrid"}
                                             }
                                            ]
                                 }

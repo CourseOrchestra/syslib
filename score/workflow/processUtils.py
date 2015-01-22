@@ -338,9 +338,9 @@ def getLinkPermisson(context,sid,mode,processKey,processId,taskId):
     isUser = False
     if userRoles.tryFirst():
         while True:
-            if userRoles.roleid == 'dev':
+            if userRoles.roleid == 'workflowDev':
                 return True
-            if userRoles.roleid == 'user':
+            if userRoles.roleid == 'workflowUser':
                 isUser = True            
             if not userRoles.next():
                 break

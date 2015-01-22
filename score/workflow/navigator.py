@@ -2,7 +2,8 @@
 import simplejson as json
 import os
 from security.functions import userHasPermission
-from workflow.processUtils import parse_json, ActivitiObject, getLinkPermisson
+from workflow.processUtils import  ActivitiObject, getLinkPermisson
+from workflow.parsejson import parse_json
 from workflow._workflow_orm import formCursor
 
 
@@ -163,9 +164,19 @@ def manageProcessesNav(context, session):
                                                      }
                                                  }
                                               })
+    if userHasPermission(context,sid,'userGroups'):
+        myNavigator["group"]["level1"].append({
+                                          "@id": "userGroups",
+                                          "@name": u"Группы пользователей",
+                                          "action":{"main_context": "current",
+                                                     "datapanel":{"@type": "workflow.datapanel.processes.userGroups.celesta",
+                                                                  "@tab": "firstOrCurrent"}
+                                                     }
+                                          })
     if userHasPermission(context, sid, 'activeTasks'):
         myNavigator["group"]["level1"].append({"@id": "activeTasks",
                                               "@name": u"Текущие задачи",
+                                              "@selectOnLoad": "true",
                                               "action":
                                                 {"main_context": "current",
                                                  "datapanel":
@@ -225,7 +236,7 @@ def datapanelSetup(context, formType, session):
         elif params['@name'] == 'processKey':
             processKey = params['@value'][0]
     filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
-    datapanelSettings = parse_json(filePath)
+    datapanelSettings = parse_json(context)
     try:
         if 'Task' in formType:
             task = activiti.taskService.createTaskQuery().taskId(taskId).singleResult()

@@ -2,7 +2,7 @@
 <table name="roles">
 	<row>
 		<field name="id">
-			dev
+			workflowDev
 		</field>
 		<field name="description">
 			have tasks
@@ -10,7 +10,7 @@
 	</row>
 	<row>
 		<field name="id">
-			user
+			workflowUser
 		</field>
 		<field name="description">
 			user

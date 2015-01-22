@@ -31,6 +31,7 @@ CREATE TABLE processStatusModel(
 
 CREATE TABLE matchingCircuit(
 	processKey varchar(30) NOT NULL,
+	taskKey varchar(30) NULL,
 	id int NOT NULL,
 	name varchar(50) NOT NULL,
 	type varchar(50) NOT NULL,
@@ -63,9 +64,26 @@ CREATE TABLE statusTransition(
   CONSTRAINT PK_statusTransition PRIMARY KEY (statusFrom, modelFrom, statusTo, modelTo)
 );
 
+CREATE TABLE userGroup(
+	userId VARCHAR(36) NOT NULL,
+	groupId VARCHAR(36) NOT NULL,
+	CONSTRAINT PK_userGroup PRIMARY KEY (userId, groupId)
+);
+
+CREATE TABLE groups(
+	groupId VARCHAR(36) NOT NULL,
+	groupName VARCHAR(100) NOT NULL,
+	number VARCHAR(30) NOT NULL,
+	sort VARCHAR(100) NOT NULL,
+	CONSTRAINT PK_group PRIMARY KEY(groupId)
+);
+
+
+
 -- *** FOREIGN KEYS ***
+ALTER TABLE userGroup ADD CONSTRAINT fk_users_groups FOREIGN KEY (groupId) REFERENCES workflow.groups(groupId);
 ALTER TABLE status ADD CONSTRAINT fk_status FOREIGN KEY (modelId) REFERENCES workflow.statusModel(id);
-ALTER TABLE matchingCircuit ADD CONSTRAINT fk_processKey FOREIGN KEY (processKey) REFERENCES workflow.processes(processKey);
+ALTER TABLE matchingCircuit ADD CONSTRAINT fk_procKey FOREIGN KEY (processKey) REFERENCES workflow.processes(processKey);
 ALTER TABLE statusTransition ADD CONSTRAINT fk_statustransition_status FOREIGN KEY (statusFrom, modelFrom) REFERENCES workflow.status(id, modelId);
 ALTER TABLE statusTransition ADD CONSTRAINT fk_statustransition_status2 FOREIGN KEY (statusTo, modelTo) REFERENCES workflow.status(id, modelId);
 ALTER TABLE processStatusModel ADD CONSTRAINT fk_procStatModel FOREIGN KEY (modelId) REFERENCES workflow.statusModel(id);
