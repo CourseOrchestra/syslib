@@ -32,7 +32,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     session = json.loads(session)["sessioncontext"]
     groups = groupsCursor(context)
     userGroup = userGroupCursor(context)
-    currRec = json.loads(session["related"]["gridContext"]["currentRecordId"])
+    currRec = session["related"]["gridContext"]["currentRecordId"]
     groups.get(currRec)
     groupId = groups.groupId
     groupName = groups.groupName
