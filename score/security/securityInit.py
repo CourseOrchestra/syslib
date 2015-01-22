@@ -18,8 +18,7 @@ import time, datetime
 from java.text import SimpleDateFormat
 
 def securityInit():
-    settings=Settings()
-    a = Celesta.getInstance()
+    settings=Settings()    
     adminUser = settings.getEmployeesParam("admin")
     conn = ConnectionPool.get()
     sesContext = SessionContext(adminUser, 'initsession')
@@ -88,3 +87,5 @@ def securityInit():
         rolesCustomPerms.insert()
     
     #context.commit()
+    
+#securityInit()

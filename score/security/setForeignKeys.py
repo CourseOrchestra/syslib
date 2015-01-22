@@ -14,7 +14,6 @@ def setForeignKeys():
     tableSettings=settings.getSettingsJSON()
     user=settings.getEmployeesParam("admin")
     
-    a = Celesta.getInstance()
     conn = ConnectionPool.get()
     sesContext = SessionContext(user, 'initsession')
     context = CallContext(conn, sesContext)
@@ -28,7 +27,7 @@ def setForeignKeys():
     employees_grain=score.getGrain(tableSettings["employeesGrain"])
     employees_table=employees_grain.getTable(tableSettings["employeesTable"])
     try:    
-        subjects_key = ForeignKey(subject_table, employees_table, ["employeeId"])
+        
         logins_keys = login_table.getForeignKeys()
         loginSubjectKeyExists = False
         for logins_key in logins_keys:
@@ -37,6 +36,14 @@ def setForeignKeys():
                 break
         if not loginSubjectKeyExists:
             logins_key = ForeignKey(login_table, subject_table, ["subjectId"])
+        subjects_keys = subject_table.getForeignKeys()
+        subjectEmployeeKeyExists = False
+        for subjects_key in subjects_keys:
+            if subjects_key.getReferencedTable() == employees_table:
+                subjectEmployeeKeyExists = True
+                break
+        if not subjectEmployeeKeyExists:
+            subjects_key = ForeignKey(subject_table, employees_table, ["employeeId"])
         if settings.loginIsSubject():
             logins_key.setDeleteRule(FKRule.CASCADE)
             subjects_key.setDeleteRule(FKRule.SET_NULL)

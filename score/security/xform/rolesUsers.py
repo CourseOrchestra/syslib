@@ -158,6 +158,7 @@ def usersList(context, main=None, add=None, filterinfo=None, session=None, param
     u'''Функция list селектора типа элемента. '''
     settings=Settings()      
     recordList = ArrayList()
+    #raise Exception(startswith, curvalue)
     if settings.isUseAuthServer() and settings.loginIsSubject():        
         sessionId=json.loads(session)["sessioncontext"]["sessionid"]
         server=SecurityParamsFactory.getAuthServerUrl()
@@ -172,8 +173,8 @@ def usersList(context, main=None, add=None, filterinfo=None, session=None, param
                 recordList.add(rec)        
     else:
         subject = subjectsCursor(context)        
-        subject.setFilter('sid', "@%s'%s'%%" % ("%"*(not startswith), curvalue.replace("'","''")))        
-        subject.orderBy('sid')        
+        subject.setFilter('name', "@%s'%s'%%" % ("%"*(not startswith), curvalue.replace("'","''")))        
+        subject.orderBy('name')        
         subject.limit(firstrecord, recordcount)
         for subject in subject.iterate():
             rec = DataRecord()
@@ -182,5 +183,5 @@ def usersList(context, main=None, add=None, filterinfo=None, session=None, param
                 rec.setName(subject.name)
             else:
                 rec.setName(u'[Имя не назначено!]')
-            recordList.add(rec)
+            recordList.add(rec)        
     return ResultSelectorData(recordList, 0)
