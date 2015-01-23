@@ -25,8 +25,14 @@ from ru.curs.celesta import ConnectionPool
 from ru.curs.celesta import CallContext
 from ru.curs.celesta import SessionContext
 
-#Заполнение таблиц начальными данными, производится только в случае первого разворачивания решения
-initTables()
+conn = ConnectionPool.get()
+try:
+    sesContext = SessionContext('super', 'supersession')
+    context = CallContext(conn, sesContext)
+    #Заполнение таблиц начальными данными, производится только в случае первого разворачивания решения
+    initTables(context)
+finally:
+    ConnectionPool.putBack(conn)
 
 #Настройка обработчиков событий activiti
 
