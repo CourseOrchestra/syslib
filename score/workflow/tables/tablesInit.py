@@ -32,12 +32,7 @@ def exportData(tableInstance,path):
     exchange.downloadXML()
     dataStream.close()
     
-def initTables():
-    a = Celesta.getInstance()
-    conn = ConnectionPool.get()  
-    sesContext = SessionContext('super', 'supersession')
-    context = CallContext(conn, sesContext)
-    
+def initTables(context):
     filePath = os.path.dirname(os.path.abspath(__file__))
     
     initializationRequired = False
