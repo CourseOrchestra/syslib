@@ -24,7 +24,7 @@ if not settings.loginIsSubject():
         employeesCursor.onPreDelete.append(employeesSubjectsPreDelete)
 
 if not settings.isSystemInitialised():
-    a = Celesta.getInstance()
+#    a = Celesta.getInstance()
     adminUser = settings.getEmployeesParam("admin")
     conn = ConnectionPool.get()
     try:
