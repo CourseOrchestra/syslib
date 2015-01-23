@@ -26,6 +26,8 @@ from org.activiti.engine.impl.util.io import StreamSource
 import simplejson as json
 from ru.curs.celesta.syscursors import UserRolesCursor
 from common.sysfunctions import tableCursorImport
+from common.grainssettings import SettingsManager
+
 
 class ActivitiObject():
     def __init__(self):
@@ -201,33 +203,25 @@ def setVariablesInLink(activiti, processId, taskId, link):
         link = link.replace(key, unicode(replaceDict[key]))
     return link
 
-def parse_json(filename):
-    # Regular expression for comments
-    comment_re = re.compile(
-        '(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
-        re.DOTALL | re.MULTILINE
-    )
-    """ Parse a JSON file
-        First remove comments and then use the json module package
-        Comments look like :
-            // ...
-        or
-            /*
-            ...
-            */
-    """
-    f = open(filename)
-    content = ''.join(f.readlines())
-    f.close()
-
-    # # Looking for comments
-    match = comment_re.search(content)
-    while match:
-        # single line comment
-        content = content[:match.start()] + content[match.end():]
-        match = comment_re.search(content)
-    # Return json file
-    return json.loads(content)
+def parse_json(context):
+    settingsManager = SettingsManager()
+    content = {"default":{},
+               "manual":{},
+               "specialFunction":{}
+               }
+    defaultNamesList = settingsManager.getGrainSettings('datapanelSettings/default/parameter/@name','workflow')
+    defaultValuesList = settingsManager.getGrainSettings('datapanelSettings/default/parameter/@value','workflow')
+    for i in range(len(defaultNamesList)):
+        content["default"][defaultNamesList[i]] = defaultValuesList[i]
+    manualNamesList = settingsManager.getGrainSettings('datapanelSettings/manual/parameter/@name','workflow')
+    manualValuesList = settingsManager.getGrainSettings('datapanelSettings/manual/parameter/@value','workflow')
+    for i in range(len(manualNamesList)):
+        content["manual"][manualNamesList[i]] = manualValuesList[i]
+    specNamesList = settingsManager.getGrainSettings('datapanelSettings/specialFunction/parameter/@name','workflow')
+    specValuesList = settingsManager.getGrainSettings('datapanelSettings/specialFunction/parameter/@value','workflow')
+    for i in range(len(specNamesList)):
+        content["specialFunction"][specNamesList[i]] = specValuesList[i]
+    return content
 
 def functionImport(functionName):
     u'''импортирует функцию по ее адресу в строке'''
@@ -356,7 +350,7 @@ def getLinkPermisson(context,sid,mode,processKey,processId,taskId):
         elif mode == 'instanceImage':
             filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                         'datapanelSettings.json')
-            datapanelSettings = parse_json(filePath)["specialFunction"]["getUserGroups"]
+            datapanelSettings = parse_json(context)["specialFunction"]["getUserGroups"]
             getUserGroups = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
             groupsList = getUserGroups(context,sid)
         #     задачи, у которых кандидат - группа, в которую входит текущий пользователь

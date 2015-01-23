@@ -12,7 +12,7 @@ import simplejson as json
 import os
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from workflow.processUtils import ActivitiObject, parse_json, functionImport
+from workflow.processUtils import ActivitiObject,  functionImport, parse_json
 from workflow._workflow_orm import formCursor
 from java.text import SimpleDateFormat
 try:
@@ -94,7 +94,7 @@ def getData(context, main=None, add=None, filterinfo=None,
     form = formCursor(context)
     filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                             'datapanelSettings.json')
-    datapanelSettings = parse_json(filePath)["specialFunction"]["getUserName"]
+    datapanelSettings = parse_json(context)["specialFunction"]["getUserName"]
     function = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
 
 

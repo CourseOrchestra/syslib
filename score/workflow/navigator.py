@@ -2,8 +2,7 @@
 import simplejson as json
 import os
 from security.functions import userHasPermission
-from workflow.processUtils import  ActivitiObject, getLinkPermisson
-from workflow.parsejson import parse_json
+from workflow.processUtils import  ActivitiObject, getLinkPermisson, parse_json
 from workflow._workflow_orm import formCursor
 
 

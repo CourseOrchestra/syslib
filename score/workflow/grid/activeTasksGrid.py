@@ -14,7 +14,7 @@ import simplejson as json
 import os
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from workflow.processUtils import ActivitiObject, parse_json, functionImport, setVariablesInLink, getGroupUsers
+from workflow.processUtils import ActivitiObject, functionImport, setVariablesInLink, getGroupUsers, parse_json
 from workflow._workflow_orm import formCursor
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
@@ -44,7 +44,8 @@ def getData(context, main=None, add=None, filterinfo=None,
         processName = '%'
     filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                 'datapanelSettings.json')
-    datapanelSettings = parse_json(filePath)["specialFunction"]["getUserGroups"]
+    datapanelSettings = parse_json(context)["specialFunction"]["getUserGroups"]
+    
     getUserGroups = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
     groupsList = getUserGroups(context, sid)
 #     задачи, у которых кандидат - группа, в которую входит текущий пользователь
@@ -90,7 +91,7 @@ def getData(context, main=None, add=None, filterinfo=None,
     taskService = activiti.taskService
     filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                 'datapanelSettings.json')
-    datapanelSettings = parse_json(filePath)["specialFunction"]["getUserName"]
+    datapanelSettings = parse_json(context)["specialFunction"]["getUserName"]
     taskValues = taskDict.values()[firstrecord - 1:firstrecord + 51]
     function = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
 
@@ -247,7 +248,7 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
         processName = '%'
     filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                 'datapanelSettings.json')
-    datapanelSettings = parse_json(filePath)["specialFunction"]["getUserGroups"]
+    datapanelSettings = parse_json(context)["specialFunction"]["getUserGroups"]
     getUserGroups = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
     groupsList = getUserGroups(context, sid)
 #     задачи, у которых кандидат - группа, в которую входит текущий пользователь

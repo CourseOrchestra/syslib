@@ -12,7 +12,8 @@ import simplejson as json
 import os
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from workflow.processUtils import ActivitiObject, parse_json, functionImport, getLinkPermisson
+from workflow.processUtils import ActivitiObject, functionImport, getLinkPermisson, parse_json
+
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
 except:
@@ -70,7 +71,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
     filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                             'datapanelSettings.json')
-    datapanelSettings = parse_json(filePath)["specialFunction"]["getUserName"]
+    datapanelSettings = parse_json(context)["specialFunction"]["getUserName"]
     function = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
 
 #     Проходим по таблице и заполняем data

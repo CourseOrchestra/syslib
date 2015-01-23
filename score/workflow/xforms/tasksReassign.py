@@ -16,7 +16,7 @@ except:
     from ru.curs.celesta.showcase import JythonDTO, DataRecord, ResultSelectorData
 
 import os
-from workflow.processUtils import ActivitiObject, parse_json, functionImport
+from workflow.processUtils import ActivitiObject,  functionImport, parse_json
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from security._security_orm import loginsCursor
 from ru.curs.celesta.syscursors import UserRolesCursor
@@ -39,11 +39,11 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                   }
     filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                 'datapanelSettings.json')
-    datapanelSettings = parse_json(filePath)["specialFunction"]["getGroupUsers"]
+    datapanelSettings = parse_json(context)["specialFunction"]["getGroupUsers"]
     getGroupUsers = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
     filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                 'datapanelSettings.json')
-    datapanelSettings = parse_json(filePath)["specialFunction"]["getUserName"]
+    datapanelSettings = parse_json(context)["specialFunction"]["getUserName"]
     getUserName = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
     assignee = ''
     for link in identityLinks:
@@ -62,7 +62,6 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                 if link.userId != assignee:
                     if link.userId not in reassList:
                         reassList.append(link.userId)
-
     for userId in reassList:
         xformsdata["schema"]["data"]["users"]["user"].append({"@name": getUserName(context,userId),
                                                        "@id": userId})       
