@@ -24,7 +24,7 @@ def datapanel(context, main=None, session=None):
         </element>
         <element id="14" type="xforms" template="directory_export_card.xml" proc="dirusing.xforms.direxportcard.cardData.celesta" neverShowInPanel="true">
           <proc id="proc14" name="dirusing.xforms.direxportcard.cardDataSave.celesta" type="SAVE"/>
-          <proc id="download14" name="dirusing.commonfunctions.exportToExcel.celesta" type="DOWNLOAD"/>
+          <proc id="download14" name="dirusing.exportfunctions.exportToExcel.celesta" type="DOWNLOAD"/>
           <related id="13"/>
         </element>
         <element id="15" type="xforms" template="directory_data_card.xml" proc="dirusing.xforms.dircontentcard.cardData.celesta" neverShowInPanel="true">
@@ -43,12 +43,12 @@ def datapanel(context, main=None, session=None):
         </element>
         <element id="18" type="xforms" template="directory_import_card.xml" proc="dirusing.xforms.dirimportcard.cardData.celesta" neverShowInPanel="true">
           <proc id="proc18" name="dirusing.xforms.dirimportcard.cardDataSave.celesta" type="SAVE"/>
-          <proc id="upload3" name="dirusing.commonfunctions.importXlsData.celesta" type="UPLOAD"/>
+          <proc id="upload3" name="dirusing.exportfunctions.importXlsData.celesta" type="UPLOAD"/>
           <related id="13"/>
         </element>
         <element id="19" type="xforms" template="directory_import_card.xml" proc="dirusing.xforms.dirimportcard.cardData.celesta" neverShowInPanel="true">
           <proc id="proc18" name="dirusing.xforms.dirimportcard.cardDataSave.celesta" type="SAVE"/>
-          <proc id="upload3" name="dirusing.commonfunctions.importXlsDataOld.celesta" type="UPLOAD"/>
+          <proc id="upload3" name="dirusing.exportfunctions.importXlsDataOld.celesta" type="UPLOAD"/>
           <related id="13"/>
         </element>
     
@@ -93,7 +93,7 @@ def datapanelHierarchical(context, main=None, session=None):
         </element>
         <element id="14" type="xforms" template="directory_export_card.xml" proc="dirusing.xforms.direxportcard.cardData.celesta" neverShowInPanel="true">
           <proc id="proc14" name="dirusing.xforms.direxportcard.cardDataSave.celesta" type="SAVE"/>
-          <proc id="download14" name="dirusing.commonfunctions.exportToExcel.celesta" type="DOWNLOAD"/>
+          <proc id="download14" name="dirusing.exportfunctions.exportToExcel.celesta" type="DOWNLOAD"/>
           <related id="13"/>
         </element>
         <element id="15" type="xforms" template="directory_data_card.xml" proc="dirusing.xforms.dircontentcard.cardData.celesta" neverShowInPanel="true">
@@ -112,12 +112,12 @@ def datapanelHierarchical(context, main=None, session=None):
         </element>
         <element id="18" type="xforms" template="directory_import_card.xml" proc="dirusing.xforms.dirimportcard.cardData.celesta" neverShowInPanel="true">
           <proc id="proc18" name="dirusing.xforms.dirimportcard.cardDataSave.celesta" type="SAVE"/>
-          <proc id="upload3" name="dirusing.commonfunctions.importXlsData.celesta" type="UPLOAD"/>
+          <proc id="upload3" name="dirusing.exportfunctions.importXlsData.celesta" type="UPLOAD"/>
           <related id="13"/>
         </element>
         <element id="19" type="xforms" template="directory_import_card.xml" proc="dirusing.xforms.dirimportcard.cardData.celesta" neverShowInPanel="true">
           <proc id="proc18" name="dirusing.xforms.dirimportcard.cardDataSave.celesta" type="SAVE"/>
-          <proc id="upload3" name="dirusing.commonfunctions.importXlsDataOld.celesta" type="UPLOAD"/>
+          <proc id="upload3" name="dirusing.exportfunctions.importXlsDataOld.celesta" type="UPLOAD"/>
           <related id="13"/>
         </element>
     

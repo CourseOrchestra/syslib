@@ -6,19 +6,17 @@ Created on 16.02.2014
 '''
 
 import simplejson as json
-import base64
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
 except:
     from ru.curs.celesta.showcase import JythonDTO
-import java.io.OutputStreamWriter as OutputStreamWriter
 try:  
     from ru.curs.showcase.core import UserMessage
 except:
     pass
 from common.xmlutils import XMLJSONConverter
-from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList
+from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders
 
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -36,8 +34,6 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     table_jsn = json.loads(table_meta.getCelestaDoc())
     # Заголовок таблицы
     table_name = table_jsn["name"]
-    # Получение заголовков полей
-    _headers = getFieldsHeaders(table_meta,"xform")
 
     # Пустая структура данных, связнная с текущим справочником
     xformsdata = {"schema":{"@xmlns":"",
