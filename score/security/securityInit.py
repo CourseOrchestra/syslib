@@ -17,12 +17,7 @@ from security.functions import Settings
 import time, datetime
 from java.text import SimpleDateFormat
 
-def securityInit():
-    settings=Settings()    
-    adminUser = settings.getEmployeesParam("admin")
-    conn = ConnectionPool.get()
-    sesContext = SessionContext(adminUser, 'initsession')
-    context = CallContext(conn, sesContext)
+def securityInit(context):
     numbersSeries = numbersSeriesCursor(context)
     linesOfNumbersSeries = linesOfNumbersSeriesCursor(context)
     numbersSeries.id = 'subjects'

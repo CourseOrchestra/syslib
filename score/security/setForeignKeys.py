@@ -10,14 +10,9 @@ from ru.curs.celesta import SessionContext
 settings=Settings()
 
 
-def setForeignKeys():
+def setForeignKeys(context):
     tableSettings=settings.getSettingsJSON()
-    user=settings.getEmployeesParam("admin")
-    
-    conn = ConnectionPool.get()
-    sesContext = SessionContext(user, 'initsession')
-    context = CallContext(conn, sesContext)
-    
+
     celesta = context.getCelesta()
     score = celesta.getScore()
     security_grain = score.getGrain('security')
