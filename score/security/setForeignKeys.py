@@ -19,26 +19,24 @@ def setForeignKeys(context):
     subject_table=security_grain.getTable("subjects")
     login_table=security_grain.getTable("logins")
     #subject_column=subject_table.getColumn("employeeId")
-    employees_grain=score.getGrain(tableSettings["employeesGrain"])
-    employees_table=employees_grain.getTable(tableSettings["employeesTable"])
-    try:    
-        
+    employees_grain=score.getGrain(settings.getEmployeesParam("employeesGrain"))
+    employees_table=employees_grain.getTable(settings.getEmployeesParam("employeesTable"))
+    employees_id = employees_table.getColumn(settings.getEmployeesParam("employeesId"))
+    employees_id_length = employees_id.getLength()
+    subject_table.getColumn("employeeId").setLength(unicode(employees_id_length))    
+    try:            
         logins_keys = login_table.getForeignKeys()
-        loginSubjectKeyExists = False
         for logins_key in logins_keys:
             if logins_key.getReferencedTable() == subject_table:
-                loginSubjectKeyExists = True
+                logins_key.delete()                                
                 break
-        if not loginSubjectKeyExists:
-            logins_key = ForeignKey(login_table, subject_table, ["subjectId"])
+        logins_key = ForeignKey(login_table, subject_table, ["subjectId"])
         subjects_keys = subject_table.getForeignKeys()
-        subjectEmployeeKeyExists = False
         for subjects_key in subjects_keys:
             if subjects_key.getReferencedTable() == employees_table:
-                subjectEmployeeKeyExists = True
+                subjects_key.delete()
                 break
-        if not subjectEmployeeKeyExists:
-            subjects_key = ForeignKey(subject_table, employees_table, ["employeeId"])
+        subjects_key = ForeignKey(subject_table, employees_table, ["employeeId"])
         if settings.loginIsSubject():
             logins_key.setDeleteRule(FKRule.CASCADE)
             subjects_key.setDeleteRule(FKRule.SET_NULL)
