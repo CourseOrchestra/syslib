@@ -12,11 +12,7 @@ from ru.curs.celesta.syscursors import UserRolesCursor, PermissionsCursor, Roles
 from common.sysfunctions import tableCursorImport
 from common.dbutils import DataBaseXMLExchange
 from java.io import FileOutputStream, FileInputStream
-from ru.curs.celesta import Celesta
-from ru.curs.celesta.score import Score
-from ru.curs.celesta import ConnectionPool
-from ru.curs.celesta import CallContext
-from ru.curs.celesta import SessionContext
+
 
 
 def importData(tableInstance, filePath):
@@ -75,11 +71,8 @@ def initTables(context):
             importData(tableInstance,filePath+'/'+table['table']+'.xml')
         context.commit()
         
-def exportTables():
-    a = Celesta.getInstance()
-    conn = ConnectionPool.get()  
-    sesContext = SessionContext('super', 'supersession')
-    context = CallContext(conn, sesContext)
+def exportTables(context):
+
     
     filePath = os.path.dirname(os.path.abspath(__file__))
                                             
