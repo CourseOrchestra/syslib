@@ -5,15 +5,10 @@ Created on 23.10.2014
 @author: d.bozhenko
 '''
 
-from ru.curs.celesta import Celesta
-from ru.curs.celesta import ConnectionPool
-from ru.curs.celesta import CallContext
-from ru.curs.celesta import SessionContext
-
 from security._security_orm import customPermsCursor, customPermsTypesCursor, rolesCustomPermsCursor
 from common._common_orm import numbersSeriesCursor, linesOfNumbersSeriesCursor
 
-from security.functions import Settings
+#from security.functions import Settings
 import time, datetime
 from java.text import SimpleDateFormat
 
@@ -82,5 +77,4 @@ def securityInit(context):
         rolesCustomPerms.insert()
     
     #context.commit()
-    
-#securityInit()
+

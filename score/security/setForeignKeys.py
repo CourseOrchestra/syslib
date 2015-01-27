@@ -1,18 +1,11 @@
 # coding: utf-8
 
-from ru.curs.celesta import Celesta
 from ru.curs.celesta.score import ForeignKey, FKRule
-from ru.curs.celesta import ConnectionPool
-from ru.curs.celesta import CallContext
 from security.functions import Settings
-from ru.curs.celesta import SessionContext
-
-settings=Settings()
 
 
 def setForeignKeys(context):
-    tableSettings=settings.getSettingsJSON()
-
+    settings=Settings()
     celesta = context.getCelesta()
     score = celesta.getScore()
     security_grain = score.getGrain('security')

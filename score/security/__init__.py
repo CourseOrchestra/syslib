@@ -11,6 +11,7 @@ from ru.curs.celesta import ConnectionPool
 from ru.curs.celesta import CallContext
 from ru.curs.celesta import SessionContext
 from ru.curs.celesta import Celesta
+import initcontext
 
 settings = Settings()
 if not settings.loginIsSubject():
@@ -24,16 +25,12 @@ if not settings.loginIsSubject():
         employeesCursor.onPreDelete.append(employeesSubjectsPreDelete)
 
 if not settings.isSystemInitialised():
-#    a = Celesta.getInstance()
-    adminUser = settings.getEmployeesParam("admin")
-    conn = ConnectionPool.get()
     try:
-        sesContext = SessionContext(adminUser, 'initsession')
-        context = CallContext(conn, sesContext)
+        context = initcontext()
         if settings.isEmployees():
             setConstraint(context) #функция устанавливает внешний ключ в таблицу subjects и меняет значение параметра isSystemInitialised на True
         securityInit(context)
     finally:
-        ConnectionPool.putBack(conn)
+        pass
 navigatorsParts['99'] = authentificationNavigator
 
