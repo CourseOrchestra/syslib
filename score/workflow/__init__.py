@@ -1,4 +1,5 @@
 #coding:utf-8
+import initcontext
 
 from common.navigator import navigatorsParts
 
@@ -19,20 +20,12 @@ from . import _workflow_orm
 navigatorsParts['54'] = manageProcessesNav
 #navigatorsParts['55'] = testNavigator
 navigatorsParts['__header__'] = navSettings
-from ru.curs.celesta import Celesta
-from ru.curs.celesta.score import Score
-from ru.curs.celesta import ConnectionPool
-from ru.curs.celesta import CallContext
-from ru.curs.celesta import SessionContext
 
-conn = ConnectionPool.get()
-try:
-    sesContext = SessionContext('super', 'supersession')
-    context = CallContext(conn, sesContext)
-    #Заполнение таблиц начальными данными, производится только в случае первого разворачивания решения
-    initTables(context)
-finally:
-    ConnectionPool.putBack(conn)
+
+context = initcontext()
+#Заполнение таблиц начальными данными, производится только в случае первого разворачивания решения
+initTables(context)
+
 
 #Настройка обработчиков событий activiti
 
@@ -55,23 +48,6 @@ try:
         AppInfoSingleton.getAppInfo().\
         getActivitiEventScriptDictionary().\
         put(getattr(ActivitiEventType,eventsList[i]), handlersList[i])
-
-    content = {"default":{},
-               "manual":{},
-               "specialFunction":{}
-               }
-    defaultNamesList = settingsManager.getGrainSettings('datapanelSettings/default/parameter/@name','workflow')
-    defaultValuesList = settingsManager.getGrainSettings('datapanelSettings/default/parameter/@value','workflow')
-    for i in range(len(defaultNamesList)):
-        content["default"][defaultNamesList[i]] = defaultValuesList[i]
-    manualNamesList = settingsManager.getGrainSettings('datapanelSettings/manual/parameter/@name','workflow')
-    manualValuesList = settingsManager.getGrainSettings('datapanelSettings/manual/parameter/@value','workflow')
-    for i in range(len(manualNamesList)):
-        content["manual"][manualNamesList[i]] = manualValuesList[i]
-    specNamesList = settingsManager.getGrainSettings('datapanelSettings/specialFunction/parameter/@name','workflow')
-    specValuesList = settingsManager.getGrainSettings('datapanelSettings/specialFunction/parameter/@value','workflow')
-    for i in range(len(specNamesList)):
-        content["specialFunction"][specNamesList[i]] = specValuesList[i]
 
 except:
     pass
