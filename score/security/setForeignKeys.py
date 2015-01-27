@@ -20,15 +20,15 @@ def setForeignKeys(context):
     try:            
         logins_keys = login_table.getForeignKeys()
         for logins_key in logins_keys:
-            if logins_key.getReferencedTable() == subject_table:
-                logins_key.delete()                                
-                break
+            #if logins_key.getReferencedTable() == subject_table:
+            logins_key.delete()                                
+                #break
         logins_key = ForeignKey(login_table, subject_table, ["subjectId"])
         subjects_keys = subject_table.getForeignKeys()
         for subjects_key in subjects_keys:
-            if subjects_key.getReferencedTable() == employees_table:
-                subjects_key.delete()
-                break
+            #if subjects_key.getReferencedTable() == employees_table:
+            subjects_key.delete()
+                #break
         subjects_key = ForeignKey(subject_table, employees_table, ["employeeId"])
         if settings.loginIsSubject():
             logins_key.setDeleteRule(FKRule.CASCADE)
