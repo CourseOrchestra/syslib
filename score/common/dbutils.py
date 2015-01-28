@@ -205,7 +205,7 @@ class DataBaseXMLExchange():
         xmlWriter.writeStartElement("table")
         xmlWriter.writeAttribute('name', self.tableInstance.meta().getName())
         xmlWriter.writeCharacters("\n")
-        while self.tableInstance.next():
+        while self.tableInstance.nextInSet():
             xmlWriter.writeCharacters("\t")
             xmlWriter.writeStartElement("row")
             xmlWriter.writeCharacters("\n")
