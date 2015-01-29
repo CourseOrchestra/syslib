@@ -2,14 +2,14 @@ CREATE GRAIN security VERSION '1.2';
 
 -- *** TABLES ***
 CREATE TABLE subjects(
-  sid VARCHAR(40) NOT NULL,
+  sid VARCHAR(200) NOT NULL,
   name VARCHAR(255),
   employeeId VARCHAR(30),
   CONSTRAINT pk_subjects PRIMARY KEY (sid)
 );
 
 CREATE TABLE logins(
-  subjectId VARCHAR(40),
+  subjectId VARCHAR(200),
   userName VARCHAR(255) NOT NULL,
   password VARCHAR(200) NOT NULL,
   CONSTRAINT pk_logins PRIMARY KEY (userName)
