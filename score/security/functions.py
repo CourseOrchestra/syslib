@@ -190,8 +190,11 @@ def userHasPermission(context, sid, permission):
         у данного пользователя нет такого разрешения.
         В случае, если у данного пользователя разрешение есть,
         возвращает True
-    """
+    """    
     userRoles=UserRolesCursor(context)
+    if userRoles.tryGet(sid, "editor"):
+        return True
+    userRoles.clear()
     userRoles.setRange("userid", sid)
     permissions=customPermsCursor(context)
     if not permissions.tryGet(permission):
