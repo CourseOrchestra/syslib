@@ -12,8 +12,17 @@
 					<group>0</group>
 					<group>1</group>
 					<group>3</group>
-				</userdata> 				
+				</userdata> 
 			</navigator>
+			<mailsender>
+				<templatespath>C:/data/templates/</templatespath>
+				<mailfrom>openiformer@rambler.ru</mailfrom>
+				<smtphost>81.19.70.48</smtphost>
+				<port></port>
+				<login>openiformer</login>
+				<isauth>True</isauth>
+				<password>a!2P9^1</password>
+			</mailsender>
 		</grain>
 		<grain name="security">
 			<securitySettings>
