@@ -377,7 +377,7 @@ function createPageDGrid(elementId, parentId, metadata) {
 		}
 		
 	    var	grid = new declare(declareGrid)({
-				store: store,
+//				store: store,
 				getBeforePut: false,
 				
 				showFooter: isVisiblePager,
@@ -488,6 +488,8 @@ function createPageDGrid(elementId, parentId, metadata) {
 		for(var k in metadata["columns"]) {
 			grid.styleColumn(metadata["columns"][k]["id"], metadata["columns"][k]["style"]);
 		}
+		
+	    grid.set("store", store);
 		
 	});
 }

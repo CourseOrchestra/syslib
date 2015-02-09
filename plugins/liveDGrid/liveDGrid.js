@@ -2,6 +2,9 @@
 
 
 function createLiveDGrid(elementId, parentId, metadata) {
+	
+//	alert("Клиент");
+	
 	require([
 	         "dijit/form/Button",
 	         "dijit/form/DropDownButton",
@@ -371,7 +374,7 @@ function createLiveDGrid(elementId, parentId, metadata) {
 		}
 		
 	    var	grid = new declare(declareGrid)({
-				store: store,
+//				store: store,
 				getBeforePut: false,
 				minRowsPerPage: parseInt(metadata["common"]["limit"]),
 				selectionMode: selectionMode,
@@ -469,6 +472,15 @@ function createLiveDGrid(elementId, parentId, metadata) {
 				firstLoading = false;
 			}
 		});
+		
+		grid.on("dgrid-datachange", function(event){
+			if(event.value.indexOf("<") > -1){
+				event.returnValue = false;
+				console.log("Заблокирована строка, содержащая символ '<'");
+			}
+		});
+		
+	    grid.set("store", store);
 		
 	});
 }

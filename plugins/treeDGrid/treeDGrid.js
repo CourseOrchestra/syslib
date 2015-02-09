@@ -488,10 +488,6 @@ function createTreeDGrid(elementId, parentId, metadata) {
 	    
 	    
 		grid.on(".dgrid-row:click", function(event){
-			if(event.target.className.indexOf("expando-icon") != -1){
-				return;
-			}
-			
 			if(!grid.readonly){
 				if(grid.currentRowId != grid.row(event).id){
 					grid.currentRowId = grid.row(event).id;
@@ -502,9 +498,6 @@ function createTreeDGrid(elementId, parentId, metadata) {
 			gwtAfterClickTree(elementId, grid.row(event).id, grid.column(event).label, getSelection());
 		});
 		grid.on(".dgrid-row:dblclick", function(event){
-			if(event.target.className.indexOf("expando-icon") != -1){
-				return;
-			}
 			gwtAfterDoubleClickTree(elementId, grid.row(event).id, grid.column(event).label, getSelection());
 		});
 		function getSelection()
