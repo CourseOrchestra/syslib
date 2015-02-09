@@ -23,6 +23,8 @@ try:
     from ru.curs.showcase.activiti import  EngineFactory
 except:
     from workflow import testConfig as EngineFactory
+# 
+# from workflow import testConfig as EngineFactory
     
 from java.io import InputStream, FileInputStream
 from jarray import zeros

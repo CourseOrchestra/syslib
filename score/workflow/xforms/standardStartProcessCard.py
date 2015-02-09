@@ -8,7 +8,7 @@ Created on 02.10.2014
 
 import simplejson as json
 
-from workflow.processUtils import ActivitiObject
+from workflow.processUtils import ActivitiObject, getLinkPermisson
 try:
     from ru.curs.showcase.core.jython import JythonDTO
 except:
@@ -35,12 +35,12 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     u'''Карточка стандартного запуска процесса'''
     if add != "added":
         xformsdata = {"schema":{"@xmlns":'',
-                                "data":{"@type":'hide'},
+                                "data":{"@type":'add'},
                                 }
                       }
     else:
         xformsdata = {"schema":{"@xmlns":'',
-                                "data":{"@type":'add'},
+                                "data":{"@type":'hide'},
                                 }
                       }
     xformssettings = {"properties":{
@@ -76,7 +76,9 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
                  "dean":'admin',
                  "lawyer":'admin',
                  "service":'admin',
-                 "final":'admin'}
+                 "final":'admin',
+                 "docId":'1'
+                 }
     # vars = {"initiator":'cock',"troll":'stock'}
     activiti.runtimeService.startProcessInstanceByKey(processKey, variables)
     return context.message(u'Процесс запущен')

@@ -16,16 +16,20 @@ except:
     from ru.curs.celesta.showcase import JythonDTO, DataRecord, ResultSelectorData
 
 import os
-from workflow.processUtils import ActivitiObject,  functionImport, parse_json
+from workflow.processUtils import ActivitiObject,  functionImport, parse_json, getUsersCursor, getUserName
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from security._security_orm import loginsCursor
 from ru.curs.celesta.syscursors import UserRolesCursor
+from workflow.getUserInfo import userNameClass, groupUsersClass
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     activiti = ActivitiObject()
     taskService = activiti.taskService
     session = json.loads(session)['sessioncontext']
-
+    
+    datapanelSettings = parse_json()
+    usersClass = userNameClass(context,datapanelSettings)
+    groupsClass = groupUsersClass(context, datapanelSettings)
     sid = session["sid"]
     taskId = session['related']['gridContext']['currentRecordId']
     identityLinks = taskService.getIdentityLinksForTask(taskId)
@@ -37,14 +41,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                              "users": {"user": []}}
                      }
                   }
-    filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                'datapanelSettings.json')
-    datapanelSettings = parse_json(context)["specialFunction"]["getGroupUsers"]
-    getGroupUsers = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
-    filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                'datapanelSettings.json')
-    datapanelSettings = parse_json(context)["specialFunction"]["getUserName"]
-    getUserName = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
+
     assignee = ''
     for link in identityLinks:
         if link.type == 'assignee':
@@ -53,7 +50,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     for link in identityLinks:
         if link.type != 'assignee':
             if link.userId is None:
-                usersList = getGroupUsers(context,link.groupId)
+                usersList = groupsClass.getGroupUsers(link.groupId)
                 for userId in usersList:
                     if userId != assignee:
                         if userId not in reassList:
@@ -63,7 +60,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                     if link.userId not in reassList:
                         reassList.append(link.userId)
     for userId in reassList:
-        xformsdata["schema"]["data"]["users"]["user"].append({"@name": getUserName(context,userId),
+        xformsdata["schema"]["data"]["users"]["user"].append({"@name": usersClass.getUserName(userId),
                                                        "@id": userId})       
     xformssettings = {"properties":{"event":{"@name":"single_click",
                                              "@linkId": "1",

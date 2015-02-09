@@ -16,6 +16,8 @@ from security._security_orm import subjectsCursor
 
 from common.hierarchy import generateSortValue, getNewItemInLevelInHierarchy, hasChildren
 
+from workflow.getUserInfo import userNameClass
+
 from common._common_orm import numbersSeriesCursor, linesOfNumbersSeriesCursor
 
 import datetime
@@ -43,7 +45,7 @@ except:
 from workflow._workflow_orm import matchingCircuitCursor, statusCursor, processStatusModelCursor, \
                                     groupsCursor, userGroupCursor
 
-from workflow.processUtils import getUserName
+from workflow.processUtils import getUserName, parse_json
 
 from java.io import InputStream, FileInputStream
 from jarray import zeros
@@ -54,6 +56,8 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Карточка добавления и редактирования элементов в грид согласователей процеса'''
     session = json.loads(session)
+    datapanelSettings = parse_json()
+    usersClass = userNameClass(context, datapanelSettings)
     add = json.loads(add)
     addContext = add[0]
     processKey = add[1]
@@ -104,7 +108,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             for user in ass['users']:
                 if user['isDynamic'] == 'false':
                     users['user'].append({'id':json.dumps(['user',user['id']]),
-                                          'name':getUserName(context,user['id']),
+                                          'name':usersClass.getUserName(user['id']),
                                           'isDynamic':user['isDynamic']})
                 else:
                     users['user'].append({'id':user['id'],
@@ -170,6 +174,7 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     # raise Exception(data)
     matchingCircuit = matchingCircuitCursor(context)
     matchingCircuitClone = matchingCircuitCursor(context)
+#     raise Exception(data)
     data_dict = json.loads(data)
     processKey = data_dict["schema"]["data"]["@processKey"]
     parentId = data_dict["schema"]["data"]["@parentId"]

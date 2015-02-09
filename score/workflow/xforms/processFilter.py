@@ -24,15 +24,20 @@ def filterData(context, main=None, add=None, filterinfo=None, session=None, elem
     u'''Фильтр процессов по названию'''
     if elementId == 'processFilter':
         gridId = 'processesGrid'
+        descVisible = 'false'
     elif elementId == 'launchedProcessFilter':
         gridId = 'launchedProcessesGrid'
+        descVisible = 'true'
     elif elementId == 'finishedProcessFilter':
         gridId = 'finishedProcessesGrid'
+        descVisible = 'true'
     xformsdata = {"schema":
                     {"@xmlns":"",
                      "info":
                         {
                          "@processName": "",
+                         "@processDescription":"",
+                         "@descVisible": descVisible,
                          "@show": "0"
                          }
                      }
