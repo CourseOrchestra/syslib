@@ -143,7 +143,7 @@ def archiveTasks(context, main=None, session=None):
                                             "@refreshByTimer":"false",
                                             "@refreshInterval":"20",
                                             "proc": {"@id": "tasksSettings",
-                                                     "@name": "workflow.grid.activeTasksGrid.getSettings.celesta",
+                                                     "@name": "workflow.grid.archiveTasksGrid.getSettings.celesta",
                                                      "@type": "METADATA"},
                                             "related":{"@id":"tasksFilter"}
                                             },

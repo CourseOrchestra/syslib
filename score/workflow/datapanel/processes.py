@@ -191,13 +191,16 @@ def manageProcesses(context, main=None, session=None):
                                             },
                                            {"@id":"finishedProcessesGrid",
                                             "@type":"grid",
-                                            "@proc":"workflow.grid.finishedProcessesGrid.gridDataAndMeta.celesta",
+                                            "@proc":"workflow.grid.finishedProcessesGrid.gridData.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
                                             "proc":[{
                                                     "@id":1,
                                                     "@name":"workflow.grid.finishedProcessesGrid.gridToolBar.celesta",
-                                                    "@type":"TOOLBAR"}
+                                                    "@type":"TOOLBAR"},
+                                                    {"@id": "finishedProcessMeta",
+                                                     "@name": "workflow.grid.finishedProcessesGrid.getSettings.celesta",
+                                                     "@type": "METADATA"}
                                                     ],
                                             "related":{"@id":"finishedProcessFilter"}
                                             },
@@ -395,16 +398,21 @@ def userGroups(context, main=None, session=None):
                                                      "@type":"SAVE"}]
 
                                              },
+                                                                                     
                                            {"@id":"userGroupsGrid",
                                             "@type":"grid",
                                             "@hideOnLoad":"true",
-                                            "@proc":"workflow.grid.userGroupsGrid.gridDataAndMeta.celesta",
+                                            "@proc":"workflow.grid.userGroupsGrid.gridData.celesta",
                                             "@subtype":"JS_LIVE_GRID",
-                                            "@plugin":"liveDGrid",
+                                             "@plugin":"liveDGrid",
                                             "related":{
                                                        "@id":"groupsGrid"
                                                        },
                                             "proc":[{
+                                                    "@id":'userGroupsGridMeta',
+                                                    "@name":"workflow.grid.userGroupsGrid.gridMeta.celesta",
+                                                    "@type":"METADATA"},
+                                                    {
                                                     "@id":"userGroupsGridToolBar",
                                                     "@name":"workflow.grid.userGroupsGrid.gridToolBar.celesta",
                                                     "@type":"TOOLBAR"}]
