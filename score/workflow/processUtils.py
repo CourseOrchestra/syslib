@@ -8,10 +8,13 @@ Created on 30.09.2014
 import base64
 import array
 import re, os
+
 try:
     from ru.curs.showcase.activiti import EngineFactory
 except:
     from workflow import testConfig as EngineFactory
+
+# from workflow import testConfig as EngineFactory
 
 import javax.xml.stream.XMLInputFactory as XMLInputFactory
 import java.io.InputStreamReader as InputStreamReader
@@ -203,11 +206,12 @@ def setVariablesInLink(activiti, processId, taskId, link):
         link = link.replace(key, unicode(replaceDict[key]))
     return link
 
-def parse_json(context):
+def parse_json(context = None):
     settingsManager = SettingsManager()
     content = {"default":{},
                "manual":{},
-               "specialFunction":{}
+               "specialFunction":{},
+               "userInfo":{}
                }
     defaultNamesList = settingsManager.getGrainSettings('datapanelSettings/default/parameter/@name','workflow')
     defaultValuesList = settingsManager.getGrainSettings('datapanelSettings/default/parameter/@value','workflow')
@@ -221,6 +225,16 @@ def parse_json(context):
     specValuesList = settingsManager.getGrainSettings('datapanelSettings/specialFunction/parameter/@value','workflow')
     for i in range(len(specNamesList)):
         content["specialFunction"][specNamesList[i]] = specValuesList[i]
+    infoNames = settingsManager.getGrainSettings('datapanelSettings/userInfoFunction/parameter/@name','workflow')
+    infoGrains = settingsManager.getGrainSettings('datapanelSettings/userInfoFunction/parameter/@grain','workflow')
+    infoTables = settingsManager.getGrainSettings('datapanelSettings/userInfoFunction/parameter/@table','workflow')
+    infoIdFields = settingsManager.getGrainSettings('datapanelSettings/userInfoFunction/parameter/@idField','workflow')
+    infoNameFields = settingsManager.getGrainSettings('datapanelSettings/userInfoFunction/parameter/@nameField','workflow')    
+    for i in range(len(infoNames)):
+        content["userInfo"][infoNames[i]] = {"grain": infoGrains[i],
+                                             "table": infoTables[i],
+                                             "idField": infoIdFields[i],
+                                             "nameField": infoNameFields[i]}
     return content
 
 def functionImport(functionName):
@@ -289,19 +303,20 @@ def getUserGroups(context, sid):
                     break
     return rolesList
 
-def getUserName(context, sid):
+def getUserName(usersCur, sidField, nameField, sid):
     u'''фукнция, возвращающая имя пользователя из его логина'''
-    grainName = 'security'  # имя гранулы, в которой находится таблица пользователей
-    tableName = 'logins'  # имя таблицы пользователей
-    sidField = 'subjectId'
-    nameField = 'userName'  # поле таблицы пользователей, в котором находится имя пользователя
-
-    users = tableCursorImport(grainName, tableName)(context)
-    users.setRange(sidField, sid)
-    if users.tryFirst():
-        return getattr(users, nameField)
+    usersCur.setRange(sidField, sid)
+    if usersCur.tryFirst():
+        return getattr(usersCur, nameField)
     else:
         return u'Пользователь не найден'
+
+
+def getUsersCursor(context):
+    grainName = 'security'  # имя гранулы, в которой находится таблица пользователей
+    tableName = 'logins'  # имя таблицы пользователей
+    users = tableCursorImport(grainName, tableName)(context)
+    return users
     
 def getGroupUsers(context,groupId):
     userList = [] 
