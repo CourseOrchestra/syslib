@@ -14,7 +14,7 @@
 		</xf:model>
 	</head>
 	<body>
-		<!-- <xf:output value="serialize(instance('xformId_mainInstance'))"/> -->
+		<!--  <xf:output value="serialize(instance('xformId_mainInstance'))"/>  -->
 		<div class="filterButton break">
 			<xf:trigger appearance="minimal">
 				<xf:label>
@@ -28,11 +28,38 @@
 			</xf:trigger>
 		</div>
 
-		<xf:group ref="instance('xformId_mainInstance')/info[@show=1]">
+		<xf:group ref="instance('xformId_mainInstance')/info[@show=1 and @descVisible='false']">
 			<xf:group ref="@processName">
 				<div class="baseInput200 break">
 					<xf:input ref=".">
 						<xf:label>Название процесса</xf:label>
+					</xf:input>
+				</div>
+			</xf:group>
+			<div class="break button100">
+				<xf:trigger>
+					<xf:label>Отобразить</xf:label>
+					<xf:action ev:event="DOMActivate">
+						<xf:load
+              resource="javascript:gwtXFormUpdate('xformId',
+												  '1', 
+												  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"/>
+					</xf:action>
+				</xf:trigger>
+			</div>
+		</xf:group>
+		<xf:group ref="instance('xformId_mainInstance')/info[@show=1 and @descVisible='true']">
+			<xf:group ref="@processName">
+				<div class="baseInput200 break">
+					<xf:input ref=".">
+						<xf:label>Название процесса</xf:label>
+					</xf:input>
+				</div>
+			</xf:group>
+			<xf:group ref="@processDescription">
+				<div class="baseInput200">
+					<xf:input ref=".">
+						<xf:label>Описание процесса</xf:label>
 					</xf:input>
 				</div>
 			</xf:group>
