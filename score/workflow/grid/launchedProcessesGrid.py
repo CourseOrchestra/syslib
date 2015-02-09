@@ -6,13 +6,17 @@ Created on 27.10.2014
 @author: tr0glo)|(I╠╣
 '''
 
-
+from com.google.gson import Gson
 import simplejson as json
 from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
 
+from workflow._workflow_orm import view_launched_processCursor
+
 from common.sysfunctions import getGridWidth, getGridHeight
+
+import time
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
@@ -22,22 +26,24 @@ except:
 def getData(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
     u'''Функция получения списка всех запущенных процессов. '''
+    start = time.clock()
 
-    activiti = ActivitiObject()
-    processesList = activiti.runtimeService.createProcessInstanceQuery()\
-            .orderByProcessInstanceId().active().asc().list()
-    if len(processesList) > 50:
-        processesList = processesList.subList(firstrecord, firstrecord + 50)
     # Извлечение фильтра из related-контекста
     session = json.loads(session)
-    gridWidth = getGridWidth(session, 60)
-    gridHeight = getGridHeight(session, 2, 55, 80)
     session = session['sessioncontext']
     if "formData" in session["related"]["xformsContext"]:
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
         processName = info["@processName"]
+        description = info["@processDescription"]
     else:
         processName = ''
+        description = ''
+
+    #Получения курсора активных процессов и применение к нему фильтров
+    procInstance = view_launched_processCursor(context)
+    procInstance.setComplexFilter("""processName like '%%%s%%' and processDescription like '%%%s%%' """%(processName,description))
+    procInstance.limit(firstrecord-1,pagesize)
+
 
     data = {"records":{"rec":[]}}
     _header = {"id":["~~id"],
@@ -55,25 +61,22 @@ def getData(context, main=None, add=None, filterinfo=None,
         _header[column].append(toHexForXml(_header[column][0]))
     # Проходим по таблице и заполняем data
     # raise Exception(processesList)
-    for process in processesList:
+    for process in procInstance.iterate():
         procDict = {}
-        procDict[_header["id"][1]] = process.getId()
-        procDict[_header["pid"][1]] = process.getId()
-        procDesc = activiti.runtimeService.getVariable(process.getProcessInstanceId(), 'processDescription')
+        procDict[_header["id"][1]] = process.id_
+        procDict[_header["pid"][1]] = process.id_
+        procDesc = process.processDescription
         if procDesc is not None:
             procDict[_header["description"][1]] = procDesc
         else:
             procDict[_header["description"][1]] = ''
-        defId = process.getProcessDefinitionId()
-        procDict[_header["name"][1]] = activiti.repositoryService.createProcessDefinitionQuery().processDefinitionId(defId).singleResult().getName()
-        if processName.lower() not in procDict[_header["name"][1]].lower():
-            continue
+        procDict[_header["name"][1]] = process.processName
         # Поле-ссылка для показа изображения процесса
         procDict[_header["schema"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
                                              {"@href": "./?userdata=%s&mode=image&processId=%s" % \
-                                                            (session["userdata"], process.getId()),
+                                                            (session["userdata"], process.id_),
                                               "@target": "_blank",
                                               "img":
                                                 {"@src": "solutions/default/resources/imagesingrid/flowblock.png"}}}}
@@ -87,7 +90,7 @@ def getData(context, main=None, add=None, filterinfo=None,
                                                 {"@align": "center",
                                                  "a":
                                                  {"@href": "./?userdata=%s&mode=table&processId=%s" \
-                                                            % (session["userdata"], process.getId()),
+                                                            % (session["userdata"], process.id_),
                                                   "@target": "_blank",
                                                   "img":
                                                     {"@src": "solutions/default/resources/imagesingrid/table.png"}}}}
@@ -102,7 +105,7 @@ def getData(context, main=None, add=None, filterinfo=None,
                                                       "#sorted":
                                                          [{"main_context":"current"},
                                                           {"modalwindow":
-                                                             {"@caption": "Остановка процесса"
+                                                             {"@caption": u"Остановка процесса"
                                                               }
                                                            },
                                                           {"datapanel":
@@ -130,19 +133,29 @@ def getData(context, main=None, add=None, filterinfo=None,
                                                ]
                                               }
         data["records"]["rec"].append(procDict)
-    res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
-
+    gson = Gson()
+    data = gson.toJson(data)
+    res1 = XMLJSONConverter.jsonToXml(data)
+#     raise Exception(data)
+    print time.clock() - start
     return JythonDTO(res1, None)
 
 def getSettings(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     # Определяем список полей таблицы для отображения
     gridWidth = getGridWidth(session, 60)
     gridHeight = getGridHeight(session, 2, 55, 80)
-
-    activiti = ActivitiObject()
-    processesList = activiti.runtimeService.createProcessInstanceQuery()\
-            .orderByProcessInstanceId().active().asc().list()
-
+    session = json.loads(session)
+    session = session['sessioncontext']
+    if "formData" in session["related"]["xformsContext"]:
+        info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
+        processName = info["@processName"]
+        description = info["@processDescription"]
+    else:
+        processName = ''
+        description = ''
+    procInstance = view_launched_processCursor(context)
+    procInstance.setComplexFilter("""processName like '%%%s%%' and processDescription like '%%%s%%' """%(processName,description))
+    
 
     _header = {"id":["~~id"],
              "pid":[u"Код процесса"],
@@ -159,7 +172,7 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
                                 "properties": {"@pagesize":"50",
                                                "@gridWidth": gridWidth,
                                                "@gridHeight": gridHeight,
-                                               "@totalCount": len(processesList),
+                                               "@totalCount": procInstance.count(),
                                                "@profile":"default.properties"}
                                 }
     # Добавляем поля для отображения в gridsettings
@@ -172,7 +185,9 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
     # settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
     # settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "400px"})
 
-    res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
+    gson = Gson()
+    settings = gson.toJson(settings)
+    res2 = XMLJSONConverter.jsonToXml(settings)
 
     return JythonDTO(None, res2)
 

@@ -13,6 +13,8 @@ from workflow._workflow_orm import matchingCircuitCursor, statusCursor
 
 from common.sysfunctions import toHexForXml,getGridWidth, getGridHeight
 
+from common import  hierarchy
+
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 
@@ -24,6 +26,7 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
     sid = session['sessioncontext']['sid']
     _headers = {'id': '~~id',
                 'name': u'Название',
+                'number': u'Номер',
                 'type': u'Тип',
                 'status': u'Статус',
                 'isMain': u'Тип заключения/атрибута',
@@ -74,6 +77,7 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
                     
                 else:
                     row[_headers['name']] = matchingCircuit.name
+                row[_headers['number']] = matchingCircuit.number
                 row[_headers['hasChildren']] = hasChildren(context,matchingCircuit.number,matchingCircuitClone)
                 row[_headers['properties']] = event
                 _data["records"]["rec"].append(row)
@@ -95,7 +99,7 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
                 row = dict()
                 row[_headers['id']] = json.dumps(id_dict)
                 row[_headers['name']] = matchingCircuit.name
-                
+                row[_headers['number']] = matchingCircuit.number
 
                     
                 row[_headers['hasChildren']] = hasChildren(context,matchingCircuit.number,matchingCircuitClone)
@@ -115,7 +119,8 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
                     {"header": u"Порядок согласования"},
                  "columns":
                     {"col":
-                     [{"@id": u"Название"}
+                     [{"@id": u"Название"},
+                      {"@id": u"Номер"}
                       ]},
                  "properties":
                     {"@flip": "false",
@@ -149,6 +154,10 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
     textEdit = u"Редактировать"
     hintEdit = u"Редактирование элемента"
     styleDelete = 'true'
+    upStyle = 'true'
+    downStyle = 'true'
+    leftStyle = 'true'
+    rightStyle = 'true'
     if ('currentRecordId' not in session['sessioncontext']['related']['gridContext']):
         styleAdd = 'true'
         styleEdit = 'true'
@@ -160,6 +169,8 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
             styleAdd = 'false'
             styleEdit = 'true'
         else:
+            upStyle = 'false'
+            downStyle = 'false'
             matchingCircuit.get(currentId['procKey'],currentId['id'])
             #В элементы параллельного согласования можно добавлять элементы, но нельзя редактировать параллельлное согласование
             if matchingCircuit.type == 'parallel':
@@ -168,6 +179,10 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
             #Другие элементы можно редактировать
             else:
                 styleEdit = 'false'
+                if '.' in matchingCircuit.number:
+                    leftStyle = 'false'
+                else:
+                    rightStyle = 'false'
             styleDelete = 'false'
     data = {"gridtoolbar":
         {"item":
@@ -207,7 +222,78 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
                     "element":
                      {"@id": "addMatcher",
                       "add_context": json.dumps(['edit',processKey, modelId])}}}]}},
-
+          {"@img": "gridToolBar/arrowUp.png",
+            "@hint": u"Поднять вопрос",
+            "@disable": upStyle,
+            "action":{"#sorted":[{"main_context": 'current'},
+                                 {"datapanel":{"@type": "current",
+                                               "@tab": "current",
+                                               "element":{"@id": "matchingCircuitGrid",
+                                                          "add_context": '',
+                                                          "@keep_user_settings": "true"}
+                                               }
+                                  },
+                                 {"server":{"activity":{"@id": "up",
+                                                        "@name": "workflow.grid.matchingCircuitGrid.changeNumber.celesta",
+                                                        "add_context": "up"}
+                                            }
+                                  }]
+                      }
+            },
+           {"@img": "gridToolBar/arrowDown.png",
+            "@hint": u"Опустить вопрос",
+            "@disable": downStyle,
+            "action":{"#sorted":[{"main_context": 'current'},
+                                 {"datapanel":{"@type": "current",
+                                               "@tab": "current",
+                                               "element":{"@id": "matchingCircuitGrid",
+                                                          "add_context": '',
+                                                          "@keep_user_settings": "true"}
+                                               }
+                                  },
+                                 {"server":{"activity":{"@id": "down",
+                                                        "@name": "workflow.grid.matchingCircuitGrid.changeNumber.celesta",
+                                                        "add_context":"down"}
+                                            }
+                                  }]
+                      }
+            },
+           {"@img": "gridToolBar/arrowLeft.png",
+            "@hint": u"Сдвинуть влево",
+            "@disable": leftStyle,
+            "action":{"#sorted":[{"main_context": 'current'},
+                                 {"datapanel":{"@type": "current",
+                                               "@tab": "current",
+                                               "element":{"@id": "matchingCircuitGrid",
+                                                          "add_context": '',
+                                                          "@keep_user_settings": "true"}
+                                               }
+                                  },
+                                 {"server":{"activity":{"@id": "left",
+                                                        "@name": "workflow.grid.matchingCircuitGrid.changeLevel.celesta",
+                                                        "add_context": "left"}
+                                            }
+                                  }]
+                      }
+            },
+           {"@img": "gridToolBar/arrowRight.png",
+            "@hint": u"Сдвинуть вправо",
+            "@disable": rightStyle,
+            "action":{"@show_in": "MODAL_WINDOW",
+                      "#sorted":[{"main_context": 'current'},
+                                 {"modalwindow":{"@caption": u"Выбор родительского вопроса",
+                                                 "@height": "300",
+                                                 "@width": "450"}
+                                  },
+                                 {"datapanel":{"@type": "current",
+                                               "@tab": "current",
+                                               "element":{"@id": "moveRight",
+                                                          "add_context": '',
+                                                          "@keep_user_settings": "true"}
+                                               }
+                                  }]
+                      }
+            },
 
           {"@text": u"Удалить",
            "@img": "gridToolBar/deleteDocument.png",
@@ -231,3 +317,28 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
     res = XMLJSONConverter.jsonToXml(json.dumps(data))
     return res
 
+def changeNumber(context, main=None, add=None, filterinfo=None,
+             session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
+    session = json.loads(session)["sessioncontext"]
+    currentRec= json.loads(session['related']['gridContext']['currentRecordId'])
+    processKey = currentRec["procKey"]
+    id = currentRec["id"]
+    matchingCircuit = matchingCircuitCursor(context)
+    matchingCircuit.get(processKey,id)
+    matchingCircuit.setRange('processKey',processKey)
+    #raise Exception(currentRecordId, int(main))
+    
+    hierarchy.changeNodePositionInLevelOfHierarchy(context, matchingCircuit, 'number', 'sort', 1 if add == 'down' else -1)
+
+
+def changeLevel(context, main=None, add=None, filterinfo=None,
+             session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
+    session = json.loads(session)["sessioncontext"]
+    currentRec= json.loads(session['related']['gridContext']['currentRecordId'])
+    processKey = currentRec["procKey"]
+    id = currentRec["id"]
+    matchingCircuit = matchingCircuitCursor(context)
+    matchingCircuit.get(processKey,id)
+    matchingCircuit.setRange('processKey',processKey)
+
+    hierarchy.leftShiftNodeInHierarchy(context, matchingCircuit, 'number', 'sort')

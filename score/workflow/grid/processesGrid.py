@@ -48,10 +48,12 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
     # Проходим по таблице и заполняем data
+    recordCount = 0
     for process in processesList:
         procDict = {}
         if processName.lower() not in process.name.lower():
             continue
+        recordCount += 1
         procDict[_header["id"][1]] = process.key
         procDict[_header["pid"][1]] = process.key
         procDict[_header["name"][1]] = process.name
@@ -127,7 +129,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
                                                "@gridWidth": gridWidth,
                                                "@gridHeight": gridHeigth,
 
-                                               "@totalCount": len(processesList),
+                                               "@totalCount": recordCount,
                                                "@profile":"default.properties"}
                                 }
     if add is not None:

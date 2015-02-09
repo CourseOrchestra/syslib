@@ -9,10 +9,12 @@ Created on 10.11.2014
 '''
 
 import simplejson as json
+from com.google.gson import Gson
 import os
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject, functionImport, getLinkPermisson, parse_json
+from workflow.getUserInfo import userNameClass
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
@@ -24,6 +26,8 @@ from ru.curs.celesta.syscursors import UserRolesCursor, RolesCursor
 def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=[]):
     u'''Функция получения списка всех развернутых процессов. '''
+    datapanelSettings = parse_json()
+    usersClass = userNameClass(context, datapanelSettings)
     session = json.loads(session)
     gridWidth = getGridWidth(session, 60)
     gridHeight = getGridHeight(session, 1)
@@ -71,8 +75,8 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 
     filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                             'datapanelSettings.json')
-    datapanelSettings = parse_json(context)["specialFunction"]["getUserName"]
-    function = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
+    #datapanelSettings = parse_json(context)["specialFunction"]["getUserName"]
+    #function = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
 
 #     Проходим по таблице и заполняем data
     for task in tasksList:
@@ -83,7 +87,7 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         for link in identityLinks:
             if link.userId is not None:
                 if not (link.type == 'candidate' and _header["userAss"][1] in taskDict):
-                    taskDict[_header["userAss"][1]] = function(context, link.userId)
+                    taskDict[_header["userAss"][1]] = usersClass.getUserName(link.userId)
             else:
                 if roles.tryGet(link.groupId):
                     taskDict[_header["userAss"][1]] = u"""Группа "%s\"""" % roles.description
@@ -199,9 +203,11 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
 #                                                        "@width": "500px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["userAss"][0],
                                                        "@width": "100px"})
-
-    return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(data)),
-                     XMLJSONConverter.jsonToXml(json.dumps(settings)))
+    gson = Gson()
+    data = gson.toJson(data)
+    settings = gson.toJson(settings)
+    return JythonDTO(XMLJSONConverter.jsonToXml(data),
+                     XMLJSONConverter.jsonToXml(settings))
 
 # def assign(context, main, add=None, filterinfo=None, session=None, elementId=None):
 #     sid = json.loads(session)['sessioncontext']["sid"]

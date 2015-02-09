@@ -10,10 +10,16 @@ Created on 21.10.2014
 
 import simplejson as json
 import os
+from com.google.gson import Gson
+import time
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from workflow.processUtils import ActivitiObject,  functionImport, parse_json
+from workflow.processUtils import ActivitiObject,  functionImport, parse_json, getUsersCursor
 from workflow._workflow_orm import formCursor
+from workflow.getUserInfo import userNameClass
+
+from workflow._workflow_orm import view_task_linksCursor
+
 from java.text import SimpleDateFormat
 try:
     from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
@@ -25,50 +31,50 @@ from ru.curs.celesta.syscursors import UserRolesCursor, RolesCursor
 def getData(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
     u'''Функция получения списка всех развернутых процессов. '''
-    a = datetime.datetime.now()
+    #raise Exception(main,add,filterinfo,session,elementId,sortColumnList,firstrecord,pagesize)
+    gson = Gson()
+    tasks = view_task_linksCursor(context)
+    timeList = list()
+    start = time.time()
     session = json.loads(session)
-
     session = session["sessioncontext"]
-    sid = session["sid"]
-    activiti = ActivitiObject()
-    inputFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
-    dateFrom = '0001-01-01 00:00:00'
-    dateTo = '9999-12-31 23:59:59'
+
+    datapanelSettings = parse_json()
+    usersClass = userNameClass(context,datapanelSettings)
+
+    timeAct = str(time.time() - start)
+    timeList.append('ActivitiInit ' + timeAct)
     if "formData" in session["related"]["xformsContext"]:
+        dateTo = None
+        dateFrom = None
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
-        taskName = "%%%s%%" % ' '.join(info["@task"].split())
-        processName = ' '.join(info["@process"].split())
-        assignee = ' '.join(info["@assignee"].split())
+        taskName = info["@task"]
+        processName = info["@process"]
+        assignee = info["@assignee"]
         if info["@dateFrom"]:
-            dateFrom = info["@dateFrom"].replace('T', ' ')
+            dateFrom = info["@dateFrom"]
         if info["@dateTo"]:
-            dateTo = info["@dateTo"].replace('T', ' ')
+            dateTo = info["@dateTo"]
     else:
         taskName = '%'
-        processName = ''
-        assignee = ''
+        processName = '%'
+        assignee = None
+        dateTo = None
+        dateFrom = None
 
-    dateFrom = SimpleDateFormat.parse(inputFormat, dateFrom)
-    dateTo = SimpleDateFormat.parse(inputFormat, dateTo)
 
-#     groupTaskList = activiti.taskService.createTaskQuery()\
-#                             .taskNameLike(taskName)\
-#                             .taskCreatedAfter(dateFrom)\
-#                             .taskCreatedBefore(dateTo)\
-#                             .orderByTaskCreateTime().desc().list()
-#     managementService = activiti.managementService
-
-    groupTaskList = activiti.taskService.createNativeTaskQuery()\
-                        .sql("""select *
-                                    from %s 
-                                    where name_ like('%%%s%%') and
-                                          create_time_>'%s' and
-                                          create_time_<'%s'
-                                    order by create_time_ desc
-                                    limit %i
-                                    offset %i""" % ('act_ru_task',
-                                                       taskName, dateFrom, dateTo, pagesize, firstrecord)).list()
-
+    whereClause = """processName like '%%%s%%' and name_ like '%%%s%%'"""%(processName,taskName)
+    if assignee is not None and assignee != '':
+        whereClause += """and assignee_ like '%%%s%%'""" % (assignee)  
+    if dateFrom is not None:
+        whereClause += """and create_time_ > '%s'"""%(dateFrom)
+    if dateTo is not None:
+        whereClause += """and create_time_ < '%s'"""%(dateTo)   
+    tasks.setComplexFilter(whereClause)
+    tasks.orderBy('create_time_')
+    tasks.limit(firstrecord-1,pagesize)
+    timeTaskReceived = str(time.time() - start)
+    timeList.append('Task list received: '+timeTaskReceived)                                                   
 #     if len(groupTaskList) > 50:
 #         groupTaskList = groupTaskList.subList(firstrecord, firstrecord + 50)
     data = {"records":{"rec":[]}}
@@ -87,46 +93,56 @@ def getData(context, main=None, add=None, filterinfo=None,
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
     # Проходим по таблице и заполняем data
-    runtimeService = activiti.runtimeService
-    userRoles = UserRolesCursor(context)
-    roles = RolesCursor(context)
-    userRoles.setRange('userid', sid)
+
     form = formCursor(context)
-    filePath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                            'datapanelSettings.json')
-    datapanelSettings = parse_json(context)["specialFunction"]["getUserName"]
-    function = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
+    #datapanelSettings = parse_json(context)["specialFunction"]["getUserName"]
+    #function = functionImport('.'.join([x for x in datapanelSettings.split('.') if x != 'celesta']))
 
+    timeFuncImp = str(time.time() - start)
+    timeList.append('FunctionImport: ' +  timeFuncImp)
 
-    for task in groupTaskList:
+    for task in tasks.iterate():
+        #print task.getIdentityLinks()
+        timeStartTask = time.time()
         taskDict = {}
         taskDict[_header["properties"][1]] = {"event":
                                               []}
-        taskDict[_header["id"][1]] = task.id
-        processInstanceId = task.getProcessInstanceId()
-
-        procDesc = task.getProcessVariables()['processDescription']
+        taskDict[_header["id"][1]] = task.id_
+        timeList.append(task.id_ + ' get task id ' +  str(time.time() - timeStartTask))
+        processInstanceId = task.proc_inst_id_
+        procDesc = tasks.processDescription
+        timeList.append(task.id_ + ' get procDesc ' + str(time.time() - timeStartTask))
         if procDesc is not None:
             taskDict[_header["description"][1]] = procDesc
         else:
             taskDict[_header["description"][1]] = ''
-        processDefinition = activiti.repositoryService.createProcessDefinitionQuery()\
-             .processDefinitionId(task.getProcessDefinitionId()).singleResult()
-        docName = "%s. %s" % (task.getProcessVariables()['docId'], \
-                              task.getProcessVariables()['docName'])
-        taskDict[_header["process"][1]] = "%s: %s" % (processDefinition.getName(), docName)
-        identityLinks = activiti.taskService.getIdentityLinksForTask(task.id)
-#         taskDict[_header["assignee"][1]] = 'error'
-        taskDict[_header["assignee"][1]] = ''
-        reassignFlag = False
-        for link in identityLinks:
-            if link.userId is not None and link.type == 'assignee':
-                taskDict[_header["assignee"][1]] = function(context, link.userId)
-            else:
-                reassignFlag = True
+#         processDefinition = activiti.repositoryService.createProcessDefinitionQuery()\
+#              .processDefinitionId(task.getProcessDefinitionId()).singleResult()
+        timeList.append(task.id_ + ' get procDef ' + str(time.time() - timeStartTask))
 
-        taskDict[_header["date"][1]] = SimpleDateFormat("HH:mm dd.MM.yyyy").format(task.getCreateTime())
-        taskDict[_header["name"][1]] = task.name
+#         taskDict[_header["process"][1]] = "aaa"
+        taskDict[_header["process"][1]] = tasks.processName
+        timeList.append(task.id_ + ' get docIddocName ' + str(time.time() - timeStartTask))
+#         taskDict[_header["assignee"][1]] = 'error'
+        timeList.append(task.id_ + ' get Identity Links ' + str(time.time() - timeStartTask))
+        if task.assignee_ is None:
+            taskDict[_header["assignee"][1]] = ''
+        else:
+            taskDict[_header["assignee"][1]] = usersClass.getUserName(task.assignee_)
+        reassignFlag = False
+        if task.users is not None:
+            users = task.users.split(',')
+        else:
+            users = []
+        if task.groups is not None:
+            groups = task.groups.split(',')
+        else:
+            groups = []
+        if len(users) + len(groups) > 0:
+            reassignFlag = True
+        timeList.append(task.id_ + ' get reass flag ' + str( time.time() - timeStartTask))
+        taskDict[_header["date"][1]] = SimpleDateFormat("HH:mm dd.MM.yyyy").format(task.create_time_)
+        taskDict[_header["name"][1]] = task.name_
         if reassignFlag:
             taskDict[_header["reassign"][1]] = {"div":
                                                 {"@align": "center",
@@ -140,7 +156,7 @@ def getData(context, main=None, add=None, filterinfo=None,
                                                                      "#sorted":
                                                                      [{"main_context": 'current'},
                                                                       {"modalwindow":
-                                                                          {"@caption": "Выбор пользователя"
+                                                                          {"@caption": u"Выбор пользователя"
                                                                            }
                                                                         },
                                                                       {"datapanel":
@@ -150,10 +166,12 @@ def getData(context, main=None, add=None, filterinfo=None,
                                                                             {'@id':'reassign'}}}]}})
         else:
             taskDict[_header["reassign"][1]] = ""
-        if form.tryGet(processDefinition.key, task.formKey):
-            link = form.link.replace('&[processId]', processInstanceId).replace('&[taskId]', task.id)
+        timeList.append(task.id_ + ' get reassign ' + str(time.time() - timeStartTask))
+#         link = 'a'
+        if form.tryGet(task.processKey, task.form_key_):
+            link = form.link.replace('&[processId]', processInstanceId).replace('&[taskId]', task.id_)
         else:
-            link = "./?userdata=%s&mode=task&processId=%s&taskId=%s" % (session["userdata"], processInstanceId, task.id)
+            link = "./?userdata=%s&mode=task&processId=%s&taskId=%s" % (session["userdata"], processInstanceId, task.id_)
         taskDict[_header["document"][1]] = {"div":
                                             {"@align": "center",
                                              "a":
@@ -162,40 +180,55 @@ def getData(context, main=None, add=None, filterinfo=None,
                                               "img":
                                                 {"@src": "solutions/default/resources/imagesingrid/play.png"}}}}
 
-        if processName in taskDict[_header["process"][1]] and assignee in taskDict[_header["assignee"][1]]:
-            data["records"]["rec"].append(taskDict)
-    # raise Exception(a, datetime.datetime.now())
-    res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
-
+        timeList.append(task.id_+' get doc id '+ str( time.time() - timeStartTask))
+        data["records"]["rec"].append(taskDict)
+        timeList.append('Task ' + task.id_ + ' added: ' +  str(time.time() - start))
+    data = gson.toJson(data)
+    timeList.append('Prev dumps: ' + str(time.time() - start))
+    res1 = XMLJSONConverter.jsonToXml(data)
+    timeList.append('Finish getData: ' + str(time.time() - start))
+#     print timeList
+    #raise Exception(timeList)
     return JythonDTO(res1, None)
 
     # Определяем список полей таблицы для отображения
 
 def getSettings(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
+    start = time.time()
+    tasks = view_task_linksCursor(context)
+    gson = Gson()
     gridWidth = getGridWidth(session, 60)
     gridHeight = getGridHeight(session, 1, 55, 75)
     session = json.loads(session)["sessioncontext"]
-    activiti = ActivitiObject()
-    inputFormat = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
-    dateFrom = '0001-01-01 00:00:00'
-    dateTo = '9999-12-31 23:59:59'
+
     if "formData" in session["related"]["xformsContext"]:
+        dateTo = None
+        dateFrom = None
         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
-        taskName = "%%%s%%" % ' '.join(info["@task"].split())
+        taskName = info["@task"]
+        processName = info["@process"]
+        assignee = info["@assignee"]
         if info["@dateFrom"]:
-            dateFrom = info["@dateFrom"].replace('T', ' ')
+            dateFrom = info["@dateFrom"]
         if info["@dateTo"]:
-            dateTo = info["@dateTo"].replace('T', ' ')
+            dateTo = info["@dateTo"]
     else:
         taskName = '%'
+        processName = '%'
+        assignee = None
+        dateTo = None
+        dateFrom = None
 
-    dateFrom = SimpleDateFormat.parse(inputFormat, dateFrom)
-    dateTo = SimpleDateFormat.parse(inputFormat, dateTo)
 
-    groupTaskList = activiti.taskService.createTaskQuery()\
-                            .taskNameLike(taskName)\
-                            .taskCreatedAfter(dateFrom)\
-                            .taskCreatedBefore(dateTo)
+    whereClause = """processName like '%%%s%%' and name_ like '%%%s%%'"""%(processName,taskName)
+    if assignee is not None and assignee != '':
+        whereClause += """and assignee_ like '%%%s%%'""" % (assignee)
+    if dateFrom is not None:
+        whereClause += """and create_time_ > '%s'"""%(dateFrom)
+    if dateTo is not None:
+        whereClause += """and create_time_ < '%s'"""%(dateTo)
+
+    tasks.setComplexFilter(whereClause)
 
     _header = {"id":["~~id"],
 #                "schema":[u"Схема"],
@@ -209,13 +242,13 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
                "properties":[u"properties"]}
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
-                                "properties": {"@pagesize":"30",
+                                "properties": {"@pagesize":"50",
                                                "@gridWidth": gridWidth,
                                                "@gridHeight": gridHeight,
-                                               "@totalCount": groupTaskList.count(),
+                                               "@totalCount": tasks.count(),
                                                "@profile":"default.properties"}
                                 }
-
+    
     # Добавляем поля для отображения в gridsettings
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["document"][0],
                                                        "@width": "60px"})
@@ -232,9 +265,9 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
                                                        "@width": "200px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["date"][0],
                                                        "@width": "200px"})
-
-    res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
-
+    settings = gson.toJson(settings)
+    res2 = XMLJSONConverter.jsonToXml(settings)
+    #    raise Exception(time.time() - start)
     return JythonDTO(None, res2)
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
