@@ -69,6 +69,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     u'''процедура стандартного завершения задачи со сменой статуса'''
     session = json.loads(session)['sessioncontext']
+    sid = session['sid']
     if isinstance(session['urlparams']['urlparam'], list):
         for params in session['urlparams']['urlparam']:
             if params['@name'] == 'taskId':
@@ -80,7 +81,7 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
 
     if jsonData["@newStatus"] != '':
         if ' '.join(jsonData["@comment"].split(' ')) != '':
-            activiti.taskService.addComment(taskId, processId, jsonData["@comment"])
+            activiti.addCommentWithUserId(context,taskId, processId, jsonData["@comment"],sid)
         activiti.taskService.complete(taskId, {"status": jsonData["@newStatus"]})
         return context.message(u'Задача выполнена, статус изменен')
     else:

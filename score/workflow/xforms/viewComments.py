@@ -20,6 +20,8 @@ try:
 except:
     from ru.curs.celesta.showcase import ResultSelectorData, DataRecord
 
+from workflow.getUserInfo import userNameClass
+
 try:
     from ru.curs.showcase.activiti import  EngineFactory
 except:
@@ -31,10 +33,20 @@ from jarray import zeros
 # from common.xmlutils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
+from workflow.processUtils import parse_json
+
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Карточка стандартного запуска процесса'''
     act = ActivitiObject()
-    comments = act.taskService.getCommentsByType('comment')
+    datapanelSettings = parse_json()
+    usersClass = userNameClass(context,datapanelSettings)
+    comments = act.taskService.getProcessInstanceComments(add)
+#     for com in comments:
+#         print com.getFullMessage(), com.getUserId()
+#     
+#     comments = act.taskService.getCommentsByType('comment')
+#     for com in comments:
+#         print com.getFullMessage()
     xformssettings = {"properties":{
                                     "event":[{"@name": "single_click",
                                               "@linkId": "1",
@@ -56,7 +68,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
         if comment.getProcessInstanceId() == add:
             task = act.historyService.createHistoricTaskInstanceQuery().taskId(comment.getTaskId()).singleResult()
             
-            xformsdata["schema"]["data"].append({"@comment":comment.getFullMessage(),
+            xformsdata["schema"]["data"].append({"@comment":unicode(usersClass.getUserName(comment.getUserId()))+ ': ' + comment.getFullMessage(),
                                                  "@task":task.getName()
                                                  })
     jsonData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))
