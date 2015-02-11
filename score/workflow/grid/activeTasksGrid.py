@@ -225,7 +225,9 @@ def getData(context, main=None, add=None, filterinfo=None,
                                                                      "#sorted":
                                                                      [{"main_context": 'current'},
                                                                       {"modalwindow":
-                                                                          {"@caption": u"Выбор пользователя"
+                                                                          {"@caption": u"Выбор пользователя",
+                                                                            "@height": "150",
+                                                                            "@width": "250"
                                                                            }
                                                                         },
                                                                       {"datapanel":

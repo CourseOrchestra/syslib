@@ -105,7 +105,9 @@ def getData(context, main=None, add=None, filterinfo=None,
                                                       "#sorted":
                                                          [{"main_context":"current"},
                                                           {"modalwindow":
-                                                             {"@caption": u"Остановка процесса"
+                                                             {"@caption": u"Остановка процесса",
+                                                                       "@height": "250",
+                                                                       "@width": "500"
                                                               }
                                                            },
                                                           {"datapanel":
