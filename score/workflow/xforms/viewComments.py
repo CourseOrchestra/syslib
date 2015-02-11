@@ -36,7 +36,7 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import parse_json
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
-    u'''Карточка стандартного запуска процесса'''
+    u'''Карточка просмотра комментариев по задаче'''
     act = ActivitiObject()
     datapanelSettings = parse_json()
     usersClass = userNameClass(context,datapanelSettings)
@@ -53,7 +53,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                               "action":{"main_context": "current",
                                                         "datapanel":{"@type": "current",
                                                                      "@tab": "current",
-                                                                     "element":{"@id":'standardStartProcess',
+                                                                     "element":{"@id":'tasksGrid',
                                                                                 "add_context":"added"}
                                                                      }
                                                         }
