@@ -26,10 +26,11 @@ from java.lang import String
 from java.io import ByteArrayInputStream
 from org.activiti.engine.impl.util.io import InputStreamSource
 from org.activiti.engine.impl.util.io import StreamSource
-import simplejson as json
 from ru.curs.celesta.syscursors import UserRolesCursor
 from common.sysfunctions import tableCursorImport
 from common.grainssettings import SettingsManager
+
+from workflow._workflow_orm import act_hi_commentCursor
 
 
 class ActivitiObject():
@@ -167,6 +168,15 @@ class ActivitiObject():
         u'''выбирает только те задачи, кандидатами которых являются пользователи заданной группы'''
         taskQuery = self.taskService.createTaskQuery().taskCandidateGroup(candidateGroup).list()
         return taskQuery
+    
+    def addCommentWithUserId(self, context,taskId, processInstanceId, message, userId):
+        u'''Добавляет комментарий к задаче и записывает в таблицу автора комментарий'''
+        comment = self.taskService.addComment(taskId, processInstanceId, message)
+        comments = act_hi_commentCursor(context)
+        comments.get(comment.id)
+        comments.user_id_ = userId
+        comments.update()
+    
 
 def getBase64Image(imageStream):
     stringout = u''
