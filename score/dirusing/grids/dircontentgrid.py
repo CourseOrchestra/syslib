@@ -352,6 +352,18 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
         panelHeight = 450
     # Вычисляем количества записей в таблице
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
+    textcolumns=[]
+    
+    #простановка фильтра на текстовые поля таблицы
+    filter=[]
+    if filterinfo is not None and filterinfo!='':
+        for col in json.loads(filterinfo)['schema']['columns']:
+            filter.append(col['column']['filter'])
+            textcolumns.append(col['column']['@id'])
+        if len(filter)!=0 and filter is not None:
+            for i,filtertext in enumerate(filter):
+                filtercol = "%'"+filtertext+"'%"
+                currentTable.setFilter(textcolumns[i], filtercol)
     totalcount = currentTable.count()
     # Метаданные таблицы
     table_meta = currentTable.meta()

@@ -12,8 +12,13 @@ try:
     from ru.curs.showcase.core.jython import JythonDTO
 except:
     from ru.curs.celesta.showcase import JythonDTO
+import java.io.OutputStreamWriter as OutputStreamWriter
+try:  
+    from ru.curs.showcase.core import UserMessage
+except:
+    pass
 from common.xmlutils import XMLJSONConverter
-from dirusing.commonfunctions import relatedTableCursorImport
+from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList
 
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -27,6 +32,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
     # Метаданные таблицы
     table_meta = currentTable.meta()
+    table_jsn = json.loads(table_meta.getCelestaDoc())
     #contragTypeId = json.loads(main)['contragTypeId']
     
     # Пустая структура данных, связнная с текущим справочником
@@ -34,19 +40,21 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                             "buttonShow":u"Показать",
                             "buttonClear":u"Очистить",
                             "columns":[]}}
-
-    for col in table_meta.getColumns():
-        if json.loads(table_meta.getColumn(col).getCelestaDoc())['fieldTypeId'] == '9':
-            name=json.loads(table_meta.getColumn(col).getCelestaDoc())['name']
-            column={"column":
-         {
-          "@id":col,
-         "@name":name,
-         "filter":{}
-         }
-         }
-    
-            xformsdata["schema"]["columns"].append(column)
+    column={}
+    try:
+        for col in table_meta.getColumns():
+            if json.loads(table_meta.getColumn(col).getCelestaDoc().encode('utf-8'))['fieldTypeId'] == '9':
+                name=json.loads(table_meta.getColumn(col).getCelestaDoc())['name']
+                column={"column":
+				 {
+				  "@id":col,
+				 "@name":name,
+				 "filter":{}
+				 }
+				 }
+                xformsdata["schema"]["columns"].append(column)
+    #context.message(str(xformsdata))
+    except:pass
     xformssettings = {"properties":{"event":{"@name":"single_click",
                                              "@linkId": "1",
                                              "action":{"main_context": "current",

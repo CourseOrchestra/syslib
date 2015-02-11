@@ -295,10 +295,11 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
     table_jsn = json.loads(currentTable.meta().getCelestaDoc())
     #признак иерархичности
     isHierarchical=table_jsn['isHierarchical']
-    if isHierarchical == 'true':
+    #raise Exception(str(type(isHierarchical)))
+    if isHierarchical == u'true':
         for column in currentTable.meta().getColumns():
             #получаем названия колонок с кодом дьюи и сортировкой
-            if json.loads(currentTable.meta().getColumn(column).getCelestaDoc())['name'] == u'deweyCode':
+            if json.loads(currentTable.meta().getColumn(column).getCelestaDoc())['name'] in (u'deweyCode',u'deweyCod',u'deweyKod'):
                 deweyColumn=column
             if json.loads(currentTable.meta().getColumn(column).getCelestaDoc())['name'] == u'sortNumber':
                 sortColumn=column
@@ -316,7 +317,7 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
     if data_dict["schema"]["row"] == '':
         # Добавление новой записи
         field_list = data_dict["schema"]["spravs"]["sprav"]["field"]
-        print field_list
+        #print field_list
         try:
             dictWithoutRefList = ([item for item in field_list if item["type_id"] != u'6'])
             dictWithRefList = ([item for item in field_list if item["type_id"] == u'6'])
@@ -345,14 +346,16 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                     setattr(currentTable, field["dbFieldName"], None)
                 else:
                     setattr(currentTable, field["dbFieldName"], field["ref_values"])
-            if isHierarchical == 'true':
+            if isHierarchical == u'true':
                 if field["dbFieldName"]==deweyColumn:
-                    if field["value"]=='':
+                    if field["value"]=='' or field["value"] is None:
                         setattr(currentTable,deweyColumn, newDeweyNumber)
                         setattr(currentTable,sortColumn,generateSortValue(newDeweyNumber))
                     else:
                         setattr(currentTable, field["dbFieldName"], field["value"])
                         setattr(currentTable,sortColumn,generateSortValue(field["value"]))
+                setattr(currentTable,deweyColumn, newDeweyNumber)
+                setattr(currentTable,sortColumn,generateSortValue(newDeweyNumber))
         currentTable.insert()
         for field in dictWithRefList:
             column_jsn = json.loads(currentTable.meta().getColumn(field["dbFieldName"]).getCelestaDoc())
@@ -376,7 +379,7 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
             if type(field["ref_values"]["item"])==list:
                 for item in field["ref_values"]["item"]:
                     
-                    #mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
+                    mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
                     
                     itemDecoded= base64.b64decode(item["id"])
                     
@@ -404,12 +407,31 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
         
     else:
         # Редактирование уже существующей
-        currentTable.get(data_dict["schema"]["row"])
+        keys=[]
+        for i,key in enumerate(currentTable.meta().getPrimaryKey()):
+            if json.loads(currentTable.meta().getColumn(key).getCelestaDoc())["fieldTypeId"] in (u'5',):
+                if type(data_dict["schema"]["row"]) is list:
+                    keys.append(int(data_dict["schema"]["row"][i]))
+                else:
+                    keys.append(int(data_dict["schema"]["row"]))
+            elif json.loads(currentTable.meta().getColumn(key).getCelestaDoc())["fieldTypeId"]==u'3':
+                if type(data_dict["schema"]["row"]) is list:
+                    keys.append(float(data_dict["schema"]["row"][i]))
+                else:
+                    keys.append(float(data_dict["schema"]["row"]))
+        currentTable.get(*keys)
         # Список полей
         field_list = data_dict["schema"]["spravs"]["sprav"]["field"]
-        
-        dictWithoutRefList = ([item for item in field_list if item["type_id"] != u'6'])
-        dictWithRefList = ([item for item in field_list if item["type_id"] == u'6'])
+        try:
+            dictWithoutRefList = ([item for item in field_list if item[u"type_id"] != u'6'])
+            dictWithRefList = ([item for item in field_list if item[u"type_id"] == u'6'])
+        except TypeError:
+            if field_list["type_id"] != u'6':
+                dictWithoutRefList = [field_list]
+                dictWithRefList = []
+            elif field_list["type_id"] == u'6':
+                dictWithRefList = [field_list]
+                dictWithoutRefList = []
         for field in dictWithoutRefList:
             if field["type_id"] in ('9', '10', '11', '12'):
                 setattr(currentTable, field["dbFieldName"], field["value"])
@@ -497,5 +519,4 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                        
                 for colB, value in zip(bForeignKeyColumns,bForeignKeyColumnsValues):
                     setattr(mappingTable, colB, str(value))
-                #raise Exception (aForeignKeyColumns,bForeignKeyColumns) #[], link_id   
                 mappingTable.insert()   

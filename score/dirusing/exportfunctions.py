@@ -1,12 +1,14 @@
 # coding: utf-8
 
 from java.io import FileOutputStream,File,ByteArrayOutputStream
+from java.text import SimpleDateFormat
 import simplejson as json
+import datetime
 import xml.etree.ElementTree as ET
 from org.apache.poi.hssf.usermodel import HSSFWorkbook,HSSFDataFormat,HSSFCellStyle,DVConstraint,HSSFDataValidation
 from org.apache.poi.hssf.util import HSSFColor
 from org.apache.poi.ss.util import CellRangeAddressList,CellReference
-from org.apache.poi.ss.usermodel import DataFormatter
+from dirusing.commonfunctions import relatedTableCursorImport
 try:
     from ru.curs.showcase.core.jython import JythonDownloadResult
 except:
@@ -80,9 +82,9 @@ def importXlsDataOld(context, main, add, filterinfo, session, elementId, xformsd
         if i!=0:
             currentTable.insert()
         row.clear()
-    root.clear()
-   
+    root.clear()   
     return None
+
 def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata, fileName, file1):
     u'''Функция для загрузки файла из формы в БД. '''
     '''context, main, add, filterinfo, session, elementId, xformsdata, fileName, file1'''
@@ -94,7 +96,6 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
         fields = table_meta.getColumns()
         xlsColumns=[]
         rows=sht.getPhysicalNumberOfRows()
-        fmt=DataFormatter
         #цикл по рядам на листе
         for i in range (0,rows):
             key=[]
@@ -102,12 +103,15 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
             #цикл по полям таблицы
             for j in range (0,len(fields)):
                 #к целым числовым значениям эксель прибавляет .0, которые мешают преобразовать в инт
-                cell=sht.getRow(i).getCell(j)
-                celltype=cell.getCellType()
-                text = sht.getRow(i).getCell(j).toString()
-                if celltype==cell.CELL_TYPE_NUMERIC and '.0' in text:
-                    #text=fmt.formatCellValue(cell)
-                    text=text.split('.')[0]
+                if sht.getRow(i).getCell(j)!=None:
+                    try:
+                        text = sht.getRow(i).getCell(j).toString()
+                    except:
+                        text=''
+                        context.message('Error at row %s cell %s. Cannot convert to string value %s'%(str(i),str(j),sht.getRow(i).getCell(j)))   
+                        
+                else:
+                    text='' 
                 #заполнение заголовков
                 if i == 0:
                     for field in fields:
@@ -129,35 +133,45 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
                     #находим значения primary key
                     if xlsColumns[j][1] in currentTable.meta().getPrimaryKey() and text!='' and text is not None:
                         if table_meta.getColumn(xlsColumns[j][1]).jdbcGetterName() == 'getInt':
-                            text=int(text)
+                            try:
+                                text = int(text.replace(',','.').split('.')[0])
+                            except:
+                                context.message('Import error at row %s in column # %s, column name "%s". Error while converting string to integer. Expected integer number without separators, but "%s" is given' %(i,j+1,xlsColumns[j][0],text)) 
                         key.append(text)
                     #if xlsColumns[j][2] == '0':
                         #continue
                     if xlsColumns[j][2] == '1':
-                        if text==u'Да':
+                        if text in (u'Да',u'да'):
                             text=True
                         else:
                             text=False
                     elif xlsColumns[j][2] == '2':
                         if text=='':
                             text=None
-                        try:
-                            text = datetime.datetime.strptime(unicode(text), '%d-%b-%Y')
-                        except ValueError:
-                            text = datetime.datetime(1998,1,1)
+                        else:
+                            try:
+                                text=datetime.datetime.strptime(text, '%d.%m.%Y')
+                            except: 
+                                context.message('Import error at row %s in column # %s, column name "%s". Error while converting string to datetime. Expected date format is dd.mm.yyyy, but "%s" is given' %(i,j+1,xlsColumns[j][0],text))
+                                
                     elif xlsColumns[j][2] == '3':
-                        try:
-                            if ',' in text:
-                                text = text.replace(',','.')
-                            text=float(text)
-                        except: 
+                        if text=='':
                             text=None
+                        else:
+                            try:
+                                text = float(text.replace(',','.'))
+                            except: 
+                                context.message('Import error at row %s in column # %s, column name "%s". Error while converting string to real number. Expected floating point (real) number with separator (e.g. 1.0 or 1,0), but "%s" is given' %(i,j+1,xlsColumns[j][0],text))
+                    
                     elif xlsColumns[j][2] in ('5','7') and table_meta.getColumn(xlsColumns[j][1]).jdbcGetterName() == 'getInt' and type(text) is unicode:
                         if text=='':
                             text=None
                         else:
-                            text=int(text)                            
-                    elif xlsColumns[j][2] == '6':
+                            try:
+                                text = int(text.replace(',','.').split('.')[0])   
+                            except:
+                                context.message('Import error at row %s in column # %s, column name "%s". Error while converting string to integer. Expected integer number without separators, but "%s" is given' %(i,j+1,xlsColumns[j][0],text))
+                    elif xlsColumns[j][2] in ('4','6'):
                         text = None
                     #заполняем массив значениями
                     values.append(text)
@@ -187,8 +201,8 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
         table_meta=currentTable.meta()
         sht = wb.getSheetAt(i)
         fillTable(currentTable,table_meta,sht)
-
     return None
+
 def exportToExcel(context, main=None, add=None, filterinfo=None,
                   session=None, elementId=None, xformsdata=None, columnId=None):
     # получение id grain и table из контекста
@@ -205,8 +219,8 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
     def fillSheet(table_meta,sht,currentTable):
         row=sht.createRow(0)
         #стили для ячеек разных типов
-        styleDates = wb.createCellStyle()
-        styleDates.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"))
+        #styleDates = wb.createCellStyle()
+        #styleDates.setDataFormat(HSSFDataFormat.getBuiltinFormat("d/m/yy"))
         styleHeader=wb.createCellStyle()
         styleHeader.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
         styleHeader.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
@@ -217,8 +231,8 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
         styleHeader.setFont(fontHeader)
         styleStr = wb.createCellStyle()
         styleStr.setDataFormat(HSSFDataFormat.getBuiltinFormat("@"))
-        styleDec = wb.createCellStyle()
-        styleDec.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00"))
+        #styleDec = wb.createCellStyle()
+        #styleDec.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00"))
         #заполняем заголовки
         for i,column in enumerate(table_meta.getColumns()):
             cell=row.createCell(i)
@@ -238,25 +252,29 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
                 except:
                     field_type=0
                 cell=row.createCell(j)
-                #применяем стили
-                if field_type not in (4,6,7,1):
-                    if field_type==2:
-                        cell.setCellStyle(styleDates)
-                    if field_type==3:
-                        cell.setCellStyle(styleDec)
-                    if field_type in (5,8,9):
-                        cell.setCellStyle(styleStr)
-                    cell.setCellValue(getattr(rec,field))
+                cell.setCellStyle(styleStr)#применяем стили
+                           
                     #Обработка булевого значения
-                elif field_type == 1:
+                if field_type == 1:
                     cell.setCellStyle(styleStr)
                     if getattr(rec, field)==True:
                         cell.setCellValue(u'Да')
                     else:
                         cell.setCellValue(u'Нет')
-                    #Обработка reference value
+                    #обработка даты
+                elif field_type==2:
+                    sdf = SimpleDateFormat("dd.MM.YYYY")
+                    if getattr(rec, field)!=None:
+                        try:
+                            strDate = sdf.format(getattr(rec, field))
+                        except:
+                            context.message("Error in export at row '%s' in column # '%s'. Failed to convert from datetime type '%s' to string with date format dd.mm.yyyy. " %(i,j+1,str(getattr(rec, field))))
+                    else:
+                        strDate=''
+                    cell.setCellValue(strDate)
+                       
+                #Обработка reference value
                 elif field_type == 7:
-                    cell.setCellStyle(styleStr)
                     cell.setCellValue(getattr(rec, field))
                     column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
                     refTableName = column_jsn["refTable"]
@@ -279,7 +297,6 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
                 
             #Обработка reference list
                 elif field_type == 6:
-                    cell.setCellStyle(styleStr)
                     column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
                     refTableName = column_jsn["refTable"]
                     mappingTableName = column_jsn["refMappingTable"]
@@ -297,6 +314,8 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
                         relatedTablePKs.extend([key])
                 #получаем foreignkey'и для таблицы с меппингом
                     foreignKeys = mappingTable.meta().getForeignKeys()
+                    aForeignKeyColumns=[]
+                    bForeignKeyColumns=[]
                     for foreignKey in foreignKeys:
                     #referencedTable = foreignKey.getReferencedTable()
                     #проверяем к какой таблице относится ключ и получаем список зависимых полей
@@ -320,6 +339,8 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
                     cell.setCellValue(refValue)
                 elif field_type==4:
                     cell.setCellValue(u'<Файл>')
+                else:#elif in (3,5,8,9):
+                    cell.setCellValue(getattr(rec,field))
             i+=1
             #автоматический размер колонок
             for j in range(0,len(table_meta.getColumns())):
@@ -375,4 +396,5 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
     data=open(u"export.xls")
     if data:
         return JythonDownloadResult(data, fileName)        
+    
     

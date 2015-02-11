@@ -3,12 +3,11 @@
 import java.io.OutputStreamWriter as OutputStreamWriter
 import java.io.InputStreamReader as InputStreamReader
 import java.io.BufferedReader as BufferedReader
-from java.io import ByteArrayOutputStream
+from java.io import FileOutputStream,ByteArrayOutputStream
 from ru.curs.showcase.core.jython import JythonErrorResult
 import base64
 import simplejson as json
 from common.sysfunctions import toHexForXml
-
 try:
     from ru.curs.showcase.core.jython import JythonDownloadResult
 except:
@@ -126,6 +125,7 @@ def downloadFileFromGrid(context, main=None, add=None, filterinfo=None,
                   session=None, elementId=None, recordId=None, columnId=None):
     u'''Функция для скачивания файла из грида. '''
 
+    #raise Exception(json.loads(base64.b64decode(recordId)))
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
     # Получение курсора на таблицу
@@ -191,3 +191,4 @@ def uploadFileToXform(context, main, add, filterinfo, session, elementId, xforms
     # Обновляем курсор
     currentTable.update()
     return JythonErrorResult()
+
