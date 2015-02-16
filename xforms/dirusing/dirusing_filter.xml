@@ -12,7 +12,7 @@
       </xf:instance>
 	  <xf:instance id="test">
         <schema xmlns="">
-          <text>qqq</text>
+          <text></text>
         </schema>
       </xf:instance>
       
@@ -60,7 +60,7 @@
               <xf:label ref="instance('xformId_mainInstance')/buttonShow"></xf:label>
               <xf:action ev:event="DOMActivate">
                 <!--xf:load resource="javascript:gwtXFormFilter('xformId','1', Writer.toString(xforms.defaultModel.getInstanceDocument('xformId_mainInstance')))"/-->
-				<xf:load resource="javascript:gwtXFormFilter('xformId','1', Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
+				<xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"></xf:load>
 			  </xf:action>
             </xf:trigger>
           </div>

@@ -7,7 +7,6 @@ Created on 12.02.2014
 
 import simplejson as json
 import base64
-
 try:
     from ru.curs.showcase.core.jython import JythonDTO
 except:
@@ -16,7 +15,8 @@ except:
 
 from common.xmlutils import XMLJSONConverter
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList, htmlDecode
-from common.hierarchy import generateSortValue, hasChildren, isExtr
+from dirusing.hierarchy import isExtr
+from common.hierarchy import generateSortValue, hasChildren
 
 def getTree(context, main=None, add=None, filterinfo=None, session=None, elementId=None, sortColumnList=None, parentId=None):
     u'''Функция получения данных для tree-грида. '''
@@ -45,14 +45,16 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
     
     #простановка фильтра на текстовые поля таблицы
     filter=[]
-    if filterinfo is not None and filterinfo!='':
-        for col in json.loads(filterinfo)['schema']['columns']:
-            filter.append(col['column']['filter'])
-            textcolumns.append(col['column']['@id'])
-        if len(filter)!=0 and filter is not None:
-            for i,filtertext in enumerate(filter):
-                filtercol = "%'"+filtertext+"'%"
-                currentTable.setFilter(textcolumns[i], filtercol)
+    if 'xformsContext' in json.loads(session)['sessioncontext']['related']:
+		if 'formData' in json.loads(session)['sessioncontext']['related']['xformsContext']:
+			for col in json.loads(session)['sessioncontext']['related']['xformsContext']['formData']['schema']['columns']:
+				#return UserMessage(col,"")
+				filter.append(col['column']['filter'])
+				textcolumns.append(col['column']['@id'])
+			if len(filter)!=0 and filter is not None:
+				for i,filtertext in enumerate(filter):
+					filtercol = "%'"+filtertext+"'%"
+					currentTable.setFilter(textcolumns[i], filtercol)
     totalcount = currentTable.count()
     if totalcount!=0:
         # Определяем переменную для JSON данных
@@ -184,14 +186,16 @@ def getData(context, main=None, add=None, filterinfo=None,
     
     #простановка фильтра на текстовые поля таблицы
     filter=[]
-    if filterinfo is not None and filterinfo!='':
-        for col in json.loads(filterinfo)['schema']['columns']:
-            filter.append(col['column']['filter'])
-            textcolumns.append(col['column']['@id'])
-        if len(filter)!=0 and filter is not None:
-            for i,filtertext in enumerate(filter):
-                filtercol = "%'"+filtertext+"'%"
-                currentTable.setFilter(textcolumns[i], filtercol)
+    if 'xformsContext' in json.loads(session)['sessioncontext']['related']:
+		if 'formData' in json.loads(session)['sessioncontext']['related']['xformsContext']:
+			for col in json.loads(session)['sessioncontext']['related']['xformsContext']['formData']['schema']['columns']:
+				#return UserMessage(col,"")
+				filter.append(col['column']['filter'])
+				textcolumns.append(col['column']['@id'])
+			if len(filter)!=0 and filter is not None:
+				for i,filtertext in enumerate(filter):
+					filtercol = "%'"+filtertext+"'%"
+					currentTable.setFilter(textcolumns[i], filtercol)
     
     totalcount = currentTable.count()
     if totalcount!=0:

@@ -53,4 +53,33 @@ def move(context, main=None, add=None, filterinfo=None, session=None, elementId=
                 prevList=currentList
                 prevList[-1]=str(int(currentList[-1])-1)
                 shiftNodeToOtherLevelInHierarchy(context, rec, deweyColumn, sortColumn, '.'.join(prevList))
+				
+def getNewItemInUpperLevel(context,currentTable,numberField):
+    u'''Функция возвращает номер для нового элемента в самом верхнем уровне иерархии'''
+    #Создаем клон основного курсора и копируем в него фильтры    
+    cursorInstanceClone = currentTable.__class__(context)
+    cursorInstanceClone.limit(0, 0)
+    cursorInstanceClone.setFilter(numberField, '''(!%'.'%)''')
+    return str(cursorInstanceClone.count()+1)
+def isExtr(context, cursorInstance, numberField, sortField, value):
+    u'''Функция определяет, является ли элемент граничным (первым или последним) на своем уровне иерархии.
+    value = 'first'/'last' .'''
+    currentNumber = getattr(cursorInstance, numberField)
+    currentSort = getattr(cursorInstance, sortField)
+    parent = '.'.join(currentNumber.split('.')[0:-1])
+
+    #Создаем клон основного курсора и копируем в него фильтры    
+    cursorInstanceClone = cursorInstance.__class__(context)
+    #cursorInstanceClone.copyFiltersFrom(cursorInstance)
+    cursorInstanceClone.limit(0, 0)
+    if len(parent)>0:
+        cursorInstanceClone.setFilter(numberField, "'%s.'%% & ! '%s.%%.'%%" % (parent,parent))
+    else:
+        cursorInstanceClone.setFilter(numberField, "! %'.'%")
+    if value=='first':
+        cursorInstanceClone.setFilter(sortField, "<'%s'" % currentSort)
+        return False if cursorInstanceClone.count() > 0 else True
+    if value=='last':
+        cursorInstanceClone.setFilter(sortField, ">'%s'" % currentSort)
+        return False if cursorInstanceClone.count() > 0 else True
                 

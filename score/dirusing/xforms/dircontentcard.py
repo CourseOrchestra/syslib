@@ -19,7 +19,8 @@ except:
     pass
 from common.xmlutils import XMLJSONConverter
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList
-from common.hierarchy import getNewItemInLevelInHierarchy, getNewItemInUpperLevel,generateSortValue
+from common.hierarchy import getNewItemInLevelInHierarchy, generateSortValue
+from dirusing.hierarchy import getNewItemInUpperLevel
 from datetime import datetime
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
