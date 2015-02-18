@@ -32,6 +32,8 @@ from jarray import zeros
 #from common.xmlutils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
+from workflow._workflow_orm import act_re_procdefCursor, act_proc_versionCursor
+
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     xformsdata = {"schema":{"@xmlns":'',
                             "files":{}
@@ -80,9 +82,19 @@ def processUpload(context,main,add,filterinfo,session,elementId,xformsdata,filen
     processEngine = EngineFactory.getActivitiProcessEngine()
     repositoryService = processEngine.getRepositoryService()
 #     #a = InputStream(file)
-    repositoryService.createDeployment().addInputStream(filename, file).deploy()
-
-
+    
+    deploy = repositoryService.createDeployment().addInputStream(filename, file).deploy()
+    procdef = act_re_procdefCursor(context)
+    procversion = act_proc_versionCursor(context)
+    procdef.setRange('deployment_id_',deploy.id)
+    procdef.first()
+    if procversion.tryGet(procdef.key_):
+        procversion.process_id = procdef.id_
+        procversion.update()
+    else:
+        procversion.process_id = procdef.id_
+        procversion.processKey = procdef.key_
+        procversion.insert()
 
 def cardSave(context, main, add, filterinfo, session, elementId, data):
     #здесь необходимо описать сохранение
