@@ -444,6 +444,12 @@ create table act_task_links(
 	constraint pk_task_links primary key (task_id_)
 ) with no version check;
 
+create table act_proc_version(
+	processKey varchar(255) not null,
+	process_id varchar(64) not null,
+	constraint pk_proc_version primary key(processKey)
+) with no version check;
+
 create view view_launched_process as
 select execs.id_ as id_, execs.proc_inst_id_ as proc_inst_id_, procdef.name_ as processName, vars.text_ as processDescription
 from workflow.act_ru_execution as execs
@@ -638,6 +644,7 @@ ALTER TABLE matchingCircuit ADD CONSTRAINT fk_procKey FOREIGN KEY (processKey) R
 ALTER TABLE statusTransition ADD CONSTRAINT fk_statustransition_status FOREIGN KEY (statusFrom, modelFrom) REFERENCES workflow.status(id, modelId);
 ALTER TABLE statusTransition ADD CONSTRAINT fk_statustransition_status2 FOREIGN KEY (statusTo, modelTo) REFERENCES workflow.status(id, modelId);
 ALTER TABLE processStatusModel ADD CONSTRAINT fk_procStatModel FOREIGN KEY (modelId) REFERENCES workflow.statusModel(id);
+ALTER TABLE act_proc_version ADD CONSTRAINT fk_proc_version FOREIGN KEY (process_id) references workflow.act_re_procdef(id_);
 -- *** INDICES ***
 CREATE INDEX idx_statusTransition ON statusTransition(statusFrom, modelFrom);
 CREATE INDEX idx_statusTransition_0 ON statusTransition(statusTo, modelTo);
