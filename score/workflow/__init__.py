@@ -7,7 +7,7 @@ from common.grainssettings import SettingsManager
 
 from workflow.navigator import manageProcessesNav, navSettings, testNavigator
 
-from workflow.xforms.addMatcher import matchingCircuitPreInsert
+from workflow.other.triggers import matchingCircuitPreInsert
 
 from workflow.tables.tablesInit import initTables
 
