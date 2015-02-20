@@ -2,7 +2,10 @@
 import simplejson as json
 import os
 from security.functions import userHasPermission
-from workflow.processUtils import  ActivitiObject, getLinkPermisson, parse_json
+try:
+    from workflow.processUtils import  ActivitiObject, getLinkPermisson, parse_json
+except:
+    print "Activiti not initialized"
 from workflow._workflow_orm import formCursor
 
 
