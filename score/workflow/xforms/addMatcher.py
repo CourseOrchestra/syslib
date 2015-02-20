@@ -37,15 +37,12 @@ try:
 except:
     from ru.curs.celesta.showcase import ResultSelectorData, DataRecord
 
-try:
-    from ru.curs.showcase.activiti import  EngineFactory
-except:
-    from workflow import testConfig as EngineFactory
+
 
 from workflow._workflow_orm import matchingCircuitCursor, statusCursor, processStatusModelCursor, \
                                     groupsCursor, userGroupCursor
 
-from workflow.processUtils import getUserName, parse_json
+from workflow.processUtils import parse_json
 
 from java.io import InputStream, FileInputStream
 from jarray import zeros
