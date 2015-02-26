@@ -4,12 +4,13 @@ import java.io.OutputStreamWriter as OutputStreamWriter
 import java.io.InputStreamReader as InputStreamReader
 import java.io.BufferedReader as BufferedReader
 from java.io import FileOutputStream,ByteArrayOutputStream
-from ru.curs.showcase.core.jython import JythonErrorResult
+
 import base64
 import simplejson as json
 from common.sysfunctions import toHexForXml
 try:
     from ru.curs.showcase.core.jython import JythonDownloadResult
+    from ru.curs.showcase.core.jython import JythonErrorResult
 except:
     pass
 
@@ -140,7 +141,10 @@ def downloadFileFromGrid(context, main=None, add=None, filterinfo=None,
     #data = open('C:\\eclipse\eclipse.ini')
     # Если в потоке что-то есть, тогда вызываем скачивание файла
     if data:
-        return JythonDownloadResult(data, fileName)
+        try:
+            return JythonDownloadResult(data, fileName)
+        except:
+            return None
 
 
 def downloadFileFromXform(context, main=None, add=None, filterinfo=None,
@@ -190,6 +194,9 @@ def uploadFileToXform(context, main, add, filterinfo, session, elementId, xforms
     baos.writeTo(outputstream)
     # Обновляем курсор
     currentTable.update()
-    return JythonErrorResult()
+    try:
+        return JythonErrorResult()
+    except:
+        return None
 
 
