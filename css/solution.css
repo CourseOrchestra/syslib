@@ -550,6 +550,17 @@ margin: 5px 3px 4px 4px;
 	background-image: none;
 	border: none;
 }
+
+.baseOutput .xforms-value{
+	padding:2px 0px 2px 0px;
+	margin:2px 0px 0px 0px;
+	min-height:22px;
+	background-color: transparent;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border: none;
+}
 /*
 .newbutton .xforms-trigger .xforms-label {
 display: block;
