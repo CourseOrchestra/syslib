@@ -49,7 +49,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                                 "@name": table_name,
                                                 "field": []
                                                 }
-                                       }
+                                       },
+							"resetIdentity":"false"
 
 
                             }

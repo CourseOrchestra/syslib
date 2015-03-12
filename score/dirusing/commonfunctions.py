@@ -3,9 +3,10 @@
 import java.io.OutputStreamWriter as OutputStreamWriter
 import java.io.InputStreamReader as InputStreamReader
 import java.io.BufferedReader as BufferedReader
-from java.io import FileOutputStream,ByteArrayOutputStream
-
+from java.io import FileOutputStream,ByteArrayOutputStream,FileInputStream,File
+from ru.curs.showcase.core.jython import JythonErrorResult
 import base64
+import uuid
 import simplejson as json
 from common.sysfunctions import toHexForXml
 try:
@@ -173,30 +174,84 @@ def uploadFileToXform(context, main, add, filterinfo, session, elementId, xforms
 
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
+    newfileid=''
+    #raise Exception(xformsdata,session)
+    try:
+        currentRecordId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
+        selectedRecordId=json.loads(base64.b64decode(str(currentRecordId)))
+    except:
+        context.warning("Error: cannot get Current record id")
     # Получение курсора на таблицу
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
+    fields=currentTable.meta().getColumns()
+    fileid=None
+    if 'currentRecordId' in json.loads(session)['sessioncontext']['related']['gridContext']:
+        currentRecordId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
+        selectedRecordId=json.loads(base64.b64decode(str(currentRecordId)))
+        currentTable.get(*selectedRecordId)
+    for field in fields:
+        column_jsn = json.loads(currentTable.meta().getColumn(field).getCelestaDoc())
+        if column_jsn["fieldTypeId"]=="4":
+            filecolumn=field
+            if "refTable" in column_jsn:
+                refTableName = column_jsn["refTable"]
+                refTableColumnId = column_jsn["refTableColumnId"]
+                refFileColumn=column_jsn["refFileColumn"]
+                relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
+                fileid=getattr(currentTable,filecolumn)
+                if fileid!=None:  
+                    relatedTable.setRange(refTableColumnId,fileid)
+                    relatedTable.first()
+                else:
+                    newfileid=uuid.uuid4()
+                    setattr(relatedTable, refTableColumnId,newfileid)
+                    setattr(currentTable,filecolumn,newfileid)
+            break
     # Переводим курсор на запись
-    #currentTable.get(json.loads(xformsdata)["schema"]["row"])
-    currentTable.get('1234')
-    getattr(currentTable, 'calcattachment')()
+    
+    try:
+        if newfileid!='':
+            getattr(relatedTable, 'calc'+refFileColumn)()
+        else:
+            getattr(currentTable, 'calc'+filecolumn)()
+    except:
+        context.error("Error: cannot calculate blob file. Column %s Table %s" % (refFileColumn,refTableName))
     # Поток для записи файла в базу
-    outputstream = getattr(currentTable, 'attachment').getOutStream()
+    
+    try:
+        if newfileid!='':
+            outputstream=OutputStreamWriter(getattr(relatedTable,refFileColumn).getOutStream(),'utf-8')
+        else:
+            outputstream=OutputStreamWriter(getattr(currentTable,filecolumn).getOutStream(),'utf-8')
+    except:
+        context.error("Error: cannot create outputstream object")
+    
+    #outputstream = getattr(currentTable, 'attachment').getOutStream()
     # Промежуточный поток
-    baos = ByteArrayOutputStream()
+
     # Побайтово читаем поток файла и пишем его в baos
     while 1:
-        onebyte = file1.read()
+        #i=i+1
+        try:
+            onebyte = file1.read()
+        except:
+            context.error("Error: cannot read from file to import")
         if onebyte != -1:
-            baos.write(onebyte)
+            try:
+                outputstream.write(onebyte)
+            except:
+                context.error("Error: cannot write binary data to table during import. filecolumn is %s, data %s" %(filecolumn,onebyte))
         else:
             break
-    # baos пишем в outputstream       
-    baos.writeTo(outputstream)
-    # Обновляем курсор
-    currentTable.update()
-    try:
-        return JythonErrorResult()
-    except:
-        return None
+    #raise Exception (str(i))
+    if newfileid!='':
+        relatedTable.insert()
+        currentTable.update()
+        
+        
+    else:
+        currentTable.update()
+    context.message("File uploaded successfully")
+    #return JythonErrorResult()
 
 

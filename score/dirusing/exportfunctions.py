@@ -9,6 +9,7 @@ from org.apache.poi.hssf.usermodel import HSSFWorkbook,HSSFDataFormat,HSSFCellSt
 from org.apache.poi.hssf.util import HSSFColor
 from org.apache.poi.ss.util import CellRangeAddressList,CellReference
 from dirusing.commonfunctions import relatedTableCursorImport
+from common.hierarchy import generateSortValue, getNewItemInUpperLevel
 try:
     from ru.curs.showcase.core.jython import JythonDownloadResult
 except:
@@ -90,12 +91,14 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
     '''context, main, add, filterinfo, session, elementId, xformsdata, fileName, file1'''
     #имя гранулы
     grain_name = json.loads(main)['grain']
+    IgnoreIdentity = json.loads(xformsdata)['schema']['resetIdentity']
 #метод заполнения таблицы с одного листа excel, название листа=название таблицы
     def fillTable(currentTable,table_meta,sht):
         #поля таблицы
         fields = table_meta.getColumns()
         xlsColumns=[]
         rows=sht.getPhysicalNumberOfRows()
+        idMax=0
         #цикл по рядам на листе
         for i in range (0,rows):
             key=[]
@@ -108,7 +111,7 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
                         text = sht.getRow(i).getCell(j).toString()
                     except:
                         text=''
-                        context.message('Error at row %s cell %s. Cannot convert to string value %s'%(str(i),str(j),sht.getRow(i).getCell(j)))   
+                        context.error('Error at row %s cell %s. Cannot convert to string value %s'%(str(i),str(j),sht.getRow(i).getCell(j)))   
                         
                 else:
                     text='' 
@@ -136,7 +139,7 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
                             try:
                                 text = int(text.replace(',','.').split('.')[0])
                             except:
-                                context.message('Import error at row %s in column # %s, column name "%s". Error while converting string to integer. Expected integer number without separators, but "%s" is given' %(i,j+1,xlsColumns[j][0],text)) 
+                                context.error('Import error at row %s in column # %s, column name "%s". Error while converting string to integer. Expected integer number without separators, but "%s" is given' %(i,j+1,xlsColumns[j][0],text)) 
                         key.append(text)
                     #if xlsColumns[j][2] == '0':
                         #continue
@@ -152,7 +155,7 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
                             try:
                                 text=datetime.datetime.strptime(text, '%d.%m.%Y')
                             except: 
-                                context.message('Import error at row %s in column # %s, column name "%s". Error while converting string to datetime. Expected date format is dd.mm.yyyy, but "%s" is given' %(i,j+1,xlsColumns[j][0],text))
+                                context.error('Import error at row %s in column # %s, column name "%s". Error while converting string to datetime. Expected date format is dd.mm.yyyy, but "%s" is given' %(i,j+1,xlsColumns[j][0],text))
                                 
                     elif xlsColumns[j][2] == '3':
                         if text=='':
@@ -161,7 +164,7 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
                             try:
                                 text = float(text.replace(',','.'))
                             except: 
-                                context.message('Import error at row %s in column # %s, column name "%s". Error while converting string to real number. Expected floating point (real) number with separator (e.g. 1.0 or 1,0), but "%s" is given' %(i,j+1,xlsColumns[j][0],text))
+                                context.error('Import error at row %s in column # %s, column name "%s". Error while converting string to real number. Expected floating point (real) number with separator (e.g. 1.0 or 1,0), but "%s" is given' %(i,j+1,xlsColumns[j][0],text))
                     
                     elif xlsColumns[j][2] in ('5','7') and table_meta.getColumn(xlsColumns[j][1]).jdbcGetterName() == 'getInt' and type(text) is unicode:
                         if text=='':
@@ -170,7 +173,7 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
                             try:
                                 text = int(text.replace(',','.').split('.')[0])   
                             except:
-                                context.message('Import error at row %s in column # %s, column name "%s". Error while converting string to integer. Expected integer number without separators, but "%s" is given' %(i,j+1,xlsColumns[j][0],text))
+                                context.error('Import error at row %s in column # %s, column name "%s". Error while converting string to integer. Expected integer number without separators, but "%s" is given' %(i,j+1,xlsColumns[j][0],text))
                     elif xlsColumns[j][2] in ('4','6'):
                         text = None
                     #заполняем массив значениями
@@ -180,17 +183,60 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
                 if len(key)!=0 and currentTable.tryGet(*key):
                     currentTable.get(*key)
                     for x,field in enumerate(fields):
+                        if field=='sortNumber':
+                            continue    
+                        elif field in ('deweyCode','deweyCod','deweyKod'):
+                            setattr(currentTable,"sortNumber",generateSortValue(values[x]))
                         setattr(currentTable,field,values[x])
                     currentTable.update()
                 #инсерт если таких нет
                 else:
                     for x,field in enumerate(fields):
-                        if table_meta.getColumn(field).jdbcGetterName() == 'getInt' and table_meta.getColumn(field).isIdentity()==True:
-                            setattr(currentTable, field, None)
+                        if field=='sortNumber':
+                            continue    
+                        elif field =='deweyCode':
+                            if values[x]=='' or values[x] is None:
+                                newDeweyNumber=getNewItemInUpperLevel(context,currentTable,field)
+                                setattr(currentTable,field, newDeweyNumber)
+                                setattr(currentTable,"sortNumber",generateSortValue(newDeweyNumber))
+                            else:
+                                setattr(currentTable,field,values[x])
+                                setattr(currentTable,"sortNumber",generateSortValue(values[x]))
+                        elif table_meta.getColumn(field).jdbcGetterName() == 'getInt' and table_meta.getColumn(field).isIdentity()==True:
+                            
+                            if IgnoreIdentity == "true":
+                                '''if idMax<int(values[x]):
+                                    idMax=int(values[x])+1'''
+                                try:
+                                    currentTable.resetIdentity(values[x])
+                                except:
+                                    context.error("Error while import: reset identity to %s column %s failed in field %s at row %s" % (values[x],x,field,i))
+                                try:
+                                    setattr(currentTable,field,None)
+                                except:
+                                    context.error("Error while import: cannot insert value into id %s  to identitity column failed in field %s at row %s" % (values[x],field,i))
+                            else:    
+                                setattr(currentTable, field, None)
                         else:
                             setattr(currentTable,field,values[x])
                     currentTable.insert()
             currentTable.clear()
+        idfound=0
+        if IgnoreIdentity == "true":
+            for recIdent in currentTable.iterate():
+                for k,col in enumerate(fields):
+                    if table_meta.getColumn(col).jdbcGetterName() == 'getInt' and table_meta.getColumn(col).isIdentity()==True:                    
+                        try:
+                            idfound=getattr(currentTable,col)
+                        except:
+                            context.error("Error while import: cannot get attribute value for colomunn name %s. got %s. k=%s" % (col,idfound,k))
+                        if idMax<idfound:
+                            idMax=idfound
+            idMax+=1
+            try:
+                currentTable.resetIdentity(idMax)
+            except:
+                context.error("Error while import: cannot reset identity value into id %s  to identitity column failed " % (idMax))
     #читаем файл             
     wb = HSSFWorkbook(file1)
     #сколько в файле листов-столько таблиц нужно заполнить
@@ -268,7 +314,7 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
                         try:
                             strDate = sdf.format(getattr(rec, field))
                         except:
-                            context.message("Error in export at row '%s' in column # '%s'. Failed to convert from datetime type '%s' to string with date format dd.mm.yyyy. " %(i,j+1,str(getattr(rec, field))))
+                            context.error("Error in export at row '%s' in column # '%s'. Failed to convert from datetime type '%s' to string with date format dd.mm.yyyy. " %(i,j+1,str(getattr(rec, field))))
                     else:
                         strDate=''
                     cell.setCellValue(strDate)
@@ -340,7 +386,10 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
                 elif field_type==4:
                     cell.setCellValue(u'<Файл>')
                 else:#elif in (3,5,8,9):
-                    cell.setCellValue(getattr(rec,field))
+                    try:
+                        cell.setCellValue(getattr(currentTable,field))
+                    except:
+                        context.error("Error inputting value to cell during export at column %s, at row %s with type %s" %(field,i,field_type))
             i+=1
             #автоматический размер колонок
             for j in range(0,len(table_meta.getColumns())):

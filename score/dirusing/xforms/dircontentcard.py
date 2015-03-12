@@ -53,12 +53,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                                 "field": []
                                                 }
                                        }
-
-
                             }
                   }
-
-    
     # Получаем словарь полей и заголовков полей справочника
     def _sortedHeaders(s_number):
         try:
@@ -84,10 +80,18 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                 field_data["editable"] = "true"
                             else:
                                 field_data["editable"] = "false"
-                            field_data["type_id"] = column_jsn["fieldTypeId"]
+                            field_data["type_id"] = int(column_jsn["fieldTypeId"])
                             # Для string
-                            if field_data["type_id"] == '9':
+                            if field_data["type_id"] == 9:
                                 field_data["max_length"] = column_meta.getLength()
+                            #признак иерархичности для триселектора
+                            if field_data["type_id"] in (6,7):
+                                refTableName = column_jsn["refTable"]
+                                relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)    
+                                table_ref_jsn = json.loads(relatedTable.meta().getCelestaDoc())
+                                field_data["ref_table_hierarch"]=table_ref_jsn['isHierarchical']
+                            else:
+                                field_data["ref_table_hierarch"]="false"
                             if field_data["type_id"] != 4:
                                 if field_data["required"] == 'true':
                                     field_data["title"] = column_jsn["name"] + ' *'
@@ -97,6 +101,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                             # Пустая часть для добавления
                             field_data["ref_table_prefix"] = ""
                             field_data["ref_field_prefix"] = ""
+                            
                             #field_data["select_list"] = column_jsn["selectList"]
                             field_data["ref_values"] = ""
                             
@@ -156,6 +161,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                             # Часть для редактирования
                             field_data["ref_table_prefix"] = ""
                             field_data["ref_field_prefix"] = ""
+                            field_data["ref_table_hierarch"]="false"
                             #field_data["select_list"] = column_jsn["selectList"]
                             
                             #field_data["id"] = ""
@@ -180,10 +186,14 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                     field_data["value"] = ''
                             elif field_data["type_id"] == 7:
                                 refFieldId = getattr(currentTable, field)
+                                refTableName = column_jsn["refTable"]
+                                relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)    
+                                #признак иерархичности
+                                table_ref_jsn = json.loads(relatedTable.meta().getCelestaDoc())
+                                field_data["ref_table_hierarch"]=table_ref_jsn['isHierarchical']
+                                
                                 if refFieldId!='' and refFieldId is not None:
                                     #column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
-                                    refTableName = column_jsn["refTable"]
-                                    relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
                                     relatedTable.get(refFieldId)
                                     refTableColumnValue = getattr(relatedTable, column_jsn["refTableColumn"])
                                 else:
@@ -200,6 +210,10 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                 mappingTableName = column_jsn["refMappingTable"]
                                 refTableColumn = column_jsn["refTableColumn"]
                                 relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
+                                #признак иерархичности
+                                table_ref_jsn = json.loads(relatedTable.meta().getCelestaDoc())
+                                field_data["ref_table_hierarch"]=table_ref_jsn['isHierarchical']
+                                
                                 mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
                                 foreignKeys = mappingTable.meta().getForeignKeys()
                                 mappingPrimaryKeys=mappingTable.meta().getPrimaryKey()
@@ -251,10 +265,6 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                     
                                         field_data["ref_values"]["item"].append(field_items)
                                    
-                                
-                                
-                              
-                                
                             else:
                                 field_data["value"] = ""
                                 #xformsdata["schema"]["spravs"]["sprav"]["field"].append(field_data)
@@ -281,7 +291,6 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                     }
                       }
 
-    print XMLJSONConverter(input=xformsdata).parse()
     return JythonDTO(XMLJSONConverter(input=xformsdata).parse(), XMLJSONConverter(input=xformssettings).parse())
      
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
@@ -334,8 +343,10 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
         for field in dictWithoutRefList:
             if field["type_id"] in ('1','9', '10', '11', '12'):
                 setattr(currentTable, field["dbFieldName"], field["value"])
-            if field["type_id"] in ('3','5'):
-                if (field["value"]!=''):
+            elif field["type_id"] in ('3','5'):
+                if currentTable.meta().getColumn(field["dbFieldName"]).jdbcGetterName() == 'getInt' and currentTable.meta().getColumn(field["dbFieldName"]).isIdentity()==True:
+                    setattr(currentTable, field["dbFieldName"], None)
+                elif (field["value"]!=''):
                     setattr(currentTable, field["dbFieldName"], field["value"])
                 else:
                     setattr(currentTable, field["dbFieldName"], None)
@@ -355,8 +366,6 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                     else:
                         setattr(currentTable, field["dbFieldName"], field["value"])
                         setattr(currentTable,sortColumn,generateSortValue(field["value"]))
-                setattr(currentTable,deweyColumn, newDeweyNumber)
-                setattr(currentTable,sortColumn,generateSortValue(newDeweyNumber))
         currentTable.insert()
         for field in dictWithRefList:
             column_jsn = json.loads(currentTable.meta().getColumn(field["dbFieldName"]).getCelestaDoc())
@@ -434,6 +443,14 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                 dictWithRefList = [field_list]
                 dictWithoutRefList = []
         for field in dictWithoutRefList:
+            if isHierarchical == u'true':
+                if field["dbFieldName"]==deweyColumn:
+                    if field["value"]=='' or field["value"] is None:
+                        setattr(currentTable,deweyColumn, newDeweyNumber)
+                        setattr(currentTable,sortColumn,generateSortValue(newDeweyNumber))
+                    else:
+                        setattr(currentTable, field["dbFieldName"], field["value"])
+                        setattr(currentTable,sortColumn,generateSortValue(field["value"]))
             if field["type_id"] in ('9', '10', '11', '12'):
                 setattr(currentTable, field["dbFieldName"], field["value"])
             if field["type_id"] in ('3','5'):
