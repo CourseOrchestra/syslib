@@ -2,9 +2,6 @@
 
 
 function createLiveDGrid(elementId, parentId, metadata) {
-	
-//	alert("Клиент");
-	
 	require([
 	         "dijit/form/Button",
 	         "dijit/form/DropDownButton",
@@ -424,16 +421,16 @@ function createLiveDGrid(elementId, parentId, metadata) {
 			}
 		}
 
-		
-		grid.on(".dgrid-row:click,", function(event){
+        
+		grid.on("dgrid-select", function(event){
 			if(!grid.readonly){
-				if(grid.currentRowId != grid.row(event).id){
-					grid.currentRowId = grid.row(event).id;
+				if(grid.currentRowId != grid.row(event.grid._focusedNode).id){
+					grid.currentRowId = grid.row(event.grid._focusedNode).id;
 					grid.save();
 				}
 			}
 			
-			gwtAfterClick(elementId, grid.row(event).id, grid.column(event).label, getSelection());
+			gwtAfterClick(elementId, grid.row(event.grid._focusedNode).id, grid.column(event.grid._focusedNode).label, getSelection());
 		});
 		grid.on(".dgrid-row:dblclick", function(event){
 			gwtAfterDoubleClick(elementId, grid.row(event).id, grid.column(event).label, getSelection());

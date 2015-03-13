@@ -434,15 +434,15 @@ function createPageDGrid(elementId, parentId, metadata) {
 		}
 	    
 	    
-		grid.on(".dgrid-row:click,", function(event){
+		grid.on("dgrid-select", function(event){
 			if(!grid.readonly){
-				if(grid.currentRowId != grid.row(event).id){
-					grid.currentRowId = grid.row(event).id;
+				if(grid.currentRowId != grid.row(event.grid._focusedNode).id){
+					grid.currentRowId = grid.row(event.grid._focusedNode).id;
 					grid.save();
 				}
 			}
 			
-			gwtAfterClick(elementId, grid.row(event).id, grid.column(event).label, getSelection());
+			gwtAfterClick(elementId, grid.row(event.grid._focusedNode).id, grid.column(event.grid._focusedNode).label, getSelection());
 		});
 		grid.on(".dgrid-row:dblclick", function(event){
 			gwtAfterDoubleClick(elementId, grid.row(event).id, grid.column(event).label, getSelection());
@@ -482,6 +482,13 @@ function createPageDGrid(elementId, parentId, metadata) {
 					}
 				}
 				firstLoading = false;
+			}
+		});
+		
+		grid.on("dgrid-datachange", function(event){
+			if(event.value.indexOf("<") > -1){
+				event.returnValue = false;
+				console.log("Заблокирована строка, содержащая символ '<'");
 			}
 		});
 		
