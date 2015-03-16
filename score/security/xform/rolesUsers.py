@@ -169,7 +169,7 @@ def usersList(context, main=None, add=None, filterinfo=None, session=None, param
                     not startswith and string.find(user.getAttribute("name"), curvalue)>0:
                 rec = DataRecord()
                 rec.setId(user.getAttribute("SID"))
-                rec.setName(user.getAttribute("name"))
+                rec.setName(user.getAttribute("login"))
                 recordList.add(rec)        
     else:
         subject = subjectsCursor(context)        

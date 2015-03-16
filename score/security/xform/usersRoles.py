@@ -116,7 +116,7 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
 def rolesCount(context, main=None, add=None, filterinfo=None, session=None, params=None,
                 curvalue="", startswith=False):
     roles = RolesCursor(context)
-    roles.setFilter('id', "@%s'%s'%%" % ("%"*(not startswith), curvalue.replace("'","''")))
+    roles.setFilter('description', "@%s'%s'%%" % ("%"*(not startswith), curvalue.replace("'","''")))
     count = roles.count()
     #raise Exception(count)
     return ResultSelectorData(None, count)
@@ -127,8 +127,8 @@ def rolesList(context, main=None, add=None, filterinfo=None, session=None, param
     #raise Exception(curvalue)
     recordList = ArrayList()
     roles = RolesCursor(context)
-    roles.setFilter('id', "@%s'%s'%%" % ("%"*(not startswith), curvalue.replace("'","''")))
-    roles.orderBy('id')
+    roles.setFilter('description', "@%s'%s'%%" % ("%"*(not startswith), curvalue.replace("'","''")))
+    roles.orderBy('description')
     roles.limit(firstrecord, recordcount)
     if roles.tryFirst():
         while True:
