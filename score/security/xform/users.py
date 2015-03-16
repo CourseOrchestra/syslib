@@ -72,6 +72,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                         "@isAuthServer":unicode(settings.isUseAuthServer()).lower(),
                                         "@loginIsSubject":unicode(settings.loginIsSubject()).lower(),
                                         "@add":add,
+                                        "@isEmployees":unicode(isEmployees).lower(),
                                         "@key":unichr(9911)}
                                 }
                       }
@@ -97,6 +98,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                         "@isAuthServer":unicode(settings.isUseAuthServer()).lower(),
                                         "@loginIsSubject":unicode(settings.loginIsSubject()).lower(),
                                         "@add":"",
+                                        "@isEmployees":unicode(isEmployees).lower(),
                                         "@key":unichr(9911)}
                                 }
                       }
@@ -112,7 +114,9 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                         "@employeeName":empName,
                                         "@isAuthServer":unicode(settings.isUseAuthServer()).lower(),
                                         "@loginIsSubject":unicode(settings.loginIsSubject()).lower(),
-                                        "@add":add}
+                                        "@add":add,
+                                        "@isEmployees":unicode(isEmployees).lower()
+                                        }
                                 }
                       }
         
