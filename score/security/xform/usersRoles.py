@@ -134,7 +134,7 @@ def rolesList(context, main=None, add=None, filterinfo=None, session=None, param
         while True:
             rec = DataRecord()
             rec.setId(roles.id)
-            rec.setName(roles.id)
+            rec.setName('%s - %s' % (roles.id, roles.description if roles.description else ''))
             recordList.add(rec)
             if not roles.next():
                 break
