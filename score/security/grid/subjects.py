@@ -58,13 +58,15 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     if totalcount == 0 or totalcount is None:
         totalcount = "0"
         header = header + " ПУСТ"
+        
+    sec_settings = Settings()
 
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns":{"col":[]},
                                 "properties":{"@pagesize":"25",
                                               "@gridWidth":getGridWidth(session),
-                                              "@gridHeight":getGridHeight(session, numberOfGrids = 1 if settings.loginIsSubject() else 2),
+                                              "@gridHeight":getGridHeight(session, numberOfGrids = 1 if sec_settings.loginIsSubject() else 2),
                                               "@totalCount":totalcount,
                                               "@profile":"default.properties"},
                                 "labels":{"header":header}

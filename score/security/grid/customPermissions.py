@@ -4,6 +4,7 @@ import simplejson as json
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from common.sysfunctions import toHexForXml, getGridHeight, getGridWidth
 from security._security_orm import customPermsCursor
+from security.functions import Settings
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -66,13 +67,15 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     if totalcount == 0 or totalcount is None:
         totalcount = "0"
         header = header + " ПУСТ"
+    
+    sec_settings = Settings()
 
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns":{"col":[]},
                                 "properties":{"@pagesize":"50",
                                               "@gridWidth": getGridWidth(session),
-                                              "@gridHeight":getGridHeight(session, numberOfGrids = 1 if settings.loginIsSubject() else 2, delta=250),
+                                              "@gridHeight":getGridHeight(session, numberOfGrids = 1 if sec_settings.loginIsSubject() else 2, delta=250),
                                               "@totalCount":totalcount,
                                               "@profile":"default.properties"},
                                 "labels":{"header":header}
