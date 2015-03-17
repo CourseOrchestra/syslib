@@ -3,7 +3,7 @@
 import simplejson as json
 import base64
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from common.sysfunctions import toHexForXml
+from common.sysfunctions import toHexForXml, getGridHeight, getGridWidth
 from ru.curs.celesta.syscursors import RolesCursor
 from security._security_orm import rolesCustomPermsCursor
 
@@ -74,7 +74,11 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
-    "properties": {"@pagesize":"50", "@gridWidth": "900px", "@totalCount": totalcount, "@profile":"default.properties"},
+    "properties": {"@pagesize":"50",
+                   "@gridWidth": getGridWidth(session),
+                   "@gridHeight":getGridHeight(session, numberOfGrids = 1 if settings.loginIsSubject() else 2, delta=250),
+                   "@totalCount": totalcount,
+                   "@profile":"default.properties"},
     "labels":{"header":header}
     }
     # Добавляем поля для отображения в gridsettings

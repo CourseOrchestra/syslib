@@ -3,13 +3,12 @@
 import simplejson as json
 import base64
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from common.sysfunctions import toHexForXml
-from security._security_orm import loginsCursor
-from security._security_orm import subjectsCursor
+from security._security_orm import loginsCursor, subjectsCursor
 import security.functions as func
 from security.functions import Settings
 import xml.dom.minidom
-from common.sysfunctions import tableCursorImport
+from common.sysfunctions import tableCursorImport, getGridHeight, getGridWidth, toHexForXml
+
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -187,9 +186,12 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
         columns["Субъект"]=640
     if settings.isUseAuthServer():
         columns["SID"]=320
-    settings = func.generateGridSettings(columns, totalCount=totalcount, header=header_str)
+    
+    gridSettings = func.generateGridSettings(columns, totalCount=totalcount, header=header_str, \
+                                         gridHeight = getGridHeight(session, numberOfGrids = 1 if settings.loginIsSubject() else 2), \
+                                         datapanelWidth = getGridWidth(session))
     # Добавляем поля для отображения в gridsettings
-    res = XMLJSONConverter.jsonToXml(json.dumps(settings))
+    res = XMLJSONConverter.jsonToXml(json.dumps(gridSettings))
     return JythonDTO(None, res)
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):

@@ -2,7 +2,7 @@
 
 import simplejson as json
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from common.sysfunctions import toHexForXml
+from common.sysfunctions import toHexForXml, getGridHeight, getGridWidth
 from security._security_orm import subjectsCursor
 from security.functions import Settings
 
@@ -63,8 +63,8 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     settings = {}
     settings["gridsettings"] = {"columns":{"col":[]},
                                 "properties":{"@pagesize":"25",
-                                              "@gridWidth":"500px",
-                                              "@gridHeight":"250",
+                                              "@gridWidth":getGridWidth(session),
+                                              "@gridHeight":getGridHeight(session, numberOfGrids = 1 if settings.loginIsSubject() else 2),
                                               "@totalCount":totalcount,
                                               "@profile":"default.properties"},
                                 "labels":{"header":header}

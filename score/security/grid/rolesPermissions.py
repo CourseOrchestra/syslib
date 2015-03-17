@@ -3,7 +3,7 @@
 import simplejson as json
 import base64
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from common.sysfunctions import toHexForXml
+from common.sysfunctions import toHexForXml, getGridHeight, getGridWidth
 from ru.curs.celesta.syscursors import PermissionsCursor
 
 try:
@@ -85,7 +85,11 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
-    "properties": {"@pagesize":"50", "@gridWidth": "900px", "@totalCount": totalcount, "@profile":"default.properties"},
+    "properties": {"@pagesize":"50",
+                   "@gridWidth": getGridWidth(session),
+                   "@totalCount": totalcount,
+                   "@profile":"default.properties",
+                   "@gridHeight":getGridHeight(session, numberOfGrids = 2)},
     "labels":{"header":header}
     }
     # Добавляем поля для отображения в gridsettings
@@ -99,68 +103,3 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
 
     res = XMLJSONConverter.jsonToXml(json.dumps(settings))
     return JythonDTO(None, res)
-
-#def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
-#    u'''Toolbar для грида. '''
-#
-#    if 'currentRecordId' not in json.loads(session)['sessioncontext']['related']['gridContext']:
-#        style = "true"
-#    else:
-#        style = "false"
-#
-#    data = {"gridtoolbar":{"item":[]
-#                           }
-#            }
-#    # Курсор таблицы permissions
-#    permissions = PermissionsCursor(context)
-#
-#    if permissions.canInsert():
-#        data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/addDirectory.png',
-#                                    "@text":"Добавить",
-#                                   "@hint":"Добавить",
-#                                   "@disable": "false",
-#                                   "action":{"@show_in": "MODAL_WINDOW",
-#                                             "#sorted":[{"main_context":"current"},
-#                                             {"datapanel":{"@type": "current",
-#                                                          "@tab": "current",
-#                                                          "element": {"@id": "permXforms",
-#                                                                      "add_context":"add"
-#                                                                      }
-#                                                          }
-#                                             }]
-#
-#                                   }})
-#    if permissions.canModify():
-#        data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/editDocument.png',
-#                            "@text":"Редактировать",
-#                                   "@hint":"Редактировать",
-#                                   "@disable": style,
-#                                   "action":{"@show_in": "MODAL_WINDOW",
-#                                             "#sorted":[{"main_context":"current"},
-#                                             {"datapanel":{"@type": "current",
-#                                                          "@tab": "current",
-#                                                          "element": {"@id": "permXforms",
-#                                                                      "add_context":"edit"
-#                                                                      }
-#                                                          }
-#                                             }]
-#                                   }})
-#    if permissions.canDelete():
-#        data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/deleteDocument.png',
-#                            "@text":"Редактировать",
-#                                   "@hint":"Редактировать",
-#                                   "@disable": style,
-#                                   "action":{"@show_in": "MODAL_WINDOW",
-#                                             "#sorted":[{"main_context":"current"},
-#                                             {"datapanel":{"@type": "current",
-#                                                          "@tab": "current",
-#                                                          "element": {"@id": "permXforms",
-#                                                                      "add_context":"delete"
-#                                                                      }
-#                                                          }
-#                                             }]
-#                                   }})
-#
-#
-#    return XMLJSONConverter(input=data).parse()
-
