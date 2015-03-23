@@ -15,7 +15,8 @@ from ru.curs.celesta import CelestaException
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from ru.curs.celesta.syscursors import UserRolesCursor, RolesCursor
 from security._security_orm import loginsCursor
-#import security.functions as func
+from security.functions import Settings
+
 try:
     from ru.curs.showcase.security import SecurityParamsFactory
 except:
@@ -35,21 +36,26 @@ except:
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Функция данных для карточки редактирования содержимого таблицы ролей. '''
+    
+    settings = Settings()
 
     #ru.curs.showcase.security.SecurityParamsFactory.getAuthServerUrl()
     rolesUsers = UserRolesCursor(context)
     roles = RolesCursor(context)
-    logins = loginsCursor(context)
 
     currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
-    logins.get(currId)
-    rolesUsers.setRange("userid", logins.subjectId)
+    if settings.loginIsSubject():
+        logins = loginsCursor(context)
+        logins.get(currId)
+        rolesUsers.setRange("userid", logins.subjectId)
+    else:
+        rolesUsers.setRange("userid", currId)
     content=[]
     if rolesUsers.tryFirst():
         while True:
             if roles.tryGet(rolesUsers.roleid):
-                content.append({"@id" : roles.id#,
-                                #"@description" : roles.description
+                content.append({"@id" : roles.id,
+                                "@description" : '%s - %s' % (roles.id, roles.description if roles.description else '')
                                 })                                                            
             if not rolesUsers.next():
                 break
