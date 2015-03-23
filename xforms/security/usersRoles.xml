@@ -32,7 +32,7 @@
         procList="'security.xform.usersRoles.rolesList.celesta'" generalFilters="''"
         currentValue="''" windowCaption="'Выберите пользователей'" needClear="true"
         needInitSelection="true" xpathRoot="'XPath(instance(quot(xformId_mainInstance))/roles)'"
-        xpathMapping="{'XPath(instance(quot(xformId_roleInstance))/role)':{'id': '@id','name':'@id'}}"
+        xpathMapping="{'XPath(instance(quot(xformId_roleInstance))/role)':{'id': '@id','name':'@description'}}"
       ></xf:multiselector>
     </div>
     <div class="break" style="float: left; margin-top: 5px;"> Выбранные роли: </div>
