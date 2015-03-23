@@ -30,6 +30,7 @@ def securityInit(context):
         linesOfNumbersSeries.incrimentByNumber = 1
         linesOfNumbersSeries.isOpened = True
         linesOfNumbersSeries.prefix = 'subject-'
+        linesOfNumbersSeries.postfix = '-'
         linesOfNumbersSeries.isFixedLength = False
         linesOfNumbersSeries.insert()
     customPermsTypes = customPermsTypesCursor(context)

@@ -18,7 +18,7 @@ from ru.curs.celesta import CelestaException
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from security.functions import id_generator
 from security.functions import Settings
-from security.functions import getUsersFromAuthServer
+from security.functions import getUsersFromAuthServer, id_generator
 import hashlib
 from common.numbersseries.getNextNo import getNextNoOfSeries
 from common.sysfunctions import tableCursorImport
@@ -30,7 +30,6 @@ from security._security_orm import subjectsCursor
 
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
-    u'''Функция данных для карточки редактирования содержимого таблицы ролей. '''
 
     settings=Settings()
 
@@ -77,7 +76,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                 }
                       }
         if settings.loginIsSubject():
-            sid=getNextNoOfSeries(context, 'subjects')
+            sid=getNextNoOfSeries(context, 'subjects') + id_generator()
             xformsdata["schema"]["user"]["@subjectId"]=sid
             xformsdata["schema"]["user"]["@sid"]=sid
     elif add == 'edit' and settings.isUseAuthServer():        
@@ -340,7 +339,7 @@ def employeesSubjectsPostInsert(rec):
     context=rec.callContext()
     employeesId=settings.getEmployeesParam("employeesId")
     employeesName=settings.getEmployeesParam("employeesName")
-    sid=getNextNoOfSeries(context, 'subjects')
+    sid=getNextNoOfSeries(context, 'subjects') + id_generator()
     subjects = subjectsCursor(context)
     subjects.sid=sid
     subjects.name=getattr(rec, employeesName)

@@ -14,6 +14,7 @@ except:
 from ru.curs.celesta import CelestaException
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from security._security_orm import subjectsCursor
+from security.functions import id_generator
 from common.numbersseries.getNextNo import getNextNoOfSeries
 
 
@@ -23,7 +24,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     #base64.b64encode(json.dumps([permissions.roleId, permissions.grainId, permissions.tablename]))    
     #raise Exception(add)
     if add == 'add':        
-        sid = getNextNoOfSeries(context, 'subjects')
+        sid = getNextNoOfSeries(context, 'subjects') + id_generator()
         xformsdata = {"schema":{"@xmlns":"",
                                 "subject":{"@name": "",
                                             "@sid": sid}
