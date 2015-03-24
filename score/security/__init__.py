@@ -14,15 +14,14 @@ from ru.curs.celesta import Celesta
 import initcontext
 
 settings = Settings()
-if not settings.loginIsSubject():
+if not settings.loginIsSubject() and settings.isEmployees():
     employeesGrain = settings.getEmployeesParam("employeesGrain")
     employeesTable = settings.getEmployeesParam("employeesTable")
-    if settings.isEmployees():
-        employeesCursor = tableCursorImport(employeesGrain, employeesTable)
+    employeesCursor = tableCursorImport(employeesGrain, employeesTable)
 
-        employeesCursor.onPostInsert.append(employeesSubjectsPostInsert)
-        employeesCursor.onPostUpdate.append(employeesSubjectsPostUpdate)
-        employeesCursor.onPreDelete.append(employeesSubjectsPreDelete)
+    employeesCursor.onPostInsert.append(employeesSubjectsPostInsert)
+    employeesCursor.onPostUpdate.append(employeesSubjectsPostUpdate)
+    employeesCursor.onPreDelete.append(employeesSubjectsPreDelete)
 
 if not settings.isSystemInitialised():
     try:

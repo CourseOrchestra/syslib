@@ -334,6 +334,7 @@ def employeesList(context, main=None, add=None, filterinfo=None, session=None, p
 
 
 def employeesSubjectsPostInsert(rec):
+    # Триггер добавляется только в случае loginEqualSubject = "false"
     settings=Settings()
 
     context=rec.callContext()
@@ -351,6 +352,7 @@ def employeesSubjectsPostInsert(rec):
         subjects.insert()
     
 def employeesSubjectsPostUpdate(rec):
+    # Триггер добавляется только в случае loginEqualSubject = "false"
     settings=Settings()
 
     context=rec.callContext()
@@ -364,13 +366,13 @@ def employeesSubjectsPostUpdate(rec):
             subjects.update()
     
 def employeesSubjectsPreDelete(rec):
+    # Триггер добавляется только в случае loginEqualSubject = "false"
     settings=Settings()
 
     context=rec.callContext()
     employeesId=settings.getEmployeesParam("employeesId")
     subjects = subjectsCursor(context)
     subjects.setRange("employeeId", getattr(rec, employeesId))
-    if subjects.tryFirst():# and subjects.count()==1:
-        if subjects.canDelete():
-            subjects.delete()
+    if subjects.canDelete():
+        subjects.deleteAll()
     
