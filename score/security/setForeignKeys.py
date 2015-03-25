@@ -44,6 +44,6 @@ def setForeignKeys(context):
         celesta.reInitialize()
         settings.setEmployeesParam("isSystemInitialised", "true")
     finally:
-        settings.settingsJSONSave()
+        settings.settingsJSONSave() #deprecated. Метод пустой.
     
 #setForeignKeys()
