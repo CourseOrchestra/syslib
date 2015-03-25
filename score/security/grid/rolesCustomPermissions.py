@@ -23,6 +23,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
     if 'currentRecordId' in session:     
         currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
         rolesPermissions.setRange("permissionId", currId)
+    rolesPermissions.limit(firstrecord-1, pagesize)
     rolesPermissions.orderBy("roleid")
     # Определяем переменную для JSON данных
 

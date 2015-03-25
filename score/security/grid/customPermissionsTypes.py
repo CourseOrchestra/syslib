@@ -17,6 +17,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
     # Создание экземпляра курсора разрешения
     permissionsTypes = customPermsTypesCursor(context)    
     
+    permissionsTypes.limit(firstrecord-1, pagesize)
     permissionsTypes.orderBy('name')
 
     # Определяем переменную для JSON данных

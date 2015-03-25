@@ -31,6 +31,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
                  u"Доступ на добавление":"i",
                  u"Доступ на редактирование":"m",
                  u"Доступ на удаление":"d"}
+    permissions.limit(firstrecord-1, pagesize)
     for column in sortColumnList:
         sortindex = '%s' % column.getSorting()        
         permissions.orderBy(columnsDict[column.getId()] +' '+sortindex)

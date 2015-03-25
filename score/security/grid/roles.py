@@ -28,6 +28,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
     for column in sortColumnList:
         sortindex = '%s' % column.getSorting()        
         roles.orderBy(columnsDict[column.getId()] +' '+sortindex)
+    roles.limit(firstrecord-1, pagesize)
     if roles.tryFirst():
         while True:
             rolesDict = {}

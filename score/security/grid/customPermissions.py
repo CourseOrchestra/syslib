@@ -21,6 +21,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
         if typeId<>'':
             permissions.setRange('type', typeId)
     
+    permissions.limit(firstrecord-1, pagesize)
     permissions.orderBy('name')
 
     # Определяем переменную для JSON данных

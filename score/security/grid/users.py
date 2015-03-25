@@ -67,7 +67,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
                                                 }
                                        }
             data["records"]["rec"].append(loginsDict)
-            if i > (firstrecord + pagesize - 1):
+            if i >= firstrecord + pagesize:
                 break
             #raise Exception(data)
     elif settings.isUseAuthServer(): #tf
@@ -97,7 +97,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
                                                 }
                                        }
             data["records"]["rec"].append(loginsDict)
-            if i > (firstrecord + pagesize - 1):
+            if i >= firstrecord + pagesize:
                 break
     elif not settings.isUseAuthServer() and not settings.loginIsSubject(): #ff
         subjects=subjectsCursor(context)

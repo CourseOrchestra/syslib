@@ -30,7 +30,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
             permissions.setRange("grainid", grain)
         if table<>"":
             permissions.setRange("tablename", table)
-    
+        
     permissions.orderBy('roleid')
 
     # Определяем переменную для JSON данных

@@ -25,6 +25,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
     for column in sortColumnList:
         sortindex = '%s' % column.getSorting()        
         subjects.orderBy(columnsDict[column.getId()] +' '+sortindex)
+    subjects.limit(firstrecord-1, pagesize)
     # Проходим по таблице и заполняем data
     for subjects in subjects.iterate():        
         subjectsDict = {}
