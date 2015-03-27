@@ -81,13 +81,13 @@ def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
 #        
 #    tables.orderBy('tablename')
 #    tables.limit(firstrecord, recordcount)
-#    if tables.tryFirst():
+#    if tables.tryFindSet():
 #        while True:
 #            rec = DataRecord()
 #            rec.setId(tables.tablename)
 #            rec.setName(tables.tablename)
 #            recordList.add(rec)
-#            if not tables.next():
+#            if not tables.nextInSet():
 #                break
 #    return ResultSelectorData(recordList, 0)
 

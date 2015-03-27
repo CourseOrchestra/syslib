@@ -126,12 +126,12 @@ def rolesList(context, main=None, add=None, filterinfo=None, session=None, param
     roles.setFilter('description', "@%s'%s'%%" % ("%"*(not startswith), curvalue.replace("'","''")))
     roles.orderBy('description')
     roles.limit(firstrecord, recordcount)    
-    if roles.tryFirst():
+    if roles.tryFindSet():
         while True:            
             rec = DataRecord()
             rec.setId(roles.id)
             rec.setName('%s - %s' % (roles.id, roles.description if roles.description else ''))
             recordList.add(rec)
-            if not roles.next():
+            if not roles.nextInSet():
                 break
     return ResultSelectorData(recordList, 0)

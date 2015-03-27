@@ -157,10 +157,10 @@ def getPermissionsOfTypeAndUser(context, sid, permissionType=None):
     userRoles=UserRolesCursor(context)
     userRoles.setRange("userid", sid)
     filter_string=""
-    if userRoles.tryFirst():
+    if userRoles.tryFindSet():
         filter_string="'"+userRoles.roleid+"'"
         while True:
-            if userRoles.next():
+            if userRoles.nextInSet():
                 filter_string+="|'"+userRoles.roleid+"'"
             else:
                 break
@@ -176,10 +176,10 @@ def getPermissionsOfTypeAndUser(context, sid, permissionType=None):
         rolePermissions=rolesCustomPermsCursor(context)        
         rolePermissions.setFilter("roleid", filter_string)
         filter_string=""
-        if rolePermissions.tryFirst():
+        if rolePermissions.tryFindSet():
             filter_string="'"+rolePermissions.permissionId+"'"
             while True:
-                if rolePermissions.next():
+                if rolePermissions.nextInSet():
                     filter_string+="|'"+rolePermissions.permissionId+"'"
                 else:
                     break
@@ -205,13 +205,13 @@ def userHasPermission(context, sid, permission):
     if not permissions.tryGet(permission):
         return False
     rolePermissions=rolesCustomPermsCursor(context)
-    if userRoles.tryFirst():
+    if userRoles.tryFindSet():
         while True:
             rolePermissions.setRange("roleid", userRoles.roleid)
             rolePermissions.setRange("permissionId", permission)
             if rolePermissions.tryFirst():
                 return True            
-            if not userRoles.next():
+            if not userRoles.nextInSet():
                 break
     return False
 

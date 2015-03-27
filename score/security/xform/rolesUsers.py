@@ -52,7 +52,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
         sessionId=json.loads(session)["sessioncontext"]["sessionid"]
         server=SecurityParamsFactory.getAuthServerUrl()                
         users_xml=getUsersFromAuthServer(server, sessionId)        
-        if rolesUsers.tryFirst():
+        if rolesUsers.tryFindSet():
             while True:
                 for user in users_xml.getElementsByTagName("user"):
                     if user.getAttribute("SID")==rolesUsers.userid:
@@ -60,17 +60,17 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                         "@userName" : user.getAttribute("name")
                                         })
                         break                                                
-                if not rolesUsers.next():
+                if not rolesUsers.nextInSet():
                     break
     else:
         subjects = subjectsCursor(context)
-        if rolesUsers.tryFirst():
+        if rolesUsers.tryFindSet():
             while True:
                 if subjects.tryGet(rolesUsers.userid):
                     content.append({"@sid" : subjects.sid,
                                     "@userName" : subjects.name
                                     })
-                if not rolesUsers.next():
+                if not rolesUsers.nextInSet():
                     break
                 
     if content==[]:

@@ -48,7 +48,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
     permissions.limit(firstrecord-1, pagesize)
     
     # Проходим по таблице и заполняем data    
-    if permissions.tryFirst():
+    if permissions.tryFindSet():
         while True:
             permDict = {}
             permDict[toHexForXml('~~id')] = base64.b64encode(json.dumps([permissions.roleid, permissions.grainid, permissions.tablename]))
@@ -69,7 +69,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
                                                }
                                       }
             data["records"]["rec"].append(permDict)
-            if not permissions.next():
+            if not permissions.nextInSet():
                 break
 
 

@@ -140,13 +140,13 @@ def rolesList(context, main=None, add=None, filterinfo=None, session=None, param
     roles.limit(firstrecord, recordcount)
 
     recordList = ArrayList()
-    if roles.tryFirst():
+    if roles.tryFindSet():
         while True:
             rec = DataRecord()
             rec.setId(unicode(roles.id))
             rec.setName(roles.id)
             recordList.add(rec)
-            if not roles.next():
+            if not roles.nextInSet():
                 break
 
     return ResultSelectorData(recordList, 0)
@@ -171,13 +171,13 @@ def grainsList(context, main=None, add=None, filterinfo=None, session=None, para
     grains.limit(firstrecord, recordcount)
 
     recordList = ArrayList()
-    if grains.tryFirst():
+    if grains.tryFindSet():
         while True:
             rec = DataRecord()
             rec.setId(unicode(grains.id))
             rec.setName(grains.id)
             recordList.add(rec)
-            if not grains.next():
+            if not grains.nextInSet():
                 break
 
     return ResultSelectorData(recordList, 0)
@@ -214,13 +214,13 @@ def tablesList(context, main=None, add=None, filterinfo=None, session=None, para
     tables.limit(firstrecord, recordcount)
     
         
-    if tables.tryFirst():
+    if tables.tryFindSet():
         while True:
             rec = DataRecord()
             rec.setId(tables.tablename)
             rec.setName(tables.tablename)
             recordList.add(rec)
-            if not tables.next():
+            if not tables.nextInSet():
                 break
 
     return ResultSelectorData(recordList, 0)

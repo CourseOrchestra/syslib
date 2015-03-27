@@ -51,13 +51,13 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     else:
         rolesUsers.setRange("userid", currId)
     content=[]
-    if rolesUsers.tryFirst():
+    if rolesUsers.tryFindSet():
         while True:
             if roles.tryGet(rolesUsers.roleid):
                 content.append({"@id" : roles.id,
                                 "@description" : '%s - %s' % (roles.id, roles.description if roles.description else '')
                                 })                                                            
-            if not rolesUsers.next():
+            if not rolesUsers.nextInSet():
                 break
         
     if content==[]:
@@ -136,12 +136,12 @@ def rolesList(context, main=None, add=None, filterinfo=None, session=None, param
     roles.setFilter('description', "@%s'%s'%%" % ("%"*(not startswith), curvalue.replace("'","''")))
     roles.orderBy('description')
     roles.limit(firstrecord, recordcount)
-    if roles.tryFirst():
+    if roles.tryFindSet():
         while True:
             rec = DataRecord()
             rec.setId(roles.id)
             rec.setName('%s - %s' % (roles.id, roles.description if roles.description else ''))
             recordList.add(rec)
-            if not roles.next():
+            if not roles.nextInSet():
                 break
     return ResultSelectorData(recordList, 0)

@@ -29,7 +29,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
         sortindex = '%s' % column.getSorting()        
         roles.orderBy(columnsDict[column.getId()] +' '+sortindex)
     roles.limit(firstrecord-1, pagesize)
-    if roles.tryFirst():
+    if roles.tryFindSet():
         while True:
             rolesDict = {}
             rolesDict[toHexForXml('~~id')] = roles.id
@@ -47,7 +47,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
                                                 }
                                       }
             data["records"]["rec"].append(rolesDict)
-            if not roles.next():
+            if not roles.nextInSet():
                 break
 
 
