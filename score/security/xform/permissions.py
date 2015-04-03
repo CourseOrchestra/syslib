@@ -116,6 +116,9 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
         
     else:
         raise CelestaException(u"Недостаточно прав для данной операции!")
+    
+# В системные курсоры нет возможности добавить триггер. Не надо больше писать триггер одновременного ведения разрешений для
+# таблиц logins/employees с subjects. Всё равно его к permissionsCursor не прицепить. 
 
 
 def rolesCount(context, main=None, add=None, filterinfo=None, session=None, params=None,

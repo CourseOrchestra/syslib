@@ -60,6 +60,7 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     # Курсор таблицы directories
     roles = RolesCursor(context)
     # Вычисляем количества записей в таблице
+    roles.setFilter("id", '&'.join(specialRoles))
     totalcount = roles.count()
     # Заголовок таблицы
     header = "Роли"
