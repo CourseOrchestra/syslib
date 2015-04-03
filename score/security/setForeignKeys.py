@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from ru.curs.celesta.score import ForeignKey, FKRule
+from ru.curs.celesta.score import ForeignKey, FKRule, IntegerColumn
 from security.functions import Settings
 
 
@@ -20,8 +20,12 @@ def setForeignKeys(context):
     employees_grain=score.getGrain(settings.getEmployeesParam("employeesGrain"))
     employees_table=employees_grain.getTable(settings.getEmployeesParam("employeesTable"))
     employees_id = employees_table.getColumn(settings.getEmployeesParam("employeesId"))
-    employees_id_length = employees_id.getLength()
-    subject_table.getColumn("employeeId").setLength(unicode(employees_id_length))
+    if isinstance(employees_id, IntegerColumn):
+        subject_table.getColumn("employeeId").delete()
+        IntegerColumn(subject_table, "employeeId")
+    else:        
+        employees_id_length = employees_id.getLength()
+        subject_table.getColumn("employeeId").setLength(unicode(employees_id_length))
     try:            
         logins_keys = login_table.getForeignKeys()
         for logins_key in logins_keys:
