@@ -7,60 +7,63 @@
 
 		<xf:model id="xformId_mainModel">
 			<xf:instance id="xformId_mainInstance">
-				
+
 			</xf:instance>
 			<xf:instance id="xformId_SaveDisableInstance">
 				<schema xmlns="">
 					<PressedSaveButton>0</PressedSaveButton>
 				</schema>
 			</xf:instance>
-			
-			<xf:bind>
-			</xf:bind>
-			
+
+			<xf:bind nodeset="instance('xformId_mainInstance')/resetIdentity" type="boolean"/>
 
 		</xf:model>
 	</head>
-	
+
 	<body>
-	  <!--xf:output value="serialize(instance('xformId_mainInstance'))"/-->
+		<!--xf:output value="serialize(instance('xformId_mainInstance'))"/-->
 
-		  <div class="dirusing sprav" style="width: 300px; float: left; clear: both; padding: 0 0 0 30px;">
-			  <xf:upload id="xformId_upload3" singleFile="true"></xf:upload>
-		  </div>
+		<div class="dirusing sprav" style="width: 300px; float: left; clear: both; padding: 0 0 0 30px;">
+			<xf:upload id="xformId_upload3" singleFile="true"/>
+		</div>
+<div class="control" style="width: 300px; padding: 10px 0 0 30px; float: left; clear:both;">
+			<xf:input class="baseInput" ref="instance('xformId_mainInstance')/resetIdentity">
+				<!--xf:label>Сбрасывать Identity свойство при импорте</xf:label-->
+			</xf:input>
+		Сбрасывать Identity свойство при импорте
+		</div>
 
-				
-				
-				
-				<xf:group ref="instance('xformId_SaveDisableInstance')/PressedSaveButton[ . != '1']">
-				<div class="newbutton" style=" clear:both; float:left; width: 140px; padding: 30px;">
-					<SPAN class="blue xforms-trigger" id="xformId_Tab4Button">
-						<BUTTON class="TabButton" hasXFElement="false" type="submit">
-							<span class="xforms-label">Импорт</span>
-						</BUTTON>
-					</SPAN>
-					<xf:trigger class="HideButton" id="xformId_Tab4Button">
-						<xf:action ev:event="DOMActivate">
-							<xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
-							<xf:setvalue ref="instance('xformId_SaveDisableInstance')/PressedSaveButton" value="'1'"></xf:setvalue>
-						</xf:action>
-					</xf:trigger>
-				</div>
-			</xf:group>
-			<xf:group ref="instance('xformId_SaveDisableInstance')/PressedSaveButton[ . = '1']">
-				<div style=" clear:both; float:left; width: 140px; padding: 30px;">
-					<BUTTON class="TabButton" hasXFElement="false" type="submit" disabled="disabled">!!! Идет импорт !!!</BUTTON>
-				</div>
-			</xf:group>
-			
-				<div class="dirusing newbutton" style="float:left; width: 140px; padding: 30px 0 0 20px;">
-					<xf:trigger class="blue">
-					  <xf:label>Отмена</xf:label>
-					  <xf:action ev:event="DOMActivate">
-						<xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"></xf:load>
-					  </xf:action>
-					</xf:trigger>
-				</div>
 
+
+		<xf:group ref="instance('xformId_SaveDisableInstance')/PressedSaveButton[ . != '1']">
+			<div class="newbutton" style=" clear:both; float:left; width: 140px; padding: 10px 0 0 30px;">
+				<SPAN class="blue xforms-trigger" id="xformId_Tab4Button">
+					<BUTTON class="TabButton" hasXFElement="false" type="submit">
+						<span class="xforms-label">Импорт</span>
+					</BUTTON>
+				</SPAN>
+				<xf:trigger class="HideButton" id="xformId_Tab4Button">
+					<xf:action ev:event="DOMActivate">
+						<xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"/>
+						<xf:setvalue ref="instance('xformId_SaveDisableInstance')/PressedSaveButton" value="'1'"/>
+					</xf:action>
+				</xf:trigger>
+			</div>
+		</xf:group>
+		<xf:group ref="instance('xformId_SaveDisableInstance')/PressedSaveButton[ . = '1']">
+			<div style=" clear:both; float:left; width: 140px; padding: 10px 0 0 30px;">
+				<BUTTON class="TabButton" hasXFElement="false" type="submit" disabled="disabled">!!! Идет импорт !!!</BUTTON>
+			</div>
+		</xf:group>
+
+		<div class="dirusing newbutton" style="float:left; width: 140px; padding: 10px 0 0 30px;">
+			<xf:trigger class="blue">
+				<xf:label>Отмена</xf:label>
+				<xf:action ev:event="DOMActivate">
+					<xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"/>
+				</xf:action>
+			</xf:trigger>
+		</div>
+		
 	</body>
 </html>
