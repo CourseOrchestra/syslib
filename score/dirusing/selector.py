@@ -40,7 +40,7 @@ def selector(context, main=None, add=None,  filterinfo=None, session=None, param
     records = dict()
     recordList = ArrayList()
     recordcount=relatedTable.count() if (relatedTable.count()>0) else 0
-    firstrecord=0
+    #firstrecord=0
     relatedTable.limit(firstrecord, recordcount)
     relatedTable.setFilter(refTableColumn, """@%s'%s'%%""" % ("%"*(not startswith), curvalue.replace("'","''")))
     relatedTable.orderBy(refTableColumn)
@@ -86,7 +86,7 @@ def multiSelector(context, main=None, add=None,  filterinfo=None, session=None, 
     relatedTablePKs = relatedTable.meta().getPrimaryKey()
     
     recordcount=relatedTable.count() if (relatedTable.count()>0) else 0
-    firstrecord=0
+    #firstrecord=0
     relatedTable.limit(firstrecord, recordcount)
     relatedTable.setFilter(refTableColumn, """@%s'%s'%%""" % ("%"*(not startswith), curvalue.replace("'","''")))
     relatedTable.orderBy(refTableColumn)
@@ -141,7 +141,7 @@ def treeSelectorData(context, main=None, add=None,  filterinfo=None, session=Non
     
     #previous code is the same as multiselector, below comes the difference
     recordcount=relatedTable.count() if (relatedTable.count()>0) else 0
-    firstrecord=0
+    #firstrecord=0
     relatedTable.limit(firstrecord, recordcount)
     relatedTable.orderBy('sortNumber')
     if recordcount==0:
