@@ -303,6 +303,7 @@ select.xforms-value{
 	font-family: sans-serif;
 	font-size: small;
 	font-weight: bold;
+	width: calc(100% - 22px);
 }
 
 
