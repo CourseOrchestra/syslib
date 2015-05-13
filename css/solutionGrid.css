@@ -1,4 +1,8 @@
-﻿.webmain-DataGrid {
+﻿@CHARSET "UTF-8";
+
+@import "udStyleGrid.css";
+
+.webmain-DataGrid {
     border: 1px solid white;  
 /*    border: 3px solid black;    */
     
