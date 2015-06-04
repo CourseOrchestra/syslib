@@ -7,20 +7,20 @@ from lyra.basicForm import BasicForm
 
 class CardForm(BasicForm):
     u'''Базовый класс для формы типа карточка, реализованной в Лире'''
-    def findRec(self, context):
-        c = self._getCursor(context)
+    def findRec(self):
+        c = self._getCursor()
         c.navigate('-')
         result = ByteArrayOutputStream()
         XMLSerializer.serialize(c, result)
         return result.toString("utf-8");
 
-    def move(self, context, cmd, data):
-        c = self._getCursor(context)
+    def move(self, cmd, data):
+        c = self._getCursor()
 
         dataIS = ByteArrayInputStream(data.encode("UTF-8"))
         XMLSerializer.deserialize(c, dataIS)
 
-        c2 = self._getCursor(context)
+        c2 = self._getCursor()
         c2.copyFieldsFrom(c)
         if c2.tryGetCurrent():
             c2.copyFieldsFrom(c)
@@ -32,16 +32,16 @@ class CardForm(BasicForm):
         XMLSerializer.serialize(c, result)
         return result.toString("utf-8");
 
-    def newRec(self, context):
-        c = self._getCursor(context)
+    def newRec(self):
+        c = self._getCursor()
         c.clear()
         c.setRecversion(0)
         result = ByteArrayOutputStream()
         XMLSerializer.serialize(c, result)
         return result.toString("utf-8");
 
-    def deleteRec(self, context, data):
-        c = self._getCursor(context)
+    def deleteRec(self, data):
+        c = self._getCursor()
 
         dataIS = ByteArrayInputStream(data.encode("UTF-8"))
         XMLSerializer.deserialize(c, dataIS)
