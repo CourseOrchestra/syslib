@@ -9,11 +9,12 @@ import simplejson as json
 from security.functions import userHasPermission
 
 def authentificationNavigator(context, session):
+    
     '''Часть общего навигатора для гранулы разграничения прав доступа'''
     sid=json.loads(session)['sessioncontext']['sid']
     resultJSON = {"group":{"@id": "security",
                            "@name": "Разграничение прав доступа",
-                           #"@icon": "navigatorIcons/security.png",
+                            "@icon": "security.png",
                            "level1":[]}
                   }
     '''Проверка разрешений на формирование навигатора'''

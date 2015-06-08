@@ -51,7 +51,7 @@ def sendmail(context, flute):
     password = settingsObject.getGrainSettings('mailsender/password', 'common')[0]
 
     #1. Parse XML and make from it a convenient data sctructure
-    xmlcontext = xml.etree.ElementTree.iterparse(StringIO.StringIO(flute.params.encode('utf-8')), ['start', 'end']); 
+    xmlcontext = xml.etree.ElementTree.iterparse(StringIO.StringIO(flute.params.encode('utf-16')), ['start', 'end']); 
 
     to = []
     cc = []
