@@ -106,6 +106,9 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
     rolesUsers = UserRolesCursor(context)
     logins = loginsCursor(context)
     currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
+    settings = Settings()
+    if settings.isUseAuthServer() and settings.loginIsSubject():
+        currId = json.loads(base64.b64decode(currId))[0]
     logins.get(currId)
     rolesUsers.setRange("userid", logins.subjectId)
     rolesUsers.deleteAll()
@@ -113,7 +116,7 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
         content = json.loads(xformsdata)["schema"]["roles"]["role"]    
         content = content if isinstance(content, list) else [content]
         rolesUsersOld = UserRolesCursor(context)
-        for role in content:         
+        for role in content:
             rolesUsers.roleid=role["@id"]
             rolesUsers.userid=logins.subjectId
             if rolesUsers.canInsert() and rolesUsers.canModify():        
