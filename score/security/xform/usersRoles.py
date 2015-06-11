@@ -14,13 +14,13 @@ import os
 from ru.curs.celesta import CelestaException
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from ru.curs.celesta.syscursors import UserRolesCursor, RolesCursor
-from security._security_orm import loginsCursor
+from security._security_orm import loginsCursor, subjectsCursor
 from security.functions import Settings
 
 try:
     from ru.curs.showcase.security import SecurityParamsFactory
 except:
-    print 1
+    pass
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -48,12 +48,16 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     if settings.isUseAuthServer() and settings.loginIsSubject():
         currId = json.loads(base64.b64decode(currId))
         if not logins.tryGet(currId[0]):
+            subjects = subjectsCursor(context)
+            subjects.name = currId[0]
+            subjects.sid = currId[1]
+            subjects.insert()
             logins.userName = currId[0]
             logins.subjectId = currId[1]
             logins.insert()
             # in "tt" regime we copy record from mellophone(AuthServer) to logins if it doesn't appear in logins.
         rolesUsers.setRange("userid", logins.subjectId)
-    if settings.loginIsSubject():
+    elif settings.loginIsSubject():
         logins.get(currId)
         rolesUsers.setRange("userid", logins.subjectId)
     else:
