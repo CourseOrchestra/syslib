@@ -42,10 +42,18 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     #ru.curs.showcase.security.SecurityParamsFactory.getAuthServerUrl()
     rolesUsers = UserRolesCursor(context)
     roles = RolesCursor(context)
+    logins = loginsCursor(context)
 
     currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
+    if settings.isUseAuthServer() and settings.loginIsSubject():
+        currId = json.loads(base64.b64decode(currId))
+        if not logins.tryGet(currId[0]):
+            logins.userName = currId[0]
+            logins.subjectId = currId[1]
+            logins.insert()
+            # in "tt" regime we copy record from mellophone(AuthServer) to logins if it doesn't appear in logins.
+        rolesUsers.setRange("userid", logins.subjectId)
     if settings.loginIsSubject():
-        logins = loginsCursor(context)
         logins.get(currId)
         rolesUsers.setRange("userid", logins.subjectId)
     else:

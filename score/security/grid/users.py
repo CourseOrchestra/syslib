@@ -49,15 +49,15 @@ def gridData(context, main=None, add=None, filterinfo=None,
             if i<firstrecord:
                 continue
             loginsDict = {}
-            loginsDict[toHexForXml('~~id')] = user.getAttribute("login")
+            loginsDict[toHexForXml('~~id')] = base64.b64encode(json.dumps([user.getAttribute("login"), user.getAttribute("SID")]))
             loginsDict["SID"] = user.getAttribute("SID")
             loginsDict[toHexForXml(u"Имя пользователя")] = user.getAttribute("login")
             if isEmployees:
                 loginsDict["Сотрудник"] = ""
-                if logins.tryGet(user.getAttribute("login")):
-                    if subjects.tryGet(logins.subjectId):
-                        if employees.tryGet(subjects.employeeId):
-                            loginsDict["Сотрудник"] = getattr(employees, employeesName)                        
+                if logins.tryGet(user.getAttribute("login")) and \
+                        subjects.tryGet(logins.subjectId) and\
+                        employees.tryGet(subjects.employeeId):
+                    loginsDict["Сотрудник"] = getattr(employees, employeesName)                        
             loginsDict['properties'] = {"event":{"@name":"row_single_click",
                                                 "action":{"#sorted":[{"main_context": 'current'},
                                                                      {"datapanel":{"@type":"current",
