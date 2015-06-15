@@ -50,6 +50,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     empName=""            
     if 'currentRecordId' in json.loads(session)['sessioncontext']['related']['gridContext']:
         currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']        
+        if settings.loginIsSubject():
+            currId = json.loads(base64.b64decode(currId))[0]        
         if logins.tryGet(currId) and add<>'add':
             if subjects.tryGet(logins.subjectId):
                 subjectId=subjects.sid
@@ -79,14 +81,14 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             sid=getNextNoOfSeries(context, 'subjects') + id_generator()
             xformsdata["schema"]["user"]["@subjectId"]=sid
             xformsdata["schema"]["user"]["@sid"]=sid
-    elif add == 'edit' and settings.isUseAuthServer():        
+    elif add == 'edit' and settings.isUseAuthServer():
         server=SecurityParamsFactory.getAuthServerUrl()
         sessionId=json.loads(session)["sessioncontext"]["sessionid"]
         users_xml=getUsersFromAuthServer(server, sessionId)
         for user_xml in users_xml.getElementsByTagName("user"):
             if user_xml.getAttribute("login")==currId:
                 break
-        #raise Exception(user_xml.getAttribute("password"))        
+        #raise Exception(user_xml.getAttribute("password"))
         xformsdata = {"schema":{"user":{"@sid": user_xml.getAttribute("SID"),                                        
                                         "@password": "",
                                         "@userName": user_xml.getAttribute("login"),
