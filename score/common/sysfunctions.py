@@ -43,3 +43,9 @@ def getGridHeight(session, numberOfGrids=1, gridHeaderHeight=55, delta=59):
     else:
         return unicode(int((int(session["sessioncontext"]["currentDatapanelHeight"])\
                          - gridHeaderHeight) / numberOfGrids) - delta)
+
+def getSettingsPath():
+    u"""Функция возвращает путь к файлу с настройками гранул."""
+    settingsPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'grainsSettings.xml')
+    #return settingsPath
+    return r"E:\Projects\celesta\solutions\exoatlet\grainsSettings.xml"

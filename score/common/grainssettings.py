@@ -6,11 +6,12 @@ import uuid
 from org.xml.sax.helpers import XMLReaderFactory
 from org.xml.sax.ext import DefaultHandler2
 from org.xml.sax import InputSource
-from  javax.xml.stream import XMLOutputFactory
+from javax.xml.stream import XMLOutputFactory
 from java.io import FileInputStream, StringWriter, FileOutputStream, OutputStreamWriter
 from java.lang import String
 from ru.curs.celesta import CelestaException
 
+from common.sysfunctions import getSettingsPath
 
 class SettingsManager():
     u'''Класс получения настроек свойств для всех гранул'''
@@ -18,8 +19,7 @@ class SettingsManager():
         self.grainName = context.grain.name if context is not None and context.grain is not None else None
     def _getSettingsFilePath(self, isNew=''):
         u'''Функция получения пути с файлом настроек'''
-        settingsPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'grainsSettings%s.xml' % isNew)
-        return settingsPath
+        return '%s%s' % (getSettingsPath(), isNew)
 
     def _createReader(self, path, value, xmlWriter):
         u'''функция создания ридера для чтения файла настроек, с учетом указанного пути'''
@@ -79,10 +79,11 @@ class SettingsManager():
         return self._setSettings('grainSettings/generalSettings/%s' % path, value)
 
     def setGrainSettings(self, path, value, grain=None):
-        grainLocal = grain or self.grainName        
+        grainLocal = grain or self.grainName
         return self._setSettings('grainSettings/grains/grain[@name="%s"]/%s' % (grainLocal, path), value)
 
 class NodeProperties():
+    u'''Описание ноды для Xpath запроса'''
     def __init__(self, properties, newValue=None):
         self.node = properties[0]
         self.attrCond = properties[1]
@@ -93,7 +94,7 @@ class NodeProperties():
         self.curIndex = 0
 
 class ReadSettings(DefaultHandler2):
-    u'''SAX-parser для xforms, в которую необходимо вставить правила'''
+    u'''SAX-parser для чтения файла настроек'''
     def __init__(self, pathList):
         self.pathList = pathList
         self.result = []
@@ -168,7 +169,7 @@ class ReadSettings(DefaultHandler2):
         pass
 
 class WriteSettings(DefaultHandler2):
-    u'''SAX-parser для xforms, в которую необходимо вставить правила'''
+    u'''SAX-parser для записи в файл настроек'''
     def __init__(self, pathList, xmlWriter=None, newValue=None):
         self.pathList = pathList
         self.result = []
@@ -282,8 +283,4 @@ class WriteSettings(DefaultHandler2):
     def skippedEntity(self, name):
         if not self.isFind and self.isWrite:
             self.xmlWriter.writeEntityRef(name)
-
-class ReadXMLError(Exception):
-    pass
-
 
