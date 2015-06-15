@@ -4,7 +4,7 @@
 
 '''
 import simplejson as json
-#import base64
+import base64
 from java.util import ArrayList
 
 try:
@@ -50,7 +50,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     empName=""            
     if 'currentRecordId' in json.loads(session)['sessioncontext']['related']['gridContext']:
         currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']        
-        if settings.loginIsSubject():
+        if settings.loginIsSubject() and settings.isUseAuthServer():
             currId = json.loads(base64.b64decode(currId))[0]        
         if logins.tryGet(currId) and add<>'add':
             if subjects.tryGet(logins.subjectId):
