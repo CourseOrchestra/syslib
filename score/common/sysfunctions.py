@@ -48,7 +48,7 @@ def getSettingsPath():
     u"""Функция возвращает путь к файлу с настройками гранул."""
     try:
         from ru.curs.showcase.runtime import AppInfoSingleton
-        settingsPath = r'%s\grainsSettings.xml' % os.path.dirname(getAppInfo().getCurUserData().getPath())
+        settingsPath = r'%s\grainsSettings.xml' % os.path.dirname(AppInfoSingleton.getAppInfo().getCurUserData().getPath())
     except:
         import initcontext
         settingsPath = initcontext().celesta.setupProperties.getProperty('grainssettings.path')
