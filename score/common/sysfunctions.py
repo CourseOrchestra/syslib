@@ -1,7 +1,7 @@
 # coding: utf-8
 import os
+import json
 from ru.curs.celesta import CelestaException
-import simplejson as json
 
 def toHexForXml(s):
     '''Функция модифицирует спецсимволы в строке в формат пригодный для имен тегов xml'''
@@ -46,6 +46,10 @@ def getGridHeight(session, numberOfGrids=1, gridHeaderHeight=55, delta=59):
 
 def getSettingsPath():
     u"""Функция возвращает путь к файлу с настройками гранул."""
-    settingsPath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'grainsSettings.xml')
-    #return settingsPath
-    return r"E:\Projects\celesta\solutions\exoatlet\grainsSettings.xml"
+    try:
+        from ru.curs.showcase.runtime import AppInfoSingleton
+        settingsPath = r'%s\grainsSettings.xml' % os.path.dirname(getAppInfo().getCurUserData().getPath())
+    except:
+        import initcontext
+        settingsPath = initcontext().celesta.setupProperties.getProperty('grainssettings.path')
+    return settingsPath
