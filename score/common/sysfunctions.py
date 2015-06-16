@@ -46,9 +46,10 @@ def getGridHeight(session, numberOfGrids=1, gridHeaderHeight=55, delta=59):
 
 def getSettingsPath():
     u"""Функция возвращает путь к файлу с настройками гранул."""
+
     try:
         from ru.curs.showcase.runtime import AppInfoSingleton
-        settingsPath = r'%s\grainsSettings.xml' % os.path.dirname(AppInfoSingleton.getAppInfo().getCurUserData().getPath())
+        settingsPath = r'%s\grainsSettings.xml' % AppInfoSingleton.getAppInfo().getUserdataRoot()
     except:
         import initcontext
         settingsPath = initcontext().celesta.setupProperties.getProperty('grainssettings.path')
