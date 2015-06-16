@@ -7,7 +7,7 @@ def getNextNoOfSeries(context, seriesId):
     linesOfNumbersSeries = linesOfNumbersSeriesCursor(context)
     linesOfNumbersSeries.setRange('seriesId', seriesId)
     linesOfNumbersSeries.setRange('isOpened', True)
-    linesOfNumbersSeries.setRange('startingDate', datetime.strptime('1900-00-00', '%Y-%m-%d') , datetime.today())
+    linesOfNumbersSeries.setRange('startingDate', datetime.strptime('1900-01-01', '%Y-%m-%d') , datetime.today())
 
     for linesOfNumbersSeries in linesOfNumbersSeries.iterate():
         seriesObject = GettingNextNumberOfSeries(linesOfNumbersSeries.lastUsedNumber,
