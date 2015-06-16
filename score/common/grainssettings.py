@@ -262,7 +262,7 @@ class WriteSettings(DefaultHandler2):
 
     def comment(self, ch, start, length):
         if not self.isFind and self.isWrite:
-            self.xmlWriter.writeComment(''.join(ch[start:start + length]))
+            self.xmlWriter.writeComment(''.join(String(ch[start:start + length]).toString()))
 
     def startPrefixMapping(self, prefix, uri):
         if prefix == "" and self.isWrite:
