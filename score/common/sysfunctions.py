@@ -1,7 +1,7 @@
 # coding: utf-8
 import os
 import json
-from ru.curs.celesta import CelestaException
+from ru.curs.celesta import Celesta
 
 def toHexForXml(s):
     '''Функция модифицирует спецсимволы в строке в формат пригодный для имен тегов xml'''
@@ -51,6 +51,5 @@ def getSettingsPath():
         from ru.curs.showcase.runtime import AppInfoSingleton
         settingsPath = r'%s\grainsSettings.xml' % AppInfoSingleton.getAppInfo().getUserdataRoot()
     except:
-        import initcontext
-        settingsPath = initcontext().celesta.setupProperties.getProperty('grainssettings.path')
+        settingsPath = Celesta.getInstance().setupProperties.getProperty('grainssettings.path')
     return settingsPath
