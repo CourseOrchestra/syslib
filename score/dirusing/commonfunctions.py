@@ -3,8 +3,7 @@
 import java.io.OutputStreamWriter as OutputStreamWriter
 import java.io.InputStreamReader as InputStreamReader
 import java.io.BufferedReader as BufferedReader
-from java.io import FileOutputStream,ByteArrayOutputStream,FileInputStream,File
-from ru.curs.showcase.core.jython import JythonErrorResult
+from java.io import FileOutputStream, ByteArrayOutputStream, FileInputStream, File
 import base64
 import uuid
 import simplejson as json
@@ -38,7 +37,7 @@ def getFieldsHeaders(table_meta, elem_type):
         try:
             column_jsn = json.loads(table_meta.getColumn(col_name).getCelestaDoc())
             # Проверка на видимость столбца если грид
-            if elem_type=="grid":
+            if elem_type == "grid":
                 if column_jsn["visualLength"] == '0':
                     continue
             _headers[col_name] = [column_jsn["name"], int(column_jsn["fieldTypeId"]), int(column_jsn["fieldOrderInSort"])]
@@ -51,7 +50,7 @@ def getFieldsHeaders(table_meta, elem_type):
 
 def getSortList(table_meta):
     u'''Функция для получения списка порядковых номеров полей для сортировки'''
-    
+
     # Аналог в 1 строку без проверки на int не int
     #sort_list = map(lambda x: int(json.loads(table_meta.getColumn(x).getCelestaDoc())["fieldOrderInGrid"]), table_meta.getColumns())
 
@@ -94,7 +93,7 @@ def findJsonValues(element, obj):
     return results
 
 def htmlDecode(string):
-    return string.replace('_x0020_',' ').replace('_x002e_','.').replace('_x002d_','-').replace('_x0451_',u'ё').replace('_x0401_',u'Ё')
+    return string.replace('_x0020_', ' ').replace('_x002e_', '.').replace('_x002d_', '-').replace('_x0451_', u'ё').replace('_x0401_', u'Ё')
 
 def readLongTextData(cursor, fieldname):
     u'''Функция для чтения полей типа Longtext. '''
@@ -138,7 +137,7 @@ def downloadFileFromGrid(context, main=None, add=None, filterinfo=None,
     getattr(currentTable, 'calcattachment')()
     data = getattr(currentTable, 'attachment').getInStream()
     # Имя файла - расширение лучше указывать в отдельном поле в таблице
-    fileName = '123.xml' 
+    fileName = '123.xml'
     #data = open('C:\\eclipse\eclipse.ini')
     # Если в потоке что-то есть, тогда вызываем скачивание файла
     if data:
@@ -174,58 +173,58 @@ def uploadFileToXform(context, main, add, filterinfo, session, elementId, xforms
 
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
-    newfileid=''
+    newfileid = ''
     #raise Exception(xformsdata,session)
     try:
         currentRecordId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
-        selectedRecordId=json.loads(base64.b64decode(str(currentRecordId)))
+        selectedRecordId = json.loads(base64.b64decode(str(currentRecordId)))
     except:
         context.warning("Error: cannot get Current record id")
     # Получение курсора на таблицу
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
-    fields=currentTable.meta().getColumns()
-    fileid=None
+    fields = currentTable.meta().getColumns()
+    fileid = None
     if 'currentRecordId' in json.loads(session)['sessioncontext']['related']['gridContext']:
         currentRecordId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
-        selectedRecordId=json.loads(base64.b64decode(str(currentRecordId)))
+        selectedRecordId = json.loads(base64.b64decode(str(currentRecordId)))
         currentTable.get(*selectedRecordId)
     for field in fields:
         column_jsn = json.loads(currentTable.meta().getColumn(field).getCelestaDoc())
-        if column_jsn["fieldTypeId"]=="4":
-            filecolumn=field
+        if column_jsn["fieldTypeId"] == "4":
+            filecolumn = field
             if "refTable" in column_jsn:
                 refTableName = column_jsn["refTable"]
                 refTableColumnId = column_jsn["refTableColumnId"]
-                refFileColumn=column_jsn["refFileColumn"]
+                refFileColumn = column_jsn["refFileColumn"]
                 relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
-                fileid=getattr(currentTable,filecolumn)
-                if fileid!=None:  
-                    relatedTable.setRange(refTableColumnId,fileid)
+                fileid = getattr(currentTable, filecolumn)
+                if fileid != None:
+                    relatedTable.setRange(refTableColumnId, fileid)
                     relatedTable.first()
                 else:
-                    newfileid=uuid.uuid4()
-                    setattr(relatedTable, refTableColumnId,newfileid)
-                    setattr(currentTable,filecolumn,newfileid)
+                    newfileid = uuid.uuid4()
+                    setattr(relatedTable, refTableColumnId, newfileid)
+                    setattr(currentTable, filecolumn, newfileid)
             break
     # Переводим курсор на запись
-    
+
     try:
-        if newfileid!='':
-            getattr(relatedTable, 'calc'+refFileColumn)()
+        if newfileid != '':
+            getattr(relatedTable, 'calc' + refFileColumn)()
         else:
-            getattr(currentTable, 'calc'+filecolumn)()
+            getattr(currentTable, 'calc' + filecolumn)()
     except:
-        context.error("Error: cannot calculate blob file. Column %s Table %s" % (refFileColumn,refTableName))
+        context.error("Error: cannot calculate blob file. Column %s Table %s" % (refFileColumn, refTableName))
     # Поток для записи файла в базу
-    
+
     try:
-        if newfileid!='':
-            outputstream=OutputStreamWriter(getattr(relatedTable,refFileColumn).getOutStream(),'utf-8')
+        if newfileid != '':
+            outputstream = OutputStreamWriter(getattr(relatedTable, refFileColumn).getOutStream(), 'utf-8')
         else:
-            outputstream=OutputStreamWriter(getattr(currentTable,filecolumn).getOutStream(),'utf-8')
+            outputstream = OutputStreamWriter(getattr(currentTable, filecolumn).getOutStream(), 'utf-8')
     except:
         context.error("Error: cannot create outputstream object")
-    
+
     #outputstream = getattr(currentTable, 'attachment').getOutStream()
     # Промежуточный поток
 
@@ -240,15 +239,15 @@ def uploadFileToXform(context, main, add, filterinfo, session, elementId, xforms
             try:
                 outputstream.write(onebyte)
             except:
-                context.error("Error: cannot write binary data to table during import. filecolumn is %s, data %s" %(filecolumn,onebyte))
+                context.error("Error: cannot write binary data to table during import. filecolumn is %s, data %s" % (filecolumn, onebyte))
         else:
             break
     #raise Exception (str(i))
-    if newfileid!='':
+    if newfileid != '':
         relatedTable.insert()
         currentTable.update()
-        
-        
+
+
     else:
         currentTable.update()
     context.message("File uploaded successfully")
