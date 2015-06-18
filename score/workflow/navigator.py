@@ -136,6 +136,7 @@ def manageProcessesNav(context, session):
             return myNavigator
     sid = session["sid"]
     # Пункт меню управление процессами
+    emptyNavigatorFlag = True
     myNavigator = {
                        "group":{
                                 "@id": "workflow",
@@ -146,6 +147,7 @@ def manageProcessesNav(context, session):
                                 }
                        }
     if userHasPermission(context, sid, 'processManagement'):
+        emptyNavigatorFlag = False
         myNavigator["group"]["level1"].append({
                                           "@id": "w1",
                                           "@name": u"Управление процессами",
@@ -156,6 +158,7 @@ def manageProcessesNav(context, session):
                                           })
     # Пункт меню редактирования процессов
     if userHasPermission(context, sid, 'processDesigner'):
+        emptyNavigatorFlag = False
         myNavigator["group"]["level1"].append({"@id": "editingProcesses",
                                               "@name": u"Конструктор процессов",
                                               "action":
@@ -167,6 +170,7 @@ def manageProcessesNav(context, session):
                                                  }
                                               })
     if userHasPermission(context,sid,'userGroups'):
+        emptyNavigatorFlag = False
         myNavigator["group"]["level1"].append({
                                           "@id": "userGroups",
                                           "@name": u"Группы пользователей",
@@ -176,6 +180,7 @@ def manageProcessesNav(context, session):
                                                      }
                                           })
     if userHasPermission(context, sid, 'activeTasks'):
+        emptyNavigatorFlag = False
         myNavigator["group"]["level1"].append({"@id": "activeTasks",
                                               "@name": u"Текущие задачи",
                                               "@selectOnLoad": "true",
@@ -189,6 +194,7 @@ def manageProcessesNav(context, session):
                                               })
 
     if userHasPermission(context, sid, 'archiveTasks'):
+        emptyNavigatorFlag = False
         myNavigator["group"]["level1"].append({"@id": "archiveTasks",
                                               "@name": u"Выполненные задачи",
                                               "action":
@@ -200,6 +206,7 @@ def manageProcessesNav(context, session):
                                                  }
                                               })
     if userHasPermission(context, sid, 'allActiveTasks'):
+        emptyNavigatorFlag = False
         myNavigator["group"]["level1"].append({"@id": "allActiveTasks",
                                               "@name": u"Все задачи",
                                               "action":
@@ -210,7 +217,10 @@ def manageProcessesNav(context, session):
                                                      }
                                                  }
                                               })
-    return myNavigator
+    if emptyNavigatorFlag:
+        return {"group":None}
+    else:
+        return myNavigator
 
 def navSettings(context, session):
     myNavigator = {
