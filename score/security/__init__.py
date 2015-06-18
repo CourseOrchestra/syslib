@@ -24,12 +24,10 @@ if not settings.loginIsSubject() and settings.isEmployees():
     employeesCursor.onPreDelete.append(employeesSubjectsPreDelete)
 
 if not settings.isSystemInitialised():
-    try:
-        context = initcontext()
-        if settings.isEmployees():
-            setConstraint(context) #функция устанавливает внешний ключ в таблицу subjects и меняет значение параметра isSystemInitialised на True
-        securityInit(context)
-    finally:
-        pass
-navigatorsParts['99'] = authentificationNavigator
+    context = initcontext()
+    if settings.isEmployees():
+        setConstraint(context) #функция устанавливает внешний ключ в таблицу subjects и меняет значение параметра isSystemInitialised на True
+    securityInit(context)
+
+navigatorsParts['securityNavigator'] = authentificationNavigator
 

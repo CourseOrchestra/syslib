@@ -5,9 +5,9 @@
 import string
 import random
 import os
-import simplejson as json
+import json
 import urllib2
-import xml.dom.minidom
+from xml.dom.minidom import parseString
 from security._security_orm import customPermsCursor, rolesCustomPermsCursor
 from ru.curs.celesta.syscursors import PermissionsCursor, UserRolesCursor
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
@@ -27,11 +27,6 @@ class Settings():
     
     def __init__(self):        
         self.settingsInstance = SettingsManager()
-    
-#    def getSettingsJSONPath(self):
-#        #settingsPath=os.path.join(os.path.dirname(os.path.abspath(__file__)),'usersTypes.json')
-#        settingsPath=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'common', 'grainsSettings.xml')
-#        return settingsPath
     
     def getSettingsJSON(self):
         if self.settings=={}:
@@ -100,7 +95,7 @@ def getUsersFromAuthServer(server, sessionId):
     req = urllib2.Request(server+'/importusers?sesid='+sessionId,'<Request></Request>')
     data = urllib2.urlopen(req)
     users=data.read()
-    return xml.dom.minidom.parseString(users)
+    return parseString(users)
 
 def getActionJSON(add="", elementId="", caption="", height="", width=""):
     action={"@show_in": "MODAL_WINDOW",
@@ -119,7 +114,6 @@ def getActionJSON(add="", elementId="", caption="", height="", width=""):
     return action
 
 def submissionGenPass(context, main=None, add=None, filterinfo=None, session=None, data=None):
-    #raise Exception(data)
     instance=json.loads(data)
     instance["schema"]["user"]["@password"]=id_generator()        
     return XMLJSONConverter.jsonToXml(json.dumps(instance))
@@ -218,8 +212,6 @@ def userHasPermission(context, sid, permission):
 def tableUpload(cursorInstance, fileData):    
     exchange = DataBaseXMLExchange(fileData, cursorInstance)
     exchange.uploadXML()
-    #fileData.close()
-    
 
 def tableDownload(cursorInstance, fileName):
     filePath=os.path.join(os.path.dirname(os.path.abspath(__file__)), fileName+'.xml')

@@ -5,7 +5,7 @@ Created on 03.12.2013
 @author: d.bozhenko
 
 '''
-import simplejson as json
+import json
 from java.util import ArrayList
 import base64
 from xml.dom import minidom
@@ -19,7 +19,6 @@ except:
 
 from ru.curs.celesta import CelestaException
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-# from dirusing.commonfunctions import relatedTableCursorImport
 from ru.curs.celesta.syscursors import PermissionsCursor, RolesCursor, GrainsCursor,TablesCursor
 
 

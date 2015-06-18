@@ -5,13 +5,11 @@ Created on 03.12.2013
 @author: d.bozhenko
 
 '''
-import simplejson as json
-import base64
-import urllib2
+import json
+
 from java.util import ArrayList
 import xml.dom.minidom
 import string
-import os
 
 from ru.curs.celesta import CelestaException
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
@@ -34,9 +32,6 @@ except:
     from ru.curs.celesta.showcase import JythonDTO
     #from ru.curs.celesta.showcase import ResultSelectorData
     #from ru.curs.celesta.showcase import DataRecord
-
-checkUserAuthServerPath=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'usersTypes.json')
-#checkUserAuthServerPath=os.path.join(os.pardir,'usersTypes.json')
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Функция данных для карточки редактирования содержимого таблицы ролей. '''

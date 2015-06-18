@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import simplejson as json
+import json
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from common.sysfunctions import toHexForXml, getGridHeight, getGridWidth
 from security._security_orm import customPermsTypesCursor

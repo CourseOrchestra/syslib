@@ -5,16 +5,15 @@ Created on 24.09.2014
 @author: d.bozhenko
 '''
 
-import simplejson as json
+import json
 from security.functions import userHasPermission
 
 def authentificationNavigator(context, session):
-    
     '''Часть общего навигатора для гранулы разграничения прав доступа'''
     sid=json.loads(session)['sessioncontext']['sid']
     resultJSON = {"group":{"@id": "security",
                            "@name": "Разграничение прав доступа",
-                            "@icon": "security.png",
+                           #"@icon": "navigatorIcons/security.png",
                            "level1":[]}
                   }
     '''Проверка разрешений на формирование навигатора'''
@@ -45,6 +44,15 @@ def authentificationNavigator(context, session):
                                                                      }
                                                         }
                                               })
+    
+#     resultJSON["group"]["level1"].append({"@id": "test",
+#                                               "@name": "test",
+#                                               "action":{"main_context": "current",
+#                                                         "datapanel":{"@type": "security.testDatapanel.datapanel.celesta",
+#                                                                      "@tab": "firstOrCurrent"
+#                                                                      }
+#                                                         }
+#                                               })
                                     
     if  not userHasPermission(context, sid, 'loginsSubjectsPoint') and \
         not userHasPermission(context, sid, 'rolesPoint') and \

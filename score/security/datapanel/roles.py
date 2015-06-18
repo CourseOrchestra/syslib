@@ -1,5 +1,5 @@
 # coding: utf-8
-import simplejson as json
+import json
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def rolesDatapanel(context, main=None, session=None):

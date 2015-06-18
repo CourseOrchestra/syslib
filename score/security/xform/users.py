@@ -3,7 +3,7 @@
 @author: d.bozhenko
 
 '''
-import simplejson as json
+import json
 import base64
 from java.util import ArrayList
 

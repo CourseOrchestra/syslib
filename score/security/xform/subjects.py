@@ -3,9 +3,7 @@
 @author: d.bozhenko
 
 '''
-import simplejson as json
-#import base64
-#from string import lowercase
+import json
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO

@@ -1,17 +1,14 @@
 # coding: utf-8
 
 
-import simplejson as json
-import base64
-from string import lowercase
+import json
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
 except:
     from ru.curs.celesta.showcase import JythonDTO
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from security._security_orm import subjectsCursor
-from security._security_orm import loginsCursor
+from security._security_orm import subjectsCursor, loginsCursor
 
 def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
     xformsdata = {"schema":{"@xmlns":""}}

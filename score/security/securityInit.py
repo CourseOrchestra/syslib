@@ -8,7 +8,6 @@ Created on 23.10.2014
 from security._security_orm import customPermsCursor, customPermsTypesCursor, rolesCustomPermsCursor
 from common._common_orm import numbersSeriesCursor, linesOfNumbersSeriesCursor
 
-#from security.functions import Settings
 import time, datetime
 from java.text import SimpleDateFormat
 
@@ -76,6 +75,3 @@ def securityInit(context):
         rolesCustomPerms.roleid='editor'
         rolesCustomPerms.permissionId='numbersSeriesPoint'
         rolesCustomPerms.insert()
-    
-    #context.commit()
-

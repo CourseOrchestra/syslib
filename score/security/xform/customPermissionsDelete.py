@@ -1,7 +1,7 @@
 # coding: utf-8
 
 
-import simplejson as json
+import json
 import base64
 from string import lowercase
 

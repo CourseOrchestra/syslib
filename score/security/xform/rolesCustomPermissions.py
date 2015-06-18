@@ -5,17 +5,14 @@ Created on 03.12.2013
 @author: d.bozhenko
 
 '''
-import simplejson as json
+import json
 from java.util import ArrayList
 
 from ru.curs.celesta import CelestaException
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from ru.curs.celesta.syscursors import RolesCursor
 from security._security_orm import rolesCustomPermsCursor
-try:
-    from ru.curs.showcase.security import SecurityParamsFactory
-except:
-    pass
+
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
