@@ -12,7 +12,7 @@ def setForeignKeys(context):
     subject_table=security_grain.getTable("subjects")
     login_table=security_grain.getTable("logins")
     password_field = login_table.getColumn("password")
-    password_field.setNullableAndDefault(settings.isUseAuthServer())
+    password_field.setNullableAndDefault(settings.isUseAuthServer(), '')
     employees_grain=score.getGrain(settings.getEmployeesParam("employeesGrain"))
     employees_table=employees_grain.getTable(settings.getEmployeesParam("employeesTable"))
     employees_id = employees_table.getColumn(settings.getEmployeesParam("employeesId"))
