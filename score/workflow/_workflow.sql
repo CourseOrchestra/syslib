@@ -495,6 +495,14 @@ on tasks.proc_def_id_ = procdef.id_
 inner join workflow.act_ru_variable as vars
 on tasks.proc_inst_id_ = vars.proc_inst_id_ and vars.name_ = 'processDescription';
 
+
+create view view_subjects as
+select distinct subjects.sid as sid, subjects.name as name
+from security.subjects as subjects
+inner join celesta.userroles as userroles
+on subjects.sid = userroles.userid
+where roleid = 'workflowDev' or roleid = 'workflowUser';
+
 create index act_idx_exec_buskey on act_ru_execution(business_key_);
 create index act_idx_task_create on act_ru_task(create_time_);
 create index act_idx_ident_lnk_user on act_ru_identitylink(user_id_);

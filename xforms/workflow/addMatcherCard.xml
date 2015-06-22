@@ -111,64 +111,14 @@
 					<xf:input ref="instance('xformId_mainInstance')/data/@assigneeName">
 						<xf:label>Ответственный за задачу:</xf:label>
 					</xf:input>
-					<xf:trigger>
-						<xf:label>...</xf:label>
-						<xf:action ev:event="DOMActivate">
-							<xf:load
-									resource="javascript:gwtCreatePlugin
-								({
-									id:'xformId',
-									plugin:'extJsTree',
-									getDataProcName:'workflow.xforms.addMatcher.treeSelectorXML.celesta',
-									postProcessProc:'handleExtJsTree.py',
-									generalFilters: ['XPath(instance(quot(xformId_mainInstance))/data)'],
-									params:
-									{
-										treePanel:
-										{
-											title: 'Сотрудники'
-										},
-										core:
-										{
-											filter:{
-												startsWith:false,
-												delay:900
-											}
-										},
-										dataModel:
-										{
-											fields:
-											[
-												{name: 'type', type: 'string', devId:'string'}
-											]
-										},
-										view:
-										{
-											columns:
-											[
-												{ header: 'Тип', dataIndex: 'type'}
-											]
-										}
-									},
-									options: 
-									{								
-										dataWidth: '600px',
-										dataHeight: '450px',
-										windowCaption: 'Выбор ответственного',
-										onSelectionComplete: function(ok, plugin) {
-										if (ok) {
-										plugin.utils.singleXpathMapping({
-											'XPath(instance(quot(xformId_mainInstance))/data/@assigneeName)':'name',
-											'XPath(instance(quot(xformId_mainInstance))/data/@assignee)':'id'
-										});
-									}
-								}
-									}
-								});"
-								  >
-							</xf:load>
-						</xf:action>
-					</xf:trigger>
+						<xf:selector buttonLabel="..." 
+						procListAndCount="'workflow.xforms.addUserToGroup.userListAndCount.celesta'"
+						generalFilters=""
+						currentValue="''" 
+						windowCaption="'Выбор процесса'"
+						visibleRecordCount  = '25'
+						xpathMapping="{'XPath(instance(quot(xformId_mainInstance))/data/@assignee)' : 'id',
+							'XPath(instance(quot(xformId_mainInstance))/data/@assigneeName)' : 'name'}"/>
 					<xf:trigger>
 						<xf:label>X</xf:label>
 						<xf:action ev:event="DOMActivate">
@@ -250,7 +200,7 @@
 									{
 										treePanel:
 										{
-											title: 'Сотрудники'
+											title: 'Группы'
 										},
 										core:
 										{
@@ -348,64 +298,17 @@
 								<xf:input ref="name">
 									<xf:label>Название:</xf:label>
 								</xf:input>
-								<xf:trigger>
-									<xf:label>...</xf:label>
-									<xf:action ev:event="DOMActivate">
-										<xf:load
-									resource="javascript:gwtCreatePlugin
-								({
-									id:'xformId',
-									plugin:'extJsTree',
-									getDataProcName:'workflow.xforms.addMatcher.treeSelectorXML.celesta',
-									postProcessProc:'handleExtJsTree.py',
-									generalFilters: ['XPath(instance(quot(xformId_mainInstance))/data)'],
-									params:
-									{
-										treePanel:
-										{
-											title: 'Сотрудники'
-										},
-										core:
-										{
-											filter:{
-												startsWith:false,
-												delay:900
-											}
-										},
-										dataModel:
-										{
-											fields:
-											[
-												{name: 'type', type: 'string', devId:'string'}
-											]
-										},
-										view:
-										{
-											columns:
-											[
-												{ header: 'Тип', dataIndex: 'type'}
-											]
-										}
-									},
-									options: 
-									{								
-										dataWidth: '600px',
-										dataHeight: '450px',
-										windowCaption: 'Выбор ответственного',
-										onSelectionComplete: function(ok, plugin) {
-										if (ok) {
-										plugin.utils.singleXpathMapping({
+														<xf:selector buttonLabel="..." 
+						procListAndCount="'workflow.xforms.addUserToGroup.userListAndCount.celesta'"
+						generalFilters=""
+						currentValue="''" 
+						windowCaption="'Выбор процесса'"
+						visibleRecordCount  = '25'
+
+						xpathMapping="	{
 											'XPath(instance(quot(xformId_mainInstance))/data/users/user[index(quot(xformId_users))]/name)':'name',
 											'XPath(instance(quot(xformId_mainInstance))/data/users/user[index(quot(xformId_users))]/id)':'id'
-										});
-									}
-								}
-									}
-								});"
-								  >
-										</xf:load>
-									</xf:action>
-								</xf:trigger>
+										}"/>
 								<xf:trigger>
 									<xf:label>X</xf:label>
 									<xf:action ev:event="DOMActivate">
