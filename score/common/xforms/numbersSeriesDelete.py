@@ -1,7 +1,7 @@
 # coding: utf-8
 
 
-import simplejson as json
+import json
 import base64
 from string import lowercase
 
@@ -9,8 +9,8 @@ try:
     from ru.curs.showcase.core.jython import JythonDTO
 except:
     from ru.curs.celesta.showcase import JythonDTO
-#from ru.curs.celesta import CelestaException
-from common.xmlutils import XMLJSONConverter
+
+from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from common._common_orm import numbersSeriesCursor, linesOfNumbersSeriesCursor
 
 def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
@@ -30,9 +30,9 @@ def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
                                              }]
                                     }
                       }
-    jsonData = XMLJSONConverter(input=xformsdata).parse()
-    jsonSettings = XMLJSONConverter(input=xformssettings).parse()
-    return JythonDTO(jsonData, jsonSettings)
+    xmlData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))
+    xmlSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
+    return JythonDTO(xmlData, xmlSettings)
 
 def cardDelete(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     currentRecordId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']

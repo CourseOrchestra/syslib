@@ -5,7 +5,7 @@ Created on 03.12.2013
 @author: d.bozhenko
 
 '''
-import simplejson as json
+import json
 import base64
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -17,7 +17,7 @@ from java.text import SimpleDateFormat
 import time, datetime
 
 from ru.curs.celesta import CelestaException
-from common.xmlutils import XMLJSONConverter
+from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from common._common_orm import linesOfNumbersSeriesCursor
 
 
@@ -85,7 +85,9 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                     }
                       }
 
-    return JythonDTO(XMLJSONConverter(input=xformsdata).parse(), XMLJSONConverter(input=xformssettings).parse())
+    return JythonDTO(XMLJSONConverter.jsonToXml(json.loads(xformsdata)),
+                     XMLJSONConverter.jsonToXml(json.loads(xformssettings))
+                     )
 
 
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):    

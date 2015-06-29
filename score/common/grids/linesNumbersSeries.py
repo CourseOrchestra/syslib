@@ -1,8 +1,8 @@
 # coding: utf-8
 
-import simplejson as json
+import json
 import base64
-from common.xmlutils import XMLJSONConverter
+from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from common.sysfunctions import toHexForXml
 from common._common_orm import linesOfNumbersSeriesCursor
 
@@ -49,7 +49,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
                                    }
         data["records"]["rec"].append(linesDict)
 
-    res = XMLJSONConverter(input=data).parse()
+    res = XMLJSONConverter.jsonToXml(json.dumps(data))
     return JythonDTO(res, None)
 
 def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -85,7 +85,7 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     settings["gridsettings"]["columns"]["col"].append({"@id":"Постфикс", "@width": "100px"})    
     settings["gridsettings"]["columns"]["col"].append({"@id":"Фиксированная длина", "@width": "80px", "@type":"IMAGE"})
 
-    res = XMLJSONConverter(input=settings).parse()
+    res = XMLJSONConverter.jsonToXml(json.dumps(data))
     return JythonDTO(None, res)
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -205,5 +205,5 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                             }
                                        )
     
-    return XMLJSONConverter(input=data).parse()
+    return XMLJSONConverter.jsonToXml(json.dumps(data))
 

@@ -2,7 +2,7 @@
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from common.grainssettings import SettingsManager
 # from common._common_orm import numbersSeriesCursor, linesOfNumbersSeriesCursor
-import simplejson as json
+import json
 import re
 navigatorsParts = {}
 

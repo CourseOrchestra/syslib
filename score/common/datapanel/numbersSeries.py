@@ -1,5 +1,6 @@
 # coding: utf-8
-from common.xmlutils import XMLJSONConverter
+import json
+from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def datapanel(context, main=None, session=None):
     u'''Продедура возвращает информационную панель для разрешений'''
@@ -126,5 +127,5 @@ def datapanel(context, main=None, session=None):
                          }
             }    
     #raise Exception(XMLJSONConverter(input=data).parse())
-    return XMLJSONConverter(input=data).parse()
+    return XMLJSONConverter.jsonToXml(json.dumps(data))
 

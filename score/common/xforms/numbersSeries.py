@@ -5,7 +5,7 @@ Created on 03.12.2013
 @author: d.bozhenko
 
 '''
-import simplejson as json
+import json
 from java.util import ArrayList
 import base64
 from xml.dom import minidom
@@ -18,8 +18,7 @@ except:
 
 
 from ru.curs.celesta import CelestaException
-from common.xmlutils import XMLJSONConverter
-# from dirusing.commonfunctions import relatedTableCursorImport
+from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from common._common_orm import numbersSeriesCursor, linesOfNumbersSeriesCursor
 
 
@@ -58,7 +57,9 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                     }
                       }
 
-    return JythonDTO(XMLJSONConverter(input=xformsdata).parse(), XMLJSONConverter(input=xformssettings).parse())
+    return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(xformsdata)),
+                     XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
+                     )
 
 
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
