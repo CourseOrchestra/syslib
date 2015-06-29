@@ -271,7 +271,7 @@ create table act_hi_procinst (
     proc_def_id_ varchar(64) not null,
     start_time_ datetime not null,
     end_time_ datetime,
-    duration_ int,
+    duration_ real,
     start_user_id_ varchar(255),
     start_act_id_ varchar(255),
     end_act_id_ varchar(255),
@@ -295,7 +295,7 @@ create table act_hi_actinst (
     assignee_ varchar(255),
     start_time_ datetime not null,
     end_time_ datetime,
-    duration_ int,
+    duration_ real,
     tenant_id_ varchar(255) default '',
     constraint pk_hi_actinst primary key (id_)
 )with no version check;
@@ -314,7 +314,7 @@ create table act_hi_taskinst (
     start_time_ datetime not null,
     claim_time_ datetime,
     end_time_ datetime,
-    duration_ int,
+    duration_ real,
     delete_reason_ varchar(4000),
     priority_ int,
     due_date_ datetime,
