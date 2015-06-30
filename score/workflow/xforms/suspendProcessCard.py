@@ -19,22 +19,21 @@ try:
     from ru.beta2.extra.gwt.ui.selector.api import DataRecord
 except:
     from ru.curs.celesta.showcase import ResultSelectorData, DataRecord
-    
+
 try:
     from ru.curs.showcase.activiti import  EngineFactory
 except:
     from workflow import testConfig as EngineFactory
-    
+
 from java.io import InputStream, FileInputStream
 from jarray import zeros
 
-#from common.xmlutils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Карточка отсановки процесса'''
     xformsdata = {"schema":{"@xmlns":'',
-                            "data":{"@reason":''},                            
+                            "data":{"@reason":''},
                             }
                   }
     xformssettings = {"properties":{
@@ -53,7 +52,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     jsonData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))
     jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
     return JythonDTO(jsonData, jsonSettings)
-                 
+
 
 
 def cardSave(context, main, add, filterinfo, session, elementId, data):
@@ -62,4 +61,4 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     reason = data_dict["schema"]["data"]["@reason"]
     procId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
     activiti = ActivitiObject()
-    activiti.stopProcess(procId,reason)
+    activiti.stopProcess(procId, reason)

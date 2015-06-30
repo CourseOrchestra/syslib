@@ -13,17 +13,17 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO
 import java.io.OutputStreamWriter as OutputStreamWriter
-try:  
+try:
     from ru.curs.showcase.core import UserMessage
 except:
     pass
-from common.xmlutils import XMLJSONConverter
+from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList
 
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Функция данных для карточки редактирования содержимого справочника. '''
-    
+
     # получение id grain и table из контекста
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
@@ -34,18 +34,18 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     table_meta = currentTable.meta()
     table_jsn = json.loads(table_meta.getCelestaDoc())
     #contragTypeId = json.loads(main)['contragTypeId']
-    
+
     # Пустая структура данных, связнная с текущим справочником
     xformsdata = {"schema":{"@xmlns":"",
                             "buttonShow":u"Показать",
                             "buttonClear":u"Очистить",
                             "columns":[]}}
-    column={}
+    column = {}
     try:
         for col in table_meta.getColumns():
             if json.loads(table_meta.getColumn(col).getCelestaDoc().encode('utf-8'))['fieldTypeId'] == '9':
-                name=json.loads(table_meta.getColumn(col).getCelestaDoc())['name']
-                column={"column":
+                name = json.loads(table_meta.getColumn(col).getCelestaDoc())['name']
+                column = {"column":
 				 {
 				  "@id":col,
 				 "@name":name,
@@ -76,4 +76,4 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 #     xformsdata["schema"]["types"]["type"].append({"@id":-1, "@name":"Все"})
 
     return JythonDTO(XMLJSONConverter(input=xformsdata).parse(), XMLJSONConverter(input=xformssettings).parse())
-    
+

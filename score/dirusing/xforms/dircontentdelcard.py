@@ -11,14 +11,14 @@ try:
     from ru.curs.showcase.core.jython import JythonDTO
 except:
     from ru.curs.celesta.showcase import JythonDTO
-from common.xmlutils import XMLJSONConverter
+from ru.curs.celesta.showcase.utils import XMLJSONConverter
 try:
     from ru.curs.showcase.core import UserMessage
 except:
-    pass    
+    pass
 from common.hierarchy import deleteNodeFromHierarchy
 
-from common.xmlutils import XMLJSONConverter
+
 from dirusing.commonfunctions import relatedTableCursorImport
 
 #from common import webservicefunc
@@ -50,42 +50,41 @@ def cardDelDataSave(context, main=None, add=None, filterinfo=None, session=None,
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
     table_jsn = json.loads(currentTable.meta().getCelestaDoc())
     #признак иерархичности
-    isHierarchical=table_jsn['isHierarchical']
+    isHierarchical = table_jsn['isHierarchical']
     if isHierarchical == 'true':
         for column in currentTable.meta().getColumns():
             #получаем названия колонок с кодом дьюи и сортировкой
             if json.loads(currentTable.meta().getColumn(column).getCelestaDoc())['name'] == u'deweyCode':
-                deweyColumn=column
+                deweyColumn = column
             if json.loads(currentTable.meta().getColumn(column).getCelestaDoc())['name'] == u'sortNumber':
-                sortColumn=column
-    selectedRecordsCoded=json.loads(session)['sessioncontext']['related']['gridContext']['selectedRecordId']
-    
+                sortColumn = column
+    selectedRecordsCoded = json.loads(session)['sessioncontext']['related']['gridContext']['selectedRecordId']
+
     if type(selectedRecordsCoded) is list:
         for selectedRecordCoded in selectedRecordsCoded:
             #print selectedRecordCoded
             #print "2"
             if isHierarchical == 'true':
-                selectedRecordId=json.loads(base64.b64decode(selectedRecordCoded))
+                selectedRecordId = json.loads(base64.b64decode(selectedRecordCoded))
                 currentTable.get(*selectedRecordId)
                 deleteNodeFromHierarchy(context, currentTable, deweyColumn, sortColumn)
-            else:      
-                selectedRecordId=json.loads(base64.b64decode(selectedRecordCoded))
+            else:
+                selectedRecordId = json.loads(base64.b64decode(selectedRecordCoded))
                 currentTable.get(*selectedRecordId)
                 currentTable.delete()
     else:
         #print "1"
         if isHierarchical == 'true':
-            selectedRecordId=json.loads(base64.b64decode(selectedRecordsCoded))
+            selectedRecordId = json.loads(base64.b64decode(selectedRecordsCoded))
             currentTable.get(*selectedRecordId)
             deleteNodeFromHierarchy(context, currentTable, deweyColumn, sortColumn)
-        else:    
-            selectedRecordId=json.loads(base64.b64decode(selectedRecordsCoded))
+        else:
+            selectedRecordId = json.loads(base64.b64decode(selectedRecordsCoded))
             currentTable.get(*selectedRecordId)
             currentTable.delete()
-        
+
 def cardDelAllDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
     currentTable.deleteAll()
-    

@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from common.xmlutils import XMLJSONConverter
 from common import navigator
 def navDirSetting(context, session):
     resultJSON = {"group":

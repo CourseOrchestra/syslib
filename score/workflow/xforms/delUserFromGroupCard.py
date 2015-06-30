@@ -20,15 +20,14 @@ try:
     from ru.beta2.extra.gwt.ui.selector.api import DataRecord
 except:
     from ru.curs.celesta.showcase import ResultSelectorData, DataRecord
-    
 
-    
+
+
 from workflow._workflow_orm import userGroupCursor
-    
+
 from java.io import InputStream, FileInputStream
 from jarray import zeros
 
-#from common.xmlutils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -41,7 +40,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             if 'currentRecordId' in gridContext:
                 userId = gridContext["currentRecordId"]
     xformsdata = {"schema":{"@xmlns":'',
-                        "data":{}                         
+                        "data":{}
                         }
               }
     xformssettings = {"properties":{
@@ -62,7 +61,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     jsonData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))
     jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
     return JythonDTO(jsonData, jsonSettings)
-                 
+
 
 
 def cardDataSave(context, main, add, filterinfo, session, elementId, data):
@@ -75,6 +74,6 @@ def cardDataSave(context, main, add, filterinfo, session, elementId, data):
         if gridContext["@id"] == "userGroupsGrid":
             if 'currentRecordId' in gridContext:
                 userId = gridContext["currentRecordId"]
-    userGroup.get(userId,groupId)
+    userGroup.get(userId, groupId)
     userGroup.delete()
     return context.message(u'Пользователь удален из группы')

@@ -18,7 +18,6 @@ try:
 except:
     pass
 
-#from common.xmlutils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):

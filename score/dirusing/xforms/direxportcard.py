@@ -13,22 +13,22 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO
 import java.io.OutputStreamWriter as OutputStreamWriter
-try:  
+try:
     from ru.curs.showcase.core import UserMessage
 except:
     pass
-from common.xmlutils import XMLJSONConverter
+from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList
 
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Функция данных для карточки редактирования содержимого справочника. '''
-    
+
     # получение id grain и table из контекста
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
-    
-    table_id='1'
+
+    table_id = '1'
     # Курсор текущего справочника
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
     # Метаданные таблицы
@@ -37,7 +37,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     # Заголовок таблицы
     table_name = table_jsn["name"]
     # Получение заголовков полей
-    _headers = getFieldsHeaders(table_meta,"xform")
+    _headers = getFieldsHeaders(table_meta, "xform")
 
     # Пустая структура данных, связнная с текущим справочником
     xformsdata = {"schema":{"@xmlns":"",
@@ -55,8 +55,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 
                             }
                   }
-    
-    
+
+
     xformssettings = {"properties":{"event":{"@name":"single_click",
                                              "@linkId": "1",
                                              "action":{"main_context": "current",
@@ -74,7 +74,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 
     return JythonDTO(XMLJSONConverter(input=xformsdata).parse(), XMLJSONConverter(input=xformssettings).parse())
 
-     
+
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     u'''Функция сохранения карточки редактирования содержимого справочника. '''
     return None

@@ -13,11 +13,11 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO
 
-try:  
+try:
     from ru.curs.showcase.core import UserMessage
 except:
     pass
-from common.xmlutils import XMLJSONConverter
+from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList
 from common.hierarchy import getNewItemInLevelInHierarchy, generateSortValue
 from dirusing.hierarchy import getNewItemInUpperLevel
@@ -25,12 +25,12 @@ from datetime import datetime
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Функция данных для карточки редактирования содержимого справочника. '''
-    
+
     # получение id grain и table из контекста
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
     #raise Exception(str(session))
-    table_id='1'
+    table_id = '1'
     # Курсор текущего справочника
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
     # Метаданные таблицы
@@ -39,7 +39,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     # Заголовок таблицы
     table_name = table_jsn["name"]
     # Получение заголовков полей
-    _headers = getFieldsHeaders(table_meta,"xform")
+    _headers = getFieldsHeaders(table_meta, "xform")
     sort_list = getSortList(table_meta)
     sorted_list = []
     # Пустая структура данных, связнная с текущим справочником
@@ -85,13 +85,13 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                             if field_data["type_id"] == 9:
                                 field_data["max_length"] = column_meta.getLength()
                             #признак иерархичности для триселектора
-                            if field_data["type_id"] in (6,7):
+                            if field_data["type_id"] in (6, 7):
                                 refTableName = column_jsn["refTable"]
-                                relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)    
+                                relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
                                 table_ref_jsn = json.loads(relatedTable.meta().getCelestaDoc())
-                                field_data["ref_table_hierarch"]=table_ref_jsn['isHierarchical']
+                                field_data["ref_table_hierarch"] = table_ref_jsn['isHierarchical']
                             else:
-                                field_data["ref_table_hierarch"]="false"
+                                field_data["ref_table_hierarch"] = "false"
                             if field_data["type_id"] != 4:
                                 if field_data["required"] == 'true':
                                     field_data["title"] = column_jsn["name"] + ' *'
@@ -101,17 +101,17 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                             # Пустая часть для добавления
                             field_data["ref_table_prefix"] = ""
                             field_data["ref_field_prefix"] = ""
-                            
+
                             #field_data["select_list"] = column_jsn["selectList"]
                             field_data["ref_values"] = ""
-                            
+
                             field_data["value"] = ""
-                            
+
                             xformsdata["schema"]["spravs"]["sprav"]["field"].append(field_data)
-                    s_number +=1
+                    s_number += 1
                     _sortedHeaders(s_number)
                     break
-           
+
             else:
                 # Редактирование
                 # Получение значения первичного ключа записи
@@ -120,8 +120,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                 xformsdata["schema"]["row"] = currentRecordId
                 currentTable.get(currentRecordId)
                 #Получаем список ключей в таблицы, чтобы сделать их readonly
-                primaryKeys=[]
-                keys=currentTable.meta().getPrimaryKey()
+                primaryKeys = []
+                keys = currentTable.meta().getPrimaryKey()
                 for item in keys:
                     primaryKeys.extend([item])
                 #print primaryKeys
@@ -148,8 +148,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                 field_data["editable"] = "false"
                             field_data["type_id"] = int(column_jsn["fieldTypeId"])
                             # Для string
-                            
-                            
+
+
                             if field_data["type_id"] == 9:
                                 field_data["max_length"] = column_meta.getLength()
                             if field_data["type_id"] != 4:
@@ -161,9 +161,9 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                             # Часть для редактирования
                             field_data["ref_table_prefix"] = ""
                             field_data["ref_field_prefix"] = ""
-                            field_data["ref_table_hierarch"]="false"
+                            field_data["ref_table_hierarch"] = "false"
                             #field_data["select_list"] = column_jsn["selectList"]
-                            
+
                             #field_data["id"] = ""
                             if field_data["type_id"] in (3, 5, 9, 10, 11, 12):
                                 value = getattr(currentTable, field)
@@ -180,103 +180,103 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                             elif field_data["type_id"] == 2:
                                 value = getattr(currentTable, field)
                                 if value is not None:
-                                    datetimeValue =  datetime.strptime(str(value), '%Y-%m-%d %H:%M:%S')
+                                    datetimeValue = datetime.strptime(str(value), '%Y-%m-%d %H:%M:%S')
                                     field_data["value"] = str(datetimeValue.date())
                                 else:
                                     field_data["value"] = ''
                             elif field_data["type_id"] == 7:
                                 refFieldId = getattr(currentTable, field)
                                 refTableName = column_jsn["refTable"]
-                                relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)    
+                                relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
                                 #признак иерархичности
                                 table_ref_jsn = json.loads(relatedTable.meta().getCelestaDoc())
-                                field_data["ref_table_hierarch"]=table_ref_jsn['isHierarchical']
-                                
-                                if refFieldId!='' and refFieldId is not None:
+                                field_data["ref_table_hierarch"] = table_ref_jsn['isHierarchical']
+
+                                if refFieldId != '' and refFieldId is not None:
                                     #column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
                                     relatedTable.get(refFieldId)
                                     refTableColumnValue = getattr(relatedTable, column_jsn["refTableColumn"])
                                 else:
-                                    refTableColumnValue=''
+                                    refTableColumnValue = ''
                                 field_data["value"] = refTableColumnValue
                                 field_data["ref_values"] = refFieldId
-                                
+
                             # временно, пока не разобрался с другими типами полей
                             elif field_data["type_id"] == 6:
-                                
+
                                 #print field_data
-                                
+
                                 refTableName = column_jsn["refTable"]
                                 mappingTableName = column_jsn["refMappingTable"]
                                 refTableColumn = column_jsn["refTableColumn"]
                                 relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
                                 #признак иерархичности
                                 table_ref_jsn = json.loads(relatedTable.meta().getCelestaDoc())
-                                field_data["ref_table_hierarch"]=table_ref_jsn['isHierarchical']
-                                
+                                field_data["ref_table_hierarch"] = table_ref_jsn['isHierarchical']
+
                                 mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
                                 foreignKeys = mappingTable.meta().getForeignKeys()
-                                mappingPrimaryKeys=mappingTable.meta().getPrimaryKey()
+                                mappingPrimaryKeys = mappingTable.meta().getPrimaryKey()
                                 for key in mappingPrimaryKeys:
-                                    mappingPrimaryKey=key
-                                currentTablePKs=[]
-                                relatedTablePKs=[]
+                                    mappingPrimaryKey = key
+                                currentTablePKs = []
+                                relatedTablePKs = []
                                 currentTablePKObject = currentTable.meta().getPrimaryKey()
                                 for key in currentTablePKObject:
                                     currentTablePKs.extend([key])
                                 relatedTablePKObject = relatedTable.meta().getPrimaryKey()
                                 for key in relatedTablePKObject:
                                     relatedTablePKs.extend([key])
-                                
-                                aForeignKeyColumns=[]
-                                bForeignKeyColumns=[]    
+
+                                aForeignKeyColumns = []
+                                bForeignKeyColumns = []
                                 for foreignKey in foreignKeys:
                                     #проверяем к какой таблице относится ключ и получаем список зависимых полей
                                     if foreignKey.getReferencedTable() == currentTable.meta():
                                         aForeignKeyColumns = foreignKey.getColumns()
                                     else:
                                         bForeignKeyColumns = foreignKey.getColumns()
-                                
-                                for foreignKeyColumn,key in zip(aForeignKeyColumns, currentTablePKs):
-                                    mappingTable.setRange(foreignKeyColumn,getattr(currentTable, key))
-                
-                                if mappingTable.count()!=0:
-                                    field_data["ref_values"]={"item":[]}
+
+                                for foreignKeyColumn, key in zip(aForeignKeyColumns, currentTablePKs):
+                                    mappingTable.setRange(foreignKeyColumn, getattr(currentTable, key))
+
+                                if mappingTable.count() != 0:
+                                    field_data["ref_values"] = {"item":[]}
                                 else:
-                                    field_data["ref_values"]=''
+                                    field_data["ref_values"] = ''
                                 for mappingRec in mappingTable.iterate():
-                                    currentRecordIds=[]
-                                    
-                                    
-                                    mappingId=getattr(mappingRec, mappingPrimaryKey)
-                                   
+                                    currentRecordIds = []
+
+
+                                    mappingId = getattr(mappingRec, mappingPrimaryKey)
+
                                     #набиваем значения primarykey'ев для связанной таблицы, чтобы потом получить значения
                                     for foreignKeyColumn in bForeignKeyColumns:
                                         currentRecordIds.extend([getattr(mappingRec, foreignKeyColumn)])
                                     #находим запись по primarykey'ям и получаем значение теребуемого поля и добавляем к уже найденным
-                                    
+
                                     jsondump = json.dumps(currentRecordIds)
-                                    currentRecordCoded=base64.b64encode(str(jsondump))
-                    
-                                    
+                                    currentRecordCoded = base64.b64encode(str(jsondump))
+
+
                                     if relatedTable.tryGet(*currentRecordIds):
-                                    
-                                        field_items = {'id':currentRecordCoded,'value':getattr(relatedTable, refTableColumn), 'mapping_id':mappingId}
-                                    
+
+                                        field_items = {'id':currentRecordCoded, 'value':getattr(relatedTable, refTableColumn), 'mapping_id':mappingId}
+
                                         field_data["ref_values"]["item"].append(field_items)
-                                   
+
                             else:
                                 field_data["value"] = ""
                                 #xformsdata["schema"]["spravs"]["sprav"]["field"].append(field_data)
                             xformsdata["schema"]["spravs"]["sprav"]["field"].append(field_data)
-                    s_number +=1
+                    s_number += 1
                     _sortedHeaders(s_number)
                     break
         except IndexError:
             return None
-    s_number = 0            
+    s_number = 0
     _sortedHeaders(s_number)
-    
+
     xformssettings = {"properties":{"event":{"@name":"single_click",
                                              "@linkId": "1",
                                              "action":{"main_context": "current",
@@ -292,7 +292,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                       }
 
     return JythonDTO(XMLJSONConverter(input=xformsdata).parse(), XMLJSONConverter(input=xformssettings).parse())
-     
+
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     u'''Функция сохранения карточки редактирования содержимого справочника. '''
     #return UserMessage(u"TEST3", u"%s" % (xformsdata))
@@ -304,24 +304,24 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
     table_jsn = json.loads(currentTable.meta().getCelestaDoc())
     #признак иерархичности
-    isHierarchical=table_jsn['isHierarchical']
+    isHierarchical = table_jsn['isHierarchical']
     #raise Exception(str(type(isHierarchical)))
     if isHierarchical == u'true':
         for column in currentTable.meta().getColumns():
             #получаем названия колонок с кодом дьюи и сортировкой
-            if json.loads(currentTable.meta().getColumn(column).getCelestaDoc())['name'] in (u'deweyCode',u'deweyCod',u'deweyKod'):
-                deweyColumn=column
+            if json.loads(currentTable.meta().getColumn(column).getCelestaDoc())['name'] in (u'deweyCode', u'deweyCod', u'deweyKod'):
+                deweyColumn = column
             if json.loads(currentTable.meta().getColumn(column).getCelestaDoc())['name'] == u'sortNumber':
-                sortColumn=column
+                sortColumn = column
         #new dewey number in current level
         if 'currentRecordId' not in json.loads(session)['sessioncontext']['related']['gridContext']:
-            newDeweyNumber=getNewItemInUpperLevel(context,currentTable,deweyColumn)
-            
-        else: 
+            newDeweyNumber = getNewItemInUpperLevel(context, currentTable, deweyColumn)
+
+        else:
             currentRecordId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
-            selectedRecordId=json.loads(base64.b64decode(str(currentRecordId)))
+            selectedRecordId = json.loads(base64.b64decode(str(currentRecordId)))
             currentTable.get(*selectedRecordId)
-            newDeweyNumber=getNewItemInLevelInHierarchy(context, currentTable, deweyColumn)
+            newDeweyNumber = getNewItemInLevelInHierarchy(context, currentTable, deweyColumn)
             currentTable.clear()
     data_dict = json.loads(xformsdata)
     if data_dict["schema"]["row"] == '':
@@ -338,93 +338,93 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
             elif field_list["type_id"] == u'6':
                 dictWithRefList = [field_list]
                 dictWithoutRefList = []
-        
-       
+
+
         for field in dictWithoutRefList:
-            if field["type_id"] in ('1','9', '10', '11', '12'):
+            if field["type_id"] in ('1', '9', '10', '11', '12'):
                 setattr(currentTable, field["dbFieldName"], field["value"])
-            elif field["type_id"] in ('3','5'):
-                if currentTable.meta().getColumn(field["dbFieldName"]).jdbcGetterName() == 'getInt' and currentTable.meta().getColumn(field["dbFieldName"]).isIdentity()==True:
+            elif field["type_id"] in ('3', '5'):
+                if currentTable.meta().getColumn(field["dbFieldName"]).jdbcGetterName() == 'getInt' and currentTable.meta().getColumn(field["dbFieldName"]).isIdentity() == True:
                     setattr(currentTable, field["dbFieldName"], None)
-                elif (field["value"]!=''):
+                elif (field["value"] != ''):
                     setattr(currentTable, field["dbFieldName"], field["value"])
                 else:
                     setattr(currentTable, field["dbFieldName"], None)
             elif field["type_id"] == '2':
-                if field["value"] is not None and field["value"]!='':
+                if field["value"] is not None and field["value"] != '':
                     setattr(currentTable, field["dbFieldName"], datetime.strptime(field["value"], '%Y-%m-%d'))
             elif field["type_id"] == '7':
-                if field["ref_values"]=='':
+                if field["ref_values"] == '':
                     setattr(currentTable, field["dbFieldName"], None)
                 else:
                     setattr(currentTable, field["dbFieldName"], field["ref_values"])
             if isHierarchical == u'true':
-                if field["dbFieldName"]==deweyColumn:
-                    if field["value"]=='' or field["value"] is None:
-                        setattr(currentTable,deweyColumn, newDeweyNumber)
-                        setattr(currentTable,sortColumn,generateSortValue(newDeweyNumber))
+                if field["dbFieldName"] == deweyColumn:
+                    if field["value"] == '' or field["value"] is None:
+                        setattr(currentTable, deweyColumn, newDeweyNumber)
+                        setattr(currentTable, sortColumn, generateSortValue(newDeweyNumber))
                     else:
                         setattr(currentTable, field["dbFieldName"], field["value"])
-                        setattr(currentTable,sortColumn,generateSortValue(field["value"]))
+                        setattr(currentTable, sortColumn, generateSortValue(field["value"]))
         currentTable.insert()
         for field in dictWithRefList:
             column_jsn = json.loads(currentTable.meta().getColumn(field["dbFieldName"]).getCelestaDoc())
             mappingTableName = column_jsn["refMappingTable"]
             mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
             currentTablePKObject = currentTable.meta().getPrimaryKey()
-            
+
             foreignKeys = mappingTable.meta().getForeignKeys()
-            aForeignKeyColumns=[]
-            bForeignKeyColumns=[]
+            aForeignKeyColumns = []
+            bForeignKeyColumns = []
             for foreignKey in foreignKeys:
-                            
+
                         #проверяем к какой таблице относится ключ и получаем список зависимых полей
                 if foreignKey.getReferencedTable() == currentTable.meta():
                     aForeignKeyColumns = foreignKey.getColumns()
                 else:
                     bForeignKeyColumns = foreignKey.getColumns()
-          
-            if field["ref_values"]=='':
+
+            if field["ref_values"] == '':
                 break
-            if type(field["ref_values"]["item"])==list:
+            if type(field["ref_values"]["item"]) == list:
                 for item in field["ref_values"]["item"]:
-                    
+
                     mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
-                    
-                    itemDecoded= base64.b64decode(item["id"])
-                    
+
+                    itemDecoded = base64.b64decode(item["id"])
+
                     bForeignKeyColumnsValues = json.loads(itemDecoded)
                     for colA, PKA in zip(aForeignKeyColumns, currentTablePKObject):
                         setattr(mappingTable, colA, getattr(currentTable, PKA))
-                        
-                    for colB, value in zip(bForeignKeyColumns,bForeignKeyColumnsValues):
+
+                    for colB, value in zip(bForeignKeyColumns, bForeignKeyColumnsValues):
                         setattr(mappingTable, colB, str(value))
-                        
-                    mappingTable.insert()   
-            elif type(field["ref_values"]["item"])==dict:
-                
-                itemDecoded= base64.b64decode(field["ref_values"]["item"]["id"]) 
+
+                    mappingTable.insert()
+            elif type(field["ref_values"]["item"]) == dict:
+
+                itemDecoded = base64.b64decode(field["ref_values"]["item"]["id"])
                 bForeignKeyColumnsValues = json.loads(itemDecoded)
                 for colA, PKA in zip(aForeignKeyColumns, currentTablePKObject):
                     setattr(mappingTable, colA, getattr(currentTable, PKA))
-                    
-                for colB, value in zip(bForeignKeyColumns,bForeignKeyColumnsValues):
+
+                for colB, value in zip(bForeignKeyColumns, bForeignKeyColumnsValues):
                     setattr(mappingTable, colB, str(value))
-                    
-                mappingTable.insert()   
-                
-            
-        
+
+                mappingTable.insert()
+
+
+
     else:
         # Редактирование уже существующей
-        keys=[]
-        for i,key in enumerate(currentTable.meta().getPrimaryKey()):
+        keys = []
+        for i, key in enumerate(currentTable.meta().getPrimaryKey()):
             if json.loads(currentTable.meta().getColumn(key).getCelestaDoc())["fieldTypeId"] in (u'5',):
                 if type(data_dict["schema"]["row"]) is list:
                     keys.append(int(data_dict["schema"]["row"][i]))
                 else:
                     keys.append(int(data_dict["schema"]["row"]))
-            elif json.loads(currentTable.meta().getColumn(key).getCelestaDoc())["fieldTypeId"]==u'3':
+            elif json.loads(currentTable.meta().getColumn(key).getCelestaDoc())["fieldTypeId"] == u'3':
                 if type(data_dict["schema"]["row"]) is list:
                     keys.append(float(data_dict["schema"]["row"][i]))
                 else:
@@ -444,31 +444,31 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                 dictWithoutRefList = []
         for field in dictWithoutRefList:
             if isHierarchical == u'true':
-                if field["dbFieldName"]==deweyColumn:
-                    if field["value"]=='' or field["value"] is None:
-                        setattr(currentTable,deweyColumn, newDeweyNumber)
-                        setattr(currentTable,sortColumn,generateSortValue(newDeweyNumber))
+                if field["dbFieldName"] == deweyColumn:
+                    if field["value"] == '' or field["value"] is None:
+                        setattr(currentTable, deweyColumn, newDeweyNumber)
+                        setattr(currentTable, sortColumn, generateSortValue(newDeweyNumber))
                     else:
                         setattr(currentTable, field["dbFieldName"], field["value"])
-                        setattr(currentTable,sortColumn,generateSortValue(field["value"]))
+                        setattr(currentTable, sortColumn, generateSortValue(field["value"]))
             if field["type_id"] in ('9', '10', '11', '12'):
                 setattr(currentTable, field["dbFieldName"], field["value"])
-            if field["type_id"] in ('3','5'):
-                if (field["value"]!=''):
+            if field["type_id"] in ('3', '5'):
+                if (field["value"] != ''):
                     setattr(currentTable, field["dbFieldName"], field["value"])
                 else:
                     setattr(currentTable, field["dbFieldName"], None)
-            elif field["type_id"] =='1':
-                if field["value"] is not None and field["value"]!='':
-                    if field["value"]=='false':
+            elif field["type_id"] == '1':
+                if field["value"] is not None and field["value"] != '':
+                    if field["value"] == 'false':
                         setattr(currentTable, field["dbFieldName"], 0)
                     else:
                         setattr(currentTable, field["dbFieldName"], 1)
-            elif field["type_id"] =='2':
-                if field["value"] is not None and field["value"]!='':
+            elif field["type_id"] == '2':
+                if field["value"] is not None and field["value"] != '':
                     setattr(currentTable, field["dbFieldName"], datetime.strptime(field["value"], '%Y-%m-%d'))
             elif field["type_id"] == '7':
-                if field["ref_values"]=='':
+                if field["ref_values"] == '':
                     setattr(currentTable, field["dbFieldName"], None)
                 else:
                     setattr(currentTable, field["dbFieldName"], field["ref_values"])
@@ -477,13 +477,13 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
             column_jsn = json.loads(currentTable.meta().getColumn(field["dbFieldName"]).getCelestaDoc())
             mappingTableName = column_jsn["refMappingTable"]
             mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
-            
+
             refTableName = column_jsn["refTable"]
             refTableColumn = column_jsn["refTableColumn"]
             relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
-            
-            currentTablePKs=[]
-            relatedTablePKs=[]
+
+            currentTablePKs = []
+            relatedTablePKs = []
             currentTablePKObject = currentTable.meta().getPrimaryKey()
             for key in currentTablePKObject:
                 currentTablePKs.extend([key])
@@ -492,49 +492,49 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                 relatedTablePKs.extend([key])
                     #получаем foreignkey'и для таблицы с меппингом
             foreignKeys = mappingTable.meta().getForeignKeys()
-                    
+
             #raise Exception (currentTablePKObject, currentTablePKs)
-            
-            aForeignKeyColumns=[]
-            bForeignKeyColumns=[]
+
+            aForeignKeyColumns = []
+            bForeignKeyColumns = []
             for foreignKey in foreignKeys:
                         #проверяем к какой таблице относится ключ и получаем список зависимых полей
                         if foreignKey.getReferencedTable() == currentTable.meta():
                             aForeignKeyColumns = foreignKey.getColumns()
                         else:
                             bForeignKeyColumns = foreignKey.getColumns()
-            
-                
-            for colA, PKA in zip(aForeignKeyColumns, currentTablePKs):    
+
+
+            for colA, PKA in zip(aForeignKeyColumns, currentTablePKs):
                 mappingTable.setRange(colA, getattr(currentTable, PKA))#type_id,12
             mappingTable.deleteAll()
-            if field["ref_values"]=='':
+            if field["ref_values"] == '':
                 break
-            if type(field["ref_values"]["item"])==list:
+            if type(field["ref_values"]["item"]) == list:
                 for item in field["ref_values"]["item"]:
-                    
+
                     mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
-                    
-                    itemDecoded= base64.b64decode(item["id"])
-                    
+
+                    itemDecoded = base64.b64decode(item["id"])
+
                     bForeignKeyColumnsValues = json.loads(itemDecoded)
                     for colA, PKA in zip(aForeignKeyColumns, currentTablePKs):
                         setattr(mappingTable, colA, getattr(currentTable, PKA))
-                        
-                    for colB, value in zip(bForeignKeyColumns,bForeignKeyColumnsValues):
+
+                    for colB, value in zip(bForeignKeyColumns, bForeignKeyColumnsValues):
                         setattr(mappingTable, colB, str(value))
-                        
-                    mappingTable.insert() 
-            elif type(field["ref_values"]["item"])==dict and field["ref_values"]["item"]["id"]!='':
-               
+
+                    mappingTable.insert()
+            elif type(field["ref_values"]["item"]) == dict and field["ref_values"]["item"]["id"] != '':
+
                 mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
-                itemDecoded= base64.b64decode(field["ref_values"]["item"]["id"])  #WzZd
-                
+                itemDecoded = base64.b64decode(field["ref_values"]["item"]["id"])  #WzZd
+
                 bForeignKeyColumnsValues = json.loads(itemDecoded) #[6]
-                
+
                 for colA, PKA in zip(aForeignKeyColumns, currentTablePKs):
                     setattr(mappingTable, colA, getattr(currentTable, PKA))#11
-                       
-                for colB, value in zip(bForeignKeyColumns,bForeignKeyColumnsValues):
+
+                for colB, value in zip(bForeignKeyColumns, bForeignKeyColumnsValues):
                     setattr(mappingTable, colB, str(value))
-                mappingTable.insert()   
+                mappingTable.insert()

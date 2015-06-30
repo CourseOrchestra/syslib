@@ -9,7 +9,7 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO
 
-from common.xmlutils import XMLJSONConverter
+from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 
 def buttons(context, main=None, add=None, filterinfo=None, session=None, elementId=None):

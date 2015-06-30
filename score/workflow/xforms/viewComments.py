@@ -30,7 +30,6 @@ except:
 from java.io import InputStream, FileInputStream
 from jarray import zeros
 
-# from common.xmlutils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 from workflow.processUtils import parse_json
@@ -39,7 +38,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     u'''Карточка просмотра комментариев по задаче'''
     act = ActivitiObject()
     datapanelSettings = parse_json()
-    usersClass = userNameClass(context,datapanelSettings)
+    usersClass = userNameClass(context, datapanelSettings)
     comments = act.taskService.getProcessInstanceComments(add)
 #     for com in comments:
 #         print com.getFullMessage(), com.getUserId()
@@ -60,15 +59,15 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                               }]
                                     }
                       }
-    xformsdata =    {"schema":
+    xformsdata = {"schema":
                       {"@xmlns":'',
                        "data":
                         []}}
     for comment in comments:
         if comment.getProcessInstanceId() == add:
             task = act.historyService.createHistoricTaskInstanceQuery().taskId(comment.getTaskId()).singleResult()
-            
-            xformsdata["schema"]["data"].append({"@comment":unicode(usersClass.getUserName(comment.getUserId()))+ ': ' + comment.getFullMessage(),
+
+            xformsdata["schema"]["data"].append({"@comment":unicode(usersClass.getUserName(comment.getUserId())) + ': ' + comment.getFullMessage(),
                                                  "@task":task.getName()
                                                  })
     jsonData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))

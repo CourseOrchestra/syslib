@@ -18,18 +18,17 @@ try:
     from ru.beta2.extra.gwt.ui.selector.api import DataRecord
 except:
     from ru.curs.celesta.showcase import ResultSelectorData, DataRecord
-    
+
 try:
     from ru.curs.showcase.activiti import  EngineFactory
 except:
     from workflow import testConfig as EngineFactory
 # 
 # from workflow import testConfig as EngineFactory
-    
+
 from java.io import InputStream, FileInputStream
 from jarray import zeros
 
-#from common.xmlutils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 from workflow._workflow_orm import act_re_procdefCursor, act_proc_versionCursor
@@ -55,8 +54,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     jsonData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))
     jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
     return JythonDTO(jsonData, jsonSettings)
-                 
-def processUpload(context,main,add,filterinfo,session,elementId,xformsdata,filename,file):
+
+def processUpload(context, main, add, filterinfo, session, elementId, xformsdata, filename, file):
     #raise Exception(main,add,filterinfo,session,elementId,xformsdata,filename,file)
     #fio = FileInputStream("C:/jprojects/celesta/manage/general/score/workflow/uploadFile1.xml")
     '''
@@ -78,15 +77,15 @@ def processUpload(context,main,add,filterinfo,session,elementId,xformsdata,filen
 #         else:
 #             break
 #     f.close()
-     
+
     processEngine = EngineFactory.getActivitiProcessEngine()
     repositoryService = processEngine.getRepositoryService()
 #     #a = InputStream(file)
-    
+
     deploy = repositoryService.createDeployment().addInputStream(filename, file).deploy()
     procdef = act_re_procdefCursor(context)
     procversion = act_proc_versionCursor(context)
-    procdef.setRange('deployment_id_',deploy.id)
+    procdef.setRange('deployment_id_', deploy.id)
     procdef.first()
     if procversion.tryGet(procdef.key_):
         procversion.process_id = procdef.id_

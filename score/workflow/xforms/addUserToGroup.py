@@ -27,14 +27,6 @@ try:
 except:
     from ru.curs.celesta.showcase import ResultSelectorData, DataRecord
 
-
-
-
-
-
-
-# from common.xmlutils import XMLJSONConverter
-
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Карточка добавления и редактирования формы процесаа'''
     session = json.loads(session)
@@ -98,7 +90,7 @@ def userListAndCount(context, main=None, add=None, filterinfo=None, session=None
     groups = groupsCursor(context)
     #Получение списка развернутых процессов
     recordList = ArrayList()
-    view_subjects.limit(firstrecord,recordcount)
+    view_subjects.limit(firstrecord, recordcount)
     filterString = curvalue
     whereClause = []
     if '~' in filterString:
@@ -109,35 +101,35 @@ def userListAndCount(context, main=None, add=None, filterinfo=None, session=None
             groupNameFilter = "@%'" + groupNameFilter + "'%"
         else:
             groupNameFilter = "@'" + groupNameFilter + "'%"
-        groups.setFilter('groupName',groupNameFilter)
+        groups.setFilter('groupName', groupNameFilter)
         userList = []
         for groups in groups.iterate():
-            userGroup.setRange('groupId',groups.groupId)
+            userGroup.setRange('groupId', groups.groupId)
             for userGroup in userGroup.iterate():
                 if userGroup.userId not in userList:
                     userList.append(userGroup.userId)
         if userList != []:
             for user in userList:
-                whereClause.append("""sid = '%s'"""%(user))
+                whereClause.append("""sid = '%s'""" % (user))
             whereClause = ' or '.join(whereClause)
         else:
             whereClause = '1 = 0'
 #             view_subjects.setComplexFilter(whereClause)
-            
+
     if not startswith:
         filterString = "%" + filterString + "%"
     else:
-        filterString =  filterString + "%"
+        filterString = filterString + "%"
     if not whereClause:
-        view_subjects.setComplexFilter("""name like '%s'"""% filterString)
+        view_subjects.setComplexFilter("""name like '%s'""" % filterString)
     else:
-        whereClause += """and name like '%s'"""%(filterString)
+        whereClause += """and name like '%s'""" % (filterString)
         view_subjects.setComplexFilter(whereClause)
     userGroup.clear()
     for subjects in view_subjects.iterate():
         rec = DataRecord()
-        rec.setId(json.dumps(['user',subjects.sid]))
-        userGroup.setRange('userId',subjects.sid)
+        rec.setId(json.dumps(['user', subjects.sid]))
+        userGroup.setRange('userId', subjects.sid)
         groupList = []
         for userGroup in userGroup.iterate():
             groups.get(userGroup.groupId)

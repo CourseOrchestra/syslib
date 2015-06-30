@@ -47,7 +47,6 @@ from workflow.processUtils import parse_json
 from java.io import InputStream, FileInputStream
 from jarray import zeros
 
-# from common.xmlutils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -97,14 +96,14 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             assignee = ass['assignee']
             if subjects.tryGet(assignee):
                 assigneeName = subjects.name
-                assignee = json.dumps(['user',assignee])
+                assignee = json.dumps(['user', assignee])
             else:
                 isDynamic = 'true'
             users = {'@tag':'tag', 'user':[]}
             groups = {'@tag':'tag', 'group':[]}
             for user in ass['users']:
                 if user['isDynamic'] == 'false':
-                    users['user'].append({'id':json.dumps(['user',user['id']]),
+                    users['user'].append({'id':json.dumps(['user', user['id']]),
                                           'name':usersClass.getUserName(user['id']),
                                           'isDynamic':user['isDynamic']})
                 else:
@@ -120,7 +119,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                 else:
                     groups['group'].append({'id':group['id'],
                                             'name':group['id'],
-                                            'isDynamic':group['isDynamic']})                    
+                                            'isDynamic':group['isDynamic']})
             parentId = ''
             parentName = ''
             parallelAlignment = 'false'
@@ -198,7 +197,7 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
                                   'isDynamic': 'false'})
             else:
                 usersList.append({'id':user['id'],
-                                  'isDynamic': 'true'}) 
+                                  'isDynamic': 'true'})
         groups = list()
         if 'group' in data_dict["schema"]["data"]["groups"]:
             groups = data_dict["schema"]["data"]["groups"]["group"]
@@ -370,7 +369,7 @@ def treeSelectorXML(context, main=None, add=None, filterinfo=None, session=None,
                                                      })
     if "id" in params:
         parentId = json.loads(params["id"])
-    
+
         if parentId[0] in ('group', 'workflowDev', 'workflowUser'):
             userList = []
             if parentId[0] == 'group':
@@ -401,7 +400,7 @@ def treeSelectorXML(context, main=None, add=None, filterinfo=None, session=None,
             if userList != []:
                 userString = '|'.join(userList)
                 subjects.setFilter('sid', userString)
-        
+
                 data["hypotheses"]["hypothesis"].append({"@id": json.dumps(["workflowDev", 'workflowDev']),
                                                          "@name": u"Разработчики",
                                                          "@leaf": unicode(subjects.count() == 0).lower(),

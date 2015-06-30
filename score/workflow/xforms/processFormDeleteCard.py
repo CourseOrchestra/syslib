@@ -21,18 +21,17 @@ try:
     from ru.beta2.extra.gwt.ui.selector.api import DataRecord
 except:
     from ru.curs.celesta.showcase import ResultSelectorData, DataRecord
-    
+
 try:
     from ru.curs.showcase.activiti import  EngineFactory
 except:
     from workflow import testConfig as EngineFactory
-    
-from workflow._workflow_orm import formCursor 
-    
+
+from workflow._workflow_orm import formCursor
+
 from java.io import InputStream, FileInputStream
 from jarray import zeros
 
-#from common.xmlutils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -46,7 +45,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             if 'currentRecordId' in gridContext:
                 formId = gridContext["currentRecordId"]
     xformsdata = {"schema":{"@xmlns":'',
-                        "data":{}                         
+                        "data":{}
                         }
               }
     xformssettings = {"properties":{
@@ -67,7 +66,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     jsonData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))
     jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
     return JythonDTO(jsonData, jsonSettings)
-                 
+
 
 
 def cardSave(context, main, add, filterinfo, session, elementId, data):
@@ -80,6 +79,6 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
         if gridContext["@id"] == "processFormsGrid":
             if 'currentRecordId' in gridContext:
                 formId = gridContext["currentRecordId"]
-    form.get(processKey,formId)
+    form.get(processKey, formId)
     form.delete()
     return context.message(u'Форма удалена')

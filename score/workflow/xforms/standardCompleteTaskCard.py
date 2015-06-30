@@ -24,7 +24,6 @@ except:
 from java.io import InputStream, FileInputStream
 from jarray import zeros
 
-# from common.xmlutils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -70,6 +69,6 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
     jsonData = json.loads(xformsdata)["schema"]["data"]
 
     if ' '.join(jsonData["@comment"].split(' ')) != '':
-        activiti.addCommentWithUserId(context,taskId, processId, jsonData["@comment"],sid)
+        activiti.addCommentWithUserId(context, taskId, processId, jsonData["@comment"], sid)
     activiti.taskService.complete(taskId)
     return context.message(u'Задача выполнена')

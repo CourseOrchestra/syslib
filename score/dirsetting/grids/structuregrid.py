@@ -5,10 +5,10 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO
 
-from common.xmlutils import XMLJSONConverter
+
 from common import sysfunctions
 from dirusing._dirusing_orm import foldersCursor, directoriesCursor
-
+from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def treeGrid(context, main=None, add=None, filterinfo=None, session=None, elementId=None, sortColumnList=None, parentId=None):
 

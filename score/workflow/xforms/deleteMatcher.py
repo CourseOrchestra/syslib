@@ -29,18 +29,17 @@ try:
     from ru.beta2.extra.gwt.ui.selector.api import DataRecord
 except:
     from ru.curs.celesta.showcase import ResultSelectorData, DataRecord
-    
+
 try:
     from ru.curs.showcase.activiti import  EngineFactory
 except:
     from workflow import testConfig as EngineFactory
-    
-from workflow._workflow_orm import matchingCircuitCursor 
-    
+
+from workflow._workflow_orm import matchingCircuitCursor
+
 from java.io import InputStream, FileInputStream
 from jarray import zeros
 
-#from common.xmlutils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -57,7 +56,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                         "data":{
                                 "@id":id,
                                 "@processKey" : processKey,
-                                }                            
+                                }
                         }
               }
     xformssettings = {"properties":{
@@ -79,7 +78,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     jsonData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))
     jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
     return JythonDTO(jsonData, jsonSettings)
-                 
+
 
 
 def cardSave(context, main, add, filterinfo, session, elementId, data):
@@ -89,9 +88,8 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
     data_dict = json.loads(data)
     processKey = data_dict["schema"]["data"]["@processKey"]
     id = int(data_dict["schema"]["data"]["@id"])
-    matchingCircuit.setRange('processKey',processKey)
-    matchingCircuit.get(processKey,id)
-    deleteNodeFromHierarchy(context,matchingCircuit,'number','sort')
+    matchingCircuit.setRange('processKey', processKey)
+    matchingCircuit.get(processKey, id)
+    deleteNodeFromHierarchy(context, matchingCircuit, 'number', 'sort')
     return context.message(u'Элемент удалён')
-            
-          
+
