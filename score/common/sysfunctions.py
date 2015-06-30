@@ -49,7 +49,7 @@ def getSettingsPath():
 
     try:
         from ru.curs.showcase.runtime import AppInfoSingleton
-        settingsPath = r'%s\grainsSettings.xml' % AppInfoSingleton.getAppInfo().getUserdataRoot()
+        settingsPath = r'%s/grainsSettings.xml' % AppInfoSingleton.getAppInfo().getUserdataRoot()
     except:
         settingsPath = Celesta.getInstance().setupProperties.getProperty('grainssettings.path')
     return settingsPath
