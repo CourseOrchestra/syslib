@@ -279,7 +279,10 @@ function tree(column){
 						put(container, "!dgrid-tree-resetting");
 						containerStyle.height =
 							expanded ? (scrollHeight ? scrollHeight + "px" : "auto") : "0px";
-					});
+// [KURS								
+//					});							
+					}, 100);
+// KURS]					
 				}
 				
 				// Update _expanded map.

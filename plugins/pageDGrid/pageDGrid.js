@@ -432,17 +432,37 @@ function createPageDGrid(elementId, parentId, metadata) {
 				}
 			}
 		}
+		
+		
+		for(var k in metadata["columns"]) {
+			if(metadata["columns"][k]["sorting"]){
+				var descending = false;
+				if(metadata["columns"][k]["sorting"].toUpperCase()=="DESC"){
+					descending = true;	
+				}
+			    grid.set("sort", [{attribute: metadata["columns"][k]["id"], descending: descending}]);
+			    break;
+			}
+		}		
 	    
 	    
 		grid.on("dgrid-select", function(event){
-			if(!grid.readonly){
-				if(grid.currentRowId != grid.row(event.grid._focusedNode).id){
-					grid.currentRowId = grid.row(event.grid._focusedNode).id;
-					grid.save();
-				}
-			}
 			
-			gwtAfterClick(elementId, grid.row(event.grid._focusedNode).id, grid.column(event.grid._focusedNode).label, getSelection());
+				if(firstLoading){
+					gwtAfterClick(elementId, metadata["common"]["selRecId"], metadata["common"]["selColId"], getSelection());				
+				} else {
+					setTimeout(function(){
+						if(!grid.readonly){
+							if(grid.currentRowId != grid.row(event.grid._focusedNode).id){
+								grid.currentRowId = grid.row(event.grid._focusedNode).id;
+								grid.save();
+							}
+						}
+						
+						gwtAfterClick(elementId, grid.row(event.grid._focusedNode).id, grid.column(event.grid._focusedNode).label, getSelection());
+					}, 50);
+				}
+				
 		});
 		grid.on(".dgrid-row:dblclick", function(event){
 			gwtAfterDoubleClick(elementId, grid.row(event).id, grid.column(event).label, getSelection());
