@@ -290,7 +290,7 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
             matchingCircuit.id = getNextNo.getNextNoOfSeries(context, processKey)
             matchingCircuit.taskKey = taskKey
             matchingCircuit.name = name
-            matchingCircuit.type = 'user'
+            matchingCircuit.type = 'task'
             matchingCircuit.number = number
 
             matchingCircuit.assJSON = ass
