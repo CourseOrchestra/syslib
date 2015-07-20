@@ -214,6 +214,8 @@ def cardSave(context, main, add, filterinfo, session, elementId, data):
         if assignee == '' and groupsList == [] and usersList == []:
             return context.error(u"Необходимо заполнить хотя бы одно из полей: 'Ответственный','Пользователи','Группы'")
         ass = json.dumps(assJSON)
+        if taskKey[0] in ('0','1','2','3','4','5','6','7','8','9'):
+            return context.error(u"Ключ задачи не может начинаться с цифры")
     # Редактирование элемента
     if addContext == 'edit':
         id = int(id)

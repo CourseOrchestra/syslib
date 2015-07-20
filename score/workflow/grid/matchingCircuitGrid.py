@@ -228,9 +228,11 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
             "action":{"#sorted":[{"main_context": 'current'},
                                  {"datapanel":{"@type": "current",
                                                "@tab": "current",
-                                               "element":{"@id": "matchingCircuitGrid",
+                                               "element":[{"@id": "matchingCircuitGrid",
                                                           "add_context": '',
-                                                          "@keep_user_settings": "true"}
+                                                          "@keep_user_settings": "true"},
+                                                          {"@id":'generateProcessImage'},
+                                                          {"@id":'generateProcessDefinition'}]
                                                }
                                   },
                                  {"server":{"activity":{"@id": "up",
@@ -246,9 +248,11 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
             "action":{"#sorted":[{"main_context": 'current'},
                                  {"datapanel":{"@type": "current",
                                                "@tab": "current",
-                                               "element":{"@id": "matchingCircuitGrid",
+                                               "element":[{"@id": "matchingCircuitGrid",
                                                           "add_context": '',
-                                                          "@keep_user_settings": "true"}
+                                                          "@keep_user_settings": "true"},
+                                                          {"@id":'generateProcessImage'},
+                                                          {"@id":'generateProcessDefinition'}]
                                                }
                                   },
                                  {"server":{"activity":{"@id": "down",
@@ -264,9 +268,11 @@ def gridToolBar(context, main, add=None, filterinfo=None, session=None, elementI
             "action":{"#sorted":[{"main_context": 'current'},
                                  {"datapanel":{"@type": "current",
                                                "@tab": "current",
-                                               "element":{"@id": "matchingCircuitGrid",
+                                               "element":[{"@id": "matchingCircuitGrid",
                                                           "add_context": '',
-                                                          "@keep_user_settings": "true"}
+                                                          "@keep_user_settings": "true"},
+                                                          {"@id":'generateProcessImage'},
+                                                          {"@id":'generateProcessDefinition'}]
                                                }
                                   },
                                  {"server":{"activity":{"@id": "left",
