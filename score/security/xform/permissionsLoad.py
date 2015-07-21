@@ -5,6 +5,8 @@ Created on 01.07.2014
 @author: d.bozhenko.
 '''
 
+#модуль загрузки/выгрузки данных таблицы permissions
+
 import json
 
 try:
@@ -17,7 +19,6 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDownloadResult
 
-# from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from ru.curs.celesta.syscursors import PermissionsCursor
 from security.functions import tableDownload, tableUpload

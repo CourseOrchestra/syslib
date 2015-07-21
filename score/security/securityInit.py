@@ -12,6 +12,13 @@ import time, datetime
 from java.text import SimpleDateFormat
 
 def securityInit(context):
+    u"""Функция устанавливает необходимые для работы гранулы значения таблиц:
+    numbersSeries
+    linesOfNumbersSeries
+    customPermsTypes
+    customPerms
+    rolesCustomPerms
+    """
     numbersSeries = numbersSeriesCursor(context)
     linesOfNumbersSeries = linesOfNumbersSeriesCursor(context)
     numbersSeries.id = 'subjects'
@@ -32,11 +39,13 @@ def securityInit(context):
         linesOfNumbersSeries.postfix = '-'
         linesOfNumbersSeries.isFixedLength = False
         linesOfNumbersSeries.insert()
+    # Добавили серии номеров для таблицы subjects
     customPermsTypes = customPermsTypesCursor(context)
     if not customPermsTypes.tryGet('navigator'):
         customPermsTypes.name='navigator'
         customPermsTypes.description=u'Пункты меню навигатора'
         customPermsTypes.insert()
+    # Добавили (если еще нет) тип разрешений "Пункты меню навигатора" 
     customPerms = customPermsCursor(context)
     if not customPerms.tryGet('loginsSubjectsPoint'):
         customPerms.name='loginsSubjectsPoint'
@@ -58,6 +67,7 @@ def securityInit(context):
         customPerms.description=u'Разрешение на отображение пункта меню Серии номеров'
         customPerms.type='navigator'
         customPerms.insert()
+    # Добавили (если еще нет) разрешения на отображения пунктов меню гранул common и security 
     rolesCustomPerms = rolesCustomPermsCursor(context)
     if not rolesCustomPerms.tryGet('editor', 'loginsSubjectsPoint'):
         rolesCustomPerms.roleid='editor'
@@ -75,3 +85,5 @@ def securityInit(context):
         rolesCustomPerms.roleid='editor'
         rolesCustomPerms.permissionId='numbersSeriesPoint'
         rolesCustomPerms.insert()
+    #Привязываем добавленные разрешения к роли editor 
+    # Уже неактуально, так как функция userHasPermission возвращает True в любом случае, если роль - editor  

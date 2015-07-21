@@ -16,9 +16,7 @@ except:
     from ru.curs.celesta.showcase import JythonDTO
 from ru.curs.celesta import CelestaException
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from security.functions import id_generator
-from security.functions import Settings
-from security.functions import getUsersFromAuthServer, id_generator
+from security.functions import Settings, getUsersFromAuthServer, id_generator
 import hashlib
 from common.numbersseries.getNextNo import getNextNoOfSeries
 from common.sysfunctions import tableCursorImport
@@ -26,7 +24,7 @@ from security._security_orm import loginsCursor
 from security._security_orm import subjectsCursor
 
 
-
+# Процедуры карточки и сохранения для всех четырёх режимов работы гранулы
 
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -35,23 +33,27 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 
     logins = loginsCursor(context)
     subjects=subjectsCursor(context)    
-    isEmployees = settings.isEmployees()
+    isEmployees = settings.isEmployees() # описана ли таблица сотрудников в настройках?
     if isEmployees:
+        # Если да, получаем наименование таблицы, импортируем курсор, создаём экземпляр курсора сотрудников
         employeesGrain=settings.getEmployeesParam("employeesGrain")
         employeesTable=settings.getEmployeesParam("employeesTable")
         employeesId=settings.getEmployeesParam("employeesId") #название поля с первичным ключом
         employeesName=settings.getEmployeesParam("employeesName") #название поля с именем
         employeesCursor=tableCursorImport(employeesGrain, employeesTable)
         employees=employeesCursor(context)
-    #raise Exception(session)
     subjectId=""
     subjectName=""
     empId=""
     empName=""            
     if 'currentRecordId' in json.loads(session)['sessioncontext']['related']['gridContext']:
-        currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']        
+        currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
+        currIdSid = ""        
         if settings.loginIsSubject() and settings.isUseAuthServer():
-            currId = json.loads(base64.b64decode(currId))[0]        
+            # в данном режиме Id записи грида - sid+username. делано, чтобы достать сид в карточке,
+            # не перелопачивая весь xml пользователй.
+            currId = json.loads(base64.b64decode(currId))[0]
+            currIdSid = json.loads(base64.b64decode(currId))[1]
         if logins.tryGet(currId) and add<>'add':
             if subjects.tryGet(logins.subjectId):
                 subjectId=subjects.sid
@@ -61,7 +63,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                         empId=getattr(employees, employeesId)
                         empName=getattr(employees, employeesName)
 
-    if add == 'add':        
+    if add == 'add':                
         xformsdata = {"schema":{"@xmlns":"",
                                 "user":{"@sid": "",                                        
                                         "@password": id_generator(),
@@ -74,24 +76,27 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                         "@loginIsSubject":unicode(settings.loginIsSubject()).lower(),
                                         "@add":add,
                                         "@isEmployees":unicode(isEmployees).lower(),
-                                        "@key":unichr(9911)}
+                                        "@key":unichr(9911) #символ ключа, например. Уже не нужен, в иконку вставляется картинка. 
+                                        }
                                 }
                       }
         if settings.loginIsSubject():
-            sid=getNextNoOfSeries(context, 'subjects') + id_generator()
+            # если логины тождественны субъектам, при открытии карточки генерится sid
+            sid=getNextNoOfSeries(context, 'subjects') + id_generator() # последнее слагаемое сделано, чтобы sid
+                                                                        # нельзя было просто подобрать.
             xformsdata["schema"]["user"]["@subjectId"]=sid
             xformsdata["schema"]["user"]["@sid"]=sid
     elif add == 'edit' and settings.isUseAuthServer():
-        server=SecurityParamsFactory.getAuthServerUrl()
-        sessionId=json.loads(session)["sessioncontext"]["sessionid"]
-        users_xml=getUsersFromAuthServer(server, sessionId)
-        for user_xml in users_xml.getElementsByTagName("user"):
-            if user_xml.getAttribute("login")==currId:
-                break
-        #raise Exception(user_xml.getAttribute("password"))
-        xformsdata = {"schema":{"user":{"@sid": user_xml.getAttribute("SID"),                                        
+        #Редактирование в случае получения пользователей из mellophone
+#         server=SecurityParamsFactory.getAuthServerUrl() #получаем url mellophone
+#         sessionId=json.loads(session)["sessioncontext"]["sessionid"] # получаем из контекста сессии Id сессии
+#         users_xml=getUsersFromAuthServer(server, sessionId) # получаем xml с пользователями
+#         for user_xml in users_xml.getElementsByTagName("user"):
+#             if user_xml.getAttribute("login")==currId:
+#                 break
+        xformsdata = {"schema":{"user":{"@sid": currIdSid,                                        
                                         "@password": "",
-                                        "@userName": user_xml.getAttribute("login"),
+                                        "@userName": currId,
                                         "@subjectId":subjectId,
                                         "@subjectName":subjectName,
                                         "@employeeId":empId,
@@ -103,7 +108,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                         "@key":unichr(9911)}
                                 }
                       }
-    elif add == 'edit':        
+    elif add == 'edit':
+        #Редактирование в случае получения пользователей из таблицы logins
         #currId = json.loads(base64.b64decode(currIdEncoded))
         logins.get(currId)        
         xformsdata = {"schema":{"user":{"@sid": logins.subjectId,                                        
@@ -144,9 +150,9 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
 
     logins = loginsCursor(context)    
     subject = subjectsCursor(context)    
-    #raise Exception(xformsdata)
     content = json.loads(xformsdata)["schema"]["user"]
     if not settings.isUseAuthServer():
+        # пользователи берутся из logins
         if add=='edit' and content["@password"]=='':
             #если пароль при редактировании не заполнен, сохраняем в курсоре старый пароль из базы
             loginsOld=loginsCursor(context)
@@ -158,19 +164,25 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
             pass_hash=hashlib.sha1() # Объект типа hash
             pass_hash.update(content["@password"]) # Записываем в него текущий пароль из карточки
             logins.password=pass_hash.hexdigest() # Выполняем hash функцию, записываем результат в курсор.
-            #raise Exception(str(pass_hash.digest()))        
         logins.userName=content["@userName"]
-        if content["@subjectId"]=="":
+        
+        if content["@subjectId"]=="": # если subjectId из карточки пуст, записываем в базу null
             logins.subjectId=None
         else:
             logins.subjectId=content["@subjectId"]
-        if settings.loginIsSubject():            
+            
+        if settings.loginIsSubject():
+            # если loginIsSubject, cохраняем сначала subject, потом login            
             subject.sid=content["@subjectId"]
             subject.name=content["@userName"]
-            if content["@employeeId"]=='':
+            
+            if content["@employeeId"]=='': # если employeeId из карточки пуст (сотрудник не выбран), записываем в базу null
                 subject.employeeId=None
             else:
                 subject.employeeId=content["@employeeId"]
+            
+            
+            # сохранение subject
             if add == 'add' and subject.canInsert() and subject.canModify():
                 if not subject.tryInsert():
                     subjectOld = subjectsCursor(context)
@@ -185,7 +197,9 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                 subject.recversion = subjectOld.recversion
                 subject.update()
             else:
-                raise CelestaException(u"Недостаточно прав для данной операции!")            
+                raise CelestaException(u"Недостаточно прав для данной операции!")  
+            
+        # сохранение login          
         if add == 'add' and logins.canInsert() and logins.canModify():
             if not logins.tryInsert():
                 logins.update()            
@@ -200,8 +214,11 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
         else:
             raise CelestaException(u"Недостаточно прав для данной операции!")            
     else:
+        # пользователи берутся из mellophone
         if logins.tryGet(content["@userName"]):
+            # если запись с данным userName уже есть в таблице logins (Подробнее см. ниже) 
             if settings.loginIsSubject():
+                # если логины и субъекты тождественны
                 if not subject.tryGet(logins.subjectId):
                     subject.sid=content["@sid"]
                 if content["@employeeId"]=='':
@@ -209,7 +226,9 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                 else:
                     subject.employeeId=content["@employeeId"]                    
                 subject.name=content["@userName"]
-                logins.subjectId = subject.sid                    
+                logins.subjectId = subject.sid    
+                
+                # сохранение subject. Запись в logins уже есть                
                 if subject.canInsert() and subject.canModify():
                     if not subject.tryInsert():
                         subjectOld = subjectsCursor(context)
@@ -224,16 +243,22 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                 else:
                     raise CelestaException(u"Недостаточно прав для данной операции!")
             else:
+                # Если субъекты тождественны сотрудникам, записываем subjectId в logins.subjectId
+                # то есть, просто привязываем logins к subjects
                 if content["@subjectId"]=="":
                     logins.subjectId=None
                 else:
                     logins.subjectId=content["@subjectId"]
+            
+            #обновление logins
             if logins.canModify():
                 logins.update()
             else:
                 raise CelestaException(u"Недостаточно прав для данной операции!")
         else:
+            # пользователя нет в logins
             if settings.loginIsSubject():
+                # если loginIsSubject, cохраняем сначала subject, потом login
                 if content["@employeeId"]=='':
                     logins.subjectId=None
                 else:
@@ -255,7 +280,10 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                 if content["@subjectId"]=="":
                     logins.subjectId=None
                 else:
-                    logins.subjectId=content["@subjectId"]            
+                    logins.subjectId=content["@subjectId"]
+            # В случае, когда пользователи берутся из mellophone, и к пользователю делается привязка,
+            # (<employees> к logins-subjects или <employees>-subjects к logins)
+            # делается запись в logins
             logins.userName=content["@userName"]
             logins.password=""
             if logins.canInsert():
@@ -334,6 +362,9 @@ def employeesList(context, main=None, add=None, filterinfo=None, session=None, p
 
 
 
+
+# Триггеры для автоматического добавления, редактирования, удаления записей в subjects при редактировании таблицы сотрудников.
+# Добавляются в случае, если субъекты тождественны сотрудникам.
 
 def employeesSubjectsPostInsert(rec):
     # Триггер добавляется только в случае loginEqualSubject = "false"

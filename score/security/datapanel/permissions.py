@@ -70,24 +70,6 @@ def datapanel(context, main=None, session=None):
                                                       "@type":"SAVE"}
                                                      ]
                                              }
-                                           
-#                                           ,{"@id":"permGrid222",
-#                                            "@type":"grid",
-#                                            "@subtype":"JS_LIVE_GRID",
-#                                            "@plugin":"liveDGrid",
-#                                            "@proc":"security.grid.permissions.gridData.celesta",
-#                                            "@hideOnLoad":"true",
-#                                            "proc":[{"@id":"permGridMeta",
-#                                                     "@name":"security.grid.permissions.gridMeta.celesta",
-#                                                     "@type":"METADATA"
-#                                                     },
-#                                                    {"@id":"permGridToolBar",
-#                                                     "@name":"security.grid.permissions.gridToolBar.celesta",
-#                                                     "@type":"TOOLBAR"
-#                                                     }],
-#                                            "related":{"@id":"permFilter"}
-#                                            }
-                                           
                                            ]
                                 },
                                 {"@id":2,
@@ -278,6 +260,5 @@ def datapanel(context, main=None, session=None):
                                  }]
                          }
             }    
-    #raise Exception(XMLJSONConverter(input=data).parse())
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 

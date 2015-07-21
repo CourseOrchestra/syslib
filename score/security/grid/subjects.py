@@ -165,25 +165,5 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                                                    }]
                                                        }
                                              })
-#                                   ,{"@img": 'gridToolBar/addDirectory.png',
-#                                    "@text":"Добавить сотрудника",
-#                                    "@hint":"Добавить сотрудника",
-#                                    "@disable": style,
-#                                    "action":{"@show_in": "MODAL_WINDOW",
-#                                              "#sorted":[{"main_context":"current"},
-#                                                         {"modalwindow":{"@caption": "Добавление ролей",
-#                                                                         "@height": "350",
-#                                                                         "@width": "500"
-#                                                                         }
-#                                                          },
-#                                                         {"datapanel":{"@type": "current",
-#                                                                       "@tab": "current",
-#                                                                       "element": {"@id": "subjectsEmployeesXform",
-#                                                                                   "add_context":""}
-#                                                                       }
-#                                                          }]
-#                                              }
-#                                    }
-
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 

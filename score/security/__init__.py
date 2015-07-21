@@ -15,6 +15,8 @@ import initcontext
 
 settings = Settings()
 if not settings.loginIsSubject() and settings.isEmployees():
+    #Если роли привязываются к сотруднику и таблица сотрудников настроена (нужные настройки есть в grainSettings.xml),
+    #привязываем к ней триггеры. 
     employeesGrain = settings.getEmployeesParam("employeesGrain")
     employeesTable = settings.getEmployeesParam("employeesTable")
     employeesCursor = tableCursorImport(employeesGrain, employeesTable)
@@ -27,7 +29,7 @@ if not settings.isSystemInitialised():
     context = initcontext()
     if settings.isEmployees():
         setConstraint(context) #функция устанавливает внешний ключ в таблицу subjects и меняет значение параметра isSystemInitialised на True
-    securityInit(context)
+    securityInit(context) # добавление в базу необходимых для работы гранулы данных
 
 navigatorsParts['securityNavigator'] = authentificationNavigator
 

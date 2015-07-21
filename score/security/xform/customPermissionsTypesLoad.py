@@ -4,6 +4,7 @@ Created on 01.07.2014
 
 @author: d.bozhenko.
 '''
+#модуль загрузки/выгрузки данных таблицы customPermsTypes
 
 import json
 

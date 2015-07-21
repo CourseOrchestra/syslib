@@ -18,13 +18,10 @@ except:
 
 from ru.curs.celesta import CelestaException
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-# from dirusing.commonfunctions import relatedTableCursorImport
 from security._security_orm import customPermsCursor, customPermsTypesCursor
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Функция данных для карточки редактирования содержимого таблицы типоа разрешений. '''
-    
-    #raise Exception(session)
 
     permissions = customPermsCursor(context)
 

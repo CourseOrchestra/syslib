@@ -21,6 +21,8 @@ except:
     pass
 
 
+# функции грида пользователей одни на все 4 режима работы гранулы. 
+
 
 def gridData(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
@@ -37,22 +39,25 @@ def gridData(context, main=None, add=None, filterinfo=None,
         employeesCursor=tableCursorImport(employeesGrain, employeesTable)
         employees=employeesCursor(context)
 
-    if settings.isUseAuthServer() and settings.loginIsSubject(): #tt
+    if settings.isUseAuthServer() and settings.loginIsSubject(): #isUseAuthServer = true, loginIsSubject = true
+        # грид состоит из колонок sid, имя пользователя и сотрудник
         subjects=subjectsCursor(context)
 
-        server=SecurityParamsFactory.getAuthServerUrl()        
-        sessionId=json.loads(session)["sessioncontext"]["sessionid"]
-        logins_xml=func.getUsersFromAuthServer(server, sessionId)
+        server=SecurityParamsFactory.getAuthServerUrl() #получаем url mellophone
+        sessionId=json.loads(session)["sessioncontext"]["sessionid"] # получаем из контекста сессии Id сессии
+        logins_xml=func.getUsersFromAuthServer(server, sessionId) # получаем xml с пользователями
         i=0
         for user in logins_xml.getElementsByTagName("user"):
             i+=1
             if i<firstrecord:
-                continue
+                continue # пропускаем элементы с 1 по firstrecord             
             loginsDict = {}
             loginsDict[toHexForXml('~~id')] = base64.b64encode(json.dumps([user.getAttribute("login"), user.getAttribute("SID")]))
             loginsDict["SID"] = user.getAttribute("SID")
             loginsDict[toHexForXml(u"Имя пользователя")] = user.getAttribute("login")
             if isEmployees:
+                # если таблица сотрудников существует (прописана в настройках)
+                # добавляем в грид сотрудника колонку Сотрудник.
                 loginsDict["Сотрудник"] = ""
                 if logins.tryGet(user.getAttribute("login")) and \
                         subjects.tryGet(logins.subjectId) and\
@@ -68,18 +73,18 @@ def gridData(context, main=None, add=None, filterinfo=None,
                                        }
             data["records"]["rec"].append(loginsDict)
             if i >= firstrecord + pagesize:
-                break
-            #raise Exception(data)
-    elif settings.isUseAuthServer(): #tf
-        server=SecurityParamsFactory.getAuthServerUrl()        
-        sessionId=json.loads(session)["sessioncontext"]["sessionid"]        
-        logins_xml=func.getUsersFromAuthServer(server, sessionId)        
+                break # прерываем цикл после достижения записи № firstrecord + pagesize
+    elif settings.isUseAuthServer(): #isUseAuthServer = true, loginIsSubject = false
+        # грид состоит из колонок sid, имя пользователя и субъект
+        server=SecurityParamsFactory.getAuthServerUrl() #получаем url mellophone        
+        sessionId=json.loads(session)["sessioncontext"]["sessionid"] # получаем из контекста сессии Id сессии        
+        logins_xml=func.getUsersFromAuthServer(server, sessionId)    # получаем xml с пользователями    
         subjects=subjectsCursor(context)
         i=0
         for user in logins_xml.getElementsByTagName("user"):
             i+=1
             if i<firstrecord:
-                continue
+                continue # пропускаем элементы с 1 по firstrecord
             loginsDict = {}
             loginsDict[toHexForXml('~~id')] = user.getAttribute("login")
             loginsDict["SID"] = user.getAttribute("SID")
@@ -98,15 +103,17 @@ def gridData(context, main=None, add=None, filterinfo=None,
                                        }
             data["records"]["rec"].append(loginsDict)
             if i >= firstrecord + pagesize:
-                break
-    elif not settings.isUseAuthServer() and not settings.loginIsSubject(): #ff
+                break # прерываем цикл после достижения записи № firstrecord + pagesize
+    elif not settings.isUseAuthServer() and not settings.loginIsSubject(): #isUseAuthServer = false, loginIsSubject = false
+        # грид состоит из колонок имя пользователя и субъект
         subjects=subjectsCursor(context)
         columnsDict={u"Имя пользователя":"userName",
                      u"Субъект": ""}
         for column in sortColumnList:
+            # обработка сортировки грида
             sortindex = '%s' % column.getSorting()
             if column.getId()<>u"Субъект":
-                logins.orderBy(columnsDict[column.getId()] +' '+sortindex)
+                logins.orderBy(columnsDict[column.getId()] +' '+sortindex)                
         logins.limit(firstrecord-1, pagesize)
         for logins in logins.iterate():
             loginsDict = {}
@@ -125,10 +132,12 @@ def gridData(context, main=None, add=None, filterinfo=None,
                                                 }
                                        }
             data["records"]["rec"].append(loginsDict)
-    else: #ft
+    else: #isUseAuthServer = false, loginIsSubject = true
+        # грид состоит из колонки имя пользователя
         columnsDict={u"Имя пользователя":"userName"}
         subjects=subjectsCursor(context)
         for column in sortColumnList:
+            # обработка сортировки грида
             sortindex = '%s' % column.getSorting()
             logins.orderBy(columnsDict[column.getId()] +' '+sortindex)
         logins.limit(firstrecord-1, pagesize)

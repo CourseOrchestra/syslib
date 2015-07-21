@@ -3,7 +3,8 @@ import json
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from security.functions import Settings
 
-def usersDatapanel(context, main, session):    
+def usersDatapanel(context, main, session):
+    u'''Продедура возвращает информационную панель для пункта "Сотрудники и пользователи"'''
     settings=Settings()
 
     data = {"datapanel":{"tab":{"@id":1,
@@ -60,6 +61,8 @@ def usersDatapanel(context, main, session):
             }    
     
     if not settings.loginIsSubject():
+        # если роли привязываются к сотрудникам (субъекты тождественны сотрудникам),
+        # добавляем в датапанель гриды и карточки для ведения таблицы subjects
         data["datapanel"]["tab"]["element"] +=      [{"@id":"subjectsGrid",
                                                      "@type":"grid",
                                                      "@subtype":"JS_LIVE_GRID",
@@ -102,24 +105,5 @@ def usersDatapanel(context, main, session):
                                                               "@type":"SAVE"},
                                                       "related":{"@id":"subjectsGrid"}
                                                       }]
-        
-#    sublectEmployeesJson={"@id":"subjectsEmployeesXform",
-#                          "@type":"xforms",
-#                          "@template":"security/subjectsEmployees.xml",
-#                          "@neverShowInPanel":"true",
-#                          "@proc":"security.xform.subjectsEmployees.cardData.celesta",
-#                          "proc":{"@id":"subjectsEmployeesXformMeta",
-#                                  "@name":"security.xform.subjectsEmployees.cardDataSave.celesta",
-#                                  "@type":"SAVE"},
-#                          "related":{"@id":"subjectsGrid"}
-#                          }
-#    if not func.isUseAuthServer() and func.loginIsSubject():
-#        sublectEmployeesJson["related"]={"@id":"usersGrid"}
-#    else:
-#        sublectEmployeesJson["related"]={"@id":"subjectsGrid"}
-#        
-#    data["datapanel"]["tab"]["element"].append(sublectEmployeesJson)
-    
-        
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 
