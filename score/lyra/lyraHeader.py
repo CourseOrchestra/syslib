@@ -23,7 +23,10 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from common.sysfunctions import tableCursorImport
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
-    table = main.split('.')    
+    u'''
+    Функция для демонстрационной lyra-карточки 
+    '''
+    table = main.split('.')    # считаем, что полное имя таблицы приходит в main в виде <grainName>.<tableName>
     tableCursorInstance = tableCursorImport(table[0], table[1])(context)
     fields = tableCursorInstance.meta().getColumns().keys()
 #    permissions:
@@ -32,9 +35,11 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 #    2 - disable
     buttons = ["first", "previous", "next", "last", "insert", "delete"]
     xformsdata = {"schema":{"@xmlns":'',
+                            # тулбар фильтров
                             "filter":{"@permission":"1",
                                       "fields":{"field":[]}
                                       },
+                            # тулбар сортировки
                             "order":{"@permission":"1",
                                      "fields":{"field":[{"value":field,
                                                          "enable":"false",
@@ -42,6 +47,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                                         for field in fields]
                                                }
                                      },
+                            # тулбар навигации
                             "navigator":{"@permission":"1",
                                          "@buttonContext":"",
                                          "button":[{"enable":"true",

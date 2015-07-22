@@ -61,11 +61,12 @@
         <xf:action ev:event="DOMActivate" if="(is-valid(instance('mainInstance'))=false())">
           <xf:message>Заполнено с ошибкой!</xf:message>
         </xf:action>
-        <xf:action ev:event="DOMActivate" if="(count(instance('mainInstance')/users/user)=0)">
+        <!--<xf:action ev:event="DOMActivate" if="(count(instance('mainInstance')/users/user)=0)">
           <xf:message>Выберите пользователей!</xf:message>
-        </xf:action>
+        </xf:action>-->
         <xf:action ev:event="DOMActivate"
-          if="(is-valid(instance('mainInstance'))=true() and count(instance('mainInstance')/users/user)!=0)">
+          if="(is-valid(instance('mainInstance'))=true())">
+          <!--  and count(instance('mainInstance')/users/user)!=0) -->
           <xf:load
             resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'mainInstance')))"></xf:load>
           <xf:message>Данные сохранены</xf:message>

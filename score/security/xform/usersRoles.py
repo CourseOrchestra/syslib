@@ -41,8 +41,11 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 
     currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
     if settings.isUseAuthServer() and settings.loginIsSubject():
+        # В данном режиме в currId передаются имя пользователя и сид.
+        # Сделано так, чтобы не лопатить огромный xml, приходящий из меллофона        
         currId = json.loads(base64.b64decode(currId))
         if not logins.tryGet(currId[0]):
+            # in "tt" regime we copy record from mellophone(AuthServer) to logins if it doesn't appear in logins.
             subjects = subjectsCursor(context)
             subjects.name = currId[0]
             subjects.sid = currId[1]
@@ -50,11 +53,10 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             logins.userName = currId[0]
             logins.subjectId = currId[1]
             logins.insert()
-            # in "tt" regime we copy record from mellophone(AuthServer) to logins if it doesn't appear in logins.
         rolesUsers.setRange("userid", logins.subjectId)
     elif settings.loginIsSubject():
         logins.get(currId)
-        rolesUsers.setRange("userid", logins.subjectId)
+        rolesUsers.setRange("userid", logins.subjectId) # роли всегда привязываются к сидам
     else:
         rolesUsers.setRange("userid", currId)
     content=[]

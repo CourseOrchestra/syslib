@@ -76,9 +76,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
         xformsdata = {"schema":{"users": {"user": content}
                                 }
                       }
-    #raise Exception(xformsdata)
 
-    #print xformsdata
     xformssettings = {"properties":{"event":{"@name":"single_click",
                                              "@linkId": "1",
                                              "action":{"main_context": "current",
@@ -98,33 +96,32 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     u'''Функция сохранения карточки редактирования содержимого справочника ролей. '''    
     rolesUsers = UserRolesCursor(context)
-    #users = loginsCursor(context)
     currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']    
-    #raise Exception(session, xformsdata)
-    
-    content = json.loads(xformsdata)["schema"]["users"]["user"]
-    
-    content=content if isinstance(content, list) else [content]
-    
     rolesUsersOld = UserRolesCursor(context)
     rolesUsers.setRange("roleid", currId)
     rolesUsers.deleteAll()
-    for user in content:
-        rolesUsers.userid=user["@sid"]
-        rolesUsers.roleid=currId
-        if rolesUsers.canInsert() and rolesUsers.canModify():        
-            if not rolesUsers.tryInsert():                
+    
+    content = json.loads(xformsdata)["schema"]["users"]
+    
+    if content != "":    
+        content=content["user"] if isinstance(content["user"], list) else [content["user"]]
+    
+        for user in content:
+            rolesUsers.userid=user["@sid"]
+            rolesUsers.roleid=currId
+            if rolesUsers.canInsert() and rolesUsers.canModify():        
+                if not rolesUsers.tryInsert():                
+                    rolesUsersOld.get(user["@sid"], currId)
+                    rolesUsers.recversion = rolesUsersOld.recversion  
+                    rolesUsers.update()
+            elif rolesUsers.canInsert():
+                rolesUsers.tryInsert()
+            elif rolesUsers.canModify():            
                 rolesUsersOld.get(user["@sid"], currId)
                 rolesUsers.recversion = rolesUsersOld.recversion  
                 rolesUsers.update()
-        elif rolesUsers.canInsert():
-            rolesUsers.tryInsert()
-        elif rolesUsers.canModify():            
-            rolesUsersOld.get(user["@sid"], currId)
-            rolesUsers.recversion = rolesUsersOld.recversion  
-            rolesUsers.update()
-        else:
-            raise CelestaException(u"Недостаточно прав для данной операции!")
+            else:
+                raise CelestaException(u"Недостаточно прав для данной операции!")
 
 
 def usersCount(context, main=None, add=None, filterinfo=None, session=None, params=None,
@@ -158,7 +155,6 @@ def usersList(context, main=None, add=None, filterinfo=None, session=None, param
         sessionId=json.loads(session)["sessioncontext"]["sessionid"]
         server=SecurityParamsFactory.getAuthServerUrl()
         users_xml=getUsersFromAuthServer(server, sessionId)
-        #raise Exception(recordcount)
         for user in users_xml.getElementsByTagName("user"):
             if startswith and string.find(user.getAttribute("name"), curvalue)==0 or \
                     not startswith and string.find(user.getAttribute("name"), curvalue)>0:
