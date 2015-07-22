@@ -29,6 +29,8 @@ if not settings.isSystemInitialised():
     context = initcontext()
     if settings.isEmployees():
         setConstraint(context) #функция устанавливает внешний ключ в таблицу subjects и меняет значение параметра isSystemInitialised на True
+    else:
+        settings.setEmployeesParam("isSystemInitialised", "true") #просто устанавливаем признак проинициализированной системы
     securityInit(context) # добавление в базу необходимых для работы гранулы данных
 
 navigatorsParts['securityNavigator'] = authentificationNavigator
