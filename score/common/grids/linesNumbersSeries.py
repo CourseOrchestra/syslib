@@ -85,7 +85,7 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     settings["gridsettings"]["columns"]["col"].append({"@id":"Постфикс", "@width": "100px"})    
     settings["gridsettings"]["columns"]["col"].append({"@id":"Фиксированная длина", "@width": "80px", "@type":"IMAGE"})
 
-    res = XMLJSONConverter.jsonToXml(json.dumps(data))
+    res = XMLJSONConverter.jsonToXml(json.dumps(settings))
     return JythonDTO(None, res)
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
