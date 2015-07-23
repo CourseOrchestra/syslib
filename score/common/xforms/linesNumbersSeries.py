@@ -85,8 +85,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                     }
                       }
 
-    return JythonDTO(XMLJSONConverter.jsonToXml(json.loads(xformsdata)),
-                     XMLJSONConverter.jsonToXml(json.loads(xformssettings))
+    return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(xformsdata)),
+                     XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
                      )
 
 
