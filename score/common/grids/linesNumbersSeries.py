@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import json
-import base64
+from java.text import SimpleDateFormat
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from common.sysfunctions import toHexForXml
 from common._common_orm import linesOfNumbersSeriesCursor
@@ -29,13 +29,13 @@ def gridData(context, main=None, add=None, filterinfo=None,
         linesDict = {}
         linesDict[toHexForXml('~~id')] = linesOfNumbersSeries.numberOfLine        
         linesDict[toHexForXml(u"Номер серии")] = linesOfNumbersSeries.numberOfLine
-        linesDict[toHexForXml(u"Начальная дата")] = linesOfNumbersSeries.startingDate
+        linesDict[toHexForXml(u"Начальная дата")] = SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(linesOfNumbersSeries.startingDate)
         linesDict[toHexForXml(u"Начальный номер")] = linesOfNumbersSeries.startingNumber
         linesDict[toHexForXml(u"Последний номер")] = linesOfNumbersSeries.endingNumber
         linesDict[u"Инкремент"] = linesOfNumbersSeries.incrimentByNumber
         linesDict[toHexForXml(u"Последний использованный номер")] = linesOfNumbersSeries.lastUsedNumber
         linesDict[u"Используется"] = 'gridToolBar/yes.png' if linesOfNumbersSeries.isOpened else 'gridToolBar/no.png'
-        linesDict[toHexForXml(u"Дата последнего использования")] = linesOfNumbersSeries.lastUsedDate
+        linesDict[toHexForXml(u"Дата последнего использования")] = SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(linesOfNumbersSeries.lastUsedDate)
         linesDict[u"Префикс"] = linesOfNumbersSeries.prefix
         linesDict[u"Постфикс"] = linesOfNumbersSeries.postfix
         linesDict[toHexForXml(u"Фиксированная длина")] = 'gridToolBar/yes.png' if linesOfNumbersSeries.isFixedLength else 'gridToolBar/no.png'
