@@ -8,8 +8,8 @@ Created on 23.10.2014
 from security._security_orm import customPermsCursor, customPermsTypesCursor, rolesCustomPermsCursor
 from common._common_orm import numbersSeriesCursor, linesOfNumbersSeriesCursor
 
-import time, datetime
-from java.text import SimpleDateFormat
+import datetime
+#from java.text import SimpleDateFormat
 
 def securityInit(context):
     u"""Функция устанавливает необходимые для работы гранулы значения таблиц:
@@ -26,11 +26,11 @@ def securityInit(context):
     if not numbersSeries.tryInsert():
         numbersSeries.update()
     if not linesOfNumbersSeries.tryGet('subjects', 1):
-        sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        now = datetime.datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %H:%M:%S")
+#        sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        now = datetime.datetime.now()#fromtimestamp(time.time()).strftime("%Y-%m-%d %H:%M:%S")
         linesOfNumbersSeries.seriesId = 'subjects'
         linesOfNumbersSeries.numberOfLine = 1                
-        linesOfNumbersSeries.startingDate = sdf.parse(now)
+        linesOfNumbersSeries.startingDate = now#sdf.parse(now)
         linesOfNumbersSeries.startingNumber = 10
         linesOfNumbersSeries.endingNumber = 100000
         linesOfNumbersSeries.incrimentByNumber = 1
