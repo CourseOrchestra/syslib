@@ -11,8 +11,8 @@ try:
     from ru.curs.showcase.core.jython import JythonDTO
 except:
     from ru.curs.celesta.showcase import JythonDTO
-from ru.curs.celesta.showcase.utils import XMLJSONConverter
 try:
+    from ru.curs.celesta.showcase.utils import XMLJSONConverter
     from ru.curs.showcase.core import UserMessage
 except:
     pass

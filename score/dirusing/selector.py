@@ -5,19 +5,19 @@ try:
     from ru.curs.showcase.core.jython import JythonDTO
 except:
     from ru.curs.celesta.showcase import JythonDTO
-from ru.curs.showcase.core.selector import ResultSelectorData
-from ru.curs.showcase.core.jython import DataSelectorAttributes
 from ru.beta2.extra.gwt.ui.selector.api import DataRecord
 from java.util import ArrayList
 try:
+    from ru.curs.showcase.core.selector import ResultSelectorData
+    from ru.curs.showcase.core.jython import DataSelectorAttributes
     from ru.curs.showcase.core import UserMessage
+    from ru.curs.celesta.showcase.utils.XMLJSONConverter import xmlToJson
 except:
     pass
 import simplejson as json
 import base64
 from xml.dom import minidom
 
-from ru.curs.celesta.showcase.utils.XMLJSONConverter import xmlToJson
 import xml.etree.ElementTree as ET
 from common.hierarchy import hasChildren
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders

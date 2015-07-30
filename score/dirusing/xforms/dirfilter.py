@@ -14,10 +14,10 @@ except:
     from ru.curs.celesta.showcase import JythonDTO
 import java.io.OutputStreamWriter as OutputStreamWriter
 try:
+    from ru.curs.celesta.showcase.utils import XMLJSONConverter
     from ru.curs.showcase.core import UserMessage
 except:
     pass
-from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList
 
 
