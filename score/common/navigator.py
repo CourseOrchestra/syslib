@@ -24,7 +24,7 @@ def standardNavigator(context, session=None):
     if localNavigators:
         for setItem in localNavigators:
             if setItem.startswith('__set_') and (allNavigator or setItem in userdataNavigator):
-                #re.search(r'^__set_.+$', setItem) 
+                # re.search(r'^__set_.+$', setItem)
                 setOfPart = localNavigators[setItem]
                 setOfPartRes = setOfPart(context, session)
                 for part in setOfPartRes:
@@ -33,11 +33,10 @@ def standardNavigator(context, session=None):
                 resultNavigators[setItem] = localNavigators[setItem](context, session)
         resultJSON["navigator"]["group"] = list()
         for part in (sorted(resultNavigators) if allNavigator else userdataNavigator):
-            if part == "__header__":
+            if part.startswith("__header__"):
                 resultJSON["navigator"].update(resultNavigators[part])
             elif resultNavigators[part]["group"] is not None:
                 resultJSON["navigator"]["group"].append(resultNavigators[part]["group"])
-    print resultJSON
     resultNavigator = XMLJSONConverter.jsonToXml(json.dumps(resultJSON))
     return resultNavigator
 
