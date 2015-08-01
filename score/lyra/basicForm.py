@@ -1,11 +1,12 @@
 # coding: utf-8
+import ru.curs.lyra.BasicLyraForm as BasicLyraForm
 
-class BasicForm(object):
+class BasicForm(BasicLyraForm):
     u'''Базовый класс для любой формы, реализованной в Лире'''
-    def _getCursor(self):
-        '''TO BE OVERRIDEN'''
-        pass
-
+    
+    def _getId(self):
+        return self.__class__.__module__ + "." + self.__class__.__name__
+    
     def _buildForm(self):
         '''TO BE OVERRIDEN'''
         pass
