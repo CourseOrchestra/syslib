@@ -7,29 +7,156 @@ class BasicForm(BasicLyraForm):
     def _getId(self):
         return self.__class__.__module__ + "." + self.__class__.__name__
     
-    def _buildForm(self):
-        '''TO BE OVERRIDEN'''
-        pass
-
-    def getInstance(cls, context, session, main, add, elemetId):
-
-        if 'lyraClasses' in context.data and cls.__name__ in context.data['lyraClasses']:
-            testInst = context.data["lyraClasses"][cls.__name__]
-        else:
-            testInst = cls()
-            if 'lyraClasses' in context.data:
-                context.data['lyraClasses'][cls.__name__] = testInst
-            else:
-                context.data['lyraClasses'] = {cls.__name__ : testInst}
-
-        testInst.setContext(context, session, main, add, elemetId)
-        return testInst
-
     def setContext(self, context, session, main, add, elemetId):
         self.context = context
         self.session = session
         self.main = main
         self.add = add
         self.elemetId = elemetId
+        
+    typedict = {'INT': 'int',
+            'REAL': 'decimal',
+            'VARCHAR': 'string',
+            'TEXT': 'string',
+            'BLOB': 'string',
+            'DATETIME': 'dateTime',
+            'BIT': 'boolean'
+            }
+    hdr = '''<?xml-stylesheet href="xsltforms/xsltforms.xsl" type="text/xsl"?>
+    <!--?xsltforms-options debug="yes"?-->
+    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xf="http://www.w3.org/2002/xforms" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ev="http://www.w3.org/2001/xml-events">
+       <head>
+          <title>Lyra form</title>
+          <xf:model id="xformId_mainModel" xmlns="">
+            '''
+    body1 = '''
+   </head>
+   <body>
+   <div>
+    <xf:trigger style="height: 32px; width: 32px; padding-left: 0px; padding-right: 0px;">
+        <img src="solutions/default/resources/first.png" />
+         <xf:label></xf:label><xf:action ev:event="DOMActivate">
+                    <xf:send submission="first"/>
+                                    </xf:action>
+      </xf:trigger>
+      <xf:trigger>
+          <img src="solutions/default/resources/prev.png" />
+         <xf:label></xf:label>
+         <xf:action ev:event="DOMActivate">
+                    <xf:send submission="previous"/>
+                                    </xf:action>
+      </xf:trigger>
+      <xf:trigger>
+         <img src="solutions/default/resources/next.png" />
+         <xf:label></xf:label>
+        <xf:action ev:event="DOMActivate">
+                    <xf:send submission="next"/>
+                                    </xf:action>
+      </xf:trigger>
+      <xf:trigger>
+          <img src="solutions/default/resources/last.png" />
+         <xf:label></xf:label>
+         <xf:action ev:event="DOMActivate">
+                    <xf:send submission="last"/>
+                                    </xf:action>
+      </xf:trigger>
+      <xf:trigger>
+       <img src="solutions/default/resources/add.png" />
+         <xf:label></xf:label>
+        <xf:action ev:event="DOMActivate">
+                    <xf:send submission="new"/>
+                                    </xf:action>
+      </xf:trigger>
+      <xf:trigger>
+        <img src="solutions/default/resources/remove.png" />
+         <xf:label></xf:label>
+        <xf:action ev:event="DOMActivate">
+                    <xf:send submission="del"/>
+                                    </xf:action>
+      </xf:trigger>
+      <xf:trigger>
+      <img src="solutions/default/resources/revert.png" />
+         <xf:label></xf:label>
+        <xf:action ev:event="DOMActivate">
+                    <xf:send submission="revert"/>
+                                    </xf:action>
+      </xf:trigger>
+      <xf:trigger>
+      <img src="solutions/default/resources/save.png" />
+         <xf:label></xf:label>
+        <xf:action ev:event="DOMActivate">
+                    <xf:send submission="save"/>
+                                    </xf:action>
+      </xf:trigger>
 
-    getInstance = classmethod(getInstance)
+      </div>
+'''
+
+    body2 = '''
+   </body>
+</html>
+'''
+
+    def _buildBinds(self, formTemplate, meta):
+        for c in meta.getColumns().values():
+            if c.getCelestaType() == 'VARCHAR':
+                formTemplate += '<xf:bind nodeset="%s" type="xs:string" constraint="fn:string-length(.) &lt; %d"/>' % (c.getName(), c.getLength())
+            else:
+                formTemplate += '<xf:bind nodeset="%s" type="xs:%s" required="%s"/>\n' % (c.getName(), self.typedict[c.getCelestaType()],
+                                                                                       'false()' if c.isNullable() else 'true()')
+        return formTemplate
+    
+    def _buildControls(self, formTemplate, meta):
+        for c in meta.getColumns().values():
+            formTemplate += """<div class="baseInput200 break">\n"""
+            tag = 'textarea' if c.getCelestaType() == 'TEXT' else 'input'
+            formTemplate += '''  <xf:%s ref="instance('xformId_mainInstance')/%s">\n''' % (tag, c.getName())
+            formTemplate += '    <xf:label>%s</xf:label>\n' % c.getName()
+            formTemplate += '  </xf:%s></div>\n' % tag
+        return formTemplate
+
+
+    def _buildForm(self):
+        meta = self._getCursor().meta()
+
+        formTemplate = self.hdr
+        formTemplate += '<xf:instance xmlns="" id="xformId_mainInstance" />'
+        # БИНДЫ ТУТ
+        formTemplate = self._buildBinds(formTemplate, meta)
+
+        formTemplate += '''<xf:submission action="secured/submit?proc=lyra.lyraplayer.submissionFirst.cl" id="first" method="post" instance="xformId_mainInstance" ref="instance('xformId_mainInstance')" replace="instance">
+        </xf:submission>
+
+        <xf:submission action="secured/submit?proc=lyra.lyraplayer.submissionPrev.cl" id="previous" method="post" instance="xformId_mainInstance" ref="instance('xformId_mainInstance')" replace="instance">
+        </xf:submission>
+
+        <xf:submission action="secured/submit?proc=lyra.lyraplayer.submissionNext.cl" id="next" method="post" instance="xformId_mainInstance" ref="instance('xformId_mainInstance')" replace="instance">
+        </xf:submission>
+
+        <xf:submission action="secured/submit?proc=lyra.lyraplayer.submissionLast.cl" id="last" method="post" instance="xformId_mainInstance" ref="instance('xformId_mainInstance')" replace="instance">
+        </xf:submission>
+
+        <xf:submission action="secured/submit?proc=lyra.lyraplayer.submissionNew.cl" id="new" method="post" instance="xformId_mainInstance" ref="instance('xformId_mainInstance')" replace="instance">
+        </xf:submission>
+
+        <xf:submission action="secured/submit?proc=lyra.lyraplayer.submissionDel.cl" id="del" method="post" instance="xformId_mainInstance" ref="instance('xformId_mainInstance')" replace="instance">
+        </xf:submission>
+        
+        <xf:submission action="secured/submit?proc=lyra.lyraplayer.submissionRevert.cl" id="revert" method="post" instance="xformId_mainInstance" ref="instance('xformId_mainInstance')" replace="instance">
+        </xf:submission>
+        
+        <xf:submission action="secured/submit?proc=lyra.lyraplayer.submissionSave.cl" id="save" method="post" instance="xformId_mainInstance" ref="instance('xformId_mainInstance')" replace="instance">
+        </xf:submission>
+        '''
+
+        formTemplate += "</xf:model>\n"
+
+        formTemplate += self.body1
+        
+        formTemplate = self._buildControls(formTemplate, meta)
+        
+        formTemplate += self.body2
+        return formTemplate
+
+    def getActions(self):
+        return u'<properties/>'
