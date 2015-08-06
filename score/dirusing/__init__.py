@@ -36,7 +36,7 @@ def navDirU(context, session):
         # проверка файла showgrains.json
         try:
             # проверка нужно ли обрабатывать данную гранулу как справочник
-            if grain in showGrains(context):
+            if unicode(grain) in showGrains(context):
                 # определение порядкового номера гранулы для вставки кусков навигатора внутрь
                 x += 1
                 grainMeta = score.getGrain(grain)
@@ -72,6 +72,7 @@ def navDirU(context, session):
                 if coreTables:
                     for coreTable in coreTables:
                         fillDir(context, jsonnav["group"]["level1"][x], 2, coreTable[0], grain, coreTable[1])
+
         except json.scanner.JSONDecodeError:
 
             jsonnav = {"group":None}

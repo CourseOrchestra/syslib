@@ -17,7 +17,7 @@ class Settings():
     settings=[] # Статическая переменная класса, в которую сохраняются настройки гранулы.
                 # Данная реализация нужна для того, чтобы не обращаться каждый раз к расположенному на жестком диске файлу настроек
                 # rainSettings.xml 
-    settingsTag = 'showgrains' # Наименование тэга настроек гранулы
+    settingsTag = 'showGrains' # Наименование тэга настроек гранулы
     grainName = 'dirusing' # название гранулы
     
     def __init__(self):        
@@ -36,8 +36,7 @@ class Settings():
 #             for i in range(len(names)):
 #                 settingsJson[names[i]] = values[i]
             if names and not isinstance(names, list):
-                names = [names]
-                
+                names = [names]  
             self.settings = names or []                                                                   
         return self.settings
 
