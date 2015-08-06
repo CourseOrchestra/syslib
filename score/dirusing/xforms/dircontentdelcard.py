@@ -41,7 +41,7 @@ def cardDelData(context, main=None, add=None, filterinfo=None, session=None, ele
                       }
     #return UserMessage(u"TEST3", u"%s" % (session))
     #print XMLJSONConverter(input=xformsdata).parse(), XMLJSONConverter(input=xformssettings).parse()
-    return JythonDTO(XMLJSONConverter(input=xformsdata).parse(), XMLJSONConverter(input=xformssettings).parse())
+    return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(xformsdata)), XMLJSONConverter.jsonToXml(json.dumps(xformssettings)))
 
 
 def cardDelDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):

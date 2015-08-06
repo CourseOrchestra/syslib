@@ -119,7 +119,7 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
     else:
         data = {"records":""}
 
-    res = XMLJSONConverter(input=data).parse()
+    res = XMLJSONConverter.jsonToXml(json.dumps(data))
 
     try:
         panelWidth = str(int(json.loads(session)['sessioncontext']['currentDatapanelWidth']) - 55) + 'px'
@@ -161,7 +161,7 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
             return None
     s_number = 0
     _sortedHeaders(s_number)
-    res_set = XMLJSONConverter(input=settings).parse()
+    res_set = XMLJSONConverter.jsonToXml(json.dumps(settings))
 
     return JythonDTO(res, res_set)
 
@@ -245,7 +245,7 @@ def getData(context, main=None, add=None, filterinfo=None,
     else:
         data = {"records":""}
 
-    res = XMLJSONConverter(input=data).parse()
+    res = XMLJSONConverter.jsonToXml(json.dumps(data))
     print res
     return JythonDTO(res, None)
 #метод для добавления новой строки в таблицу, возвращает dictionary значений
@@ -403,7 +403,7 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
             return None
     s_number = 0
     _sortedHeaders(s_number)
-    res = XMLJSONConverter(input=settings).parse()
+    res = XMLJSONConverter.jsonToXml(json.dumps(settings))
     return JythonDTO(None, res)
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -642,5 +642,5 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
         data = {"gridtoolbar":{"item":item_export + item_common
                            }
             }
-    return XMLJSONConverter(input=data).parse()
+    return XMLJSONConverter.jsonToXml(json.dumps(data))
 

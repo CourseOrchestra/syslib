@@ -4,6 +4,9 @@ Created on 03.12.2013
 
 @author: v.popov
 '''
+
+import simplejson as json
+
 try:
     from ru.curs.showcase.core.jython import JythonDTO
 except:
@@ -140,5 +143,5 @@ def buttons(context, main=None, add=None, filterinfo=None, session=None, element
                     }
 
     #print XMLJSONConverter(input=data).parse().encode('cp1251'), XMLJSONConverter(input=settings).parse().encode('cp1251')
-    return JythonDTO(XMLJSONConverter(input=data).parse(), XMLJSONConverter(input=settings).parse())
+    return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(data)), XMLJSONConverter.jsonToXml(json.dumps(settings)))
 

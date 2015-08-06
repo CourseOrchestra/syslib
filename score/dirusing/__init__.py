@@ -36,7 +36,7 @@ def navDirU(context, session):
         # проверка файла showgrains.json
         try:
             # проверка нужно ли обрабатывать данную гранулу как справочник
-            if grain in showGrains():
+            if grain in showGrains(context):
                 # определение порядкового номера гранулы для вставки кусков навигатора внутрь
                 x += 1
                 grainMeta = score.getGrain(grain)

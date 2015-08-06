@@ -75,5 +75,5 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 #         xformsdata["schema"]["types"]["type"].append(data)
 #     xformsdata["schema"]["types"]["type"].append({"@id":-1, "@name":"Все"})
 
-    return JythonDTO(XMLJSONConverter(input=xformsdata).parse(), XMLJSONConverter(input=xformssettings).parse())
+    return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(xformsdata)), XMLJSONConverter.jsonToXml(json.dumps(xformssettings)))
 
