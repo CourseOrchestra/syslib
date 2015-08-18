@@ -77,18 +77,18 @@ def submissionNew(context, main=None, add=None, filterinfo=None, session=None, d
 
 def submissionDel(context, main=None, add=None, filterinfo=None, session=None, data=None):
     formId = json.loads(data)['schema']['@formId']
-    testInst =  getFormInstance(context, formId, add, filterinfo, session, elementId)
+    testInst =  getFormInstance(context, formId, add, filterinfo, session, None)
     cardData = testInst.deleteRec(XMLJSONConverter.jsonToXml(data))
     return cardData
 
 def submissionRevert(context, main=None, add=None, filterinfo=None, session=None, data=None):
     formId = json.loads(data)['schema']['@formId']
-    testInst =  getFormInstance(context, formId, add, filterinfo, session, elementId)
+    testInst =  getFormInstance(context, formId, add, filterinfo, session, None)
     cardData = testInst.revert(XMLJSONConverter.jsonToXml(data))
     return cardData
 
 def submissionSave(context, main=None, add=None, filterinfo=None, session=None, data=None):
     formId = json.loads(data)['schema']['@formId']
-    testInst =  getFormInstance(context, formId, add, filterinfo, session, elementId)
+    testInst =  getFormInstance(context, formId, add, filterinfo, session, None)
     cardData = testInst.move('=', XMLJSONConverter.jsonToXml(data))
     return cardData
