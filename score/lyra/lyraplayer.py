@@ -34,61 +34,59 @@ def getFormInstance(context, main=None, add=None, filterinfo=None, session=None,
 
 
 def getTemplate(context, main, add=None, filterinfo=None, session=None, elementId=None):
-    testInst =  getFormInstance(context, main, add, filterinfo, session, elementId)
-    return JythonDTO(unicode(testInst._buildForm()))
+    formInstance =  getFormInstance(context, main, add, filterinfo, session, elementId)
+    return JythonDTO(unicode(formInstance._buildForm()))
 
 def getInstance(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
-    testInst =  getFormInstance(context, main, add, filterinfo, session, elementId)
-    #TODO: USE CURRENT POSITION!!!
-    cardData = testInst.findRec()
-    #TODO: what is it ??????
-    cardSettings = testInst.getActions()
+    formInstance =  getFormInstance(context, main, add, filterinfo, session, elementId)
+    cardData = formInstance.findRec()
+    cardSettings = formInstance.getActions()
     return JythonDTO(cardData, cardSettings)
 
 def submissionFirst(context, main=None, add=None, filterinfo=None, session=None, data=None):
     formId = json.loads(data)['schema']['@formId']
-    testInst =  getFormInstance(context, formId, add, filterinfo, session, None)
-    cardData = testInst.move('-', XMLJSONConverter.jsonToXml(data))
+    formInstance =  getFormInstance(context, formId, add, filterinfo, session, None)
+    cardData = formInstance.move('-', XMLJSONConverter.jsonToXml(data))
     return cardData
 
 def submissionPrev(context, main=None, add=None, filterinfo=None, session=None, data=None):
     formId = json.loads(data)['schema']['@formId']
-    testInst =  getFormInstance(context, formId, add, filterinfo, session, None)
-    cardData = testInst.move('<', XMLJSONConverter.jsonToXml(data))
+    formInstance =  getFormInstance(context, formId, add, filterinfo, session, None)
+    cardData = formInstance.move('<', XMLJSONConverter.jsonToXml(data))
     return cardData
 
 def submissionNext(context, main=None, add=None, filterinfo=None, session=None, data=None):
     formId = json.loads(data)['schema']['@formId']
-    testInst =  getFormInstance(context, formId, add, filterinfo, session, None)
-    cardData = testInst.move('>', XMLJSONConverter.jsonToXml(data))
+    formInstance =  getFormInstance(context, formId, add, filterinfo, session, None)
+    cardData = formInstance.move('>', XMLJSONConverter.jsonToXml(data))
     return cardData
 
 def submissionLast(context, main=None, add=None, filterinfo=None, session=None, data=None):
     formId = json.loads(data)['schema']['@formId']
-    testInst =  getFormInstance(context, formId, add, filterinfo, session, None)
-    cardData = testInst.move('+', XMLJSONConverter.jsonToXml(data))
+    formInstance =  getFormInstance(context, formId, add, filterinfo, session, None)
+    cardData = formInstance.move('+', XMLJSONConverter.jsonToXml(data))
     return cardData
 
 def submissionNew(context, main=None, add=None, filterinfo=None, session=None, data=None):
     formId = json.loads(data)['schema']['@formId']
-    testInst =  getFormInstance(context, formId, add, filterinfo, session, None)
-    cardData = testInst.newRec()
+    formInstance =  getFormInstance(context, formId, add, filterinfo, session, None)
+    cardData = formInstance.newRec()
     return cardData
 
 def submissionDel(context, main=None, add=None, filterinfo=None, session=None, data=None):
     formId = json.loads(data)['schema']['@formId']
-    testInst =  getFormInstance(context, formId, add, filterinfo, session, None)
-    cardData = testInst.deleteRec(XMLJSONConverter.jsonToXml(data))
+    formInstance =  getFormInstance(context, formId, add, filterinfo, session, None)
+    cardData = formInstance.deleteRec(XMLJSONConverter.jsonToXml(data))
     return cardData
 
 def submissionRevert(context, main=None, add=None, filterinfo=None, session=None, data=None):
     formId = json.loads(data)['schema']['@formId']
-    testInst =  getFormInstance(context, formId, add, filterinfo, session, None)
-    cardData = testInst.revert(XMLJSONConverter.jsonToXml(data))
+    formInstance =  getFormInstance(context, formId, add, filterinfo, session, None)
+    cardData = formInstance.revert(XMLJSONConverter.jsonToXml(data))
     return cardData
 
 def submissionSave(context, main=None, add=None, filterinfo=None, session=None, data=None):
     formId = json.loads(data)['schema']['@formId']
-    testInst =  getFormInstance(context, formId, add, filterinfo, session, None)
-    cardData = testInst.move('=', XMLJSONConverter.jsonToXml(data))
+    formInstance =  getFormInstance(context, formId, add, filterinfo, session, None)
+    cardData = formInstance.move('=', XMLJSONConverter.jsonToXml(data))
     return cardData
