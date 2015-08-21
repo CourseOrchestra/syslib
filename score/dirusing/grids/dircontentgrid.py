@@ -7,6 +7,7 @@ Created on 12.02.2014
 
 import simplejson as json
 import base64
+from java.text import SimpleDateFormat
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -18,6 +19,8 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList, htmlDecode
 from dirusing.hierarchy import isExtr
 from common.hierarchy import generateSortValue, hasChildren
+
+from dirusing.constants import DEFAULT_DATETIME_FORMAT_JAVA
 
 def getTree(context, main=None, add=None, filterinfo=None, session=None, elementId=None, sortColumnList=None, parentId=None):
     u'''Функция получения данных для tree-грида. '''
@@ -109,11 +112,11 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
             parent = getattr(currentTable, deweyColumn)
             len_parent = len(parent.split('.'))
             for rec in currentTable.iterate():
-                rec_dict = {}
+#                 rec_dict = {}
                 len_dewey = len(getattr(rec, deweyColumn).split('.'))
                 if getattr(rec, deweyColumn).startswith(parent):
                     if len_dewey == len_parent + 1:
-                        rec_dict = appendRecord(currentTable, context, table_meta, grain_name, rec, _headers, rec_dict, event)
+                        rec_dict = getRecord(currentTable, context, table_meta, grain_name, rec, _headers, event)
                         rec_dict["HasChildren"] = '1' if hasChildren(context, rec, deweyColumn) else '0'
                         data["records"]["rec"].append(rec_dict)
     else:
@@ -195,153 +198,181 @@ def getData(context, main=None, add=None, filterinfo=None,
                     currentTable.setFilter(textcolumns[i], filtercol)
 
     totalcount = currentTable.count()
-    if totalcount != 0:
-        # Определяем переменную для JSON данных
-        data = {"records":{"rec":[]}}
-        # Событие по клику на запись грида
-
-
-        event = {"event":
-                [{"@name":"row_single_click",
-                 "action":
-                    {"main_context":"current",
-                     "datapanel":
-                        {'@type':'current',
-                         '@tab':'current',
-                         "element":{"@id":"12",
-                                     "add_context":"row_clicked"}
-                         }
+    if totalcount == 0:
+        return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps({"records":""})), None) 
+    
+    # Событие по клику на запись грида
+    
+    event = {
+        "event": [{
+            "@name": "row_single_click",
+            "action": {
+                "#sorted": [{
+                    "main_context": "current"
+                },
+                {
+                    "datapanel": {
+                        '@type': 'current',
+                        '@tab': 'current',
+                        "element": {
+                            "@id": "12",
+                            "add_context": "row_clicked"
+                        }
                     }
-                 },
-                 {"@name":"row_double_click",
-                 "action":
-                    {"@show_in":"MODAL_WINDOW",
-                     "main_context":"current",
-                     "datapanel":
-                        {'@type':'current',
-                         '@tab':'current',
-                         "element":{"@id":"15",
-                                     "add_context":"edit"}
-                                     }
-                     }
-                  }
-                    ]
-                 }
+                }]
+            }
+        },
+        {
+            "@name": "row_double_click",
+            "action": {
+                "@show_in": "MODAL_WINDOW",
+                "#sorted": [{
+                    "main_context": "current"
+                },
+                {
+                    "datapanel": {
+                        '@type': 'current',
+                        '@tab': 'current',
+                        "element": {
+                            "@id": "15",
+                            "add_context": "edit"
+                        }
+                    }
+                }]
+            }
+        }]
+    }
 
 
-        if sortColumnList:
-            for column in sortColumnList:
-                sortindex = '%s' % column.getSorting()
-                for field in _headers:
-                    if htmlDecode(_headers[field][0]) == column.getId():
-                        currentTable.orderBy(field + ' ' + sortindex)
-        # Проходим по таблице и заполняем data
-        currentTable.limit(firstrecord - 1, pagesize)
-        for rec in currentTable.iterate():
-            rec_dict = {}
-            rec_dict = appendRecord(currentTable, context, table_meta, grain_name, rec, _headers, rec_dict, event)
-
-            data["records"]["rec"].append(rec_dict)
-    else:
-        data = {"records":""}
+    if sortColumnList:
+        for column in sortColumnList:
+            sortindex = '%s' % column.getSorting()
+            for field in _headers:
+                if htmlDecode(_headers[field][0]) == column.getId():
+                    currentTable.orderBy(field + ' ' + sortindex)
+                    
+    
+    # Определяем переменную для JSON данных
+    data = {"records":{"rec":[]}}
+    
+    # Проходим по таблице и заполняем data
+    currentTable.limit(firstrecord - 1, pagesize)
+    for rec in currentTable.iterate():
+#         rec_dict = {}
+        rec_dict = getRecord(currentTable, context, table_meta, grain_name, rec, _headers)
+        rec_dict['properties'] = event
+        
+        data["records"]["rec"].append(rec_dict)
+        
+        
 
     res = XMLJSONConverter.jsonToXml(json.dumps(data))
-    print res
+#     print res
     return JythonDTO(res, None)
-#метод для добавления новой строки в таблицу, возвращает dictionary значений
-def appendRecord(currentTable, context, table_meta, grain_name, rec, _headers, rec_dict, event):
+
+
+def getRecord(currentTable, context, table_meta, grain_name, rec, _headers):
+    """Возвращает запись для датасета грида (dict).
+    Параметры:
+        - currentTable (Celesta Cursor object) - объект курсора основной 
+        таблицы с данными
+        - context (Celesta CallContext) - контекст челесты
+        - table_meta (Celesta Metadata !TBD!) - метеданные курсора основной 
+        таблицы
+        - grain_name (string) - наименование гранулы курсора основной таблицы
+        - rec (Celesta Cursor Object) - курсор основной таблицы с данными
+        - _headers (dict) - метаданные заголовков основной таблицы
+    """
+    
+    sdf = SimpleDateFormat(DEFAULT_DATETIME_FORMAT_JAVA)
+    rec_dict = {}
+    
     for field in _headers:
-        if field not in ('~~id',) and _headers[field][1] not in (4, 6, 7, 1):
-            if rec != None:
-                rec_dict[_headers[field][0]] = getattr(rec, field)
-                # Преобразуем первичный ключ в base64
-            else:
-                rec_dict[_headers[field][0]] = ''
+        if rec is None:
+            rec_dict[_headers[field][0]] = ''
+            continue
+        
+        if field not in ('~~id',) and _headers[field][1] not in (2, 4, 6, 7, 1):
+            rec_dict[_headers[field][0]] = getattr(rec, field)
+        # Преобразуем первичный ключ в base64
         elif field == '~~id' and _headers[field][1] not in (4, 6, 7, 1):
-            if rec != None:
-                rec_dict[_headers[field][0]] = base64.b64encode(json.dumps([elem for elem in rec._currentKeyValues()]))
-                #Обработка булевого значения
-            else:
-                rec_dict[_headers[field][0]] = ''
+            rec_dict[_headers[field][0]] = base64.b64encode(json.dumps([elem for elem in rec._currentKeyValues()]))
+        #Обработка булевого значения
         elif field not in ('~~id',) and _headers[field][1] == 1:
-            if rec != None:
-                refFieldId = getattr(rec, field)
-                if getattr(rec, field) == True:
-                    rec_dict[_headers[field][0]] = 'Да'
-                else:
-                    rec_dict[_headers[field][0]] = 'Нет'
+            refFieldId = getattr(rec, field)
+            if getattr(rec, field) == True:
+                rec_dict[_headers[field][0]] = 'Да'
             else:
-                rec_dict[_headers[field][0]] = ''
+                rec_dict[_headers[field][0]] = 'Нет'
+        #обработка даты. По умолчанию выводится дата и время
+        elif field not in ('~~id',) and _headers[field][1] == 2:
+            value = getattr(rec, field) or ''
+            if value:
+                value = sdf.format(value)
+                
+            rec_dict[_headers[field][0]] = value
         #Обработка reference value    
         elif field not in ('~~id',) and _headers[field][1] == 7:
-            if rec != None:
-                refFieldId = getattr(rec, field)
-                if refFieldId != '' and refFieldId is not None:
-                    column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
-                    refTableName = column_jsn["refTable"]
-                    relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
-                    relatedTable.get(refFieldId)
-                    rec_dict[_headers[field][0]] = getattr(relatedTable, column_jsn["refTableColumn"])
-                else:
-                    rec_dict[_headers[field][0]] = ''
-            else:
-                rec_dict[_headers[field][0]] = ''
-                #Обработка reference list
-        elif field not in ('~~id',) and _headers[field][1] == 6:
-            if rec != None:
+            refFieldId = getattr(rec, field)
+            if refFieldId != '' and refFieldId is not None:
                 column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
                 refTableName = column_jsn["refTable"]
-                mappingTableName = column_jsn["refMappingTable"]
-                refTableColumn = column_jsn["refTableColumn"]
                 relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
-                mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
-                #Получаем primarykey'и для таблиц
-                currentTablePKs = []
-                relatedTablePKs = []
-                currentTablePKObject = currentTable.meta().getPrimaryKey()
-                for key in currentTablePKObject:
-                    currentTablePKs.extend([key])
-                relatedTablePKObject = relatedTable.meta().getPrimaryKey()
-                for key in relatedTablePKObject:
-                    relatedTablePKs.extend([key])
-                    #получаем foreignkey'и для таблицы с меппингом
-                foreignKeys = mappingTable.meta().getForeignKeys()
-                aForeignKeyColumns = []
-                bForeignKeyColumns = []
-
-                for foreignKey in foreignKeys:
-                    #referencedTable = foreignKey.getReferencedTable()
-                    #проверяем к какой таблице относится ключ и получаем список зависимых полей
-                    if foreignKey.getReferencedTable() == currentTable.meta():
-                        aForeignKeyColumns = foreignKey.getColumns()
-                    else:
-                        bForeignKeyColumns = foreignKey.getColumns()
-                    #ставим фильтр на таблицу меппинга по текущему значению primarykey'ев главной таблицы
-                refValue = ""
-                if aForeignKeyColumns != None and aForeignKeyColumns != '':
-                    for foreignKeyColumn, key in zip(aForeignKeyColumns, currentTablePKs):
-                        mappingTable.setRange(foreignKeyColumn, getattr(currentTable, key))
-
-                    #для каждого значения в отфильтрованной таблице меппинга
-                if bForeignKeyColumns != None and bForeignKeyColumns != '':
-                    for mappingRec in mappingTable.iterate():
-                        currentRecordIds = []
-                            #набиваем значения primarykey'ев для связанной таблицы, чтобы потом получить значения
-                        for foreignKeyColumn in bForeignKeyColumns:
-                            currentRecordIds.extend([getattr(mappingRec, foreignKeyColumn)])
-                        #находим запись по primarykey'ям и получаем значение теребуемого поля и добавляем к уже найденным
-                        if len(currentRecordIds) > 0:
-                            if relatedTable.tryGet(*currentRecordIds):
-                                refValue = refValue + getattr(relatedTable, refTableColumn) + "; "
-                rec_dict[_headers[field][0]] = refValue
+                relatedTable.get(refFieldId)
+                rec_dict[_headers[field][0]] = getattr(relatedTable, column_jsn["refTableColumn"])
             else:
                 rec_dict[_headers[field][0]] = ''
-    rec_dict['properties'] = event
+        #Обработка reference list
+        elif field not in ('~~id',) and _headers[field][1] == 6:
+            column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
+            refTableName = column_jsn["refTable"]
+            mappingTableName = column_jsn["refMappingTable"]
+            refTableColumn = column_jsn["refTableColumn"]
+            relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
+            mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
+            #Получаем primarykey'и для таблиц
+            currentTablePKs = []
+            relatedTablePKs = []
+            currentTablePKObject = currentTable.meta().getPrimaryKey()
+            for key in currentTablePKObject:
+                currentTablePKs.extend([key])
+            relatedTablePKObject = relatedTable.meta().getPrimaryKey()
+            for key in relatedTablePKObject:
+                relatedTablePKs.extend([key])
+                #получаем foreignkey'и для таблицы с меппингом
+            foreignKeys = mappingTable.meta().getForeignKeys()
+            aForeignKeyColumns = []
+            bForeignKeyColumns = []
+
+            for foreignKey in foreignKeys:
+                #referencedTable = foreignKey.getReferencedTable()
+                #проверяем к какой таблице относится ключ и получаем список зависимых полей
+                if foreignKey.getReferencedTable() == currentTable.meta():
+                    aForeignKeyColumns = foreignKey.getColumns()
+                else:
+                    bForeignKeyColumns = foreignKey.getColumns()
+                #ставим фильтр на таблицу меппинга по текущему значению primarykey'ев главной таблицы
+            refValue = ""
+            if aForeignKeyColumns != None and aForeignKeyColumns != '':
+                for foreignKeyColumn, key in zip(aForeignKeyColumns, currentTablePKs):
+                    mappingTable.setRange(foreignKeyColumn, getattr(currentTable, key))
+
+                #для каждого значения в отфильтрованной таблице меппинга
+            if bForeignKeyColumns != None and bForeignKeyColumns != '':
+                for mappingRec in mappingTable.iterate():
+                    currentRecordIds = []
+                        #набиваем значения primarykey'ев для связанной таблицы, чтобы потом получить значения
+                    for foreignKeyColumn in bForeignKeyColumns:
+                        currentRecordIds.extend([getattr(mappingRec, foreignKeyColumn)])
+                    #находим запись по primarykey'ям и получаем значение теребуемого поля и добавляем к уже найденным
+                    if len(currentRecordIds) > 0:
+                        if relatedTable.tryGet(*currentRecordIds):
+                            refValue = refValue + getattr(relatedTable, refTableColumn) + "; "
+            rec_dict[_headers[field][0]] = refValue
     return rec_dict
 
 def getSettings(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Функция получения настроек грида. '''
-
     # получение id grain и table из контекста
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
@@ -408,6 +439,7 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Toolbar для грида. '''
+    context.message('!!!!!!!!!!!!')
     currentTable = relatedTableCursorImport(json.loads(main)['grain'], json.loads(main)['table'])(context)
     table_meta = currentTable.meta()
     table_jsn = json.loads(table_meta.getCelestaDoc())
@@ -458,14 +490,15 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                    "@hint":"Добавить",
                                    "@disable": style_add,
                                    "action":{"@show_in": "MODAL_WINDOW",
-                                             "#sorted":[{"main_context":"current"}],
-                                             "modalwindow":{"@width":"685", "@height":"900", "@caption":"Добавление"},
-                                             "datapanel":{"@type": "current",
+                                             "#sorted":[{"main_context":"current"},
+                                             {"modalwindow":{"@width":"685", "@height":"900", "@caption":"Добавление"}},
+                                             {"datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "15",
                                                                       "add_context":"add"
                                                                       }
                                                           }
+                                             }]
                                              }
                                    },
                            {"@img": 'gridToolBar/editFolder.png',
@@ -473,14 +506,15 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                    "@hint":"Редактировать",
                                    "@disable": style_edit,
                                    "action":{"@show_in": "MODAL_WINDOW",
-                                             "#sorted":[{"main_context":"current"}],
-                                             "modalwindow":{"@width":"685", "@height":"900", "@caption":"Редактирование"},
-                                             "datapanel":{"@type": "current",
+                                             "#sorted":[{"main_context":"current"},
+                                             {"modalwindow":{"@width":"685", "@height":"900", "@caption":"Редактирование"}},
+                                             {"datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "15",
                                                                       "add_context":"edit"
                                                                       }
                                                           }
+                                             }]
                                              }
                                    },
                                    {"@img": 'gridToolBar/delFolder.png',
@@ -488,14 +522,15 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                    "@hint":"Удалить",
                                    "@disable": style_del,
                                    "action":{"@show_in": "MODAL_WINDOW",
-                                            "#sorted":[{"main_context":"current"}],
-                                             "modalwindow":{"@width":"350", "@height":"150", "@caption":"Удаление"},
-                                             "datapanel":{"@type": "current",
+                                            "#sorted":[{"main_context":"current"},
+                                             {"modalwindow":{"@width":"350", "@height":"150", "@caption":"Удаление"}},
+                                             {"datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "16",
                                                                       "add_context":"edit"
                                                                       }
                                                           }
+                                             }]
                                              }
                                    },
                                     {"@img": 'gridToolBar/delFolder.png',
@@ -503,14 +538,15 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                    "@hint":"Удалить все",
                                    "@disable": style_delall,
                                    "action":{"@show_in": "MODAL_WINDOW",
-                                             "#sorted":[{"main_context":"current"}],
-                                             "modalwindow":{"@width":"350", "@height":"150", "@caption":"Удаление"},
-                                             "datapanel":{"@type": "current",
+                                             "#sorted":[{"main_context":"current"},
+                                             {"modalwindow":{"@width":"350", "@height":"150", "@caption":"Удаление"}},
+                                             {"datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "17",
                                                                       "add_context":"edit"
                                                                       }
                                                           }
+                                             }]
                                              }
                                    },
                                     {"@img": 'gridToolBar/importXls.png',
@@ -518,14 +554,15 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                    "@hint":"Импорт из xls",
                                    "@disable": style_add,
                                    "action":{"@show_in": "MODAL_WINDOW",
-                                             "#sorted":[{"main_context":"current"}],
-                                             "modalwindow":{"@width":"430", "@height":"160", "@caption":"Импорт из xls"},
-                                             "datapanel":{"@type": "current",
+                                             "#sorted":[{"main_context":"current"},
+                                             {"modalwindow":{"@width":"430", "@height":"160", "@caption":"Импорт из xls"}},
+                                             {"datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "18",
                                                                       "add_context":"import"
                                                                       }
                                                           }
+                                             }]
                                              }
                                    },
                                     {"@img": "",
@@ -533,14 +570,15 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                    "@hint":"Импорт из xls",
                                    "@disable": style_add,
                                    "action":{"@show_in": "MODAL_WINDOW",
-                                             "#sorted":[{"main_context":"current"}],
-                                             "modalwindow":{"@width":"430", "@height":"160", "@caption":"Импорт из xls"},
-                                             "datapanel":{"@type": "current",
+                                             "#sorted":[{"main_context":"current"},
+                                             {"modalwindow":{"@width":"430", "@height":"160", "@caption":"Импорт из xls"}},
+                                             {"datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "19",
                                                                       "add_context":"import"
                                                                       }
                                                           }
+                                             }]
                                              }
                                    }
 
@@ -550,21 +588,22 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                    "@hint":"Экспорт в Excel всей таблицы",
                                    "@disable": "false",
                                    "action":{"@show_in": "MODAL_WINDOW",
-                                             "#sorted":[{"main_context":"current"}],
-                                             "modalwindow":{"@width":"430", "@height":"170", "@caption":"Экспорт в xls"},
-                                             "datapanel":{"@type": "current",
+                                             "#sorted":[{"main_context":"current"},
+                                             {"modalwindow":{"@width":"430", "@height":"170", "@caption":"Экспорт в xls"}},
+                                             {"datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "14",
                                                                       "add_context":""
                                                                       }
                                                           }
+                                             }]
                                              }
                                    }]
     item_hierarchy = [{"@img": 'gridToolBar/up.png',
                                     "@text":"",
                                    "@hint":"Сдвинуть элемент вверх на том же уровне",
                                    "@disable": style_up,
-                                   "action":{"main_context":"current",
+                                   "action":{"#sorted":[{"main_context":"current"}],
                                              "datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "13",
@@ -582,7 +621,7 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                             "@text":"",
                                    "@hint":"Сдвинуть элемент вниз на том же уровне",
                                    "@disable": style_down,
-                                   "action":{"main_context":"current",
+                                   "action":{"#sorted":[{"main_context":"current"}],
                                              "datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "13",
@@ -600,7 +639,7 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                             "@text":"",
                                    "@hint":"Сдвинуть элемент на уровень вверх",
                                    "@disable": style_left,
-                                   "action":{"main_context":"current",
+                                   "action":{"#sorted":[{"main_context":"current"}],
                                             "datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "13",
@@ -618,7 +657,7 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                             "@text":"",
                                    "@hint":"Сдвинуть элемент на уровень вниз",
                                    "@disable": style_right,
-                                   "action":{"main_context":"current",
+                                   "action":{"#sorted":[{"main_context":"current"}],
                                              "datapanel":{"@type": "current",
                                                           "@tab": "current",
                                                           "element": {"@id": "13",
@@ -642,5 +681,9 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
         data = {"gridtoolbar":{"item":item_export + item_common
                            }
             }
+        
+    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    print data
+    
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 
