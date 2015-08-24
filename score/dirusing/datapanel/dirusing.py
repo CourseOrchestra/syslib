@@ -54,8 +54,8 @@ def datapanel(context, main=None, session=None):
         </element>
     
       </tab>
-      <tab id="2" name="Редактирование структуры">
-        <!--
+      <!--<tab id="2" name="Редактирование структуры">
+        
         <element id="2_11" type="xforms" proc="ssp.struct_import_filter" template="ssp_import_struct_filter.xml">
           <proc id="1" name="ssp.struct_data_upload_file" type="UPLOAD"/>
           <proc id="2" name="ssp.struct_data_save_file" type="SAVE"/>
@@ -65,8 +65,8 @@ def datapanel(context, main=None, session=None):
         <element id="2_13" type="webtext" proc="ssp.struct_import_webtext_row" hideOnLoad="true">
           <related id="2_12"/>
         </element>
-        -->
-      </tab>
+        
+      </tab>-->
     </datapanel>'''
 
     #raise Exception(XMLJSONConverter(input=data).parse())
@@ -122,7 +122,6 @@ def datapanelHierarchical(context, main=None, session=None):
     
       </tab>
       <!--<tab id="2" name="Редактирование структуры">
-        <!--
         <element id="2_11" type="xforms" proc="ssp.struct_import_filter" template="ssp_import_struct_filter.xml">
           <proc id="1" name="ssp.struct_data_upload_file" type="UPLOAD"/>
           <proc id="2" name="ssp.struct_data_save_file" type="SAVE"/>
@@ -132,7 +131,6 @@ def datapanelHierarchical(context, main=None, session=None):
         <element id="2_13" type="webtext" proc="ssp.struct_import_webtext_row" hideOnLoad="true">
           <related id="2_12"/>
         </element>
-        -->
       </tab>-->
     </datapanel>'''
 
