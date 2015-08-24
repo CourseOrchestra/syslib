@@ -14,14 +14,15 @@ def datapanel(context, main=None, session=None):
           <related id="13"/>
         </element> -->
         <element id="11" type="xforms" template="dirusing/dirusing_filter.xml" proc="dirusing.xforms.dirfilter.cardData.celesta"> 
-          <related id="13"/>
         </element>
+        
         <element id="13" type="grid" subtype="JS_PAGE_GRID" plugin="pageDGrid" proc="dirusing.grids.dircontentgrid.getData.celesta">
-            <proc id="14" name="dirusing.grids.dircontentgrid.getSettings.celesta" type="METADATA"/>
+            <proc id="proc13" name="dirusing.grids.dircontentgrid.getSettings.celesta" type="METADATA"/>
             <proc id="toolbar1" name="dirusing.grids.dircontentgrid.gridToolBar.celesta" type="TOOLBAR"/>
             <proc id="download1" name="dirusing.commonfunctions.downloadFileFromGrid.celesta" type="DOWNLOAD"/>
 			<related id="11"/>
         </element>
+        
         <element id="14" type="xforms" template="dirusing/directory_export_card.xml" proc="dirusing.xforms.direxportcard.cardData.celesta" neverShowInPanel="true">
           <proc id="proc14" name="dirusing.xforms.direxportcard.cardDataSave.celesta" type="SAVE"/>
           <proc id="download14" name="dirusing.exportfunctions.exportToExcel.celesta" type="DOWNLOAD"/>
@@ -83,10 +84,8 @@ def datapanelHierarchical(context, main=None, session=None):
           <related id="13"/>
         </element> -->
         <element id="11" type="xforms" template="dirusing/dirusing_filter.xml" proc="dirusing.xforms.dirfilter.cardData.celesta"> 
-          <related id="13"/>
         </element>
         <element id="13" type="grid" subtype="JS_TREE_GRID" plugin="treeDGrid" proc="dirusing.grids.dircontentgrid.getTree.celesta">
-            <!--proc id="14" name="dirusing.grids.dircontentgrid.getSettings.celesta" type="METADATA"/-->
             <proc id="toolbar1" name="dirusing.grids.dircontentgrid.gridToolBar.celesta" type="TOOLBAR"/>
             <proc id="download1" name="dirusing.commonfunctions.downloadFileFromGrid.celesta" type="DOWNLOAD"/>
 			<related id="11"/>
@@ -122,7 +121,7 @@ def datapanelHierarchical(context, main=None, session=None):
         </element>
     
       </tab>
-      <tab id="2" name="Редактирование структуры">
+      <!--<tab id="2" name="Редактирование структуры">
         <!--
         <element id="2_11" type="xforms" proc="ssp.struct_import_filter" template="ssp_import_struct_filter.xml">
           <proc id="1" name="ssp.struct_data_upload_file" type="UPLOAD"/>
@@ -134,7 +133,7 @@ def datapanelHierarchical(context, main=None, session=None):
           <related id="2_12"/>
         </element>
         -->
-      </tab>
+      </tab>-->
     </datapanel>'''
 
     #raise Exception(XMLJSONConverter(input=data).parse())

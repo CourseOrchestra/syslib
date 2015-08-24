@@ -62,32 +62,46 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
         # Событие по клику на запись грида
 
 
-        event = {"event":
-                [{"@name":"row_single_click",
-                 "action":
-                    {"main_context":"current",
-                     "datapanel":
-                        {'@type':'current',
-                         '@tab':'current',
-                         "element":{"@id":"12",
-                                     "add_context":"row_clicked"}
-                         }
-                    }
-                 },
-                 {"@name":"row_double_click",
-                 "action":
-                    {"@show_in":"MODAL_WINDOW",
-                     "main_context":"current",
-                     "datapanel":
-                        {'@type':'current',
-                         '@tab':'current',
-                         "element":{"@id":"15",
-                                     "add_context":"edit"}
-                                     }
-                     }
-                  }
-                    ]
-                 }
+        event = {
+            "event": [{
+                "@name": "row_single_click",
+                "action": {
+                    "#sorted": [{
+                        "main_context": "current"
+                    },
+                    {
+                        "datapanel": {
+                            '@type': 'current',
+                            '@tab': 'current',
+                            "element": {
+                                "@id": "12",
+                                "add_context": "row_clicked"
+                            }
+                        }
+                    }]
+                }
+            },
+            {
+                "@name": "row_double_click",
+                "action": {
+                    "@show_in": "MODAL_WINDOW",
+                    "#sorted": [{
+                        "main_context": "current"
+                    },
+                    {
+                        "datapanel": {
+                            '@type': 'current',
+                            '@tab': 'current',
+                            "element": {
+                                "@id": "15",
+                                "add_context": "edit"
+                            }
+                        }
+                    }]
+                }
+            }]
+        }
+        
         currentTable.orderBy('%s asc' % sortColumn)
         if sortColumnList:
             for column in sortColumnList:
@@ -100,10 +114,10 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
         if parentId is None:
             # Обработка иерархического справочника
             for rec in currentTable.iterate():
-                rec_dict = {}
+#                 rec_dict = {}
                 len_dewey = len(getattr(rec, deweyColumn).split('.'))
                 if len_dewey == 1:
-                    rec_dict = appendRecord(currentTable, context, table_meta, grain_name, rec, _headers, rec_dict, event)
+                    rec_dict = getRecord(currentTable, context, table_meta, grain_name, rec, _headers, event)
                     rec_dict["HasChildren"] = '1' if hasChildren(context, rec, deweyColumn) else '0'
                     data["records"]["rec"].append(rec_dict)
         else:
@@ -396,6 +410,7 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
             for i, filtertext in enumerate(filter):
                 filtercol = "%'" + filtertext + "'%"
                 currentTable.setFilter(textcolumns[i], filtercol)
+                
     totalcount = currentTable.count()
     # Метаданные таблицы
     table_meta = currentTable.meta()
@@ -439,7 +454,6 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Toolbar для грида. '''
-    context.message('!!!!!!!!!!!!')
     currentTable = relatedTableCursorImport(json.loads(main)['grain'], json.loads(main)['table'])(context)
     table_meta = currentTable.meta()
     table_jsn = json.loads(table_meta.getCelestaDoc())
@@ -485,193 +499,333 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
     else: style_delall = "true"
 
 
-    item_common = [{"@img": 'gridToolBar/addFolder.png',
-                                    "@text":"Добавить",
-                                   "@hint":"Добавить",
-                                   "@disable": style_add,
-                                   "action":{"@show_in": "MODAL_WINDOW",
-                                             "#sorted":[{"main_context":"current"},
-                                             {"modalwindow":{"@width":"685", "@height":"900", "@caption":"Добавление"}},
-                                             {"datapanel":{"@type": "current",
-                                                          "@tab": "current",
-                                                          "element": {"@id": "15",
-                                                                      "add_context":"add"
-                                                                      }
-                                                          }
-                                             }]
-                                             }
-                                   },
-                           {"@img": 'gridToolBar/editFolder.png',
-                            "@text":"Редактировать",
-                                   "@hint":"Редактировать",
-                                   "@disable": style_edit,
-                                   "action":{"@show_in": "MODAL_WINDOW",
-                                             "#sorted":[{"main_context":"current"},
-                                             {"modalwindow":{"@width":"685", "@height":"900", "@caption":"Редактирование"}},
-                                             {"datapanel":{"@type": "current",
-                                                          "@tab": "current",
-                                                          "element": {"@id": "15",
-                                                                      "add_context":"edit"
-                                                                      }
-                                                          }
-                                             }]
-                                             }
-                                   },
-                                   {"@img": 'gridToolBar/delFolder.png',
-                            "@text":"Удалить",
-                                   "@hint":"Удалить",
-                                   "@disable": style_del,
-                                   "action":{"@show_in": "MODAL_WINDOW",
-                                            "#sorted":[{"main_context":"current"},
-                                             {"modalwindow":{"@width":"350", "@height":"150", "@caption":"Удаление"}},
-                                             {"datapanel":{"@type": "current",
-                                                          "@tab": "current",
-                                                          "element": {"@id": "16",
-                                                                      "add_context":"edit"
-                                                                      }
-                                                          }
-                                             }]
-                                             }
-                                   },
-                                    {"@img": 'gridToolBar/delFolder.png',
-                            "@text":"Удалить все",
-                                   "@hint":"Удалить все",
-                                   "@disable": style_delall,
-                                   "action":{"@show_in": "MODAL_WINDOW",
-                                             "#sorted":[{"main_context":"current"},
-                                             {"modalwindow":{"@width":"350", "@height":"150", "@caption":"Удаление"}},
-                                             {"datapanel":{"@type": "current",
-                                                          "@tab": "current",
-                                                          "element": {"@id": "17",
-                                                                      "add_context":"edit"
-                                                                      }
-                                                          }
-                                             }]
-                                             }
-                                   },
-                                    {"@img": 'gridToolBar/importXls.png',
-                            "@text":"Импорт из xls",
-                                   "@hint":"Импорт из xls",
-                                   "@disable": style_add,
-                                   "action":{"@show_in": "MODAL_WINDOW",
-                                             "#sorted":[{"main_context":"current"},
-                                             {"modalwindow":{"@width":"430", "@height":"160", "@caption":"Импорт из xls"}},
-                                             {"datapanel":{"@type": "current",
-                                                          "@tab": "current",
-                                                          "element": {"@id": "18",
-                                                                      "add_context":"import"
-                                                                      }
-                                                          }
-                                             }]
-                                             }
-                                   },
-                                    {"@img": "",
-                            "@text":"Импорт из старой системы",
-                                   "@hint":"Импорт из xls",
-                                   "@disable": style_add,
-                                   "action":{"@show_in": "MODAL_WINDOW",
-                                             "#sorted":[{"main_context":"current"},
-                                             {"modalwindow":{"@width":"430", "@height":"160", "@caption":"Импорт из xls"}},
-                                             {"datapanel":{"@type": "current",
-                                                          "@tab": "current",
-                                                          "element": {"@id": "19",
-                                                                      "add_context":"import"
-                                                                      }
-                                                          }
-                                             }]
-                                             }
-                                   }
-
-                                   ]
-    item_export = [{"@img": 'gridToolBar/ExportToExcelAll.png',
-                                    "@text":"",
-                                   "@hint":"Экспорт в Excel всей таблицы",
-                                   "@disable": "false",
-                                   "action":{"@show_in": "MODAL_WINDOW",
-                                             "#sorted":[{"main_context":"current"},
-                                             {"modalwindow":{"@width":"430", "@height":"170", "@caption":"Экспорт в xls"}},
-                                             {"datapanel":{"@type": "current",
-                                                          "@tab": "current",
-                                                          "element": {"@id": "14",
-                                                                      "add_context":""
-                                                                      }
-                                                          }
-                                             }]
-                                             }
-                                   }]
-    item_hierarchy = [{"@img": 'gridToolBar/up.png',
-                                    "@text":"",
-                                   "@hint":"Сдвинуть элемент вверх на том же уровне",
-                                   "@disable": style_up,
-                                   "action":{"#sorted":[{"main_context":"current"}],
-                                             "datapanel":{"@type": "current",
-                                                          "@tab": "current",
-                                                          "element": {"@id": "13",
-                                                                      "add_context":""
-                                                                      }
-                                                          },
-                                             "server": {"activity":{"@id":"1",
-                                                                   "@name":"dirusing.hierarchy.move.celesta",
-                                                                   "add_context": "up"
-                                                                   }
-                                                       }
-                                             }
-                                   },
-                           {"@img": 'gridToolBar/down.png',
-                            "@text":"",
-                                   "@hint":"Сдвинуть элемент вниз на том же уровне",
-                                   "@disable": style_down,
-                                   "action":{"#sorted":[{"main_context":"current"}],
-                                             "datapanel":{"@type": "current",
-                                                          "@tab": "current",
-                                                          "element": {"@id": "13",
-                                                                      "add_context":""
-                                                                      }
-                                                          },
-                                             "server": {"activity":{"@id":"2",
-                                                                   "@name":"dirusing.hierarchy.move.celesta",
-                                                                   "add_context":"down"
-                                                                   }
-                                                       }
-                                             }
-                                   },
-                                   {"@img": 'gridToolBar/left.png',
-                            "@text":"",
-                                   "@hint":"Сдвинуть элемент на уровень вверх",
-                                   "@disable": style_left,
-                                   "action":{"#sorted":[{"main_context":"current"}],
-                                            "datapanel":{"@type": "current",
-                                                          "@tab": "current",
-                                                          "element": {"@id": "13",
-                                                                      "add_context":""
-                                                                      }
-                                                          },
-                                             "server": {"activity":{"@id":"3",
-                                                                   "@name":"dirusing.hierarchy.move.celesta",
-                                                                   "add_context":"left"
-                                                                   }
-                                                       }
-                                             }
-                                   },
-                                    {"@img": 'gridToolBar/right.png',
-                            "@text":"",
-                                   "@hint":"Сдвинуть элемент на уровень вниз",
-                                   "@disable": style_right,
-                                   "action":{"#sorted":[{"main_context":"current"}],
-                                             "datapanel":{"@type": "current",
-                                                          "@tab": "current",
-                                                          "element": {"@id": "13",
-                                                                      "add_context":""
-                                                                      }
-                                                          },
-                                             "server": {"activity":{"@id":"4",
-                                                                   "@name":"dirusing.hierarchy.move.celesta",
-                                                                   "add_context":"right"
-                                                                   }
-                                                       }
-                                             }
-                                   }
-                                   ]
+    item_common = [{
+        "@img": 'gridToolBar/addFolder.png',
+        "@text": "Добавить",
+        "@hint": "Добавить",
+        "@disable": style_add,
+        "action": {
+            "@show_in": "MODAL_WINDOW",
+            "#sorted": [{
+                "main_context": "current"
+            },
+            {
+                "modalwindow": {
+                    "@width": "685",
+                    "@height": "900",
+                    "@caption": "Добавление"
+                }
+            },
+            {
+                "datapanel": {
+                    "@type": "current",
+                    "@tab": "current",
+                    "element": {
+                        "@id": "15",
+                        "add_context": "add"
+                    }
+                }
+            }]
+        }
+    },
+    {
+        "@img": 'gridToolBar/editFolder.png',
+        "@text": "Редактировать",
+        "@hint": "Редактировать",
+        "@disable": style_edit,
+        "action": {
+            "@show_in": "MODAL_WINDOW",
+            "#sorted": [{
+                "main_context": "current"
+            },
+            {
+                "modalwindow": {
+                    "@width": "685",
+                    "@height": "900",
+                    "@caption": "Редактирование"
+                }
+            },
+            {
+                "datapanel": {
+                    "@type": "current",
+                    "@tab": "current",
+                    "element": {
+                        "@id": "15",
+                        "add_context": "edit"
+                    }
+                }
+            }]
+        }
+    },
+    {
+        "@img": 'gridToolBar/delFolder.png',
+        "@text": "Удалить",
+        "@hint": "Удалить",
+        "@disable": style_del,
+        "action": {
+            "@show_in": "MODAL_WINDOW",
+            "#sorted": [{
+                "main_context": "current"
+            },
+            {
+                "modalwindow": {
+                    "@width": "350",
+                    "@height": "150",
+                    "@caption": "Удаление"
+                }
+            },
+            {
+                "datapanel": {
+                    "@type": "current",
+                    "@tab": "current",
+                    "element": {
+                        "@id": "16",
+                        "add_context": "edit"
+                    }
+                }
+            }]
+        }
+    },
+    {
+        "@img": 'gridToolBar/delFolder.png',
+        "@text": "Удалить все",
+        "@hint": "Удалить все",
+        "@disable": style_delall,
+        "action": {
+            "@show_in": "MODAL_WINDOW",
+            "#sorted": [{
+                "main_context": "current"
+            },
+            {
+                "modalwindow": {
+                    "@width": "350",
+                    "@height": "150",
+                    "@caption": "Удаление"
+                }
+            },
+            {
+                "datapanel": {
+                    "@type": "current",
+                    "@tab": "current",
+                    "element": {
+                        "@id": "17",
+                        "add_context": "edit"
+                    }
+                }
+            }]
+        }
+    },
+    {
+        "@img": 'gridToolBar/importXls.png',
+        "@text": "Импорт из xls",
+        "@hint": "Импорт из xls",
+        "@disable": style_add,
+        "action": {
+            "@show_in": "MODAL_WINDOW",
+            "#sorted": [{
+                "main_context": "current"
+            },
+            {
+                "modalwindow": {
+                    "@width": "430",
+                    "@height": "160",
+                    "@caption": "Импорт из xls"
+                }
+            },
+            {
+                "datapanel": {
+                    "@type": "current",
+                    "@tab": "current",
+                    "element": {
+                        "@id": "18",
+                        "add_context": "import"
+                    }
+                }
+            }]
+        }
+    }]
+#     {
+#         "@img": "",
+#         "@text": "Импорт из старой системы",
+#         "@hint": "Импорт из xls",
+#         "@disable": style_add,
+#         "action": {
+#             "@show_in": "MODAL_WINDOW",
+#             "#sorted": [{
+#                 "main_context": "current"
+#             },
+#             {
+#                 "modalwindow": {
+#                     "@width": "430",
+#                     "@height": "160",
+#                     "@caption": "Импорт из xls"
+#                 }
+#             },
+#             {
+#                 "datapanel": {
+#                     "@type": "current",
+#                     "@tab": "current",
+#                     "element": {
+#                         "@id": "19",
+#                         "add_context": "import"
+#                     }
+#                 }
+#             }]
+#         }
+#     }]
+    
+    item_export = [{
+        "@img": 'gridToolBar/dirusing/ExportToExcelAll.png',
+        "@text": "",
+        "@hint": "Экспорт в Excel всей таблицы",
+        "@disable": "false",
+        "action": {
+            "@show_in": "MODAL_WINDOW",
+            "#sorted": [{
+                "main_context": "current"
+            },
+            {
+                "modalwindow": {
+                    "@width": "430",
+                    "@height": "170",
+                    "@caption": "Экспорт в xls"
+                }
+            },
+            {
+                "datapanel": {
+                    "@type": "current",
+                    "@tab": "current",
+                    "element": {
+                        "@id": "14",
+                        "add_context": ""
+                    }
+                }
+            }]
+        }
+    }]
+    
+    
+    item_hierarchy = [{
+        "@img": 'gridToolBar/dirusing/up.png',
+        "@text": "",
+        "@hint": "Сдвинуть элемент вверх на том же уровне",
+        "@disable": style_up,
+        "action": {
+            "#sorted": [{
+                "main_context": "current"
+            },
+            {
+                "datapanel": {
+                    "@type": "current",
+                    "@tab": "current",
+                    "element": {
+                        "@id": "13",
+                        "add_context": ""
+                    }
+                }
+            },
+            {
+                "server": {
+                    "activity": {
+                        "@id": "1",
+                        "@name": "dirusing.hierarchy.move.celesta",
+                        "add_context": "up"
+                    }
+                }
+            }]
+        }
+    },
+    {
+        "@img": 'gridToolBar/dirusing/down.png',
+        "@text": "",
+        "@hint": "Сдвинуть элемент вниз на том же уровне",
+        "@disable": style_down,
+        "action": {
+            "#sorted": [{
+                "main_context": "current"
+            },
+            {
+                "datapanel": {
+                    "@type": "current",
+                    "@tab": "current",
+                    "element": {
+                        "@id": "13",
+                        "add_context": ""
+                    }
+                }
+            },
+            {
+                "server": {
+                    "activity": {
+                        "@id": "2",
+                        "@name": "dirusing.hierarchy.move.celesta",
+                        "add_context": "down"
+                    }
+                }
+            }]
+        }
+    },
+    {
+        "@img": 'gridToolBar/dirusing/left.png',
+        "@text": "",
+        "@hint": "Сдвинуть элемент на уровень вверх",
+        "@disable": style_left,
+        "action": {
+            "#sorted": [{
+                "main_context": "current"
+            },
+            {
+                "datapanel": {
+                    "@type": "current",
+                    "@tab": "current",
+                    "element": {
+                        "@id": "13",
+                        "add_context": ""
+                    }
+                }
+            },
+            {
+                "server": {
+                    "activity": {
+                        "@id": "3",
+                        "@name": "dirusing.hierarchy.move.celesta",
+                        "add_context": "left"
+                    }
+                }
+            }]
+        }
+    },
+    {
+        "@img": 'gridToolBar/dirusing/right.png',
+        "@text": "",
+        "@hint": "Сдвинуть элемент на уровень вниз",
+        "@disable": style_right,
+        "action": {
+            "#sorted": [{
+                "main_context": "current"
+            },
+            {
+                "datapanel": {
+                    "@type": "current",
+                    "@tab": "current",
+                    "element": {
+                        "@id": "13",
+                        "add_context": ""
+                    }
+                }
+            },
+            {
+                "server": {
+                    "activity": {
+                        "@id": "4",
+                        "@name": "dirusing.hierarchy.move.celesta",
+                        "add_context": "right"
+                    }
+                }
+            }]
+        }
+    }]
+    
     if isHierarchical == 'true':
         data = {"gridtoolbar":{"item":item_export + item_hierarchy + item_common
                            }
@@ -682,8 +836,5 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                            }
             }
         
-    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    print data
-    
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 
