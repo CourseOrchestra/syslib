@@ -19,7 +19,7 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList, htmlDecode
 from dirusing.hierarchy import isExtr
 from common.hierarchy import generateSortValue, hasChildren
-
+from common.sysfunctions import toHexForXml
 from dirusing.constants import DEFAULT_DATETIME_FORMAT_JAVA
 
 
@@ -178,9 +178,9 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
                     continue
                 else:
                     if field not in ('~~id') and _headers[field][1] not in (4, 6, 7, 8):
-                        settings["gridsettings"]["columns"]["col"].append({"@id":htmlDecode(_headers[field][0])})
+                        settings["gridsettings"]["columns"]["col"].append({"@id":toHexForXml(_headers[field][0])})
                     elif field not in ('~~id') and _headers[field][1] in (4,):
-                        settings["gridsettings"]["columns"]["col"].append({"@id":htmlDecode(_headers[field][0]),
+                        settings["gridsettings"]["columns"]["col"].append({"@id":toHexForXml(_headers[field][0]),
 																			"@type": "DOWNLOAD",
 																			"@linkId":"download1"})
                     s_number += 1
@@ -429,9 +429,9 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
                     continue
                 else:
                     if field not in ('~~id',) and _headers[field][1] != (4):
-                        settings["gridsettings"]["columns"]["col"].append({"@id":htmlDecode(_headers[field][0])})
+                        settings["gridsettings"]["columns"]["col"].append({"@id":toHexForXml(_headers[field][0])})
                     elif field not in ('~~id',) and _headers[field][1] == (4):
-                        settings["gridsettings"]["columns"]["col"].append({"@id":htmlDecode(_headers[field][0]),
+                        settings["gridsettings"]["columns"]["col"].append({"@id":toHexForXml(_headers[field][0]),
                                                                             "@type": "DOWNLOAD",
                                                                             "@linkId":"download1"})
                     s_number += 1
