@@ -22,6 +22,27 @@ from common.hierarchy import generateSortValue, hasChildren
 
 from dirusing.constants import DEFAULT_DATETIME_FORMAT_JAVA
 
+
+
+def _setFilters(session, inOutCurrentTable):
+    ses = json.loads(session)['sessioncontext']
+    
+    #простановка фильтра на текстовые поля таблицы
+    if not 'xformsContext' in ses['related']:
+        return
+    
+    if not 'formData' in ses['related']['xformsContext']:
+        return
+    
+    columns = ses['related']['xformsContext']['formData']['schema']['columns']
+    if not isinstance(columns, list):
+        columns = [columns]
+    
+    filterCols = dict(((col['column']['@id'], col['column']['filter']) for col in columns) if columns else {})
+    for textcol, filtertext in filterCols.iteritems():
+        filtercol = "%'" + filtertext + "'%"
+        inOutCurrentTable.setFilter(textcol, filtercol)
+
 def getTree(context, main=None, add=None, filterinfo=None, session=None, elementId=None, sortColumnList=None, parentId=None):
     u'''Функция получения данных для tree-грида. '''
     # получение id grain и table
@@ -44,17 +65,8 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
     textcolumns = []
 
     #простановка фильтра на текстовые поля таблицы
-    filter = []
-    if 'xformsContext' in json.loads(session)['sessioncontext']['related']:
-        if 'formData' in json.loads(session)['sessioncontext']['related']['xformsContext']:
-            for col in json.loads(session)['sessioncontext']['related']['xformsContext']['formData']['schema']['columns']:
-                #return UserMessage(col,"")
-                filter.append(col['column']['filter'])
-                textcolumns.append(col['column']['@id'])
-            if len(filter) != 0 and filter is not None:
-                for i, filtertext in enumerate(filter):
-                    filtercol = "%'" + filtertext + "'%"
-                    currentTable.setFilter(textcolumns[i], filtercol)
+    _setFilters(session, currentTable)
+    
     totalcount = currentTable.count()
     if totalcount != 0:
         # Определяем переменную для JSON данных
@@ -196,20 +208,10 @@ def getData(context, main=None, add=None, filterinfo=None,
     table_meta = context.getCelesta().getScore().getGrain(grain_name).getTable(table_name)
     # Заголовки полей
     _headers = getFieldsHeaders(table_meta, "grid")
-    textcolumns = []
-
-    #простановка фильтра на текстовые поля таблицы
-    filter = []
-    if 'xformsContext' in json.loads(session)['sessioncontext']['related']:
-        if 'formData' in json.loads(session)['sessioncontext']['related']['xformsContext']:
-            for col in json.loads(session)['sessioncontext']['related']['xformsContext']['formData']['schema']['columns']:
-                #return UserMessage(col,"")
-                filter.append(col['column']['filter'])
-                textcolumns.append(col['column']['@id'])
-            if len(filter) != 0 and filter is not None:
-                for i, filtertext in enumerate(filter):
-                    filtercol = "%'" + filtertext + "'%"
-                    currentTable.setFilter(textcolumns[i], filtercol)
+    
+    
+    _setFilters(session, currentTable)
+    
 
     totalcount = currentTable.count()
     if totalcount == 0:
@@ -398,18 +400,8 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
         panelHeight = 450
     # Вычисляем количества записей в таблице
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
-    textcolumns = []
 
-    #простановка фильтра на текстовые поля таблицы
-    filter = []
-    if filterinfo is not None and filterinfo != '':
-        for col in json.loads(filterinfo)['schema']['columns']:
-            filter.append(col['column']['filter'])
-            textcolumns.append(col['column']['@id'])
-        if len(filter) != 0 and filter is not None:
-            for i, filtertext in enumerate(filter):
-                filtercol = "%'" + filtertext + "'%"
-                currentTable.setFilter(textcolumns[i], filtercol)
+    _setFilters(session, currentTable)
                 
     totalcount = currentTable.count()
     # Метаданные таблицы
