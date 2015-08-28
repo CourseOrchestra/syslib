@@ -21,23 +21,25 @@
 	
   </head>
   <body>
-  <!--xf:output value="serialize(instance('xformId_mainInstance'))"/-->
-  <div style="width: 500px;">
+<!--   <xf:output value="serialize(instance('xformId_mainInstance'))"/> -->
+  <div>
   <!--xf:output value="serialize(instance('xformId_mainInstance'))"/-->
     <xf:repeat id="columnRow" nodeset="instance('xformId_mainInstance')/columns/column">
-	<div class="control" style="width: 200px; padding: 2px; float: left;">
-      <xf:output class="baseInput" ref=".@name"/>
-	  <xf:input class="baseInput" ref=".filter">
+	
+	<div class="baseInput200">
+		<xf:label ref=".@name"/>
+	  <xf:input ref=".filter">
       </xf:input>
     </div>
 	</xf:repeat>
     
     <!--div class="control" style="width: 10px; padding: 2px; float: left; clear: both;"/-->
-	<table cellpadding="0px" cellspacing="1px" width="220px">
-	<tr>
-	<td style="padding-top: 30px;">
-    <div class="newbutton" style="width: 110px;">
-            <xf:trigger class="blue">
+<!-- 	<table cellpadding="0px" cellspacing="1px" width="220px"> -->
+<!-- 	<tr> -->
+<!-- 	<td> -->
+	<div>
+    <div class="button200" style="width: 110px; padding-top: 2px">
+            <xf:trigger>
               <xf:label ref="instance('xformId_mainInstance')/buttonClear"></xf:label>
               <xf:action ev:event="DOMActivate">
                 <xf:setvalue ref="instance('xformId_mainInstance')/columns[1]/column/filter" value=""/>
@@ -53,10 +55,10 @@
               </xf:action>
             </xf:trigger>
           </div>
-		  </td>
-		  <td style="padding-top: 30px;">
-          <div class="newbutton" style="width: 110px;">
-            <xf:trigger class="blue">
+<!-- 		  </td> -->
+<!-- 		  <td> -->
+          <div class="button200" style="width: 110px; padding-top: 2px">
+            <xf:trigger>
               <xf:label ref="instance('xformId_mainInstance')/buttonShow"></xf:label>
               <xf:action ev:event="DOMActivate">
                 <!--xf:load resource="javascript:gwtXFormFilter('xformId','1', Writer.toString(xforms.defaultModel.getInstanceDocument('xformId_mainInstance')))"/-->
@@ -64,9 +66,10 @@
 			  </xf:action>
             </xf:trigger>
           </div>
-		  </td>
-		  </tr>
-		  </table>
+<!-- 		  </td> -->
+<!-- 		  </tr> -->
+<!-- 		  </table> -->
+        </div>
         </div>
   </body>
 </html>
