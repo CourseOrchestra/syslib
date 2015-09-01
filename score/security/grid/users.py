@@ -162,7 +162,13 @@ def gridData(context, main=None, add=None, filterinfo=None,
                                                 }
                                        }
             data["records"]["rec"].append(loginsDict)
-            
+    
+    #сортировка
+    if len(sortColumnList) > 0:
+        sortName = toHexForXml(sortColumnList[0].id)
+        sortType = unicode(sortColumnList[0].sorting).lower()
+        data["records"]["rec"].sort(key=lambda x: (x["%s" % sortName].lower()), reverse=(sortType=='desc'))
+    
     res = XMLJSONConverter.jsonToXml(json.dumps(data))
     return JythonDTO(res, None)
 
