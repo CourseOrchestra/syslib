@@ -76,6 +76,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
         xformsdata = {"schema":{"roles": {"role": content}
                                 }
                       }
+        #сортировка
+        xformsdata["schema"]["roles"]["role"].sort(key=lambda x: (x["@id"].lower()))
 
 
     #raise Exception(xformsdata)
@@ -146,7 +148,7 @@ def rolesList(context, main=None, add=None, filterinfo=None, session=None, param
     recordList = ArrayList()
     roles = RolesCursor(context)
     roles.setFilter('description', "@%s'%s'%%" % ("%"*(not startswith), curvalue.replace("'","''")))
-    roles.orderBy('description')
+    roles.orderBy('id')
     roles.limit(firstrecord, recordcount)
     if roles.tryFindSet():
         while True:
