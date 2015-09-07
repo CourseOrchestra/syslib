@@ -12,6 +12,7 @@ function createCalendar(parentId, data, template) {
 			    		  columnViewProps:{minHours:data.metadata.minHours, maxHours:data.metadata.maxHours},
 			    		  store: new Memory({data: data.data}),
 			    		  dateInterval: data.metadata.dateInterval,
+						  dateIntervalSteps: data.metadata.dateIntervalSteps,
 			    		  style: data.metadata.style,
 			    		  editable: data.metadata.editable
 			    		}, parentId);
@@ -21,7 +22,16 @@ function createCalendar(parentId, data, template) {
 			    		gwtPluginFunc(parentId, e.item.id);
 			    	});
 			    	
-			    	
+			    	calendar.on("gridDoubleClick", function(e){
+//			    		  console.log("Item clicked", e.item);
+			    		gwtPluginFunc(parentId, "addItem");
+			    	});
+					
+			    	calendar.on("onItemEditBegin", function(e){
+//			    		  console.log("Item clicked", e.item);
+			    		gwtPluginFunc(parentId, e.item.id + "Delete");
+			    	});	
+					
 			    	if(!data.metadata.toolbarVisible){
 				        var div = document.getElementById(parentId).parentNode;
 				        if(div){
@@ -35,7 +45,6 @@ function createCalendar(parentId, data, template) {
 					        }
 				        }
 			    	}
-			    	
 			    	
 			    	
 			    	
