@@ -1,11 +1,22 @@
 function createNavigator(parentId, data, template) {
-	require(["dijit/registry", "dijit/layout/AccordionContainer", "dijit/layout/ContentPane", 
-	         "dojo/aspect", "put-selector/put", "dojo/_base/lang", "dojo/store/Memory", "dgrid/Selection", "dojo/on", "dgrid/OnDemandGrid", "dgrid/Keyboard", "tree", "dojo/_base/declare", 
-	         "dojo/domReady!"],
-			  function(
-					  registry, AccordionContainer, ContentPane,
-					  aspect, put, lang, Memory, Selection, on, Grid, Keyboard, tree, declare 
-					  ){
+	require(["dijit/registry", 
+	         "dijit/layout/AccordionContainer", 
+	         "dijit/layout/ContentPane",
+	         
+	         "dojo/_base/lang", 
+	         "dstore/Memory",
+	         "dgrid/Selection",
+	         "dgrid/OnDemandGrid",
+	         "dgrid/Keyboard",
+	    	 "dgrid/Tree",		
+	    	 "dstore/Tree",
+	         "dojo/_base/declare",
+	     	 "dojo/dom-construct",	     	         
+	         "dojo/domReady!"
+	        ], function(
+			    registry, AccordionContainer, ContentPane,
+   			    lang, Memory, Selection, Grid, Keyboard, Tree, TreeStore, declare, domConstruct 
+			){
 		
 		
     	var w = registry.byId(parentId);
@@ -19,41 +30,45 @@ function createNavigator(parentId, data, template) {
     	}
     	
     	function fillData(arr, obj, num){
-    		
     		if(obj["level"+num] && !obj["level"+num].length){
     			obj["level"+num] = [obj["level"+num]];
     		}
     		
-    		for(var k in obj["level"+num]) {
-    			var parent = null;
-    			if(num > 1){
-    				parent = obj["@id"];
-    			}
-    			
-    			var hasChildren = 0;
-    			if(obj["level"+num][k]["level"+(num+1)]){
-    				hasChildren = 1;	
-    			}
-    				
-    			arr.push({id: obj["level"+num][k]["@id"], 
-    				      name: obj["level"+num][k]["@name"],
-    				      parent: parent,
-    				      HasChildren: hasChildren,
-    				      TreeGridNodeCloseIcon: obj["level"+num][k]["@closeIcon"],
-    				      TreeGridNodeOpenIcon: obj["level"+num][k]["@openIcon"],
-    				      TreeGridNodeLeafIcon: obj["level"+num][k]["@leafIcon"],
-    				      open: obj["level"+num][k]["@open"],
-    				      selectOnLoad: obj["level"+num][k]["@selectOnLoad"],
-    				      classNameRow: obj["level"+num][k]["@classNameRow"] 
-    			
-    				      });
-    			
-    			if(hasChildren == 1){
-        			fillData(arr, obj["level"+num][k], num+1);    				
-    			}
+    		if(obj["level"+num]){
+        	    for (var k = 0; k < obj["level"+num].length; k++) {    			
+        			var parent = null;
+        			if(num > 1){
+        				parent = obj["@id"];
+        			}
+        			
+        			var hasChildren = false;
+        			if(obj["level"+num][k]["level"+(num+1)]){
+        				hasChildren = true;	
+        			}
+        				
+        			arr.push({id: obj["level"+num][k]["@id"], 
+        				      name: obj["level"+num][k]["@name"],
+        				      parent: parent,
+        				      hasChildren: hasChildren,
+        				      TreeGridNodeCloseIcon: obj["level"+num][k]["@closeIcon"],
+        				      TreeGridNodeOpenIcon: obj["level"+num][k]["@openIcon"],
+        				      TreeGridNodeLeafIcon: obj["level"+num][k]["@leafIcon"],
+        				      open: obj["level"+num][k]["@open"],
+        				      selectOnLoad: obj["level"+num][k]["@selectOnLoad"],
+        				      classNameRow: obj["level"+num][k]["@classNameRow"] 
+        			
+        				      });
+        			
+        			if(hasChildren == 1){
+            			fillData(arr, obj["level"+num][k], num+1);    				
+        			}
+        		}
     		}
     	}
     	
+    	if(!data.navigator.group){
+    		return;
+    	}
     	
 	    var aContainer = new AccordionContainer({}, parentId);
 	    
@@ -61,8 +76,7 @@ function createNavigator(parentId, data, template) {
 			data.navigator.group = [data.navigator.group];
 		}	    
 	    
-		for(var k in data.navigator.group) {
-			
+	    for (var k = 0; k < data.navigator.group.length; k++) {
 			if(data.navigator.group[k]["@hide"]  && data.navigator.group[k]["@hide"].toLowerCase()=="true"){
 				continue;
 			}
@@ -70,33 +84,11 @@ function createNavigator(parentId, data, template) {
 			
 			var groupData = [];
 			fillData(groupData, data.navigator.group[k], 1);
-
 			
-	    	store = new Memory({
+			
+    		var store = new declare([ Memory, TreeStore ])(lang.mixin({	    		
 	    		data: groupData,
-	    		
-	    		getChildren: function(parent, options){
-	    			// Support persisting the original query via options.originalQuery
-	    			// so that child levels will filter the same way as the root level
-	    			return this.query(
-	    				lang.mixin({}, options && options.originalQuery || null,
-	    					{ parent: parent.id }),
-	    				options);
-	    		},
-	    		mayHaveChildren: function(parent){
-	    			return parent.HasChildren == 1;
-	    		},
-	    		query: function (query, options){
-	    			query = query || {};
-	    			options = options || {};
-	    			
-	    			if (!query.parent && !options.deep) {
-	    				// Default to a single-level query for root items (no parent)
-	    				query.parent = undefined;
-	    			}
-	    			return this.queryEngine(query, options)(this.data);
-	    		}
-	    	});
+	    	}, {} ));
 
 	    	
 	    	var classNameGrid="";
@@ -110,55 +102,43 @@ function createNavigator(parentId, data, template) {
 	        	classNameColumn=data.navigator.group[k]["@classNameColumn"];
 	        }
 	        classNameColumn=classNameColumn+" plugin-navigator-grid-column";
+     
 	        
-	        var  grid = new declare([Grid, Selection, Keyboard])({
+	        var  grid = new declare([Grid, Selection, Keyboard, Tree])({
+	        	
+	        	firstLoading:  true,
 	        	
 	        	className: classNameGrid,
 	        	
-				store: store,
+	        	collection: store.getRootCollection(),
 				
-//				showHeader: false,
+				showHeader: false,
 				selectionMode: "single",
 				
-				columns: [tree({
+				columns: [{
 					
-					className: classNameColumn,					
+					className: classNameColumn,
 					
 					id: "name",
 					field:"name",					
-					
-					shouldExpand: function columnShouldExpand(row, level, previouslyExpanded){
-						if(row.data.selectOnLoad){
-							this.grid.select(row);	
-							if(data.navigator["@afterReloadAction"] && data.navigator["@afterReloadAction"].toLowerCase()=="true"){
-					    		gwtPluginFunc(parentId, row.data.id);  
-							}
-						}
-						return row.data.open;
-					},
 					
 					formatter: function columnFormatter(item){
 						return item;
 					},
 					
 					renderExpando: function columnRenderExpando(level, hasChildren, expanded, object) {
-					
 				        var dir = this.grid.isRTL ? "right" : "left",
-							cls = ".dgrid-expando-icon",
-							node;
-				        
-						if((object.HasChildren) && (object.HasChildren == 1)){
-							if(object.TreeGridNodeLeafIcon && object.TreeGridNodeLeafIcon.trim().length > 0){
-								cls += ".ui-icon-triangle-1-" + (expanded ? "se" : "e");									
-							}else{
-								cls += ".ui-icon.ui-icon-triangle-1-" + (expanded ? "se" : "e");									
-							}
+							cls = "dgrid-expando-icon";
+						if(hasChildren){
+							cls += " ui-icon ui-icon-triangle-1-" + (expanded ? "se" : "e");							
 						}
-						node = put("div" + cls + "[style=width:20px; margin-" + dir + ": " +
-							(level * (this.indentWidth || 9)) + "px; float: " + dir + "]");
-						
-						node.innerHTML = "&nbsp;"; // for opera to space things properly							
-						if(object.HasChildren && (object.HasChildren == '1')){
+						node = domConstruct.create('div', {
+							className: cls,
+							innerHTML: '&nbsp;',
+							style: 'margin-' + dir + ': ' + (level * this.grid.treeIndentWidth) + 'px; float: ' + dir + ';'
+						});
+							
+						if(hasChildren){
 							if(expanded){
 								if(object.TreeGridNodeOpenIcon && object.TreeGridNodeOpenIcon.trim().length > 0){
 									node.innerHTML = getTreeIcon(object.TreeGridNodeOpenIcon);
@@ -166,57 +146,60 @@ function createNavigator(parentId, data, template) {
 							}
 							else{
 								if(object.TreeGridNodeCloseIcon && object.TreeGridNodeCloseIcon.trim().length > 0){
-									node.innerHTML = getTreeIcon(object.TreeGridNodeCloseIcon);
+									node.innerHTML = getTreeIcon(object.TreeGridNodeCloseIcon);										
 								}
 							}
 						}else{
 							if(object.TreeGridNodeLeafIcon && object.TreeGridNodeLeafIcon.trim().length > 0){
-								node.innerHTML = getTreeIcon(object.TreeGridNodeLeafIcon);
+								node.innerHTML = getTreeIcon(object.TreeGridNodeLeafIcon);									
 							}
 						}
-	
-	  				    node.title = object.name;							
-	
+						node.title = object.col1;
 						return node;
 					}
-				})]
+					
+				}],
+				
+				shouldExpand: function columnShouldExpand(row, level, previouslyExpanded){
+                    if(this.firstLoading){
+    					if(row.data.selectOnLoad){
+    						this.select(row);	
+    						if(data.navigator["@afterReloadAction"] && data.navigator["@afterReloadAction"].toLowerCase()=="true"){
+    				    		gwtPluginFunc(parentId, row.data.id);  
+    						}
+    					}
+    					return row.data.open;
+                    }else{
+    					return previouslyExpanded;
+                    }
+				},
+
+				renderRow: function (object) {
+				     var rowElement = this.inherited(arguments);
+					 if(object.classNameRow && (object.classNameRow.trim() != "")){
+							rowElement.className = object.classNameRow;
+					 }
+				     return rowElement;
+				}
+				
 			});
 	        
-	        aspect.after( grid, 'renderRow', function( row, args ){
-				if(args[0].classNameRow && (args[0].classNameRow.trim() != "")){
-			    	row.className = args[0].classNameRow;				
-				}
-		    	return row;
-		    });
-	        
-	        
+			grid.on("dgrid-refresh-complete", function(event) {
+				this.firstLoading = false;
+			});
 	        
 	        grid.on("dgrid-select", function(event){
-	        	
-//	        	console.log(event);
-/*	        	
-				if(event.target.className.indexOf("expando-icon") != -1){
-					return;
-				}
-*/				
-				
 	    		gwtPluginFunc(parentId, event.rows[0].id);
 	        });
+			
 	        
-			grid.on(".dgrid-row:click", function(event){
-//	        	console.log(event);
-			});
-			
-			
-			
+	        grid.startup();	        
+
+	        
 	        if(data.navigator.group[k]["@styleColumn"] && (data.navigator.group[k]["@styleColumn"].trim()!="")){
 				grid.styleColumn("name", data.navigator.group[k]["@styleColumn"]);
 	        }
 	        
-	        grid.set("showHeader", false);
-	        
-	        grid.refresh();	    
-
 	        
 	        var classNameTitle="";
 	        if(data.navigator.group[k]["@classNameTitle"] && (data.navigator.group[k]["@classNameTitle"].trim()!="")){
