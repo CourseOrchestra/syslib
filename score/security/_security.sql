@@ -42,3 +42,18 @@ ALTER TABLE rolesCustomPerms ADD CONSTRAINT fk_security_rolesCusto0E151131 FOREI
 ALTER TABLE rolesCustomPerms ADD CONSTRAINT fk_security_rolesCusto4BC26BD1 FOREIGN KEY (permissionId) REFERENCES security.customPerms(name);
 -- *** INDICES ***
 -- *** VIEWS ***
+CREATE VIEW tablesPermissionsView as
+SELECT
+	roles.id AS roleid,
+	tables.grainid AS grainid,
+	tables.tablename AS tablename,
+	perm.r AS r,
+	perm.i AS i,
+	perm.m AS m,
+	perm.d AS d
+FROM
+	celesta.roles AS roles
+LEFT JOIN celesta.tables AS tables ON 1=1
+LEFT JOIN celesta.permissions AS perm ON roles.id = perm.roleid
+AND tables.grainid = perm.grainid
+AND tables.tablename = perm.tablename;
