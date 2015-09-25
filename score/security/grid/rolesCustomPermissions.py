@@ -78,13 +78,9 @@ def gridData(context, main=None, add=None, filterinfo=None,
 def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Функция получения настроек грида. '''
 
-    # Курсор таблицы directories
-    rolesPermissions = rolesCustomPermsCursor(context)    
-    if 'currentRecordId' in session:     
-        currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
-        rolesPermissions.setRange("permissionId", currId)
+    roles = RolesCursor(context)
     # Вычисляем количества записей в таблице
-    totalcount = rolesPermissions.count()
+    totalcount = roles.count()
     # Заголовок таблицы
     header = "Роли"
     # В случае если таблица пустая
@@ -108,7 +104,7 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     "labels":{"header":header}
     }
     # Добавляем поля для отображения в gridsettings
-    settings["gridsettings"]["columns"]["col"].append({"@id":columnsDict["exists"][0], "@width": "15px",
+    settings["gridsettings"]["columns"]["col"].append({"@id":columnsDict["exists"][0], "@width": "33px",
                                                        "@readonly":"false",
                                                        "@editor":"{ editor: 'checkbox'}"})
     settings["gridsettings"]["columns"]["col"].append({"@id":columnsDict["roleId"][0], "@width": "80px",
