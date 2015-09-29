@@ -9,7 +9,7 @@ import smtplib
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 from email.Utils import formatdate
-
+from email.header import Header
 
 def test(context):
     class DummyFlute:
@@ -201,7 +201,7 @@ def sendmail(context, flute):
     msg["To"] = ",".join(to)
     msg["CC"] = ",".join(cc)
     msg["From"] = mailfrom
-    msg["Subject"] = parser.subject
+    msg["Subject"] = Header(parser.subject, 'utf-8') 
     msg['Date'] = formatdate(localtime=True)
 
     # attach a message
