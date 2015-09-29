@@ -53,7 +53,7 @@ SELECT
 	perm.d AS d
 FROM
 	celesta.roles AS roles
-LEFT JOIN celesta.tables AS tables ON 1=1
+INNER JOIN celesta.tables AS tables ON 1=1
 LEFT JOIN celesta.permissions AS perm ON roles.id = perm.roleid
 AND tables.grainid = perm.grainid
 AND tables.tablename = perm.tablename;
