@@ -24,7 +24,10 @@ def datapanel(context, main=None, session=None):
                                                     {"@id":"permGridToolBar",
                                                      "@name":"security.grid.permissions.gridToolBar.celesta",
                                                      "@type":"TOOLBAR"
-                                                     }],
+                                                     },
+                                                     {"@id":"saveRecord",
+                                                      "@name":"security.grid.permissions.gridSaveRecord.celesta",
+                                                      "@type":"SAVE"}],
                                             "related":{"@id":"permFilter"}
                                             },
                                            {"@id":"permXforms",
