@@ -52,6 +52,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             subjects.insert()
             logins.userName = currId[0]
             logins.subjectId = currId[1]
+            logins.password = ""
             logins.insert()
         rolesUsers.setRange("userid", logins.subjectId)
     elif settings.loginIsSubject():
