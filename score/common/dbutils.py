@@ -27,8 +27,18 @@ class UploadXMLHandler(DefaultHandler2):
     flag = 0
     currentString = u''
     currentEncoding = u"utf8"
-    def __init__(self, tableInstance):
+    def __init__(self, tableInstance, action):
         self.tableInstance = tableInstance
+        # возможность настраивать, нужно ли обновлять записи и вставлять новые
+        def actionUI(ins):
+            if not ins.tryInsert():
+                ins.update()
+        def actionU(ins):
+            ins.tryUpdate()
+        def actionI(ins):
+            ins.tryInsert()
+        # определяем, какую фукнцию нам нужно использовать
+        self.funcAction = locals()['action%s' % action.upper()]
 
     def startElement(self, namespaceURI, lname, qname, attrs):
 
@@ -67,14 +77,15 @@ class UploadXMLHandler(DefaultHandler2):
         if qname == 'table' and self.flag == 0:
             self.parentTag = None
         elif qname == 'row' and self.flag == 0:
-            if not self.tableInstance.tryInsert():
-                self.tableInstance.update()
+            # обновляем или вставляем записи
+            self.funcAction(self.tableInstance)
+            self.tableInstance.clear()
             self.parentTag = 'table'
         elif qname == 'field' and self.flag == 0:
-            #Вставка данных в поле таблицы, отдельно рассмотрен случай если данные в формате XML
+            # Вставка данных в поле таблицы, отдельно рассмотрен случай если данные в формате XML
             if hasattr(self, 'stringWriter') and self.stringWriter:
                 self.xmlWriter.close()
-                #Вставка данных в поле типа blob
+                # Вставка данных в поле типа blob
                 if self.tableInstance.meta().columns[self.currentCell].getCelestaType() == 'BLOB':
                     getattr(self.tableInstance, "calc%s" % self.currentCell)()
                     blobField = self.tableInstance.__dict__[self.currentCell].getOutStream()
@@ -85,30 +96,28 @@ class UploadXMLHandler(DefaultHandler2):
                 self.stringWriter = None
                 self.xmlWriter = None
             else:
-                #проверка на None
-                if self.currentString.strip() == 'None':
-                    self.currentString = None
-                else:
+                # проверка на None
+                if self.currentString.strip() != 'None':
                     self.currentString = self.currentString.strip()
-                #Вставка данных в поле типа blob                
-                if self.tableInstance.meta().columns[self.currentCell].getCelestaType() == 'BLOB':
-                    getattr(self.tableInstance, "calc%s" % self.currentCell)()
-                    blobField = self.tableInstance.__dict__[self.currentCell].getOutStream()
-                    if self.currentEncoding == u"utf8":
-                        blobField.write(self.currentString)
-                    elif self.currentEncoding == u"base64":
-                        blobField.write(base64.b64decode(self.currentString))
+                    # Вставка данных в поле типа blob
+                    if self.tableInstance.meta().columns[self.currentCell].getCelestaType() == 'BLOB':
+                        getattr(self.tableInstance, "calc%s" % self.currentCell)()
+                        blobField = self.tableInstance.__dict__[self.currentCell].getOutStream()
+                        if self.currentEncoding == u"utf8":
+                            blobField.write(self.currentString)
+                        elif self.currentEncoding == u"base64":
+                            blobField.write(base64.b64decode(self.currentString))
+                        else:
+                            raise CelestaException(u"Неверная кодировка")
+                    elif self.tableInstance.meta().columns[self.currentCell].getCelestaType() == 'DATETIME':
+                        sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+                        self.tableInstance.__setattr__(self.currentCell, sdf.parse(self.currentString))
+                    elif self.tableInstance.meta().columns[self.currentCell].getCelestaType() == 'BIT':
+                        self.tableInstance.__setattr__(self.currentCell, self.currentString.lower() == "true")
                     else:
-                        raise CelestaException(u"Неверная кодировка")
-                elif self.tableInstance.meta().columns[self.currentCell].getCelestaType() == 'DATETIME':
-                    sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
-                    self.tableInstance.__setattr__(self.currentCell, sdf.parse(self.currentString))
-                elif self.tableInstance.meta().columns[self.currentCell].getCelestaType() == 'BIT':
-                    self.tableInstance.__setattr__(self.currentCell, self.currentString.lower() == "true")
-                else:
-                    if self.currentCell == 'prefix':
-                        pass
-                    self.tableInstance.__setattr__(self.currentCell, self.currentString)
+                        if self.currentCell == 'prefix':
+                            pass
+                        self.tableInstance.__setattr__(self.currentCell, self.currentString)
             self.parentTag = 'row'
             self.currentCell = None
             self.currentString = None
@@ -155,12 +164,12 @@ class DataBaseXMLExchange():
         self.dataStream = dataStream
         self.tableInstance = tableInstance
 
-    def uploadXML(self):
+    def uploadXML(self, action="ui"):
         '''
     функция реализует загрузку данных из xml в базу данных
 '''
         parser = XMLReaderFactory.createXMLReader();
-        handler = UploadXMLHandler(self.tableInstance)
+        handler = UploadXMLHandler(self.tableInstance, action)
         parser.setContentHandler(handler)
         parser.setErrorHandler(handler)
         parser.setFeature("http://xml.org/sax/features/namespace-prefixes", True)
@@ -230,10 +239,10 @@ class DataBaseXMLExchange():
         xmlWriter.flush()
 
 def tableDownload(cursorInstance, fileName):
-    filePath=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources', fileName+'.xml')
+    filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resources', fileName + '.xml')
     dataStream = FileOutputStream(filePath)
     exchange = DataBaseXMLExchange(dataStream, cursorInstance)
     exchange.downloadXML()
     dataStream.close()
-    report=File(filePath)    
-    return JythonDownloadResult(FileInputStream(report),fileName+'.xml')
+    report = File(filePath)
+    return JythonDownloadResult(FileInputStream(report), fileName + '.xml')
