@@ -9,9 +9,9 @@ Created on 15 сент. 2015 г.
 '''
 
 from common.api.core import ShowcaseBaseNamedElement
+from common.api.events.action import Action
+from common.api.events.activities import DatapanelActivity
 from common.api.tree.treenode import Node
-from commonapi.events.action import Action
-from commonapi.events.activities import DatapanelActivity
 
 
 class NavigatorNode(ShowcaseBaseNamedElement, Node):
@@ -35,7 +35,7 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
         """
         @param inId (@c string) ИД узла навигатора
         @param inName (@c string) отображаемое наименование узла
-        @param inAction (@c commonapi.events.action.Action) действие при клике
+        @param inAction (@c common.api.events.action.Action) действие при клике
         на узел навигатора   
         """
         
@@ -46,7 +46,7 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
     
     def setAction(self, inAction):
         """Устанавливает действие, вызываемое при клике на узел
-        @param inAction (@c commonapi.events.action.Action) действие при клике
+        @param inAction (@c common.api.events.action.Action) действие при клике
         на узел навигатора
         @return ссылка на себя
         """
