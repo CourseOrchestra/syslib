@@ -10,7 +10,6 @@ Created on 15 сент. 2015 г.
 
 from common.api.core import ShowcaseBaseNamedElement
 from common.api.events.action import Action
-from common.api.events.activities import DatapanelActivity
 from common.api.tree.treenode import Node
 
 
@@ -104,6 +103,7 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
 
 
 if __name__ == '__main__':
+    from common.api.events.activities import DatapanelActivity
     rootNode = NavigatorNode(None, None) 
     
     n1 = NavigatorNode('g1', u'Group 1')
