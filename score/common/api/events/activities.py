@@ -9,7 +9,7 @@ Created on 16 июля 2015 г.
 
 from common.api.core import IJSONSerializable
 from common.api.events.core import _BaseActivityElement
-from commonapi.utils.tools import procname
+from common.api.utils.tools import procname
 
 
 class ActionActivityType(object):

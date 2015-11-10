@@ -4,7 +4,7 @@
 
 from abc import abstractmethod
 
-from commonapi.utils.tools import serializeJSON, json2xml, deserializeJSON
+from common.api.utils.tools import serializeJSON, json2xml, deserializeJSON
 
 class IJSONSerializable(object):
     u"""Базовый класс, определяющий интерфес преобразования в JSON"""
