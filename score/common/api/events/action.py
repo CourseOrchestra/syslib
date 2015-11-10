@@ -8,7 +8,9 @@ Created on 16 июля 2015 г.
 '''
 
 from common.api.core import IJSONSerializable
-from common.api.events.activities import ActionActivity
+from common.api.events.activities import ActionActivity, ActionActivityType,\
+    NavigatorActivity, ClientActivity, DatapanelElement, ServerElement,\
+    ClientElement, ActivityElement
 from common.api.events.core import ActionBaseElement
 
 
@@ -172,6 +174,117 @@ class Action(ActionBaseElement):
         return self
     
     
+    def setDatapanelActivity(self, panel, tab='current'):
+        """Устанавливает параметры действия с информационной панелью.
+        @param inPanel, inTab см. common.api.events.activities.DatapanelActivity
+        
+        Это метод для удобства. Следующие фрагменты кода эквивалентны:
+        @code
+        a = Action().addActivity(DatapanelActivity('panel.xml'))
+        @endcode
+        и
+        @code
+        a = Action().setDatapanelActivity('panel.xml')
+        @endcode
+        """
+        
+        a = self._getActivity(ActionActivityType.DATAPANEL, panel, tab)
+        a.setPanel(panel)
+        a.setTab(tab)
+        
+        return self
+    
+    
+    def setNavigatorActivity(self, inRefresh, inNodeId):
+        """Устанавливает параметры действия обновления навигатора.
+        @param inRefresh, inNodeId см. common.api.events.activities.NavigatorActivity
+        
+        Это метод для удобства. Следующие фрагменты кода эквивалентны:
+        @code
+        a = Action().addActivity(NavigatorActivity(True, 2))
+        @endcode
+        и
+        @code
+        a = Action().setNavigatorActivity(True, 2)
+        @endcode
+        """
+        
+        a = self._getActivity(ActionActivityType.NAVIGATOR, inRefresh, inNodeId)
+        a.setRefresh(inRefresh)
+        a.setNodeId(inNodeId)
+        
+        return self
+    
+    
+    def add(self, activityElement):
+        """Добавляет элемент действия. 
+        
+        Метод для удобства. Следующие фрагменты кода эквивалентны:
+        @code
+        a = Action().addActivity(
+                        DatapanelActivity().addElement(
+                            DatapanelElement('1', 'add')
+                        )
+                    )
+        @endcode
+        и
+        @code
+        a = Action().add(DatapanelElement('1', 'add'))
+        @endcode
+        
+        @param activityElement (@c_BaseActivityElement) элемент 
+        @return ссылка на себя  
+        """
+        if type(activityElement) is ActivityElement:
+            raise TypeError('Invalid activity element type! Use concrete ServerElement/ClientElement instead of ActivityElement.')
+        
+        actType = None
+        if type(activityElement) is DatapanelElement:
+            actType = ActionActivityType.DATAPANEL
+        elif type(activityElement) is ServerElement:
+            actType = ActionActivityType.SERVER
+        elif type(activityElement) is ClientElement:
+            actType = ActionActivityType.CLIENT
+        else:
+            raise TypeError('Invalid activity element type!')
+        
+        a = self._getActivity(actType, 'current', 'current')
+        a.addElement(activityElement)
+        
+        return self
+    
+    
+    def _getActivity(self, activityType, *args): 
+        """Возвращает группу действий.
+        
+        Если группа отсутствует, то она будет создана.
+        
+        @param activityType (@c common.api.events.activities.ActionActivityType)
+        @param *args параметры конструктора соответствующего activity
+        @return @c common.api.events.activities.ActionActivity
+        @throw TypeError если некорректный @a activityType
+        """
+        r = filter(lambda x: x.type() == activityType, self.__activities)
+        if r:
+            return r[0]
+        
+        a = None
+        if activityType == ActionActivityType.DATAPANEL:
+            a = DatapanelActivity(*args)
+        elif activityType == ActionActivityType.NAVIGATOR:
+            a = NavigatorActivity(*args)
+        elif activityType == ActionActivityType.SERVER:
+            a = ServerActivity()
+        elif activityType == ActionActivityType.CLIENT:
+            a = ClientActivity()
+        else:
+            raise TypeError('Invalid activity type!')
+            
+        self.addActivity(a)
+        
+        return a
+    
+    
     def toJSONDict(self):
         d = super(Action, self).toJSONDict()
         sorted_ = [{'main_context': self.mainContext()}]
@@ -195,7 +308,13 @@ class Action(ActionBaseElement):
         """
         res = filter(lambda x: x.__class__ == inActivity.__class__, self.__activities)
         return len(res) > 0
-
+    
+    
+    
+        
+        
+    
+    
 
 if __name__ == '__main__':
     from common.api.events.activities import DatapanelActivity, ServerActivity
@@ -224,7 +343,13 @@ if __name__ == '__main__':
 #                 .addElement(DatapanelElement(inId='1', inAddContext='edit')) \
 #                 .addElement(DatapanelElement(inId='2', inAddContext='edit', inKeepUserSettings=True)))
     
+#     print a.toJSONDict()
+#     print b.toJSONDict()
+#     print c.toJSONDict()
+    
+    a = Action('mainContext').add(DatapanelElement('1', 'add'))
+    a.add(DatapanelElement('2', 'add2')).add(ServerElement('1', 'procName'))
+    a.add(ClientElement('2', 'clientProc'))
+    a.setDatapanelActivity('current', 'firstOrCurrent')
     print a.toJSONDict()
-    print b.toJSONDict()
-    print c.toJSONDict()
 

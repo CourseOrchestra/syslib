@@ -88,9 +88,29 @@ class ActivityElement(_BaseActivityElement):
         
     def toJSONDict(self):
         d = super(ActivityElement, self).toJSONDict()
-        d['@name'] = self.__procName
+        d['@name'] = self.proc()
 
         return d
+
+    
+class ServerElement(ActivityElement):
+    """Класс непосредственного серверного действия.
+    
+    Полностью повторяет #ActivityElement. Служит для конкретной идентификации 
+    типа при использовании в common.api.action.Action.add
+    """
+    def __init__(self, inId, inProcName, inAddContext="current"):
+        super(ServerElement, self).__init__(inId, inProcName, inAddContext)
+
+
+class ClientElement(ActivityElement):
+    """Класс непосредственного клиентского действия.
+    
+    Полностью повторяет #ActivityElement. Служит для конкретной идентификации 
+    типа при использовании в common.api.action.Action.add
+    """
+    def __init__(self, inId, inProcName, inAddContext="current"):
+        super(ClientElement, self).__init__(inId, inProcName, inAddContext)
 
 
 class ActionActivity(IJSONSerializable):
@@ -123,8 +143,6 @@ class ActionActivity(IJSONSerializable):
         """
         self.__elements.append(inActivityElement)
         
-        self.__elements.insert
-        
         return self
         
         
@@ -152,6 +170,38 @@ class NavigatorActivity(ActionActivity):
         self.__nodeId = inNodeId
         
         
+    def refresh(self):
+        """Возвращает флаг обновления навигатора
+        @return @c bool
+        """
+        return self.__refresh
+    
+    
+    def setRefresh(self, value):
+        """Устанавливает флаг обновления навигатора
+        @param value (@c bool)
+        @return ссылка на себя 
+        """
+        self.__refresh = value
+        return self
+    
+    
+    def nodeId(self):
+        """Возвращает ИД узла навигатора
+        @return @c string
+        """
+        return self.__nodeId
+    
+    
+    def setNodeId(self, value):
+        """Устанавливает ИД узла навигатора для обновления
+        @param value (@c string)
+        @return ссылка на себя 
+        """
+        self.__nodeId = value
+        return self
+    
+    
     def addElement(self, inActivityElement):
         """**Не использовать**. NavigatorActivity не может содержать действий."""
         raise NotImplementedError('NavigatorActivity activity cannot have subelements!')
