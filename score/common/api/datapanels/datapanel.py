@@ -329,7 +329,7 @@ class Webtext(DatapanelElement):
     
         
     def toJSONDict(self):
-        if not self.__procName:
+        if not self.proc():
             raise ValueError(u"Proc for Webtext element id = '%s' is not set!" % self.id)
         
         d = super(XForm, self).toJSONDict()
