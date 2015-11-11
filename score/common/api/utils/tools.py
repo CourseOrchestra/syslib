@@ -40,6 +40,7 @@ def getCursor(tableName):
     @param tableName (@c string) имя таблицы в формате \<гранула>.\<таблица>
     @return @c Cursor
     """
+    
     g, t = tableName.split('.')
     
     return importObject("%s._%s_orm" % (g, g), "%sCursor" % t)
@@ -48,7 +49,8 @@ def getCursor(tableName):
 def jsonToXml(arg):
     """Конвертирует значение - JSON-словарь или JSON-строку - в XML.
     
-        - arg (dict or string) - JSON-словарь или JSON-строка.
+    @param  arg (@c dict or @c string) JSON-словарь или JSON-строка.
+    @return @ string XML
     """
     
     data = arg
@@ -60,22 +62,21 @@ def jsonToXml(arg):
 
 
 def createJythonDTO(inData, inSettings=None, convertData=True, convertSettings=True):
-    """Конвертирует inData и inSettings в XML и создаёт объект JythonDTO. 
+    """Конвертирует @a inData и @a inSettings в @c XML и создаёт объект @c JythonDTO. 
     
-        По умолчанию производится конвертация обоих параметров. Также, один из или
-    оба параметра могут не конвертироваться (convertData=False и/или 
-    convertSettings=False соответственно), т.е. не будет выполняться никаких
+    По умолчанию производится конвертация обоих параметров. Также, один из или
+    оба параметра могут не конвертироваться (@a convertData=False и/или 
+    @a convertSettings=False соответственно), т.е. не будет выполняться никаких
     преоразований. Это может потребоваться, если один из параметров уже 
-    преобразован в XML.
+    преобразован в @c XML.
     
-    Параметры:
-        - inData (dict or string) - JSON-словарь или JSON-строка;
-        - inSettings (dict or string) - JSON-словарь или JSON-строка;
-        - convertData (boolean) - выполнять ли конвертацию inData;
-        - convertSettings (boolean) - выполнять ли конвертацию convertSettings;
     
-    Возвращаемые значения:
-        - объект JythonDTO
+    @param inData (@c dict or @c string) JSON-словарь или JSON-строка;
+    @param inSettings (@c dict or @cstring) JSON-словарь или JSON-строка;
+    @param convertData (@c boolean) выполнять ли конвертацию inData;
+    @param convertSettings (@c boolean) выполнять ли конвертацию convertSettings;
+    
+    @return @c JythonDTO
     """
     
     data = inData
@@ -96,7 +97,7 @@ def procname(func):
     """Декоратор, возврщающий функцию получения имени функции."""
     def wrapper(cls, *argc):
         """Если последний аргумент - объект функции, возвращает её полное имя
-        (qualified name) + celesta. Иначе оставляет как есть.
+        (*qualified name*) + celesta. Иначе оставляет как есть.
         """
         
         value = argc[-1]
