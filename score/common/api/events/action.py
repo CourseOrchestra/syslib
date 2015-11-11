@@ -117,9 +117,9 @@ class Action(ActionBaseElement):
     
     def __init__(self, inMainContext='current', inKeepUserSettings=False, inIsPartialUpdate=False):
         """
-        @param inMainContext (<em>любой тип</em>)
+        @param inMainContext (<tt>любой тип</tt>)
         @param inKeepUserSettings, inIsPartialUpdate см. 
-        common.api.events.common.ActionBaseElement
+        @c common.api.events.common.ActionBaseElement
         """
         super(Action, self).__init__(inKeepUserSettings, inIsPartialUpdate)
         self.__mainContext = inMainContext
@@ -134,7 +134,7 @@ class Action(ActionBaseElement):
     
     def setMainContext(self, value):
         """Устанавливает main context
-        @param value (<em>любой тип</em>)
+        @param value (<tt>любой тип</tt>)
         @return ссылка на себя
         """
         self.__mainContext = value
@@ -176,7 +176,7 @@ class Action(ActionBaseElement):
     
     def setDatapanelActivity(self, panel, tab='current'):
         """Устанавливает параметры действия с информационной панелью.
-        @param inPanel, inTab см. common.api.events.activities.DatapanelActivity
+        @param inPanel, inTab см. @c common.api.events.activities.DatapanelActivity
         
         Это метод для удобства. Следующие фрагменты кода эквивалентны:
         @code
@@ -197,7 +197,7 @@ class Action(ActionBaseElement):
     
     def setNavigatorActivity(self, inRefresh, inNodeId):
         """Устанавливает параметры действия обновления навигатора.
-        @param inRefresh, inNodeId см. common.api.events.activities.NavigatorActivity
+        @param inRefresh, inNodeId см. @c common.api.events.activities.NavigatorActivity
         
         Это метод для удобства. Следующие фрагменты кода эквивалентны:
         @code
@@ -232,7 +232,7 @@ class Action(ActionBaseElement):
         a = Action().add(DatapanelElement('1', 'add'))
         @endcode
         
-        @param activityElement (@c_BaseActivityElement) элемент 
+        @param activityElement (@c _BaseActivityElement) элемент 
         @return ссылка на себя  
         """
         if type(activityElement) is ActivityElement:

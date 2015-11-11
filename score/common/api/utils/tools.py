@@ -1,6 +1,6 @@
 # coding: UTF-8
 
-'''@package common.api.utils.tools Модуль содержит инструментальные функци
+'''@package common.api.utils.tools Модуль содержит инструментальные функции
 общего назначения
 
 Created on 20 июля 2015 г.
@@ -69,7 +69,6 @@ def createJythonDTO(inData, inSettings=None, convertData=True, convertSettings=T
     @a convertSettings=False соответственно), т.е. не будет выполняться никаких
     преоразований. Это может потребоваться, если один из параметров уже 
     преобразован в @c XML.
-    
     
     @param inData (@c dict or @c string) JSON-словарь или JSON-строка;
     @param inSettings (@c dict or @cstring) JSON-словарь или JSON-строка;

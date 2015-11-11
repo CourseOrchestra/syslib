@@ -27,7 +27,7 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
     NavigatorNode сам расчитывает уровни иерархии пунктов навигатора 
     (тэг *<level>*). Достаточно только использовать метод #addChild.
     
-    @see common.api.tree.treenode.Node, common.api.common.ShowcaseBaseNamedElement
+    @see common.api.tree.treenode.Node, common.api.core.ShowcaseBaseNamedElement
     """
     
     def __init__(self, inId, inName, inAction=None):

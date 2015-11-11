@@ -1,6 +1,6 @@
 # coding: UTF-8
 
-"""@package common.api.common Модуль содержит описание базовых интерфейсов."""
+"""@package common.api.core Модуль содержит описание базовых интерфейсов."""
 
 from abc import abstractmethod
 
@@ -56,7 +56,7 @@ class IJSONConstructable(object):
         self.fromJSONDict(d)
     
     def fromJSONDict(self, jsonDict):
-        """Должен заполнять поля объекта из словаря @a jsonDict
+        """Должен заполнять поля объекта из словаря @a jsonDict.
         **Абстрактный**. Должен быть переопределён в наследнике.
         @param jsonDict (@c dict) JSON-словарь  
         """

@@ -75,9 +75,9 @@ class _BaseActivityElement(ActionBaseElement, ShowcaseBaseElementMixIn):
     def __init__(self, inId, inAddContext="current", inKeepUserSettings=None, inIsPartialUpdate=None):
         """
         @param inId (@c string) ИД конкретного действия
-        @param inAddContext (<em>любой тип</em>) 
+        @param inAddContext (<tt>любой тип</tt>) 
         @param inKeepUserSettings, inIsPartialUpdate см. 
-        common.api.events.common.ActionBaseElement
+        @c common.api.events.common.ActionBaseElement
         """
         super(_BaseActivityElement, self).__init__(inKeepUserSettings, inIsPartialUpdate)
         

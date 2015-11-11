@@ -20,7 +20,7 @@ def isFieldsUnique(rec, idField, fieldNames):
     записью в @a rec.
     
     @param rec (@c Cursor) курсор с конкретной записью, значения в которой 
-    нужно проверить значения
+    нужно проверить
     @param idField (@c string) имя поля, в котором лежит id. id должен быть @c int
     или @c string
     @param fieldNames (<em>list of string</em>) список полей, которые проверяются на 

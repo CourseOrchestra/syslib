@@ -11,9 +11,7 @@ Created on 01 авг. 2015 г.
 from common.api.core import IJSONSerializable, IXMLSerializable
 from common.api.events.action import Action
 from common.api.utils.tools import objectQualifiedName
-from datapanel import DatapanelElement
-from datapanel import DatapanelElementTypes
-from datapanel import ProcTypes
+from common.api.datapanels.datapanel import DatapanelElement, DatapanelElementTypes, ProcTypes
 
 
 class GridTypes(object):
@@ -70,7 +68,7 @@ class GridElement(DatapanelElement):
         """
         @param elementId (@c string) ИД элемента
         @param gridType (@c common.api.datapanels.grids.GridProcTypes) тип грида
-        @param procName (<em>string or function object</em>) функция-обработчик
+        @param procName (<tt>string or function object</tt>) функция-обработчик
         загрузки данных 
         """
         super(GridElement, self).__init__(elementId, DatapanelElementTypes.GRID, procName)
@@ -91,7 +89,7 @@ class GridElement(DatapanelElement):
     
     def setToolbarProc(self, value):
         """Устанавливает функцию-обработчик загрузки тулбара грида
-        @param value (<em>string or function object</em>) функция-обработчик
+        @param value (<tt>string or function object</tt>) функция-обработчик
         загрузки тулбара
         @return ссылка на себя
         """
@@ -108,7 +106,7 @@ class GridElement(DatapanelElement):
     
     def setMetadataProc(self, value):
         """Устанавливает функцию-обработчик загрузки настроек грида
-        @param value (<em>string or function object</em>) фунция-обработчик
+        @param value (<tt>string or function object</tt>) фунция-обработчик
         загрузки настроек грида
         @return ссылка на себя
         """
@@ -118,7 +116,7 @@ class GridElement(DatapanelElement):
     
     def setPartialUpdateProc(self, value):
         """Устанавливает функцию-обработчик частичного обновления
-        @param value (<em>string or function object</em>) функция-обработчик
+        @param value (<tt>string or function object</tt>) функция-обработчик
         частичного обновления
         @return ссылка на себя
         @todo Ещё не реализовано
@@ -140,7 +138,7 @@ def PageGrid(elementId, procName=None):
     """Создаёт объект страничного грида с ИД @a elementId и функцией загрузки
     данных @a procName
     @param elementId (@c string) ИД элемента
-    @param procName (<em>string or function object</em>) функция-обработчик
+    @param procName (<tt>string or function object</tt>) функция-обработчик
     загрузки данных 
     @return @c common.api.datapanels.grids.GridElement
     """
@@ -151,7 +149,7 @@ def LiveGrid(elementId, procName=None):
     """Создаёт объект живого грида с ИД @a elementId и функцией загрузки
     данных @a procName
     @param elementId (@c string) ИД элемента
-    @param procName (<em>string or function object</em>) функция-обработчик
+    @param procName (<tt>string or function object</tt>) функция-обработчик
     загрузки данных 
     @return @c common.api.datapanels.grids.GridElement
     """
@@ -162,7 +160,7 @@ def TreeGrid(elementId, procName=None):
     """Создаёт объект древовидного грида с ИД @a elementId и функцией загрузки
     данных @a procName
     @param elementId (@c string) ИД элемента
-    @param procName (<em>string or function object</em>) функция-обработчик
+    @param procName (<tt>string or function object</tt>) функция-обработчик
     загрузки данных 
     @return @c common.api.datapanels.grids.GridElement
     """
@@ -306,7 +304,7 @@ class ToolbarItem(BaseToolbarAction):
     def __init__(self, caption, image=None, enabled=True, hint=None, action=None):
         """
         @param caption, image, enabled, hint см. 
-        common.api.datapanels.grids.BaseToolbarAction
+        @c common.api.datapanels.grids.BaseToolbarAction
         @param action (@c common.api.events.action.Action) дейсвтие при клике
         по кнопке
         """
@@ -367,8 +365,8 @@ class ToolbarContainerMixIn(object):
         
     def addItem(self, item):
         """
-        @param item (common.api.datapanels.grids.BaseToolbarAction,
-        common.api.datapanels.grids.Separator) элемент тулбара
+        @param item (@c common.api.datapanels.grids.BaseToolbarAction,
+        @c common.api.datapanels.grids.Separator) элемент тулбара
         @return ссылка на себя
         @throw TypeError если некорректный тип @a item
         """
@@ -382,8 +380,8 @@ class ToolbarContainerMixIn(object):
         
     def items(self):
         """Возвращает список элементов
-        @return <em>list of common.api.datapanels.grids.BaseToolbarAction or
-        common.api.datapanels.grids.Separator</em>
+        @return <tt>list of common.api.datapanels.grids.BaseToolbarAction or
+        common.api.datapanels.grids.Separator</tt>
         """
         return self.__items
     
@@ -438,7 +436,7 @@ class ToolbarGroup(BaseToolbarAction, ToolbarContainerMixIn):
     def __init__(self, caption, image=None, enabled=True, hint=None):
         """
         @param caption, image, enabled, hint см. 
-        common.api.datapanels.grids.BaseToolbarAction
+        @c common.api.datapanels.grids.BaseToolbarAction
         """
         super(ToolbarGroup, self).__init__(ToolbarItemTypes.GROUP, caption, image, enabled, hint)
         self.initToolbarContainerMixIn()

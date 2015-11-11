@@ -96,8 +96,9 @@ class ActivityElement(_BaseActivityElement):
 class ServerElement(ActivityElement):
     """Класс непосредственного серверного действия.
     
-    Полностью повторяет #ActivityElement. Служит для конкретной идентификации 
-    типа при использовании в common.api.action.Action.add
+    Полностью повторяет @c common.api.events.activiies.ActivityElement. 
+    Служит для конкретной идентификации типа при использовании в 
+    common.api.events.action.Action.add
     """
     def __init__(self, inId, inProcName, inAddContext="current"):
         super(ServerElement, self).__init__(inId, inProcName, inAddContext)
@@ -106,8 +107,9 @@ class ServerElement(ActivityElement):
 class ClientElement(ActivityElement):
     """Класс непосредственного клиентского действия.
     
-    Полностью повторяет #ActivityElement. Служит для конкретной идентификации 
-    типа при использовании в common.api.action.Action.add
+    Полностью повторяет @c common.api.events.activiies.ActivityElement. 
+    Служит для конкретной идентификации типа при использовании в 
+    common.api.events.action.Action.add
     """
     def __init__(self, inId, inProcName, inAddContext="current"):
         super(ClientElement, self).__init__(inId, inProcName, inAddContext)
@@ -230,7 +232,7 @@ class DatapanelActivity(ActionActivity):
     
     def __init__(self, inPanel="current", inTab="current"):
         """
-        @param inPanel (<em>string or function</em>) ИД информационной панели, 
+        @param inPanel (<tt>string or function</tt>) ИД информационной панели, 
         или шаблон, или функция, возвращающая шаблон
         @param inTab (@c string) ИД вкладки на информационной панели @a inPanel
         """
@@ -251,7 +253,7 @@ class DatapanelActivity(ActionActivity):
     def setPanel(self, value):
         """Устанавливает ИД или шаблон информационной панели, в зависимости
         от варианта использования DatapanelActivity.
-        @param value (<em>string or function</em>) ИД информационной панели, 
+        @param value (<tt>string or function</tt>) ИД информационной панели, 
         или шаблон, или функция, возвращающая шаблон
         @return ссылка на себя
         """
@@ -278,9 +280,9 @@ class DatapanelActivity(ActionActivity):
     def add(self, inId, inAddContext="current", inKeepUserSettings=None, inIsPartialUpdate=None):
         """Добавляет элемент, который нужно обновить
         @param inId (@c string) ИД обновляемого элемента
-        @param inAddContext (<em>любой тип</em>) add_context элемента
+        @param inAddContext (<tt>любой тип</tt>) add_context элемента
         @param inKeepUserSettings, inIsPartialUpdate см. 
-        common.api.events.common._BaseActivityElement
+        @c common.api.events.common._BaseActivityElement
         @return ссылка на себя
         
         @see #addElement
@@ -317,7 +319,7 @@ class ServerActivity(ActionActivity):
     def add(self, inId, inProcName, inAddContext="current"):
         """
         @param inId (@c string) ИД обновляемого элемента
-        @param inProcName (<em>string or function object</em>) функция-обработчик
+        @param inProcName (<tt>string or function object</tt>) функция-обработчик
         действия
         @return ссылка на себя
         """
@@ -346,9 +348,9 @@ class ClientActivity(ServerActivity):
     """Описывает клиентское действие.
     
     Поведение этого класса полностью совпадает с поведением
-    common.api.events.activities.ServerActivity. При добавлении пользовательского
-    действия важно помнить, что функция-обработчик действия должна быть
-    **js-функцией** 
+    @c common.api.events.activities.ServerActivity. При добавлении 
+    пользовательского действия важно помнить, что функция-обработчик действия 
+    должна быть **js-функцией** 
     """
     
     def __init__(self):

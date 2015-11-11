@@ -116,12 +116,11 @@ class GridEvent(_Events):
     
     def __init__(self, inType, inAction=Action(), inColumn=None):
         """
-        Параметры:
-            - inType (константа GridEventTypes) - тип события
-            - inAction (Action) - действие по событию
-            - inColumn (string) - столбец, на котором инициируется событие.
-            Заполняется для типов GridEventTypes.CELL_SINGLE_CLICK и
-            GridEventTypes.CELL_DOUBLE_CLICK
+        @param inType (<tt>константа common.api.events.events.GridEventTypes</tt>) тип события
+        @param inAction (@c common.api.events.action.Action) действие по событию
+        @param inColumn (@c string) столбец, на котором инициируется событие.
+        Заполняется для типов @c GridEventTypes.CELL_SINGLE_CLICK и
+        @c GridEventTypes.CELL_DOUBLE_CLICK
         """
         
         super(GridEvent, self).__init__(inType, inAction)
@@ -141,11 +140,10 @@ class GridEvent(_Events):
     
     
     def toJSONDict(self):
-        """Перегруженный метод (см. IJSONSerializable).
+        """Перегруженный метод (см. common.api.core.IJSONSerializable).
         
-        Если тип события GridEventTypes.CELL_SINGLE_CLICK или
-        GridEventTypes.CELL_DOUBLE_CLICK, но столбец (column) не задан, то
-        генерируется исключение ValueError. 
+        @throw ValueError Если тип события @c GridEventTypes.CELL_SINGLE_CLICK 
+        или @c GridEventTypes.CELL_DOUBLE_CLICK, но столбец (@a column) не задан 
         """
         if self.column() in GridEventTypes.CELL_EVENTS and not self.column():
             raise ValueError(self.column(), 
@@ -176,9 +174,7 @@ def getEvent(eventType):
             # первый аргумент - header item
             if len(args) > 1:
                 event.setColumn(args[0].caption)
-            
-            
-            
+
             event.setAction(eventAction)
                 
             return event

@@ -6,10 +6,9 @@ Created on 26 мая 2015 г.
 
 @author: tugushev.rr
 
-# TODO: layout для tab.
-# TODO: Определеения стилей для элементов и тэгов <tr> <td>
-# TODO: элементы plugin, geomap, chart
-
+@todo:layout для tab.
+@todo Определения стилей для элементов и тэгов <tr> <td>
+@todo элементы plugin, geomap, chart
 '''
 
 from common.api.core import ShowcaseBaseElement, ShowcaseBaseNamedElement, IXMLSerializable
@@ -80,7 +79,7 @@ class DatapanelElement(ShowcaseBaseElement):
         """
         @param elementId (@c string) ИД элемента
         @param elementType (@c DatapanelElementTypes) тип элемента
-        @param procName (<em>string or function object</em>) фунция-обработчик
+        @param procName (<tt>string or function object</tt>) фунция-обработчик
         загрузки данных для элемента
         """
         super(DatapanelElement, self).__init__(elementId)
@@ -143,7 +142,7 @@ class DatapanelElement(ShowcaseBaseElement):
     
     def proc(self):
         """Возвращает функцию-обработчик загрузки данных в элемент
-        @return (@c string) полное имя функции (qualified name)
+        @return (@c string) полное имя функции (*qualified name*)
         """
         return self.__proc
     
@@ -151,7 +150,7 @@ class DatapanelElement(ShowcaseBaseElement):
     @procname
     def setProc(self, value):
         """Устанавливает функцию-обработчик загрузки данных в элемент.
-        @param value (<em>string or function object</em>) фунция-обработчик
+        @param value (<tt>string or function object</tt>) фунция-обработчик
         загрузки данных
         @return ссылка на себя
         """
@@ -161,14 +160,14 @@ class DatapanelElement(ShowcaseBaseElement):
     
     def saveProc(self):
         """Возвращает функцию-обработчик сохранения данных
-        @return (@c string) полное имя функции (qualified name)
+        @return (@c string) полное имя функции (*qualified name*)
         """
         return self._getProc(ProcTypes.SAVE)
     
     
     def setSaveProc(self, value):
         """Устанавливает функцию-обработчик сохранения данных.
-        @param value (<em>string or function object</em>) фунция-обработчик
+        @param value (<tt>string or function object</tt>) фунция-обработчик
         сохранения данных
         @return ссылка на себя
         """
@@ -178,14 +177,14 @@ class DatapanelElement(ShowcaseBaseElement):
     
     def downloadProc(self):
         """Возвращает функцию-обработчик скачивания данных
-        @return (@c string) полное имя функции (qualified name)
+        @return (@c string) полное имя функции (*qualified name*)
         """
         return self._getProc(ProcTypes.DOWNLOAD)
     
     
     def setDownloadProc(self, value):
         """Устанавливает функцию-обработчик скачивания данных.
-        @param value (<em>string or function object</em>) фунция-обработчик
+        @param value (<tt>string or function object</tt>) фунция-обработчик
         скачивания данных
         @return ссылка на себя
         """
@@ -195,14 +194,14 @@ class DatapanelElement(ShowcaseBaseElement):
     
     def uploadProc(self):
         """Возвращает функцию-обработчик загрузки данных на сервер
-        @return (@c string) полное имя функции (qualified name)
+        @return (@c string) полное имя функции (*qualified name*)
         """
         return self._getProc(ProcTypes.UPLOAD)
     
     
     def setUploadProc(self, value):
         """Устанавливает функцию-обработчик загрузки данных на сервер.
-        @param value (<em>string or function object</em>) фунция-обработчик
+        @param value (<tt>string or function object</tt>) фунция-обработчик
         загрузки данных на сервер
         @return ссылка на себя
         """
@@ -212,7 +211,7 @@ class DatapanelElement(ShowcaseBaseElement):
     
     def addRelated(self, datapanelElement):
         """Добавлеят связанный элемент
-        @param datapanelElement (DatapanelElement)
+        @param datapanelElement (@c DatapanelElement)
         @return ссылка на себя
         """
         self.__related.append(datapanelElement)
@@ -262,7 +261,7 @@ class XForm(DatapanelElement):
         """
         @param elementId (@c string) ИД элемента
         @param templateName (@c string) имя файла шаблона
-        @param procName (<em>string or function object</em>) фунция-обработчик
+        @param procName (<tt>string or function object</tt>) фунция-обработчик
         загрузки данных для элемента
         """
         super(XForm, self).__init__(elementId, DatapanelElementTypes.XFORMS, procName)
@@ -280,7 +279,7 @@ class XForm(DatapanelElement):
     @procname
     def setTemplate(self, value):
         """Устанавливает имя файла шаблона XForms
-        @param value (<em>string or function object</em>) имя файла шаблона
+        @param value (<tt>string or function object</tt>) имя файла шаблона
         @return ссылка на себя
         """
         self.__template = value
@@ -304,7 +303,7 @@ class Webtext(DatapanelElement):
     def __init__(self, elementId, procName, transform=None):
         """
         @param elementId (@c string) ИД элемента
-        @param procName (<em>string or function object</em>) фунция-обработчик
+        @param procName (<tt>string or function object</tt>) фунция-обработчик
         загрузки данных для элемента
         @param transform (@c string) имя файла XSL-преобразования
         """
@@ -351,7 +350,7 @@ class Tab(ShowcaseBaseNamedElement):
     def __init__(self, tabId, tabName=u""):
         """
         @param tabId (@c string) ИД вкладки
-        @param tabName (@c string)наименование вкладки
+        @param tabName (@c string) наименование вкладки
         """
         super(Tab, self).__init__(tabId, tabName)
         self.__elements = []
