@@ -332,7 +332,7 @@ class Webtext(DatapanelElement):
         if not self.proc():
             raise ValueError(u"Proc for Webtext element id = '%s' is not set!" % self.id)
         
-        d = super(XForm, self).toJSONDict()
+        d = super(Webtext, self).toJSONDict()
         
         d["@transform"] = self.transform()
         
