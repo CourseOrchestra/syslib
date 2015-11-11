@@ -70,6 +70,10 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
         
     
     def toJSONDict(self):
+        
+        if self.isRoot() and self.getNumberOfChildren() == 0:
+            raise Exception('There are no child (group) nodes in root node! Root node has to have at least one child node!')
+        
         d = {}
         
         childrenLevel = self.getLevel() + 1
@@ -81,13 +85,8 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
                 d.update(self.__action.toJSONDict()) 
         
         levelNodes = [n.toJSONDict() for n in self.getChildren()]
-        
-#         it = self.getChildren().listIterator()
-#         while it.hasNext():
-#             n = it.next()
-#             levelNodes.append(n.toJSONDict())
-            
-        
+                   
+
         if levelNodes or childrenLevel == 0:
             levelText = None
             if childrenLevel > 0:
@@ -106,6 +105,8 @@ if __name__ == '__main__':
     from common.api.events.activities import DatapanelActivity
     rootNode = NavigatorNode(None, None) 
     
+#     print rootNode.toJSONDict()
+    
     n1 = NavigatorNode('g1', u'Group 1')
     
     n11 = NavigatorNode('n1.1', u'Node 1.1', 
@@ -113,9 +114,9 @@ if __name__ == '__main__':
                 DatapanelActivity().add('datapanel1.xml','firstOrCurrent')
             )
         ) 
-    
+     
     n1.addChild(n11)
-    
+     
     n1.addChild(
         NavigatorNode('n1.2', u'Node 1.2', 
             Action().addActivity(
@@ -123,13 +124,13 @@ if __name__ == '__main__':
             )
         )
     )
-    
+     
     n11.addChild(NavigatorNode('n1.1.1', u'Node 1.1.1', 
             Action().addActivity(
                 DatapanelActivity().add('datapanel3.xml','firstOrCurrent')
             )
         ))
-    
+     
     n2 = NavigatorNode('n1.3', u'Node 1.3',
             Action().addActivity(
                     DatapanelActivity().add('datapanel4.xml','firstOrCurrent')
