@@ -360,7 +360,7 @@ class Tab(ShowcaseBaseNamedElement):
         """Возвращает список элементов вкладки.
         Эсли на вкладке нет элементов, возвращает пустой список.
         
-        @return <em>list of common.api.datapanels.datapanel.DatapanelElement</em>
+        @return <tt>list of common.api.datapanels.datapanel.DatapanelElement</tt>
         """
         return self.__elements
     
@@ -411,7 +411,7 @@ class Datapanel(IXMLSerializable):
     def tabs(self):
         """Возвращает список вкладок.
         Если на информационной панели нет вкладок, возвращает пустой список.
-        @return <em>list of common.api.datapanels.datapanel.Tab</em>
+        @return <tt>list of common.api.datapanels.datapanel.Tab</tt>
         """
         return self.__tabs
     
