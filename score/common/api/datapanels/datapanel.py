@@ -95,6 +95,8 @@ class DatapanelElement(ShowcaseBaseElement):
         
         self.__elementProc = []
         self.__related = []
+        
+        self.__refreshInterval = None
     
     
     def type(self):
@@ -175,6 +177,25 @@ class DatapanelElement(ShowcaseBaseElement):
         return self
     
     
+    def refreshInterval(self):
+        """Возвращает интервал обновления элемента в секундах
+        @return @c int or @c None, если интервал не задан
+        """
+        return self.__refreshInterval
+    
+    
+    def setRefreshInterval(self, numSec):
+        """Включает обновление элемента по времени.
+        
+        Если @c numSec <= 0 или @c None, обновление отключается.
+         
+        @param numSec (@c int) интервал обновления в секундах
+        @return ссылка на себя
+        """
+        
+        self.__refreshInterval = numSec if numSec and numSec > 0 else None
+        
+        
     def downloadProc(self):
         """Возвращает функцию-обработчик скачивания данных
         @return (@c string) полное имя функции (*qualified name*)
@@ -250,7 +271,11 @@ class DatapanelElement(ShowcaseBaseElement):
         
         if self.__related:
             d['related'] = map(lambda x: {'@id': x.id()}, self.__related)
-            
+        
+        if self.refreshInterval():
+            d['@refreshByTimer'] = 'true'
+            d['@refreshInterval'] = self.refreshInterval()
+        
         return d
 
 
