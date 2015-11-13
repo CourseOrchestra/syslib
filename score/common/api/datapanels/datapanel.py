@@ -307,7 +307,7 @@ class Webtext(DatapanelElement):
         загрузки данных для элемента
         @param transform (@c string) имя файла XSL-преобразования
         """
-        super(Webtext, self).__init__(elementId, DatapanelElementTypes.XFORMS, procName)
+        super(Webtext, self).__init__(elementId, DatapanelElementTypes.WEBTEXT, procName)
         
         self.__transform = transform
     

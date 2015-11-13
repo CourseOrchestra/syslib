@@ -51,7 +51,7 @@ class GridContext:
             pNum = pInfo['@number']
             pSize = pInfo['@size']
         
-        ## (@c common.api.context.sessioncontex.GridContext.PageInfo) информация 
+        ## (@c common.api.context.sessioncontext.GridContext.PageInfo) информация 
         # о странице
         # @todo Уточнить описание
         self.pageInfo =  GridContext.PageInfo(pNum, pSize)
@@ -64,7 +64,7 @@ class GridContext:
             offset = lInfo['@offset']
             limit  = lInfo['@limit']
         
-        ## (@c common.api.context.sessioncontex.GridContext.LiveInfo) информация 
+        ## (@c common.api.context.sessioncontext.GridContext.LiveInfo) информация 
         # о странице
         # @todo Уточнить описание    
         self.liveInfo =  GridContext.LiveInfo(totalCount, pageNumber, offset, limit)
