@@ -19,7 +19,7 @@ from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList, htmlDecode
 from dirusing.hierarchy import isExtr
 from common.hierarchy import generateSortValue, hasChildren
-
+from common.sysfunctions import toHexForXml
 from dirusing.constants import DEFAULT_DATETIME_FORMAT_JAVA
 
 
@@ -62,7 +62,6 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
         if json.loads(table_meta.getColumn(column).getCelestaDoc())['name'] == u'sortNumber':
             sortColumn = column
                 #генерируем номера сортировки и пишем в базу
-    textcolumns = []
 
     #простановка фильтра на текстовые поля таблицы
     _setFilters(session, currentTable)
@@ -178,9 +177,9 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
                     continue
                 else:
                     if field not in ('~~id') and _headers[field][1] not in (4, 6, 7, 8):
-                        settings["gridsettings"]["columns"]["col"].append({"@id":htmlDecode(_headers[field][0])})
+                        settings["gridsettings"]["columns"]["col"].append({"@id":toHexForXml(_headers[field][0])})
                     elif field not in ('~~id') and _headers[field][1] in (4,):
-                        settings["gridsettings"]["columns"]["col"].append({"@id":htmlDecode(_headers[field][0]),
+                        settings["gridsettings"]["columns"]["col"].append({"@id":toHexForXml(_headers[field][0]),
 																			"@type": "DOWNLOAD",
 																			"@linkId":"download1"})
                     s_number += 1
@@ -280,8 +279,9 @@ def getData(context, main=None, add=None, filterinfo=None,
         
         data["records"]["rec"].append(rec_dict)
         
-        
-
+#     print "!!!!!!!!!!!!!!!!Data"
+#     print data
+    
     res = XMLJSONConverter.jsonToXml(json.dumps(data))
 #     print res
     return JythonDTO(res, None)
@@ -308,25 +308,27 @@ def getRecord(currentTable, context, table_meta, grain_name, rec, _headers):
             rec_dict[_headers[field][0]] = ''
             continue
         
+        fieldName = _headers[field][0]
+        
         if field not in ('~~id',) and _headers[field][1] not in (2, 4, 6, 7, 1):
-            rec_dict[_headers[field][0]] = getattr(rec, field)
+            rec_dict[fieldName] = getattr(rec, field)
         # Преобразуем первичный ключ в base64
         elif field == '~~id' and _headers[field][1] not in (4, 6, 7, 1):
-            rec_dict[_headers[field][0]] = base64.b64encode(json.dumps([elem for elem in rec._currentKeyValues()]))
+            rec_dict[fieldName] = base64.b64encode(json.dumps([elem for elem in rec._currentKeyValues()]))
         #Обработка булевого значения
         elif field not in ('~~id',) and _headers[field][1] == 1:
             refFieldId = getattr(rec, field)
             if getattr(rec, field) == True:
-                rec_dict[_headers[field][0]] = 'Да'
+                rec_dict[fieldName] = 'Да'
             else:
-                rec_dict[_headers[field][0]] = 'Нет'
+                rec_dict[fieldName] = 'Нет'
         #обработка даты. По умолчанию выводится дата и время
         elif field not in ('~~id',) and _headers[field][1] == 2:
             value = getattr(rec, field) or ''
             if value:
                 value = sdf.format(value)
                 
-            rec_dict[_headers[field][0]] = value
+            rec_dict[fieldName] = value
         #Обработка reference value    
         elif field not in ('~~id',) and _headers[field][1] == 7:
             refFieldId = getattr(rec, field)
@@ -335,9 +337,9 @@ def getRecord(currentTable, context, table_meta, grain_name, rec, _headers):
                 refTableName = column_jsn["refTable"]
                 relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
                 relatedTable.get(refFieldId)
-                rec_dict[_headers[field][0]] = getattr(relatedTable, column_jsn["refTableColumn"])
+                rec_dict[fieldName] = getattr(relatedTable, column_jsn["refTableColumn"])
             else:
-                rec_dict[_headers[field][0]] = ''
+                rec_dict[fieldName] = ''
         #Обработка reference list
         elif field not in ('~~id',) and _headers[field][1] == 6:
             column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
@@ -384,7 +386,7 @@ def getRecord(currentTable, context, table_meta, grain_name, rec, _headers):
                     if len(currentRecordIds) > 0:
                         if relatedTable.tryGet(*currentRecordIds):
                             refValue = refValue + getattr(relatedTable, refTableColumn) + "; "
-            rec_dict[_headers[field][0]] = refValue
+            rec_dict[fieldName] = refValue
     return rec_dict
 
 def getSettings(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -429,9 +431,9 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
                     continue
                 else:
                     if field not in ('~~id',) and _headers[field][1] != (4):
-                        settings["gridsettings"]["columns"]["col"].append({"@id":htmlDecode(_headers[field][0])})
+                        settings["gridsettings"]["columns"]["col"].append({"@id":_headers[field][3]})
                     elif field not in ('~~id',) and _headers[field][1] == (4):
-                        settings["gridsettings"]["columns"]["col"].append({"@id":htmlDecode(_headers[field][0]),
+                        settings["gridsettings"]["columns"]["col"].append({"@id":_headers[field][3],
                                                                             "@type": "DOWNLOAD",
                                                                             "@linkId":"download1"})
                     s_number += 1
@@ -441,6 +443,10 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
             return None
     s_number = 0
     _sortedHeaders(s_number)
+    
+#     print "!!!!!!!!!!!!!!!!Settings"
+#     print settings
+    
     res = XMLJSONConverter.jsonToXml(json.dumps(settings))
     return JythonDTO(None, res)
 

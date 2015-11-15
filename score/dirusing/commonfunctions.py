@@ -25,10 +25,20 @@ def relatedTableCursorImport(grain_name, table_name):
 
 def getFieldsHeaders(table_meta, elem_type):
     u'''Функция для получения соответствия между реальными именами полей
-    и заголовками в гриде. '''
+    и заголовками в гриде.
+    
+    Возвращает словарь вида:
+        {<Имя поля>: 
+            [<Имя столбца для XML>,    #индекс 0 
+            <ИД типа>,                 #индекс 1
+            <Порядок>,                 #индекс 2
+            <Имя столбца>              #индекс 3
+            ]
+        }
+    '''
 
     # Заносим служебные поля
-    _headers = {'~~id':['~~id', 0, 0]}
+    _headers = {'~~id':['~~id', 0, 0, '~~id']}
 
     # Получаем список имён столбцов из метаданных
     col_names = table_meta.getColumns()
@@ -40,11 +50,12 @@ def getFieldsHeaders(table_meta, elem_type):
             if elem_type == "grid":
                 if column_jsn["visualLength"] == '0':
                     continue
-            _headers[col_name] = [column_jsn["name"], int(column_jsn["fieldTypeId"]), int(column_jsn["fieldOrderInSort"])]
+            _headers[col_name] = [column_jsn["name"], int(column_jsn["fieldTypeId"]), int(column_jsn["fieldOrderInSort"]), column_jsn["name"]]
         except:
             continue
     for col in _headers:
         _headers[col][0] = toHexForXml(_headers[col][0])
+#         _headers[col][3] = htmlDecode(_headers[col][0])
 
     return _headers
 

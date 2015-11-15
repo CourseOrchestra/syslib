@@ -25,8 +25,12 @@ from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders
 def selector(context, main=None, add=None, filterinfo=None, session=None, params=None, curvalue=None, startswith=None, firstrecord=None, recordcount=None):
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
+    
+    print "!!!!!!!!!!!!!!! SELECTOR"
+    print type(params)
+    print params
 
-    dom = minidom.parseString(params)
+    dom = minidom.parseString(params.encode('UTF-8'))
     for elem in dom.getElementsByTagName('dbFieldName'):
         for child in elem.childNodes:
             dbFieldName = child.nodeValue.strip()
@@ -68,7 +72,8 @@ def selector(context, main=None, add=None, filterinfo=None, session=None, params
 def multiSelector(context, main=None, add=None, filterinfo=None, session=None, params=None, curvalue=None, startswith=None, firstrecord=None, recordcount=None):
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
-    dom = minidom.parseString(params)
+    
+    dom = minidom.parseString(params.encode('UTF-8'))
     for elem in dom.getElementsByTagName('dbFieldName'):
         for child in elem.childNodes:
             dbFieldName = child.nodeValue.strip()
