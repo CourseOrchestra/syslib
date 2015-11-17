@@ -88,7 +88,7 @@
 	</head>
 	
 	<body>
-	  <!--xf:output value="serialize(instance('xformId_mainInstance'))"/-->
+<!-- 	  <xf:output value="serialize(instance('xformId_mainInstance'))"/> -->
  	  <div style="width: 630px; float: left; clear: both;"> 
       <div class="header">
         <xf:output value="instance('xformId_mainInstance')/spravs/sprav/@name">
@@ -146,7 +146,7 @@
                     </div>                        
                   </xf:repeat>
                 </div>
-                <div class="button030">
+                <div class="button30">
                   <xf:multiselector 
                     buttonLabel="+" 
                     procListAndCount="'dirusing.selector.multiSelector.celesta'" 
@@ -182,50 +182,37 @@
 						<xf:label>+</xf:label>
 						<xf:action ev:event="DOMActivate">
 							<xf:load resource="javascript:gwtCreatePlugin({
-								id:'xformId',
-								plugin:'extJsTree',
-								postProcessProc:'handleExtJsTree.py',
-								getDataProcName:'dirusing.selector.treeSelectorData.celesta',
-								generalFilters:['XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))])'],
-								params:{
-								treePanel: {
-								title: 'Выбор нескольких значений из дерева',
-								},
-								core: {
-								checkParent:true,
-								filter:{
-								startsWith:true,
-								delay:900
-								}
-								},
-								dataModel:
-								{
-									fields:
-									[
-										{name: 'refvalue', type: 'string'}
-									]
-								},
-								view:
-								{
-									columns:
-									[
-										{ header: 'Название', dataIndex: 'refvalue'}
-									]
-								}
-								},
-								options: {								
-								dataWidth: '500px',
-								dataHeight: '450px',
-								windowCaption: 'Выбор нескольких значений из дерева',
-								onSelectionComplete: function(ok, plugin) {
-								if (ok) {
-								plugin.utils.singleXpathMapping({
-								'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/value)' : 'name',
-								'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/ref_values)' : 'id'
-								});
-								}
-								}
-								}
+									id:'xformId',
+									plugin:'extJsTree',
+									getDataProcName:'dirusing.selector.treeSelectorData.celesta',
+									postProcessProc:'handleExtJsTree.py',
+									generalFilters:['XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))])'],
+									params: {
+										treePanel: {title: 'Выбор нескольких значений из дерева'},
+										core: {
+											checkParent: true,
+											filter: {startsWith:true, delay:900}
+										},
+										dataModel: {
+											fields: [{name: 'refvalue', type: 'string'}]
+										},
+										view: {
+										columns: [{ header: 'Название', dataIndex: 'refvalue'}]
+										}
+									},
+									options: {								
+										dataWidth: '500px',
+										dataHeight: '450px',
+										windowCaption: 'Выбор нескольких значений из дерева',
+										onSelectionComplete: function(ok, plugin) {
+											if (ok) {
+												plugin.utils.singleXpathMapping({
+													'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/value)' : 'name',
+													'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/ref_values)' : 'id'
+												});
+											}
+										}
+									}
 								});" />
 						</xf:action>
 					</xf:trigger>
@@ -262,50 +249,40 @@
 						<xf:label>...</xf:label>
 						<xf:action ev:event="DOMActivate">
 							<xf:load resource="javascript:gwtCreatePlugin({
-								id:'xformId',
-								plugin:'extJsTree',
-								postProcessProc:'handleExtJsTree.py',
-								getDataProcName:'dirusing.selector.treeSelectorData.celesta',
-								generalFilters:['XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))])'],
-								params:{
-								treePanel: {
-								title: 'выбор одного значения в дереве',
-								},
-								core: {
-								checkParent:true,
-								filter:{
-								startsWith:true,
-								delay:900
-								}
-								},
-								dataModel:
-								{
-									fields:
-									[
-										{name: 'refvalue', type: 'string'}
-									]
-								},
-								view:
-								{
-									columns:
-									[
-										{ header: 'Название', dataIndex: 'refvalue'}
-									]
-								}
-								},
-								options: {								
-								dataWidth: '500px',
-								dataHeight: '450px',
-								windowCaption: 'Выбор одного значения в дереве',
-								onSelectionComplete: function(ok, plugin) {
-								if (ok) {
-								plugin.utils.singleXpathMapping({
-								'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/value)' : 'name',
-								'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/ref_values)' : 'id'
-								});																
-								}
-								}
-								}
+									id:'xformId',
+									plugin:'extJsTree',
+									getDataProcName:'dirusing.selector.treeSelectorData.celesta',
+									postProcessProc:'handleExtJsTree.py',
+									generalFilters:['XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))])'],
+									params: { 
+										treePanel: {title: 'выбор одного значения в дереве'},
+										core: {
+											checkParent: true,
+											filter: {
+												startsWith: false,
+												delay:900
+											}
+										},
+										dataModel: {
+											fields: [{name: 'refvalue', type: 'string'}]
+										},
+										view: {
+											columns: [{ header: 'Название', dataIndex: 'refvalue'}]
+										}
+									},
+									options: {	
+										dataWidth: '500px',
+										dataHeight: '450px',
+										windowCaption: 'Выбор одного значения в дереве',
+										onSelectionComplete: function(ok, plugin) {
+											if (ok) {
+												plugin.utils.singleXpathMapping({
+													'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/value)' : 'name',
+													'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/ref_values)' : 'id'
+												});																
+											}
+										}
+									}
 								});" />
 						</xf:action>
 					</xf:trigger>
@@ -356,7 +333,7 @@
 
           </xf:group>
       </div>
-      <hr class="hr" style="width: 604px"/>
+    <hr class="break hr" style="width: 604px"/>
     </div>
     <div style="width: 604px; height: 10px; vertical-align: middle; float: left; clear: both; margin: 0; font-size: small; padding-left: 10px;">
       * - обязательно для заполнения
