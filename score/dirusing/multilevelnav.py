@@ -4,7 +4,7 @@ Created on 01.03.2014
 
 @author: Kuzmin
 '''
-import simplejson as json
+import json
 
 def getFoldersList(grainJsn,folderLevel):
     u'''Функция для получения сортированного списка папок для отрисовки определенного уровня навигатора'''
@@ -20,7 +20,7 @@ def getFoldersList(grainJsn,folderLevel):
                     folderList.append(folder)
     return folderList
 
-def getDirJson(context,grain,dirId,dirName):
+def getDirJson(context, grain, dirId, dirName):
     u'''Функция заполнения части навигатора'''
     main = u'{"grain":"%s","table":"%s"}' % (grain,dirId)
     table_jsn = json.loads(context.getCelesta().getScore().getGrain(grain).getTable(dirId).getCelestaDoc())

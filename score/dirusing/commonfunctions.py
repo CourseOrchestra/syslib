@@ -6,13 +6,36 @@ import java.io.BufferedReader as BufferedReader
 from java.io import FileOutputStream, ByteArrayOutputStream, FileInputStream, File
 import base64
 import uuid
-import simplejson as json
+import json
 from common.sysfunctions import toHexForXml
 try:
     from ru.curs.showcase.core.jython import JythonDownloadResult
     from ru.curs.showcase.core.jython import JythonErrorResult
 except:
     pass
+
+def getCursorDeweyColumns(table_meta):
+    """Ищет в метаданных поля для работы с Дьюи: столбец кода и сортировки.
+    
+    Если такие имена столбцов не найдены, по умолчанию считается, что такими 
+    являются поля курсора **deweyCode** и **deweySort** 
+    
+    @param table_meta метаданные курсора Celesta 
+    @return (tuple of (string, string)) 0 - поле кода Дьюи, 1 - поле сортировки
+    Дьюи 
+    """
+    deweyColumn = 'deweyCode'
+    sortColumn = 'deweySort'
+    
+    for column in table_meta.getColumns():
+        cDoc = json.loads(table_meta.getColumn(column).getCelestaDoc())
+            #получаем названиe колонкu с кодом дьюи 
+        if cDoc['name'] in (u'deweyCode', u'deweyCod', u'deweyKod'):
+            deweyColumn = column
+        if cDoc['name'] == u'sortNumber':
+            sortColumn = column
+            
+    return deweyColumn, sortColumn
 
 def relatedTableCursorImport(grain_name, table_name):
     u'''Функция, выдающая класс курсора на таблицу, связанную с выбранным справочником '''

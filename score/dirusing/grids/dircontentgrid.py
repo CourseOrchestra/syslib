@@ -5,7 +5,7 @@ Created on 12.02.2014
 @author: Kuzmin
 '''
 
-import simplejson as json
+import json
 import base64
 from java.text import SimpleDateFormat
 
@@ -16,7 +16,7 @@ except:
 
 
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList, htmlDecode
+from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList, htmlDecode, getCursorDeweyColumns
 from dirusing.hierarchy import isExtr
 from common.hierarchy import generateSortValue, hasChildren
 from common.sysfunctions import toHexForXml
@@ -55,14 +55,9 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
     table_meta = context.getCelesta().getScore().getGrain(grain_name).getTable(table_name)
     # Заголовки полей
     _headers = getFieldsHeaders(table_meta, "grid")
-    for column in table_meta.getColumns():
-            #получаем названиe колонкu с кодом дьюи
-        if json.loads(table_meta.getColumn(column).getCelestaDoc())['name'] in (u'deweyCode', u'deweyCod', u'deweyKod'):
-            deweyColumn = column
-        if json.loads(table_meta.getColumn(column).getCelestaDoc())['name'] == u'sortNumber':
-            sortColumn = column
-                #генерируем номера сортировки и пишем в базу
-
+    
+    deweyColumn, sortColumn = getCursorDeweyColumns(table_meta)
+    
     #простановка фильтра на текстовые поля таблицы
     _setFilters(session, currentTable)
     
@@ -128,7 +123,8 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
 #                 rec_dict = {}
                 len_dewey = len(getattr(rec, deweyColumn).split('.'))
                 if len_dewey == 1:
-                    rec_dict = getRecord(currentTable, context, table_meta, grain_name, rec, _headers, event)
+                    rec_dict = getRecord(currentTable, context, table_meta, grain_name, rec, _headers)
+                    rec_dict['properties'] = event
                     rec_dict["HasChildren"] = '1' if hasChildren(context, rec, deweyColumn) else '0'
                     data["records"]["rec"].append(rec_dict)
         else:
@@ -141,7 +137,8 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
                 len_dewey = len(getattr(rec, deweyColumn).split('.'))
                 if getattr(rec, deweyColumn).startswith(parent):
                     if len_dewey == len_parent + 1:
-                        rec_dict = getRecord(currentTable, context, table_meta, grain_name, rec, _headers, event)
+                        rec_dict = getRecord(currentTable, context, table_meta, grain_name, rec, _headers)
+                        rec_dict['properties'] = event
                         rec_dict["HasChildren"] = '1' if hasChildren(context, rec, deweyColumn) else '0'
                         data["records"]["rec"].append(rec_dict)
     else:

@@ -7,7 +7,7 @@ Created on 01.03.2014
 '''
 
 import os
-import simplejson as json
+import json
 import ru.curs.celesta.Celesta as Celesta
 import ru.curs.celesta.ConnectionPool as ConnectionPool
 import ru.curs.celesta.CallContext as CallContext

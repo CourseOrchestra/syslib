@@ -2,7 +2,7 @@
 
 from java.io import FileOutputStream,File,ByteArrayOutputStream
 from java.text import SimpleDateFormat
-import simplejson as json
+import json
 import datetime
 import xml.etree.ElementTree as ET
 from org.apache.poi.hssf.usermodel import HSSFWorkbook,HSSFDataFormat,HSSFCellStyle,DVConstraint,HSSFDataValidation

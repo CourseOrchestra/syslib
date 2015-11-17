@@ -5,7 +5,7 @@ Created on 16.02.2014
 @author: Kuzmin
 '''
 
-import simplejson as json
+import json
 import base64
 
 try:

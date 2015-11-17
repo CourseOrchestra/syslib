@@ -4,7 +4,7 @@
 @author: a.rudenko
 
 '''
-import simplejson as json
+import json
 import base64
 
 try:

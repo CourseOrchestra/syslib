@@ -6,7 +6,7 @@ Created on 28.11.2013
 '''
 
 import os
-import simplejson as json
+import json
 from common.grainssettings import SettingsManager
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 

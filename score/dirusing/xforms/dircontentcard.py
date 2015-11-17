@@ -5,8 +5,9 @@ Created on 16.02.2014
 @author: Kuzmin
 '''
 
-import simplejson as json
+import json
 import base64
+from java.text import SimpleDateFormat
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -22,6 +23,7 @@ from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders,
 from common.hierarchy import getNewItemInLevelInHierarchy, generateSortValue
 from dirusing.hierarchy import getNewItemInUpperLevel
 from datetime import datetime
+from dirusing.constants import DEFAULT_DATE_FORMAT_JAVA
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Функция данных для карточки редактирования содержимого справочника. '''
@@ -55,6 +57,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                                        }
                             }
                   }
+    
+    sdf = SimpleDateFormat("YYYY-MM-dd")
     # Получаем словарь полей и заголовков полей справочника
     def _sortedHeaders(s_number):
         try:
@@ -180,8 +184,9 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                             elif field_data["type_id"] == 2:
                                 value = getattr(currentTable, field)
                                 if value is not None:
-                                    datetimeValue = datetime.strptime(str(value), '%Y-%m-%d %H:%M:%S')
-                                    field_data["value"] = str(datetimeValue.date())
+#                                     datetimeValue = datetime.strptime(str(value), '%Y-%m-%d %H:%M:%S')
+#                                     field_data["value"] = str(datetimeValue.date())
+                                    field_data["value"] = sdf.format(value)
                                 else:
                                     field_data["value"] = ''
                             elif field_data["type_id"] == 7:
