@@ -1,5 +1,5 @@
 # coding: utf-8
-import ru.curs.lyra.BasicLyraForm as BasicLyraForm
+import ru.curs.lyra.BasicCardForm as BasicCardForm
 import lyraplayer
 
 class formfield(object):
