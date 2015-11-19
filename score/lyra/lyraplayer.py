@@ -26,7 +26,7 @@ def getFormInstance(context, main=None, add=None, filterinfo=None, session=None,
     else:
         #TODO: отработка ошибки на не найденный класс формы
         c = _formclasses[main]
-        result = c()
+        result = c(context)
         lf[main] = result
         
     result.setContext(context, session, main, add, elementId)

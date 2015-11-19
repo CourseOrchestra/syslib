@@ -4,6 +4,9 @@ import ru.curs.lyra.BasicCardForm as BasicCardForm
 class CardForm(BasicCardForm):
     u'''Basic class for a card form'''
     
+    def __init__(self, context):
+        BasicCardForm.__init__(self, context)
+    
     def _serializeFields(self):
         if not hasattr(self.__class__, "_properties"):
             raise Exception('Did you forget @form decorator for class %s?' % (self.__class__.__name__))
@@ -21,7 +24,7 @@ class CardForm(BasicCardForm):
         return self.__class__.__module__ + "." + self.__class__.__name__
     
     def setContext(self, context, session, main, add, elemetId):
-        self.context = context
+        self.setCallContext(context)
         self.session = session
         self.main = main
         self.add = add
