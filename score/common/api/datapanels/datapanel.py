@@ -286,7 +286,7 @@ class XForm(DatapanelElement):
         """
         @param elementId (@c string) ИД элемента
         @param templateName (@c string) имя файла шаблона
-        @param procName (<tt>string or function object</tt>) фунция-обработчик
+        @param procName (<tt>string or function object</tt>) функция-обработчик
         загрузки данных для элемента
         """
         super(XForm, self).__init__(elementId, DatapanelElementTypes.XFORMS, procName)

@@ -11,6 +11,7 @@ Created on 15 сент. 2015 г.
 from common.api.core import ShowcaseBaseNamedElement
 from common.api.events.action import Action
 from common.api.tree.treenode import Node
+from collections import OrderedDict
 
 
 class NavigatorNode(ShowcaseBaseNamedElement, Node):
@@ -74,15 +75,13 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
         if self.isRoot() and self.getNumberOfChildren() == 0:
             raise Exception('There are no child (group) nodes in root node! Root node has to have at least one child node!')
         
-        d = {}
+        d = OrderedDict()
         
         childrenLevel = self.getLevel() + 1
         
-        # если корневой элемент, то не надо записывать атрибуты
         if childrenLevel > 0:
-            d = super(NavigatorNode, self).toJSONDict()
-            if self.__action:
-                d.update(self.__action.toJSONDict()) 
+            sd = super(NavigatorNode, self).toJSONDict()
+            d.update(sd)
         
         levelNodes = [n.toJSONDict() for n in self.getChildren()]
                    
@@ -96,6 +95,11 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
                 levelText = 'group'
                 d[levelText] = {}
                 d[levelText].update(levelNodes[0])
+        
+        
+        # если корневой элемент, то не надо записывать атрибуты
+        if childrenLevel > 0 and self.__action:
+            d.update(self.__action.toJSONDict()) 
         
         return d 
             

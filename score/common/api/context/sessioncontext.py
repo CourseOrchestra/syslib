@@ -192,7 +192,7 @@ class SessionContext:
         if not self.relatedGrids:
             return None
         
-        if not gridId:
+        if gridId is None:
             return self.relatedGrids[0]
             
         foundGrid = filter(lambda x: x.id == gridId, self.relatedGrids)
@@ -265,5 +265,12 @@ class SessionContext:
             
         self.relatedForms = [FormsContext(rg) for rg in formContextList]
     
+
+if __name__ == '__main__':
+    s = '{"sessioncontext":{"userdata":"default","phone":"","username":"super","fullusername":"super","email":"","sid":"super","login":"super","related":{"gridContext":[{"currentColumnId":"ID","@id":"optGrid","gridFilterInfo":"","pageInfo":{"@size":"20","@number":"1"},"liveInfo":{"@totalCount":"2","@pageNumber":"1","@offset":"0","@limit":"50"},"partialUpdate":"false","currentDatapanelHeight":"782","selectedRecordId":"1","currentRecordId":"1","currentDatapanelWidth":"1596"},{"currentColumnId":"ID","@id":"optValsGrid","gridFilterInfo":"","pageInfo":{"@size":"20","@number":"1"},"liveInfo":{"@totalCount":"5","@pageNumber":"1","@offset":"0","@limit":"50"},"partialUpdate":"false","currentDatapanelHeight":"782","selectedRecordId":"6","currentRecordId":"6","filter":{"filter":{"context":"null"}},"currentDatapanelWidth":"1596"}]},"ip":"0:0:0:0:0:0:0:1","sessionid":"3D372AA540A12432E88D01B2823C7804"}}'
     
+    ses = SessionContext(s)
+    
+    
+    t = 1
                 
