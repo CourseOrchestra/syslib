@@ -1,5 +1,9 @@
 # coding: utf-8
-import lyraplayer
+_formclasses = {}
+
+def register(c):
+    cid = c.__module__ + "." + c.__name__
+    _formclasses[cid] = c
 
 class formfield(object):
     def __init__(self, celestatype, caption=None):
@@ -33,6 +37,6 @@ def form(cls):
     for name, method in cls.__dict__.iteritems():
         if method.__class__ == formfield:
             cls._properties[name] = method
-    lyraplayer.register(cls)
+    register(cls)
     return cls
 

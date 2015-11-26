@@ -3,7 +3,6 @@ import ru.curs.lyra.BasicCardForm as BasicCardForm
 
 class CardForm(BasicCardForm):
     u'''Basic class for a card form'''
-    
     def __init__(self, context):
         BasicCardForm.__init__(self, context)
     
@@ -148,7 +147,7 @@ class CardForm(BasicCardForm):
 
 
     def _buildForm(self):
-        meta = self.getRecMeta()
+        meta = self.meta()
 
         formTemplate = self.hdr
         formTemplate += '<xf:instance xmlns="" id="xformId_mainInstance" />'

@@ -5,14 +5,8 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO
     from ru.curs.celesta.showcase.utils import XMLJSONConverter
-
+import basicForm
 import simplejson as json
-
-_formclasses = {}
-
-def register(c):
-    id = c.__module__ + "." + c.__name__
-    _formclasses[id] = c
         
 def getFormInstance(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     if '_lyraForms' in context.data:
@@ -25,7 +19,7 @@ def getFormInstance(context, main=None, add=None, filterinfo=None, session=None,
         result = lf[main]
     else:
         #TODO: отработка ошибки на не найденный класс формы
-        c = _formclasses[main]
+        c = basicForm._formclasses[main]
         result = c(context)
         lf[main] = result
         
