@@ -75,31 +75,33 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
         if self.isRoot() and self.getNumberOfChildren() == 0:
             raise Exception('There are no child (group) nodes in root node! Root node has to have at least one child node!')
         
-        d = OrderedDict()
+        d = {}
         
         childrenLevel = self.getLevel() + 1
         
+        srtLst = []
+        # если корневой элемент, то не надо записывать атрибуты
         if childrenLevel > 0:
             sd = super(NavigatorNode, self).toJSONDict()
             d.update(sd)
+            if self.__action:
+                srtLst.append(self.__action.toJSONDict()) 
         
         levelNodes = [n.toJSONDict() for n in self.getChildren()]
                    
-
         if levelNodes or childrenLevel == 0:
             levelText = None
             if childrenLevel > 0:
                 levelText = 'level%i' % childrenLevel 
-                d[levelText] = levelNodes 
+                srtLst.append({levelText: levelNodes})
             else: 
                 levelText = 'group'
                 d[levelText] = {}
                 d[levelText].update(levelNodes[0])
         
+        if srtLst:
+            d["#sorted"] = srtLst 
         
-        # если корневой элемент, то не надо записывать атрибуты
-        if childrenLevel > 0 and self.__action:
-            d.update(self.__action.toJSONDict()) 
         
         return d 
             
