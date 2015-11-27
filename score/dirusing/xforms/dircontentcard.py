@@ -297,6 +297,64 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 
     return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(xformsdata)), XMLJSONConverter.jsonToXml(json.dumps(xformssettings)))
 
+
+def saveRefValues(context, currentTable, field, grainName, isEdit=False):
+    column_jsn = json.loads(currentTable.meta().getColumn(field["dbFieldName"]).getCelestaDoc())
+    mappingTableName = column_jsn["refMappingTable"]
+    mappingTable = relatedTableCursorImport(grainName, mappingTableName)(context)
+
+    refTableName = column_jsn["refTable"]
+#             refTableColumn = column_jsn["refTableColumn"]
+    relatedTable = relatedTableCursorImport(grainName, refTableName)(context)
+
+    currentTablePKs = []
+    relatedTablePKs = []
+    currentTablePKObject = currentTable.meta().getPrimaryKey()
+    for key in currentTablePKObject:
+        currentTablePKs.extend([key])
+    relatedTablePKObject = relatedTable.meta().getPrimaryKey()
+    for key in relatedTablePKObject:
+        relatedTablePKs.extend([key])
+            #получаем foreignkey'и для таблицы с меппингом
+    foreignKeys = mappingTable.meta().getForeignKeys()
+
+    #raise Exception (currentTablePKObject, currentTablePKs)
+
+    aForeignKeyColumns = []
+    bForeignKeyColumns = []
+    for foreignKey in foreignKeys:
+        #проверяем к какой таблице относится ключ и получаем список зависимых полей
+        if foreignKey.getReferencedTable() == currentTable.meta():
+            aForeignKeyColumns = foreignKey.getColumns()
+        else:
+            bForeignKeyColumns = foreignKey.getColumns()
+
+    if isEdit:
+        for colA, PKA in zip(aForeignKeyColumns, currentTablePKs):
+            mappingTable.setRange(colA, getattr(currentTable, PKA))#type_id,12
+        mappingTable.deleteAll()
+    
+    if field["ref_values"] == '':
+        return
+    
+    items = field["ref_values"]["item"]
+    if not isinstance(items, list):
+        items = [items]
+        
+    for item in items:
+        mappingTable.clear()
+        itemDecoded = base64.b64decode(item["id"])
+
+        bForeignKeyColumnsValues = json.loads(itemDecoded)
+        for colA, PKA in zip(aForeignKeyColumns, currentTablePKObject):
+            setattr(mappingTable, colA, getattr(currentTable, PKA))
+
+        for colB, value in zip(bForeignKeyColumns, bForeignKeyColumnsValues):
+            setattr(mappingTable, colB, value)
+
+        mappingTable.insert()
+
+
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     u'''Функция сохранения карточки редактирования содержимого справочника. '''
     #return UserMessage(u"TEST3", u"%s" % (xformsdata))
@@ -372,43 +430,7 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                         setattr(currentTable, sortColumn, generateSortValue(field["value"]))
         currentTable.insert()
         for field in dictWithRefList:
-            column_jsn = json.loads(currentTable.meta().getColumn(field["dbFieldName"]).getCelestaDoc())
-            mappingTableName = column_jsn["refMappingTable"]
-            mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
-            currentTablePKObject = currentTable.meta().getPrimaryKey()
-
-            foreignKeys = mappingTable.meta().getForeignKeys()
-            # список столбцов FK на текущий справочник (currentTable)
-            aForeignKeyColumns = []
-            # список столбцов FK на зависимый справочник (refTable)
-            bForeignKeyColumns = []
-            for foreignKey in foreignKeys:
-
-                        #проверяем к какой таблице относится ключ и получаем список зависимых полей
-                if foreignKey.getReferencedTable() == currentTable.meta():
-                    aForeignKeyColumns = foreignKey.getColumns()
-                else:
-                    bForeignKeyColumns = foreignKey.getColumns()
-
-            if field["ref_values"] == '':
-                break
-            
-            items = field["ref_values"]["item"]
-            if not isinstance(items, list):
-                items = [items]
-                
-            for item in items:
-                mappingTable.clear()
-                itemDecoded = base64.b64decode(item["id"])
-
-                bForeignKeyColumnsValues = json.loads(itemDecoded)
-                for colA, PKA in zip(aForeignKeyColumns, currentTablePKObject):
-                    setattr(mappingTable, colA, getattr(currentTable, PKA))
-
-                for colB, value in zip(bForeignKeyColumns, bForeignKeyColumnsValues):
-                    setattr(mappingTable, colB, value)
-
-                mappingTable.insert()
+            saveRefValues(context, currentTable, field, grain_name)
     else:
         # Редактирование уже существующей
         keys = []
@@ -468,71 +490,5 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
                     setattr(currentTable, field["dbFieldName"], field["ref_values"])
         currentTable.update()
         for field in dictWithRefList:
-            column_jsn = json.loads(currentTable.meta().getColumn(field["dbFieldName"]).getCelestaDoc())
-            mappingTableName = column_jsn["refMappingTable"]
-            mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
+            saveRefValues(context, currentTable, field, grain_name, True)
 
-            refTableName = column_jsn["refTable"]
-#             refTableColumn = column_jsn["refTableColumn"]
-            relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
-
-            currentTablePKs = []
-            relatedTablePKs = []
-            currentTablePKObject = currentTable.meta().getPrimaryKey()
-            for key in currentTablePKObject:
-                currentTablePKs.extend([key])
-            relatedTablePKObject = relatedTable.meta().getPrimaryKey()
-            for key in relatedTablePKObject:
-                relatedTablePKs.extend([key])
-                    #получаем foreignkey'и для таблицы с меппингом
-            foreignKeys = mappingTable.meta().getForeignKeys()
-
-            #raise Exception (currentTablePKObject, currentTablePKs)
-
-            aForeignKeyColumns = []
-            bForeignKeyColumns = []
-            for foreignKey in foreignKeys:
-                        #проверяем к какой таблице относится ключ и получаем список зависимых полей
-                        if foreignKey.getReferencedTable() == currentTable.meta():
-                            aForeignKeyColumns = foreignKey.getColumns()
-                        else:
-                            bForeignKeyColumns = foreignKey.getColumns()
-
-
-            for colA, PKA in zip(aForeignKeyColumns, currentTablePKs):
-                mappingTable.setRange(colA, getattr(currentTable, PKA))#type_id,12
-            mappingTable.deleteAll()
-            
-            if field["ref_values"] == '':
-                break
-            
-            items = field["ref_values"]["item"]
-            if not isinstance(items, list):
-                items = [items]
-                
-            for item in items:
-                mappingTable.clear()
-                itemDecoded = base64.b64decode(item["id"])
-
-                bForeignKeyColumnsValues = json.loads(itemDecoded)
-                for colA, PKA in zip(aForeignKeyColumns, currentTablePKObject):
-                    setattr(mappingTable, colA, getattr(currentTable, PKA))
-
-                for colB, value in zip(bForeignKeyColumns, bForeignKeyColumnsValues):
-                    setattr(mappingTable, colB, value)
-
-                mappingTable.insert()
-                
-#             elif type(field["ref_values"]["item"]) == dict and field["ref_values"]["item"]["id"] != '':
-# 
-#                 mappingTable = relatedTableCursorImport(grain_name, mappingTableName)(context)
-#                 itemDecoded = base64.b64decode(field["ref_values"]["item"]["id"])  #WzZd
-# 
-#                 bForeignKeyColumnsValues = json.loads(itemDecoded) #[6]
-# 
-#                 for colA, PKA in zip(aForeignKeyColumns, currentTablePKs):
-#                     setattr(mappingTable, colA, getattr(currentTable, PKA))#11
-# 
-#                 for colB, value in zip(bForeignKeyColumns, bForeignKeyColumnsValues):
-#                     setattr(mappingTable, colB, str(value))
-#                 mappingTable.insert()
