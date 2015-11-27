@@ -130,15 +130,21 @@ def treeSelectorData(context, main=None, add=None, filterinfo=None, session=None
     curvalue = params["curValue"].lower() if 'curValue' in params else ''
     startswith = True if "startsWith" in params and params["startsWith"] == 'true' else False
 
-    parentId = params.get("id", None)
-    if parentId:
-        parentId = json.loads(base64.b64decode(parentId))
-
-    dbFieldName = params["generalFilters"]["filter"]["field"]["dbFieldName"]
     field_type = int(params["generalFilters"]["filter"]["field"]["type_id"])
-
     treeSelectorMulty = True if (field_type == 6) else False
 
+    parentId = params.get("id", None)
+    if parentId:
+        if treeSelectorMulty:
+            print "TREEMULTY"
+            print parentId
+            parentId = json.loads(base64.b64decode(parentId))
+            print parentId
+        else:
+            parentId = int(parentId)
+
+    dbFieldName = params["generalFilters"]["filter"]["field"]["dbFieldName"]
+    
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
 
     column_jsn = json.loads(currentTable.meta().getColumn(dbFieldName).getCelestaDoc())
@@ -153,7 +159,10 @@ def treeSelectorData(context, main=None, add=None, filterinfo=None, session=None
     data = u""
     parentDewey = None
     if parentId:
-        relatedTable.get(parentId)
+        if treeSelectorMulty:
+            relatedTable.get(*parentId)
+        else:
+            relatedTable.get(parentId)
         parentDewey = getattr(relatedTable, deweyCodeField)
         relatedTable.setFilter(deweyCodeField, "('%s.'%%)&!('%s.'%%'.'%%)" % (parentDewey, parentDewey))
     else:
@@ -186,17 +195,20 @@ def treeSelectorData(context, main=None, add=None, filterinfo=None, session=None
     
     for rec in relatedTable.iterate():
         refTableColumnId = []
+        refTableColumnIdStr = ''
         if treeSelectorMulty:
             relatedTablePKValues = []
             for pkValue in keys:
                 relatedTablePKValues.extend([getattr(relatedTable, pkValue)])
+            jsondump = json.dumps(relatedTablePKValues)
+            refTableColumnIdStr = base64.b64encode(str(jsondump))
         else:
             for item in keys:
-                refTableColumnId.append(getattr(relatedTable, item))
+                refTableColumnIdStr = unicode(getattr(relatedTable, item))
         
-        jsondump = json.dumps(refTableColumnId)
+        
 #         refTableColumnId = base64.b64encode(str(jsondump))    
-        refTableColumnIdStr = base64.b64encode(str(jsondump))
+        
             
         deweyCodeValue = getattr(relatedTable, deweyCodeField)
 #         sortValue = getattr(relatedTable, deweySortField)
@@ -213,7 +225,7 @@ def treeSelectorData(context, main=None, add=None, filterinfo=None, session=None
         data["hypotheses"]["hypothesis"].append({
             "@id": refTableColumnIdStr,
             "@name": u"%s %s" % (deweyCodeValue, refTableColumnValue),
-            "@refvalue": refTableColumnValue,
+            "@attr1": refTableColumnValue,
             "@leaf": leaf,
             "@cls": cls,
             "@checked": "false"
