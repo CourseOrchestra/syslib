@@ -19,7 +19,8 @@ try:
 except:
     pass
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList
+from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList,\
+    getCursorDeweyColumns
 from common.hierarchy import getNewItemInLevelInHierarchy, generateSortValue
 from dirusing.hierarchy import getNewItemInUpperLevel
 from datetime import datetime
@@ -369,12 +370,7 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
     isHierarchical = table_jsn['isHierarchical']
     #raise Exception(str(type(isHierarchical)))
     if isHierarchical == u'true':
-        for column in currentTable.meta().getColumns():
-            #получаем названия колонок с кодом дьюи и сортировкой
-            if json.loads(currentTable.meta().getColumn(column).getCelestaDoc())['name'] in (u'deweyCode', u'deweyCod', u'deweyKod'):
-                deweyColumn = column
-            if json.loads(currentTable.meta().getColumn(column).getCelestaDoc())['name'] == u'sortNumber':
-                sortColumn = column
+        deweyColumn, sortColumn = getCursorDeweyColumns(currentTable.meta())
         #new dewey number in current level
         if 'currentRecordId' not in json.loads(session)['sessioncontext']['related']['gridContext']:
             newDeweyNumber = getNewItemInUpperLevel(context, currentTable, deweyColumn)

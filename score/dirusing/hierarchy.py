@@ -8,7 +8,8 @@ except:
     from ru.curs.celesta.showcase import JythonDTO
 
 
-from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList
+from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList,\
+    getCursorDeweyColumns
 from common.hierarchy import *
 
 
@@ -22,12 +23,8 @@ def move(context, main=None, add=None, filterinfo=None, session=None, elementId=
     # Метаданные таблицы
     table_meta = currentTable.meta()
 
-    for column in table_meta.getColumns():
-            #получаем названия колонок с кодом дьюи и сортировкой
-        if json.loads(table_meta.getColumn(column).getCelestaDoc())['name'] == u'deweyCode':
-            deweyColumn = column
-        if json.loads(table_meta.getColumn(column).getCelestaDoc())['name'] == u'sortNumber':
-            sortColumn = column
+    deweyColumn, sortColumn = getCursorDeweyColumns(currentTable.meta())
+    
     current_rec = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
     #движение вверх
     if add == "up":
@@ -54,6 +51,7 @@ def move(context, main=None, add=None, filterinfo=None, session=None, elementId=
                 prevList[-1] = str(int(currentList[-1]) - 1)
                 shiftNodeToOtherLevelInHierarchy(context, rec, deweyColumn, sortColumn, '.'.join(prevList))
 
+
 def getNewItemInUpperLevel(context, currentTable, numberField):
     u'''Функция возвращает номер для нового элемента в самом верхнем уровне иерархии'''
     #Создаем клон основного курсора и копируем в него фильтры    
@@ -61,6 +59,8 @@ def getNewItemInUpperLevel(context, currentTable, numberField):
     cursorInstanceClone.limit(0, 0)
     cursorInstanceClone.setFilter(numberField, '''(!%'.'%)''')
     return str(cursorInstanceClone.count() + 1)
+
+
 def isExtr(context, cursorInstance, numberField, sortField, value):
     u'''Функция определяет, является ли элемент граничным (первым или последним) на своем уровне иерархии.
     value = 'first'/'last' .'''

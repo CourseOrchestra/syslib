@@ -6,31 +6,28 @@ try:
     from ru.curs.showcase.core.jython import JythonDTO
 except:
     from ru.curs.celesta.showcase import JythonDTO
+    
 from ru.beta2.extra.gwt.ui.selector.api import DataRecord
 from java.util import ArrayList
+
 try:
     from ru.curs.showcase.core.selector import ResultSelectorData
     from ru.curs.showcase.core.jython import DataSelectorAttributes
     from ru.curs.showcase.core import UserMessage
-    from ru.curs.celesta.showcase.utils.XMLJSONConverter import xmlToJson
 except:
     pass
+
 import json
 import base64
 from xml.dom import minidom
 
-import xml.etree.ElementTree as ET
 from common.hierarchy import hasChildren
-from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getCursorDeweyColumns
+from dirusing.commonfunctions import relatedTableCursorImport, getCursorDeweyColumns
 
 def selector(context, main=None, add=None, filterinfo=None, session=None, params=None, curvalue=None, startswith=None, firstrecord=None, recordcount=None):
     grain_name = json.loads(main)['grain']
     table_name = json.loads(main)['table']
     
-    print "!!!!!!!!!!!!!!! SELECTOR"
-    print type(params)
-    print params
-
     dom = minidom.parseString(params.encode('UTF-8'))
     for elem in dom.getElementsByTagName('dbFieldName'):
         for child in elem.childNodes:
@@ -39,9 +36,12 @@ def selector(context, main=None, add=None, filterinfo=None, session=None, params
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
     table_meta = context.getCelesta().getScore().getGrain(grain_name).getTable(table_name)
     column_jsn = json.loads(currentTable.meta().getColumn(dbFieldName).getCelestaDoc())
+    
     refTableName = column_jsn["refTable"]
     refTableColumn = column_jsn["refTableColumn"]
+    
     relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
+    
     records = dict()
     recordList = ArrayList()
     recordcount = relatedTable.count() if (relatedTable.count() > 0) else 0
@@ -136,10 +136,7 @@ def treeSelectorData(context, main=None, add=None, filterinfo=None, session=None
     parentId = params.get("id", None)
     if parentId:
         if treeSelectorMulty:
-            print "TREEMULTY"
-            print parentId
             parentId = json.loads(base64.b64decode(parentId))
-            print parentId
         else:
             parentId = int(parentId)
 
@@ -156,7 +153,6 @@ def treeSelectorData(context, main=None, add=None, filterinfo=None, session=None
     
     deweyCodeField, deweySortField = getCursorDeweyColumns(table_meta)
     
-    data = u""
     parentDewey = None
     if parentId:
         if treeSelectorMulty:

@@ -21,7 +21,8 @@ except:
 from common.hierarchy import deleteNodeFromHierarchy
 
 
-from dirusing.commonfunctions import relatedTableCursorImport
+from dirusing.commonfunctions import relatedTableCursorImport,\
+    getCursorDeweyColumns
 
 #from common import webservicefunc
 import xml.dom.minidom
@@ -110,12 +111,7 @@ def deleteFromMappingTables(currentTable, ids, deleteMain=True):
 def deleteFromMappingTablesHierarchy(currentTable, ids):
     # получаем все коды Дьюи для ИД
     
-    for column in currentTable.meta().getColumns():
-            #получаем названия колонок с кодом дьюи и сортировкой
-        if json.loads(currentTable.meta().getColumn(column).getCelestaDoc())['name'] == u'deweyCode':
-            deweyColumn = column
-        if json.loads(currentTable.meta().getColumn(column).getCelestaDoc())['name'] == u'sortNumber':
-            sortColumn = column
+    deweyColumn, sortColumn = getCursorDeweyColumns(currentTable.meta())
     
     DEWEY_CODE_FIELD = deweyColumn
     DEWEY_SORT_FIELD = sortColumn
