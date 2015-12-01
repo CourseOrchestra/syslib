@@ -6,7 +6,7 @@
 '''
 import json
 import base64
-from common.sysfunctions import tableCursorImport
+# from common.sysfunctions import tableCursorImport
 from itertools import izip
 
 try:
@@ -25,7 +25,12 @@ from dirusing.commonfunctions import relatedTableCursorImport,\
     getCursorDeweyColumns
 
 #from common import webservicefunc
-import xml.dom.minidom
+
+class DirDelException(Exception):
+    def __init__(self, msg, recId):
+        super(DirDelException, self).__init__(msg)
+        self.recId = recId
+
 
 def cardDelData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     xformsdata = {"schema":{"@xmlns":""}}
@@ -53,7 +58,7 @@ def getMappingTables(currentTable):
     полей, являющихся внешним ключём на currentTable
     
     @param currentTable курсор основной таблицы справочника
-    @return <tt>list of tuples</tt>  спиcок кортежей вида (Cursor, list if string)
+    @return <tt>list of tuples</tt> спиcок кортежей вида (Cursor, list if string)
     """
     m = currentTable.meta()
     
@@ -65,7 +70,7 @@ def getMappingTables(currentTable):
         tableName = json.loads(c.getCelestaDoc())['refMappingTable']
         grainName = m.getGrain().getName()
         
-        c = tableCursorImport(grainName, tableName)(currentTable.callContext())
+        c = relatedTableCursorImport(grainName, tableName)(currentTable.callContext())
         
         foreignKeys = c.meta().getForeignKeys()
         
@@ -102,6 +107,7 @@ def deleteFromMappingTables(currentTable, ids, deleteMain=True):
         for c, fkCols in mappingTables:
             for foreignKeyColumn, key in izip(fkCols, currentTablePKs):
                 c.setRange(foreignKeyColumn, getattr(currentTable, key))
+                
             c.deleteAll()
         
         if deleteMain:

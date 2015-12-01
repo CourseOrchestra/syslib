@@ -9,11 +9,14 @@ from org.apache.poi.hssf.usermodel import HSSFWorkbook,HSSFDataFormat,HSSFCellSt
 from org.apache.poi.hssf.util import HSSFColor
 from org.apache.poi.ss.util import CellRangeAddressList,CellReference
 from dirusing.commonfunctions import relatedTableCursorImport
-from common.hierarchy import generateSortValue, getNewItemInUpperLevel
+from common.hierarchy import generateSortValue
+from dirusing.hierarchy import getNewItemInUpperLevel
+
 try:
     from ru.curs.showcase.core.jython import JythonDownloadResult
 except:
     pass
+
 
 def importXlsDataOld(context, main, add, filterinfo, session, elementId, xformsdata, fileName, file1):
     u'''Функция для загрузки файла из формы в БД. '''

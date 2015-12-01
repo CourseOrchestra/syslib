@@ -40,36 +40,43 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     _headers = getFieldsHeaders(table_meta, "xform")
 
     # Пустая структура данных, связнная с текущим справочником
-    xformsdata = {"schema":{"@xmlns":"",
-                            "edit": "true",
-                            "showselect": "true",
-                            "error_message": "",
-                            "row": "",
-                            "spravs": {"sprav":{"@id": table_id,
-                                                "@name": table_name,
-                                                "field": []
-                                                }
-                                       },
-							"resetIdentity":"false"
+    xformsdata = {
+        "schema": {
+            "@xmlns":"",
+            "edit": "true",
+            "showselect": "true",
+            "error_message": "",
+            "row": "",
+            "spravs": {
+                "sprav": {
+                    "@id": table_id,
+                    "@name": table_name,
+                    "field": []
+                }
+            },
+			"resetIdentity":"false"
+        }
+    }
 
-
+    xformssettings = {
+        "properties": {
+            "event": {
+                "@name": "single_click",
+                "@linkId": "1",
+                "action": {
+                    "#sorted": [ 
+                        { "main_context": "current"},
+                        { 
+                            "datapanel": { 
+                                "@type": "current",
+                                "@tab": "current",
+                                "element": {"@id":"13", "add_context": ""}
                             }
-                  }
-
-
-    xformssettings = {"properties":{"event":{"@name":"single_click",
-                                             "@linkId": "1",
-                                             "action":{"main_context": "current",
-                                                       "datapanel": {"@type": "current",
-                                                                     "@tab": "current",
-                                                                     "element": {"@id":"13",
-                                                                                 "add_context": ""
-                                                                                 }
-                                                                     }
-                                                       }
-                                             }
-                                    }
-                      }
+                        }]
+                }
+            }
+        }
+    }
 
 
     return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(xformsdata)), XMLJSONConverter.jsonToXml(json.dumps(xformssettings)))

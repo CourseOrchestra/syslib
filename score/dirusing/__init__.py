@@ -34,49 +34,49 @@ def navDirU(context, session):
     x = -1
     for grain in sorted(grains):
         # проверка файла showgrains.json
-        try:
-            # проверка нужно ли обрабатывать данную гранулу как справочник
-            if unicode(grain) in showGrains(context):
-                # определение порядкового номера гранулы для вставки кусков навигатора внутрь
-                x += 1
-                grainMeta = score.getGrain(grain)
-                try:
-                    grainName = json.loads(grainMeta.getCelestaDoc())["name"]
-                except:
-                    grainName = grain
-                jsonnav["group"]["level1"].append({"@id":'g' + grain, "@name": grainName})
+#         try:
+        # проверка нужно ли обрабатывать данную гранулу как справочник
+        if unicode(grain) in showGrains(context):
+            # определение порядкового номера гранулы для вставки кусков навигатора внутрь
+            x += 1
+            grainMeta = score.getGrain(grain)
+            try:
+                grainName = json.loads(grainMeta.getCelestaDoc())["name"]
+            except:
+                grainName = grain
+            jsonnav["group"]["level1"].append({"@id":'g' + grain, "@name": grainName})
 
-                tables = grainMeta.getTables()
-                # список таблиц для определения ID папки
-                tableList = []
-                coreTables = []
-                for table in tables:
-                    if relatedTableCursorImport(grain, table)(context).canRead():
-                        try:
-                            # заполнение массива элементов типа [таблица,ID,имя таблицы]
-                            parentFolder = json.loads(grainMeta.getTable(table).getCelestaDoc())["folderId"]
-                            tableName = json.loads(grainMeta.getTable(table).getCelestaDoc())["name"]
-                            tableList.append([table, parentFolder, tableName])
-                            if parentFolder == "":
-                                coreTables.append([table, tableName])
-                        except TypeError:
-                            continue
-                try:
-                    grainJsn = json.loads(grainMeta.getCelestaDoc())
-                    # проходим по элементам и заполняем уровни
-                    z = []
-                    fillLevel(context, jsonnav["group"]["level1"][x], 2, "", grainJsn, tableList, grain, z)
-                except TypeError:
-                    continue
-                # Проверка и заполнение справочников вне папок
-                if coreTables:
-                    for coreTable in coreTables:
-                        fillDir(context, jsonnav["group"]["level1"][x], 2, coreTable[0], grain, coreTable[1])
+            tables = grainMeta.getTables()
+            # список таблиц для определения ID папки
+            tableList = []
+            coreTables = []
+            for table in tables:
+                if relatedTableCursorImport(grain, table)(context).canRead():
+                    try:
+                        # заполнение массива элементов типа [таблица,ID,имя таблицы]
+                        parentFolder = json.loads(grainMeta.getTable(table).getCelestaDoc())["folderId"]
+                        tableName = json.loads(grainMeta.getTable(table).getCelestaDoc())["name"]
+                        tableList.append([table, parentFolder, tableName])
+                        if parentFolder == "":
+                            coreTables.append([table, tableName])
+                    except TypeError:
+                        continue
+            try:
+                grainJsn = json.loads(grainMeta.getCelestaDoc())
+                # проходим по элементам и заполняем уровни
+                z = []
+                fillLevel(context, jsonnav["group"]["level1"][x], 2, "", grainJsn, tableList, grain, z)
+            except TypeError:
+                continue
+            # Проверка и заполнение справочников вне папок
+            if coreTables:
+                for coreTable in coreTables:
+                    fillDir(context, jsonnav["group"]["level1"][x], 2, coreTable[0], grain, coreTable[1])
 
-        except json.scanner.JSONDecodeError:
+#         except json.scanner.JSONDecodeError:
 
-            jsonnav = {"group":None}
-            pass
+#             jsonnav = {"group":None}
+#             pass
     return jsonnav
 
 navigator.navigatorsParts['2'] = navDirU

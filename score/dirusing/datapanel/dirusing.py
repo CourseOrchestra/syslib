@@ -47,11 +47,11 @@ def datapanel(context, main=None, session=None):
           <proc id="upload3" name="dirusing.exportfunctions.importXlsData.celesta" type="UPLOAD"/>
           <related id="13"/>
         </element>
-        <element id="19" type="xforms" template="dirusing/directory_import_card.xml" proc="dirusing.xforms.dirimportcard.cardData.celesta" neverShowInPanel="true">
+        <!--<element id="19" type="xforms" template="dirusing/directory_import_card.xml" proc="dirusing.xforms.dirimportcard.cardData.celesta" neverShowInPanel="true">
           <proc id="proc18" name="dirusing.xforms.dirimportcard.cardDataSave.celesta" type="SAVE"/>
           <proc id="upload3" name="dirusing.exportfunctions.importXlsDataOld.celesta" type="UPLOAD"/>
           <related id="13"/>
-        </element>
+        </element>-->
     
       </tab>
       <!--<tab id="2" name="Редактирование структуры">
@@ -109,16 +109,16 @@ def datapanelHierarchical(context, main=None, session=None):
           <proc id="proc17" name="dirusing.xforms.dircontentdelcard.cardDelAllDataSave.celesta" type="SAVE"/>
           <related id="13"/>
         </element>
-        <element id="18" type="xforms" template="directory_import_card.xml" proc="dirusing.xforms.dirimportcard.cardData.celesta" neverShowInPanel="true">
+        <element id="18" type="xforms" template="dirusing/directory_import_card.xml" proc="dirusing.xforms.dirimportcard.cardData.celesta" neverShowInPanel="true">
           <proc id="proc18" name="dirusing.xforms.dirimportcard.cardDataSave.celesta" type="SAVE"/>
           <proc id="upload3" name="dirusing.exportfunctions.importXlsData.celesta" type="UPLOAD"/>
           <related id="13"/>
         </element>
-        <element id="19" type="xforms" template="dirusing/directory_import_card.xml" proc="dirusing.xforms.dirimportcard.cardData.celesta" neverShowInPanel="true">
+        <!--<element id="19" type="xforms" template="dirusing/directory_import_card.xml" proc="dirusing.xforms.dirimportcard.cardData.celesta" neverShowInPanel="true">
           <proc id="proc18" name="dirusing.xforms.dirimportcard.cardDataSave.celesta" type="SAVE"/>
           <proc id="upload3" name="dirusing.exportfunctions.importXlsDataOld.celesta" type="UPLOAD"/>
           <related id="13"/>
-        </element>
+        </element>-->
     
       </tab>
       <!--<tab id="2" name="Редактирование структуры">

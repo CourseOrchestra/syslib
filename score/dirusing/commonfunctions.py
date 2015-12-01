@@ -8,11 +8,15 @@ import base64
 import uuid
 import json
 from common.sysfunctions import toHexForXml
+from importlib import import_module
+
 try:
     from ru.curs.showcase.core.jython import JythonDownloadResult
     from ru.curs.showcase.core.jython import JythonErrorResult
 except:
     pass
+
+g_importCache = {}
 
 def getCursorDeweyColumns(table_meta):
     """Ищет в метаданных поля для работы с Дьюи: столбец кода и сортировки.
@@ -37,14 +41,46 @@ def getCursorDeweyColumns(table_meta):
             
     return deweyColumn, sortColumn
 
-def relatedTableCursorImport(grain_name, table_name):
-    u'''Функция, выдающая класс курсора на таблицу, связанную с выбранным справочником '''
+def importcache(func):
+    def wrapper(grain_name, table_name):
+        try:
+            return g_importCache[(grain_name, table_name)]
+        except KeyError:
+            res = func(grain_name, table_name)
+            g_importCache[(grain_name, table_name)] = res 
+            return res
+        
+        raise Exception('Error during import cache!')
+    
+    return wrapper
 
+@importcache
+def relatedTableCursorImport(grain_name, table_name):
+    u'''Функция, выдающая класс курсора на таблицу, связанную с выбранным справочником 
+    
+    Еcли table_name в формате <grain>.<table>, то имя гранулы берётся из table_name.
+    Если table_name без указания гранулы, то используется grain_name.
+    '''
+    tn = table_name
+    gn = table_name.split('.')
+    if len(gn) == 1:
+        gn = grain_name  
+    elif len(gn) == 2:
+        tn = gn[1]
+        gn = gn[0]
+    else:
+        raise Exception('Incorrect table name: <table> or <grain>.<table> expected but %s given.' % str(table_name))
+    
     # Модуль, откуда импортируем класс курсора
-    name = '%s._%s_orm' % (grain_name, grain_name)
-    # Название класса курсора
-    fromlist = ['%sCursor' % table_name]
-    return getattr(__import__(name, globals(), locals(), fromlist, -1), fromlist[0])
+    name = '%s._%s_orm' % (gn, gn)
+    
+    return getattr(import_module(name), tn + "Cursor")
+#     # Название класса курсора
+#     fromlist = ['%sCursor' % table_name]
+#     return getattr(__import__(name, globals(), locals(), fromlist, -1), fromlist[0])
+
+
+
 
 def getFieldsHeaders(table_meta, elem_type):
     u'''Функция для получения соответствия между реальными именами полей

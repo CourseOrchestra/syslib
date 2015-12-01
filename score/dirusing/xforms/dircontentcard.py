@@ -356,15 +356,7 @@ def saveRefValues(context, currentTable, field, grainName, isEdit=False):
         mappingTable.insert()
 
 
-def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
-    u'''Функция сохранения карточки редактирования содержимого справочника. '''
-    #return UserMessage(u"TEST3", u"%s" % (xformsdata))
-    #raise Exception(str(xformsdata))
-    # получение id grain и table из контекста
-    grain_name = json.loads(main)['grain']
-    table_name = json.loads(main)['table']
-    # Курсор текущей таблицы
-    currentTable = relatedTableCursorImport(grain_name, table_name)(context)
+def _cardDataSave(context, grain_name, currentTable, session, data_dict):
     table_jsn = json.loads(currentTable.meta().getCelestaDoc())
     #признак иерархичности
     isHierarchical = table_jsn['isHierarchical']
@@ -381,7 +373,7 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
             currentTable.get(*selectedRecordId)
             newDeweyNumber = getNewItemInLevelInHierarchy(context, currentTable, deweyColumn)
             currentTable.clear()
-    data_dict = json.loads(xformsdata)
+#     data_dict = json.loads(xformsdata)
     if data_dict["schema"]["row"] == '':
         # Добавление новой записи
         field_list = data_dict["schema"]["spravs"]["sprav"]["field"]
@@ -487,4 +479,18 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
         currentTable.update()
         for field in dictWithRefList:
             saveRefValues(context, currentTable, field, grain_name, True)
+
+
+def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
+    u'''Функция сохранения карточки редактирования содержимого справочника. '''
+    #return UserMessage(u"TEST3", u"%s" % (xformsdata))
+    #raise Exception(str(xformsdata))
+    # получение id grain и table из контекста
+    grain_name = json.loads(main)['grain']
+    table_name = json.loads(main)['table']
+    data_dict = json.loads(xformsdata)
+    # Курсор текущей таблицы
+    currentTable = relatedTableCursorImport(grain_name, table_name)(context)
+    
+    _cardDataSave(context, grain_name, currentTable, session, data_dict)
 
