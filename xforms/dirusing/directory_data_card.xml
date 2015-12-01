@@ -190,26 +190,28 @@
 									params: {
 										treePanel: {title: 'Выбор нескольких значений из дерева'},
 										core: {
-											checkParent: true,
+											checkParent: false,
 											filter: {startsWith:true, delay:900}
 										},
 										dataModel: {
-											fields: [{name: 'refvalue', type: 'string'}]
+											fields: [{name: 'attr1', type: 'string'}]
 										},
 										view: {
-										columns: [{ header: 'Название', dataIndex: 'refvalue'}]
+											columns: [{ header: 'Название', dataIndex: 'attr1'}]
 										}
 									},
-									options: {								
+									options: {
+										needInitSelection: false,						
 										dataWidth: '500px',
 										dataHeight: '450px',
 										windowCaption: 'Выбор нескольких значений из дерева',
 										onSelectionComplete: function(ok, plugin) {
 											if (ok) {
-												plugin.utils.singleXpathMapping({
-													'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/value)' : 'name',
-													'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/ref_values)' : 'id'
-												});
+												plugin.utils.multiXpathMapping({
+														xpathRoot: 'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/ref_values)',
+														xpathMapping: {'XPath(instance(quot(xformId_reflist))/item)':{'id': 'id','name':'value'}}
+													},true
+												);
 											}
 										}
 									}
@@ -257,20 +259,21 @@
 									params: { 
 										treePanel: {title: 'выбор одного значения в дереве'},
 										core: {
-											checkParent: true,
+											checkParent: false,
 											filter: {
 												startsWith: false,
 												delay:900
 											}
 										},
 										dataModel: {
-											fields: [{name: 'refvalue', type: 'string'}]
+											fields: [{name: 'attr1', type: 'string'}]
 										},
 										view: {
-											columns: [{ header: 'Название', dataIndex: 'refvalue'}]
+											columns: [{ header: 'Название', dataIndex: 'attr1'}]
 										}
 									},
-									options: {	
+									options: {
+										needInitSelection: false,
 										dataWidth: '500px',
 										dataHeight: '450px',
 										windowCaption: 'Выбор одного значения в дереве',
@@ -278,8 +281,8 @@
 											if (ok) {
 												plugin.utils.singleXpathMapping({
 													'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/value)' : 'name',
-													'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/ref_values)' : 'id'
-												});																
+                    								'XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))]/ref_values)' : 'id'
+                    							});																
 											}
 										}
 									}
@@ -290,7 +293,7 @@
 						<xf:label>X</xf:label>
 						<xf:action ev:event="DOMActivate">
 							<xf:setvalue ref="./value" value=""/>
-							<xf:setvalue ref="./id" value=""/>
+							<xf:setvalue ref="./ref_values" value=""/>
 						</xf:action>
 					</xf:trigger>
 				</div>
