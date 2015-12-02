@@ -94,6 +94,7 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
                     "#sorted": [{
                         "main_context": "current"
                     },
+                    {"modalwindow":{"@width":"670","@height":"540","@caption":"Редактирование"}},
                     {
                         "datapanel": {
                             '@type': 'current',
@@ -241,6 +242,7 @@ def getData(context, main=None, add=None, filterinfo=None,
                 "#sorted": [{
                     "main_context": "current"
                 },
+                {"modalwindow":{"@width":"670","@height":"540","@caption":"Редактирование"}},
                 {
                     "datapanel": {
                         '@type': 'current',
