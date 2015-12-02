@@ -32,7 +32,11 @@ def getCursorDeweyColumns(table_meta):
     sortColumn = 'deweySort'
     
     for column in table_meta.getColumns():
-        cDoc = json.loads(table_meta.getColumn(column).getCelestaDoc())
+        cDoc = {}
+        try:
+            cDoc = json.loads(table_meta.getColumn(column).getCelestaDoc())
+        except:
+            continue
             #получаем названиe колонкu с кодом дьюи 
         if cDoc['name'] in (u'deweyCode', u'deweyCod', u'deweyKod'):
             deweyColumn = column
