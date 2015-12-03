@@ -10,7 +10,7 @@ Created on 16 июля 2015 г.
 from common.api.core import IJSONSerializable
 from common.api.events.activities import ActionActivity, ActionActivityType,\
     NavigatorActivity, ClientActivity, DatapanelElement, ServerElement,\
-    ClientElement, ActivityElement, DatapanelActivity
+    ClientElement, ActivityElement, DatapanelActivity, ServerActivity
 from common.api.events.core import ActionBaseElement
 
 
