@@ -1,4 +1,4 @@
-/*Фукнция для открытия ссылки, переданной через add-context в новой вкладке*/
+п»ї/*Р¤СѓРєРЅС†РёСЏ РґР»СЏ РѕС‚РєСЂС‹С‚РёСЏ СЃСЃС‹Р»РєРё, РїРµСЂРµРґР°РЅРЅРѕР№ С‡РµСЂРµР· add-context РІ РЅРѕРІРѕР№ РІРєР»Р°РґРєРµ*/
 function gotoLink(mainContext, addContext, filterContext) {
 	window.open(document.location.protocol+"//"+document.location.host+ document.location.pathname+addContext, "_blank");
 }
