@@ -69,7 +69,7 @@ def makeFilterSequence(inValuesList):
     if isinstance(inValuesList[0], basestring):
 #         Это условие добавлено, чтобы в случае строки не проверялись остальные
 #         условия
-        paramString = '%s'
+        pass
     elif isinstance(inValuesList[0], int):
         paramString = '%i'
     elif isinstance(inValuesList[0], float):

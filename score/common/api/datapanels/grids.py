@@ -312,12 +312,14 @@ class ToolbarItem(BaseToolbarAction):
         
         self.setAction(action)
     
+    
     def action(self):
         """Возвращает действие, вызываемое при клике на узел
         @return (@c common.api.events.action.Action) действие при клике
         на кнопку
         """
         return self.__action
+        
         
     def setAction(self, value):
         """Устанавливает действие, вызываемое при клике на узел
