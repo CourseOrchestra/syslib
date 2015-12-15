@@ -11,7 +11,6 @@ Created on 15 сент. 2015 г.
 from common.api.core import ShowcaseBaseNamedElement
 from common.api.events.action import Action
 from common.api.tree.treenode import Node
-from collections import OrderedDict
 
 
 class NavigatorNode(ShowcaseBaseNamedElement, Node):
@@ -41,6 +40,7 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
         
         super(NavigatorNode, self).__init__(inId, inName)
         self.__action = inAction
+        self.__selectOnLoad = False
         self.initializeNode()
     
     
@@ -68,6 +68,26 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
         # -2 - т.к. корневой элмент имеет rank=1, 
         # разделы имеют индексы вида 0.1, 0.2 и т.п.
         return self.index.rank() - 2
+    
+    
+    def setSelectOnLoad(self, value):
+        """Устанавливает флаг выбора узла при загрузке.
+        
+        @param value (@c bool) выбран/не выбран
+        
+        @warning Выбран может быть только один узел. На уровне #NavigatorNode
+        такая не производится.
+        """
+        self.__selectOnLoad = value
+        return self
+
+        
+    def selectOnLoad(self):
+        """Возвращает флаг выбора узла при загрузке
+        @return @c bool
+        """
+        return self.__selectOnLoad
+        
         
     
     def toJSONDict(self):
@@ -84,8 +104,12 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
         if childrenLevel > 0:
             sd = super(NavigatorNode, self).toJSONDict()
             d.update(sd)
+            
+            if self.__selectOnLoad:
+                d["@selectOnLoad"] = "true"
+                 
             if self.__action:
-                srtLst.append(self.__action.toJSONDict()) 
+                srtLst.append(self.__action.toJSONDict())
         
         levelNodes = [n.toJSONDict() for n in self.getChildren()]
                    
@@ -128,7 +152,7 @@ if __name__ == '__main__':
             Action().addActivity(
                 DatapanelActivity().add('datapanel2.xml','firstOrCurrent')
             )
-        )
+        ).setSelectOnLoad(True)
     )
      
     n11.addChild(NavigatorNode('n1.1.1', u'Node 1.1.1', 
