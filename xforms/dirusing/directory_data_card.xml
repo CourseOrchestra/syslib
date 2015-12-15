@@ -204,7 +204,7 @@
 										needInitSelection: false,						
 										dataWidth: '500px',
 										dataHeight: '450px',
-										windowCaption: 'Выбор нескольких значений из дерева',
+										windowCaption: 'Дерево',
 										onSelectionComplete: function(ok, plugin) {
 											if (ok) {
 												plugin.utils.multiXpathMapping({
@@ -257,7 +257,20 @@
 									postProcessProc:'handleExtJsTree.py',
 									generalFilters:['XPath(instance(quot(xformId_mainInstance))/spravs/sprav/field[index(quot(xformId_spravcheckRow))])'],
 									params: { 
-										treePanel: {title: 'выбор одного значения в дереве'},
+										treePanel: {title: 'Выбор одного значения в дереве',
+										listeners:{
+												checkchange: {
+												fn: function(node, checked, eOpts) {
+												var plugin = Ext.ExtJsTree;
+												this.getRootNode().cascadeBy(function(n){
+												if (node!=n) {
+												n.set('checked', false);
+												plugin.removeItem(n.get('id'));
+												}
+												});
+												}
+												}
+												}},
 										core: {
 											checkParent: false,
 											filter: {
@@ -276,7 +289,7 @@
 										needInitSelection: false,
 										dataWidth: '500px',
 										dataHeight: '450px',
-										windowCaption: 'Выбор одного значения в дереве',
+										windowCaption: 'Дерево',
 										onSelectionComplete: function(ok, plugin) {
 											if (ok) {
 												plugin.utils.singleXpathMapping({

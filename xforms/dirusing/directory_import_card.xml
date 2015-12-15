@@ -27,12 +27,12 @@
       style="width: 300px; float: left; clear: both; padding: 0 0 0 30px;">
       <xf:upload id="xformId_upload3" singleFile="true" />
     </div>
-    <div class="boolInput200" 
+    <!--div class="boolInput200" 
       style="width: 300px; padding: 10px 0 0 30px; float: left; clear:both;">
       <xf:input ref="instance('xformId_mainInstance')/resetIdentity">
         <xf:label>Сбрасывать Identity свойство при импорте</xf:label>
       </xf:input>
-    </div>
+    </div-->
     <xf:group
       ref="instance('xformId_SaveDisableInstance')/PressedSaveButton[ . != '1']">
       <div class="newbutton"
