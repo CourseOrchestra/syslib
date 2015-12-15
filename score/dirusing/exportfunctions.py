@@ -400,15 +400,14 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
         return sht
     
     #рекурсивная функция поиска всех связанных справочников для текущего, она же заполняет листы
-    def findRefs(currentTable,table_name,grain_name,wb,context):
-        global map_table_name
+    def findRefs(currentTable,table_name,grain_name,wb,context,map_table_names=None):
         for col in  currentTable.meta().getColumns():
             #ищем таблицы по полям типа reference value/list
             try:
                 if int(json.loads(currentTable.meta().getColumn(col).getCelestaDoc())['fieldTypeId']) in (6,):
                     ref_table_name=json.loads(currentTable.meta().getColumn(col).getCelestaDoc())['refTable']
                     refTable=relatedTableCursorImport(grain_name, ref_table_name)(context)
-                    map_table_name=json.loads(currentTable.meta().getColumn(col).getCelestaDoc())['refMappingTable']
+                    map_table_names.append(json.loads(currentTable.meta().getColumn(col).getCelestaDoc())['refMappingTable'])
                     if ref_table_name!=table_name:
                         wb=findRefs(refTable,ref_table_name,grain_name,wb,context)
                     #wb.setSheetOrder(u"%s"%map_table_name,wb.getNumberOfSheets()-1)
@@ -429,12 +428,14 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
     #создаем книгу excel
     wb=HSSFWorkbook()
     #если надо связанные
+    map_table_names=[]
     if export_ref=='true':
-        wb=findRefs(currentTable,table_name,grain_name,wb,context)
-        if map_table_name:
-            sht=wb.createSheet(u"%s"%map_table_name)
-            mapTable=relatedTableCursorImport(grain_name, map_table_name)(context)
-            sht=fillSheet(mapTable.meta(),sht,mapTable)
+        wb=findRefs(currentTable,table_name,grain_name,wb,context,map_table_names)
+        if len(map_table_names)!=0:
+            for map_table_name in map_table_names:
+                sht=wb.createSheet(u"%s"%map_table_name)
+                mapTable=relatedTableCursorImport(grain_name, map_table_name)(context)
+                sht=fillSheet(mapTable.meta(),sht,mapTable)
             #wb.setSheetOrder(u"%s"%map_table_name,wb.getNumberOfSheets()-1)
     #если не надо заполняем один лист
     else:

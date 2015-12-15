@@ -174,17 +174,18 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
                 if order_grid != sort_number or order_grid in sorted_list:
                     continue
                 else:
-                    if field not in ('~~id') and _headers[field][1] not in (4, 6, 7, 8):
-                        settings["gridsettings"]["columns"]["col"].append({"@id":toHexForXml(_headers[field][0])})
-                    elif field not in ('~~id') and _headers[field][1] in (4,):
-                        settings["gridsettings"]["columns"]["col"].append({"@id":toHexForXml(_headers[field][0]),
-																			"@type": "DOWNLOAD",
-																			"@linkId":"download1"})
+                    if field not in ('~~id',) and _headers[field][1] != (4):
+                        settings["gridsettings"]["columns"]["col"].append({"@id":_headers[field][3]})
+                    elif field not in ('~~id',) and _headers[field][1] == (4):
+                        settings["gridsettings"]["columns"]["col"].append({"@id":_headers[field][3],
+                                                                            "@type": "DOWNLOAD",
+                                                                            "@linkId":"download1"})
                     s_number += 1
                     _sortedHeaders(s_number)
                     break
         except IndexError:
             return None
+    #raise Exception(str(settings))
     s_number = 0
     _sortedHeaders(s_number)
     res_set = XMLJSONConverter.jsonToXml(json.dumps(settings))
@@ -442,7 +443,7 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
             return None
     s_number = 0
     _sortedHeaders(s_number)
-    
+    #raise Exception(str(settings))
 #     print "!!!!!!!!!!!!!!!!Settings"
 #     print settings
     
