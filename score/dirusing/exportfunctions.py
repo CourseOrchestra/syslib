@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 from org.apache.poi.hssf.usermodel import HSSFWorkbook,HSSFDataFormat,HSSFCellStyle,DVConstraint,HSSFDataValidation
 from org.apache.poi.hssf.util import HSSFColor
 from org.apache.poi.ss.util import CellRangeAddressList,CellReference
-from dirusing.commonfunctions import relatedTableCursorImport
+from dirusing.commonfunctions import relatedTableCursorImport,getCursorDeweyColumns
 from common.hierarchy import generateSortValue
 from dirusing.hierarchy import getNewItemInUpperLevel
 
@@ -16,7 +16,16 @@ try:
     from ru.curs.showcase.core.jython import JythonDownloadResult
 except:
     pass
-
+def getColumnJsns(table_meta):
+    '''Метод возвращает лист json-ов всех полей таблицы с их названиями'''
+    output=[]
+    for col in table_meta.getColumns():
+        try:
+            column_jsn = json.loads(table_meta.getColumn(col).getCelestaDoc())
+        except TypeError:
+            column_jsn=None
+        output.append({"name":col,'jsn':column_jsn})
+    return output
 
 def importXlsDataOld(context, main, add, filterinfo, session, elementId, xformsdata, fileName, file1):
     u'''Функция для загрузки файла из формы в БД. '''
@@ -96,9 +105,17 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
     grain_name = json.loads(main)['grain']
     IgnoreIdentity = json.loads(xformsdata)['schema']['resetIdentity']
 #метод заполнения таблицы с одного листа excel, название листа=название таблицы
-    def fillTable(currentTable,table_meta,sht):
+    def fillTable(currentTable,table_meta,sht,table_jsn):
         #поля таблицы
         fields = table_meta.getColumns()
+        columnJsns=getColumnJsns(table_meta)
+    #признак иерархичности
+        if table_jsn:
+            isHierarchical = table_jsn['isHierarchical'] == "true"
+        else: 
+            return
+        if isHierarchical:
+            deweyColumn, sortColumn = getCursorDeweyColumns(table_meta)
         xlsColumns=[]
         rows=sht.getPhysicalNumberOfRows()
         idMax=0
@@ -122,8 +139,11 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
                 if i == 0:
                     for field in fields:
                         try:
-                            column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
+                            column_jsn = (item['jsn'] for item in columnJsns if item["name"] == field).next()
                         except TypeError:
+                            xlsColumns.append([text,field,'0'])
+                            continue
+                        if not column_jsn:
                             xlsColumns.append([text,field,'0'])
                             continue
                         column_name = column_jsn["name"]
@@ -144,8 +164,6 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
                             except:
                                 context.error('Import error at row %s in column # %s, column name "%s". Error while converting string to integer. Expected integer number without separators, but "%s" is given' %(i,j+1,xlsColumns[j][0],text)) 
                         key.append(text)
-                    #if xlsColumns[j][2] == '0':
-                        #continue
                     if xlsColumns[j][2] == '1':
                         if text in (u'Да',u'да'):
                             text=True
@@ -161,7 +179,7 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
                                 context.error('Import error at row %s in column # %s, column name "%s". Error while converting string to datetime. Expected date format is dd.mm.yyyy, but "%s" is given' %(i,j+1,xlsColumns[j][0],text))
                                 
                     elif xlsColumns[j][2] == '3':
-                        if text=='':
+                        if text in ("",u""):
                             text=None
                         else:
                             try:
@@ -170,7 +188,7 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
                                 context.error('Import error at row %s in column # %s, column name "%s". Error while converting string to real number. Expected floating point (real) number with separator (e.g. 1.0 or 1,0), but "%s" is given' %(i,j+1,xlsColumns[j][0],text))
                     
                     elif xlsColumns[j][2] in ('5','7') and table_meta.getColumn(xlsColumns[j][1]).jdbcGetterName() == 'getInt' and type(text) is unicode:
-                        if text=='':
+                        if text in ("",u""):
                             text=None
                         else:
                             try:
@@ -186,40 +204,28 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
                 if len(key)!=0 and currentTable.tryGet(*key):
                     currentTable.get(*key)
                     for x,field in enumerate(fields):
-                        if field=='sortNumber':
-                            continue    
-                        elif field in ('deweyCode','deweyCod','deweyKod'):
-                            setattr(currentTable,"sortNumber",generateSortValue(values[x]))
-                        setattr(currentTable,field,values[x])
+                        if isHierarchical and field ==sortColumn:
+                            continue
+                        if isHierarchical and field ==deweyColumn:
+                            setattr(currentTable,sortColumn,generateSortValue(values[x]))
+                        else:
+                            setattr(currentTable,field,values[x])
                     currentTable.update()
                 #инсерт если таких нет
                 else:
                     for x,field in enumerate(fields):
-                        if field=='sortNumber':
-                            continue    
-                        elif field =='deweyCode':
+                        if isHierarchical and field ==sortColumn:
+                            continue
+                        if isHierarchical and field ==deweyColumn:
                             if values[x]=='' or values[x] is None:
                                 newDeweyNumber=getNewItemInUpperLevel(context,currentTable,field)
                                 setattr(currentTable,field, newDeweyNumber)
-                                setattr(currentTable,"sortNumber",generateSortValue(newDeweyNumber))
+                                setattr(currentTable,sortColumn,generateSortValue(newDeweyNumber))
                             else:
                                 setattr(currentTable,field,values[x])
-                                setattr(currentTable,"sortNumber",generateSortValue(values[x]))
+                                setattr(currentTable,sortColumn,generateSortValue(values[x]))
                         elif table_meta.getColumn(field).jdbcGetterName() == 'getInt' and table_meta.getColumn(field).isIdentity()==True:
-                            
-                            if IgnoreIdentity == "true":
-                                '''if idMax<int(values[x]):
-                                    idMax=int(values[x])+1'''
-                                try:
-                                    currentTable.resetIdentity(values[x])
-                                except:
-                                    context.error("Error while import: reset identity to %s column %s failed in field %s at row %s" % (values[x],x,field,i))
-                                try:
-                                    setattr(currentTable,field,None)
-                                except:
-                                    context.error("Error while import: cannot insert value into id %s  to identitity column failed in field %s at row %s" % (values[x],field,i))
-                            else:    
-                                setattr(currentTable, field, None)
+                            setattr(currentTable, field, None)
                         else:
                             setattr(currentTable,field,values[x])
                     currentTable.insert()
@@ -248,15 +254,20 @@ def importXlsData(context, main, add, filterinfo, session, elementId, xformsdata
         table_name=wb.getSheetName(i)
         currentTable = relatedTableCursorImport(grain_name,table_name)(context)
         table_meta=currentTable.meta()
+        try:
+            table_jsn=json.loads(table_meta.getCelestaDoc())
+        except TypeError:
+            pass
         sht = wb.getSheetAt(i)
-        fillTable(currentTable,table_meta,sht)
+        fillTable(currentTable,table_meta,sht,table_jsn)
     return None
 
 def exportToExcel(context, main=None, add=None, filterinfo=None,
                   session=None, elementId=None, xformsdata=None, columnId=None):
     # получение id grain и table из контекста
-    grain_name = json.loads(main)['grain']
-    table_name = json.loads(main)['table']
+    mainjsn=json.loads(main)
+    grain_name = mainjsn['grain']
+    table_name = mainjsn['table']
     #признак нужно ли экспортировать связанные
     export_ref = json.loads(xformsdata)['schema']['reftables']
     #export_parent = json.loads(xformsdata)['schema']['parenttables']
@@ -264,8 +275,9 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
     currentTable = relatedTableCursorImport(grain_name, table_name)(context)
     # Метаданные таблицы
     table_meta = currentTable.meta()
+    columnJsns=getColumnJsns(table_meta)
     #метод заполнения листа из таблицы
-    def fillSheet(table_meta,sht,currentTable):
+    def fillSheet(table_meta,sht,currentTable,columnJsns):
         row=sht.createRow(0)
         #стили для ячеек разных типов
         #styleDates = wb.createCellStyle()
@@ -287,7 +299,8 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
             cell=row.createCell(i)
             cell.setCellStyle(styleHeader)
             try:
-                column_name=json.loads(table_meta.getColumn(column).getCelestaDoc())['name']
+                columnjsn=(item['jsn'] for item in columnJsns if item["name"] == column).next()
+                column_name=columnjsn['name']
             except:
                 column_name=column
             cell.setCellValue(column_name)
@@ -297,7 +310,8 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
             row=sht.createRow(i)
             for j,field in enumerate(table_meta.getColumns()):
                 try:
-                    field_type=int(json.loads(currentTable.meta().getColumn(field).getCelestaDoc())['fieldTypeId'])
+                    columnjsn=(item['jsn'] for item in columnJsns if item["name"] == field).next()
+                    field_type=int(columnjsn['fieldTypeId'])
                 except:
                     field_type=0
                 cell=row.createCell(j)
@@ -325,7 +339,7 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
                 #Обработка reference value
                 elif field_type == 7:
                     cell.setCellValue(getattr(rec, field))
-                    column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
+                    column_jsn = (item['jsn'] for item in columnJsns if item["name"] == field).next()
                     refTableName = column_jsn["refTable"]
                     relatedTable = relatedTableCursorImport(grain_name, refTableName)(context)
                     for x,col in enumerate(relatedTable.meta().getColumns()):
@@ -346,7 +360,7 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
                 
             #Обработка reference list
                 elif field_type == 6:
-                    column_jsn = json.loads(table_meta.getColumn(field).getCelestaDoc())
+                    column_jsn = (item['jsn'] for item in columnJsns if item["name"] == field).next()
                     refTableName = column_jsn["refTable"]
                     mappingTableName = column_jsn["refMappingTable"]
                     refTableColumn = column_jsn["refTableColumn"]
@@ -401,21 +415,24 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
     
     #рекурсивная функция поиска всех связанных справочников для текущего, она же заполняет листы
     def findRefs(currentTable,table_name,grain_name,wb,context,map_table_names=None):
+        columnJsnsRef=getColumnJsns(currentTable.meta())
         for col in  currentTable.meta().getColumns():
             #ищем таблицы по полям типа reference value/list
             try:
-                if int(json.loads(currentTable.meta().getColumn(col).getCelestaDoc())['fieldTypeId']) in (6,):
-                    ref_table_name=json.loads(currentTable.meta().getColumn(col).getCelestaDoc())['refTable']
+                column_jsn=(item['jsn'] for item in columnJsnsRef if item["name"] == col).next()
+                
+                if int(column_jsn['fieldTypeId']) in (6,):
+                    ref_table_name=column_jsn['refTable']
                     refTable=relatedTableCursorImport(grain_name, ref_table_name)(context)
-                    map_table_names.append(json.loads(currentTable.meta().getColumn(col).getCelestaDoc())['refMappingTable'])
+                    map_table_names.append(column_jsn['refMappingTable'])
                     if ref_table_name!=table_name:
-                        wb=findRefs(refTable,ref_table_name,grain_name,wb,context)
+                        wb=findRefs(refTable,ref_table_name,grain_name,wb,context,map_table_names)
                     #wb.setSheetOrder(u"%s"%map_table_name,wb.getNumberOfSheets()-1)
-                if int(json.loads(currentTable.meta().getColumn(col).getCelestaDoc())['fieldTypeId']) in (7,):
-                    ref_table_name=json.loads(currentTable.meta().getColumn(col).getCelestaDoc())['refTable']
+                if int(column_jsn['fieldTypeId']) in (7,):
+                    ref_table_name=column_jsn['refTable']
                     refTable=relatedTableCursorImport(grain_name, ref_table_name)(context)
                     if ref_table_name!=table_name:
-                        wb=findRefs(refTable,ref_table_name,grain_name,wb,context)
+                        wb=findRefs(refTable,ref_table_name,grain_name,wb,context,map_table_names)
                 else:
                     pass
             except TypeError:
@@ -423,7 +440,7 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
         #заполняем лист если такого нет
         if wb.getSheet(u"%s"%table_name) is None:
             sht=wb.createSheet(u"%s"%table_name)
-            sht=fillSheet(currentTable.meta(),sht,currentTable)
+            sht=fillSheet(currentTable.meta(),sht,currentTable,columnJsnsRef)
         return wb
     #создаем книгу excel
     wb=HSSFWorkbook()
@@ -435,12 +452,13 @@ def exportToExcel(context, main=None, add=None, filterinfo=None,
             for map_table_name in map_table_names:
                 sht=wb.createSheet(u"%s"%map_table_name)
                 mapTable=relatedTableCursorImport(grain_name, map_table_name)(context)
-                sht=fillSheet(mapTable.meta(),sht,mapTable)
+                columnJsnsMap=getColumnJsns(mapTable.meta())
+                sht=fillSheet(mapTable.meta(),sht,mapTable,columnJsnsMap)
             #wb.setSheetOrder(u"%s"%map_table_name,wb.getNumberOfSheets()-1)
     #если не надо заполняем один лист
     else:
         sht=wb.createSheet(u"%s"%table_name)
-        sht=fillSheet(table_meta,sht,currentTable)
+        sht=fillSheet(table_meta,sht,currentTable,columnJsns)
     #создаем и пишем в файл      
     fileName=u'export.xls'
     file_out=FileOutputStream(File('export.xls'))
