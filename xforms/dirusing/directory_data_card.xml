@@ -355,7 +355,7 @@
       * - обязательно для заполнения
     </div>
 	  <div style="width: 604px; float: left; clear: both;">
-      <div class="button100 newbutton" style="float: right;">
+      <div class="button100">
         <xf:trigger class="blue">
           <xf:label>Отмена</xf:label>
           <xf:action ev:event="DOMActivate">
@@ -363,7 +363,7 @@
           </xf:action>
         </xf:trigger>
       </div>
-      <div class="button100 newbutton" style="float: right;">
+      <div class="button100">
         <xf:trigger class="blue">
           <xf:label>ОК</xf:label>
           <xf:action ev:event="DOMActivate">

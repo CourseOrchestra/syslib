@@ -72,8 +72,8 @@
         <table cellpadding="0px" cellspacing="2px" width="308px">
           <tr>
             <td width="154px">
-              <div class="dirusing newbutton" style="width: 100%;">
-                <xf:trigger class="blue">
+              <div class="button100" style="width: 100%;">
+                <xf:trigger>
                   <xf:label>ОК</xf:label>
                   <xf:action ev:event="DOMActivate">
 					<xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
@@ -83,8 +83,8 @@
               </div>
             </td>
             <td width="154px">
-              <div class="dirusing newbutton" style="width: 100%;">
-                <xf:trigger class="blue">
+              <div class="button100" style="width: 100%;">
+                <xf:trigger>
                   <xf:label>Отмена</xf:label>
                   <xf:action ev:event="DOMActivate">
                     <xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"></xf:load>

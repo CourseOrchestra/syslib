@@ -35,8 +35,7 @@
     </div-->
     <xf:group
       ref="instance('xformId_SaveDisableInstance')/PressedSaveButton[ . != '1']">
-      <div class="newbutton"
-        style=" clear:both; float:left; width: 140px; padding: 10px 0 0 30px;">
+      <div class="button100">
         <span class="blue xforms-trigger" id="xformId_Tab4Button">
           <button class="TabButton" hasXFElement="false" type="submit">
             <span class="xforms-label">Импорт</span>
@@ -54,14 +53,14 @@
       </div>
     </xf:group>
     <xf:group ref="instance('xformId_SaveDisableInstance')/PressedSaveButton[ . = '1']">
-      <div style=" clear:both; float:left; width: 140px; padding: 10px 0 0 30px;">
+      <div class="button100">
         <button class="TabButton" hasXFElement="false" type="submit"
           disabled="disabled">!!! Идет импорт !!!</button>
       </div>
     </xf:group>
 
-    <div class="dirusing newbutton" style="float:left; width: 140px; padding: 10px 0 0 30px;">
-      <xf:trigger class="blue">
+    <div class="button100" >
+      <xf:trigger>
         <xf:label>Отмена</xf:label>
         <xf:action ev:event="DOMActivate">
           <xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)" />
