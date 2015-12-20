@@ -37,6 +37,7 @@
 <!-- 	<table cellpadding="0px" cellspacing="1px" width="220px"> -->
 <!-- 	<tr> -->
 <!-- 	<td> -->
+<xf:group ref="instance('xformId_mainInstance')/columns[1]/column[.='']">
 	<div>
     <div class="button200" style="width: 110px; padding-top: 2px">
             <xf:trigger>
@@ -70,6 +71,7 @@
 <!-- 		  </tr> -->
 <!-- 		  </table> -->
         </div>
+		</xf:group>
         </div>
   </body>
 </html>
