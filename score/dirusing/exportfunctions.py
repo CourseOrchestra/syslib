@@ -249,7 +249,7 @@ def exportToExcel(context, grain_name,table_name,export_ref):
     table_meta = currentTable.meta()
     columnJsns=getColumnJsns(table_meta)
     #метод заполнения листа из таблицы
-    def fillSheet(table_meta,sht,currentTable,columnJsns):
+    def fillSheet(table_meta,sht,currentTable,columnJsns,style):
         cols=[]
         row=sht.createRow(0)
         for i,col in enumerate(table_meta.getColumns()):
@@ -269,6 +269,7 @@ def exportToExcel(context, grain_name,table_name,export_ref):
             j=0
             for col,type,name in cols:
                 cell=row.createCell(j)
+                cell.setCellStyle(style)
                 if field_type == 1:
                         if getattr(rec, col):
                             cell.setCellValue(u'Да')
@@ -317,7 +318,9 @@ def exportToExcel(context, grain_name,table_name,export_ref):
         ref_tables.append((grain_name,table_name))
         return ref_tables
     #создаем книгу excel
-    wb=HSSFWorkbook()
+    wb=HSSFWorkbook()    
+    styleStr = wb.createCellStyle()
+    styleStr.setDataFormat(HSSFDataFormat.getBuiltinFormat("@"))
     #если надо связанные
     map_table_names=[]
     ref_tables=[]
@@ -329,17 +332,17 @@ def exportToExcel(context, grain_name,table_name,export_ref):
             #заполняем лист если такого нет
             if wb.getSheet(u"%s"%table) is None:
                 sht=wb.createSheet(u"%s"%table)
-                sht=fillSheet(refTable.meta(),sht,refTable,columnJsnsRef)
+                sht=fillSheet(refTable.meta(),sht,refTable,columnJsnsRef,styleStr)
         if len(map_table_names)!=0:
             for map_table_name in map_table_names:
                 sht=wb.createSheet(u"%s"%map_table_name)
                 mapTable=relatedTableCursorImport(grain_name, map_table_name)(context)
                 columnJsnsMap=getColumnJsns(mapTable.meta())
-                sht=fillSheet(mapTable.meta(),sht,mapTable,columnJsnsMap)
+                sht=fillSheet(mapTable.meta(),sht,mapTable,columnJsnsMap,styleStr)
     #если не надо заполняем один лист
     else:
         sht=wb.createSheet(u"%s"%table_name)
-        sht=fillSheet(table_meta,sht,currentTable,columnJsns)
+        sht=fillSheet(table_meta,sht,currentTable,columnJsns,styleStr)
     #создаем и пишем в файл      
     fileName=u'export.xls'
     file_out=FileOutputStream(File('export.xls'))
