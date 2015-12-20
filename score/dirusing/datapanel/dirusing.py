@@ -25,7 +25,7 @@ def datapanel(context, main=None, session=None):
         
         <element id="14" type="xforms" template="dirusing/directory_export_card.xml" proc="dirusing.xforms.direxportcard.cardData.celesta" neverShowInPanel="true">
           <proc id="proc14" name="dirusing.xforms.direxportcard.cardDataSave.celesta" type="SAVE"/>
-          <proc id="download14" name="dirusing.exportfunctions.exportToExcel.celesta" type="DOWNLOAD"/>
+          <proc id="download14" name="dirusing.xforms.direxportcard.exportDownload.celesta" type="DOWNLOAD"/>
           <related id="13"/>
         </element>
         <element id="15" type="xforms" template="dirusing/directory_data_card.xml" proc="dirusing.xforms.dircontentcard.cardData.celesta" neverShowInPanel="true">

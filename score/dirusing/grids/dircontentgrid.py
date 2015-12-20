@@ -28,16 +28,15 @@ def _setFilters(session, inOutCurrentTable):
     ses = json.loads(session)['sessioncontext']
     
     #простановка фильтра на текстовые поля таблицы
-    if not 'xformsContext' in ses['related']:
+    if not 'xformsContext' in ses['related'] or not 'formData' in ses['related']['xformsContext']\
+    or not 'columns' in ses['related']['xformsContext']['formData']['schema']:
         return
-    
-    if not 'formData' in ses['related']['xformsContext']:
-        return
-    
-    columns = ses['related']['xformsContext']['formData']['schema']['columns']
+    try:
+        columns = ses['related']['xformsContext']['formData']['schema']['columns']
+    except:
+        context.error(str(ses))
     if not isinstance(columns, list):
-        columns = [columns]
-    
+        columns = [columns]  
     filterCols = dict(((col['column']['@id'], col['column']['filter']) for col in columns) if columns else {})
     for textcol, filtertext in filterCols.iteritems():
         filtercol = "%'" + filtertext + "'%"

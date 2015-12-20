@@ -19,6 +19,7 @@ try:
 except:
     pass
 from dirusing.commonfunctions import relatedTableCursorImport, getFieldsHeaders, getSortList
+from dirusing.exportfunctions import exportToExcel
 
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -78,7 +79,15 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     u'''Функция сохранения карточки редактирования содержимого справочника. '''
     return None
-
+def exportDownload(context, main=None, add=None, filterinfo=None,
+                  session=None, elementId=None, xformsdata=None, columnId=None):
+    mainjsn=json.loads(main)
+    grain_name = mainjsn['grain']
+    table_name = mainjsn['table']
+    #признак нужно ли экспортировать связанные
+    export_ref = json.loads(xformsdata)['schema']['reftables']
+    
+    return exportToExcel(context,grain_name,table_name,export_ref)
 
 
 

@@ -35,7 +35,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     table_jsn = json.loads(table_meta.getCelestaDoc())
     #contragTypeId = json.loads(main)['contragTypeId']
 
-    # Пустая структура данных, связнная с текущим справочником
+    # Пустая структура данных
     xformsdata = {"schema":{"@xmlns":"",
                             "buttonShow":u"Показать",
                             "buttonClear":u"Очистить",
