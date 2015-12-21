@@ -270,7 +270,7 @@ def exportToExcel(context, grain_name,table_name,export_ref):
             for col,type,name in cols:
                 cell=row.createCell(j)
                 cell.setCellStyle(style)
-                if field_type == 1:
+                if type == 1:
                         if getattr(rec, col):
                             cell.setCellValue(u'Да')
                         else:
