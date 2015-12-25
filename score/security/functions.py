@@ -24,63 +24,63 @@ class Settings():
     u"""Класс работы с настройками гранулы security из grainSettings.xml    
     
     """
-    settings={} # Статическая переменная класса, в которую сохраняются настройки гранулы.
+    settings = {}    # Статическая переменная класса, в которую сохраняются настройки гранулы.
                 # Данная реализация нужна для того, чтобы не обращаться каждый раз к расположенному на жестком диске файлу настроек
-                # rainSettings.xml 
-    settingsTag = 'securitySettings' # Наименование тэга настроек гранулы
-    grainName = 'security' # название гранулы
-    
-    def __init__(self):        
+                # rainSettings.xml
+    settingsTag = 'securitySettings'    # Наименование тэга настроек гранулы
+    grainName = 'security'    # название гранулы
+
+    def __init__(self):
         self.settingsInstance = SettingsManager()
         # Создаём объект класса получения настроек свойств _всех_ гранул.
-    
+
     def getSettingsJSON(self):
         u""" Функция получения JSON'а всех настроек гранулы
             JSON имеет вид:
             {<Имя параметра>: <значение параметра>}
         """
-        if self.settings=={}:
+        if self.settings == {}:
             # Если переменная настроек self.settings пуста, получаем настройки из общего файла настроек grainSettings.xml
-            names=self.settingsInstance.getGrainSettings("%s/parameter/@name" % self.settingsTag, self.grainName)
-            values=self.settingsInstance.getGrainSettings("%s/parameter/@value" % self.settingsTag, self.grainName)
-            settingsJson={}
+            names = self.settingsInstance.getGrainSettings("%s/parameter/@name" % self.settingsTag, self.grainName)
+            values = self.settingsInstance.getGrainSettings("%s/parameter/@value" % self.settingsTag, self.grainName)
+            settingsJson = {}
             for i in range(len(names)):
                 settingsJson[names[i]] = values[i]
-            self.settings = settingsJson                                                                     
+            self.settings = settingsJson
         return self.settings
 
     def isUseAuthServer(self):
         u"""Метод возвращает значение параметра useAuthServer настроечного файла (True/False) 
         """
-        settingsJson=self.getSettingsJSON()    
-        return settingsJson["useAuthServer"]==True or settingsJson["useAuthServer"]=="true"
-    
+        settingsJson = self.getSettingsJSON()
+        return settingsJson["useAuthServer"] == True or settingsJson["useAuthServer"] == "true"
+
     def loginIsSubject(self):
         u"""Метод возвращает значение параметра loginEqualSubject настроечного файла (True/False) 
         """
-        settingsJson=self.getSettingsJSON()
-        return settingsJson["loginEqualSubject"]==True or settingsJson["loginEqualSubject"]=="true"
-    
+        settingsJson = self.getSettingsJSON()
+        return settingsJson["loginEqualSubject"] == True or settingsJson["loginEqualSubject"] == "true"
+
     def isEmployees(self):
         u"""Метод возвращает True, если в настроечном файле параметры employeesGrain, employeesTable, employeesName
             одновременно принимают значения отличные от null и пустой строки. В противном случае возвращает False 
         """
-        settingsJson=self.getSettingsJSON()
-        result=settingsJson["employeesGrain"]<>None and settingsJson["employeesTable"]<>None and settingsJson["employeesName"]<>None and\
-                settingsJson["employeesGrain"]<>"" and settingsJson["employeesTable"]<>"" and settingsJson["employeesName"]<>"" and\
-                settingsJson["employeesGrain"]<>"null" and settingsJson["employeesTable"]<>"null" and settingsJson["employeesName"]<>"null"
-        return result 
-    
+        settingsJson = self.getSettingsJSON()
+        result = settingsJson["employeesGrain"] <> None and settingsJson["employeesTable"] <> None and settingsJson["employeesName"] <> None and\
+                settingsJson["employeesGrain"] <> "" and settingsJson["employeesTable"] <> "" and settingsJson["employeesName"] <> "" and\
+                settingsJson["employeesGrain"] <> "null" and settingsJson["employeesTable"] <> "null" and settingsJson["employeesName"] <> "null"
+        return result
+
     def isSystemInitialised(self):
         u"""Метод возвращает значение параметра isSystemInitialised настроечного файла (True/False) 
         """
-        settingsJson=self.getSettingsJSON()
-        return settingsJson["isSystemInitialised"]==True or settingsJson["isSystemInitialised"]=="true" 
+        settingsJson = self.getSettingsJSON()
+        return settingsJson["isSystemInitialised"] == True or settingsJson["isSystemInitialised"] == "true"
 
     def getEmployeesParam(self, param):
         u"""Возвращает значение параметра настроечного файла с именем param 
         """
-        settingsJson=self.getSettingsJSON()
+        settingsJson = self.getSettingsJSON()
         return settingsJson[param]
 
     def setEmployeesParam(self, param, value):
@@ -88,15 +88,15 @@ class Settings():
             (!)одновременно сохраняя значение в файл grainsSettings.xml 
         """
         if param in self.settings.keys():
-            self.settings[param]=value
-            path = "%s/parameter[@name='%s']/@value" % (self.settingsTag, param)            
+            self.settings[param] = value
+            path = "%s/parameter[@name='%s']/@value" % (self.settingsTag, param)
             self.settingsInstance.setGrainSettings(path, value, self.grainName)
-    
+
     def settingsJSONSave(self):
         u""" deprecated!
         """
-        #оставляем на случай, если метод где-то используется.
-        #но теперь сохранение будет осуществляться методом setEmployeesParam             
+        # оставляем на случай, если метод где-то используется.
+        # но теперь сохранение будет осуществляться методом setEmployeesParam
         pass
 
 
@@ -112,16 +112,16 @@ def getUsersFromAuthServer(server, sessionId):
     u"""Функция получает адрес Mellophone и ID сессии и возвращает xml (объект xml.dom.minidom) с пользователями. 
         нужна для работы режима "useAuthServer"=="true"
     """
-    req = urllib2.Request(server+'/importusers?sesid='+sessionId,'<Request></Request>')
+    req = urllib2.Request(server + '/importusers?sesid=' + sessionId, '<Request></Request>')
     data = urllib2.urlopen(req)
-    users=data.read()
+    users = data.read()
     return parseString(users)
 
 def getActionJSON(add="", elementId="", caption="", height="", width=""):
     u"""Вспомогательная функция для упрощения генерации settings
         используется в гридах гранулы.
     """
-    action={"@show_in": "MODAL_WINDOW",
+    action = {"@show_in": "MODAL_WINDOW",
                 "#sorted":[{"main_context":"current"},
                            {"modalwindow":{"@caption": caption,
                                            "@height": height,
@@ -142,13 +142,13 @@ def submissionGenPass(context, main=None, add=None, filterinfo=None, session=Non
     u"""Функция для submission, генерирующая пароль с помощью вызова id_generator 
         изпользуется в карточке users.xml
     """
-    instance=json.loads(data)
-    instance["schema"]["user"]["@password"]=id_generator()        
+    instance = json.loads(data)
+    instance["schema"]["user"]["@password"] = id_generator()
     return XMLJSONConverter.jsonToXml(json.dumps(instance))
 
 def generateGridSettings(columns={}, pagesize=25, gridHeight=250, delta=40, \
-                        totalCount=0, profile="default.properties", header="", columnsSorted = None, \
-                        datapanelWidth = None):
+                        totalCount=0, profile="default.properties", header="", columnsSorted=None, \
+                        datapanelWidth=None):
     u"""Вспомогательная функция для упрощения построения настроек грида.
         columns - json с колонками грида
         pagesize - размер страницы
@@ -165,20 +165,14 @@ def generateGridSettings(columns={}, pagesize=25, gridHeight=250, delta=40, \
                 }
     if columnsSorted is None:
         columnsSorted = sorted(columns.keys())
-    if datapanelWidth:
-        gridWidth = datapanelWidth
-    else:
-        gridWidth=0
-        for key in columnsSorted:
-            gridWidth+=columns[key]
-            settings["gridsettings"]["columns"]["col"].append({"@id":key, "@width": str(columns[key])+"px"})
-        gridWidth+=delta    
-    settings["gridsettings"]["properties"]={"@pagesize":pagesize,
-                                            "@gridWidth":str(gridWidth)+"px",
+    for key in columnsSorted:
+        settings["gridsettings"]["columns"]["col"].append({"@id":key, "@width": str(columns[key]) + "px"})
+    settings["gridsettings"]["properties"] = {"@pagesize":pagesize,
+                                            "@gridWidth":"100%",
                                             "@gridHeight":gridHeight,
                                             "@totalCount":totalCount,
                                             "@profile":profile}
-    settings["gridsettings"]["labels"]={"header":header}
+    settings["gridsettings"]["labels"] = {"header":header}
     return settings
 
 def getPermissionsOfTypeAndUser(context, sid, permissionType=None):
@@ -189,41 +183,41 @@ def getPermissionsOfTypeAndUser(context, sid, permissionType=None):
         Если разрешений нет, возвращает None
     """
     # Насколько знаю, ни в одном решении функция не используется. Курсор с разрешениями пока никому не пригодился
-    # Возможно, стоит выпилить. 
-    userRoles=UserRolesCursor(context)
+    # Возможно, стоит выпилить.
+    userRoles = UserRolesCursor(context)
     userRoles.setRange("userid", sid)
-    filter_string=""
+    filter_string = ""
     if userRoles.tryFindSet():
-        filter_string="'"+userRoles.roleid+"'"
+        filter_string = "'" + userRoles.roleid + "'"
         while True:
             if userRoles.nextInSet():
-                filter_string+="|'"+userRoles.roleid+"'"
+                filter_string += "|'" + userRoles.roleid + "'"
             else:
                 break
-            
-    if permissionType is None or permissionType=='tables':
+
+    if permissionType is None or permissionType == 'tables':
         # получаем разрешения из таблицы permissions
-        permissions=PermissionsCursor(context)
-        if filter_string=="":
+        permissions = PermissionsCursor(context)
+        if filter_string == "":
             return None
         permissions.setFilter("roleid", filter_string)
     else:
         # получаем разрешения из таблицы customPermissions
-        permissions=customPermsCursor(context)
-        rolePermissions=rolesCustomPermsCursor(context)        
+        permissions = customPermsCursor(context)
+        rolePermissions = rolesCustomPermsCursor(context)
         rolePermissions.setFilter("roleid", filter_string)
-        filter_string=""
+        filter_string = ""
         if rolePermissions.tryFindSet():
-            filter_string="'"+rolePermissions.permissionId+"'"
+            filter_string = "'" + rolePermissions.permissionId + "'"
             while True:
                 if rolePermissions.nextInSet():
-                    filter_string+="|'"+rolePermissions.permissionId+"'"
+                    filter_string += "|'" + rolePermissions.permissionId + "'"
                 else:
                     break
-        if filter_string<>"":
+        if filter_string <> "":
             permissions.setFilter("name", filter_string)
         else:
-            return None        
+            return None
     return permissions
 
 def userHasPermission(context, sid, permission):
@@ -234,29 +228,29 @@ def userHasPermission(context, sid, permission):
         возвращает True
         sid - sid пользователя
         permission - рарешение из таблицы customPermissions
-    """    
-    userRoles=UserRolesCursor(context)
+    """
+    userRoles = UserRolesCursor(context)
     if userRoles.tryGet(sid, "editor"):
         # Для роли editor есть все(!) разрешения
         return True
     userRoles.clear()
-    userRoles.setRange("userid", sid) # выбираем разрешения данного пользователя.
-    permissions=customPermsCursor(context)
+    userRoles.setRange("userid", sid)    # выбираем разрешения данного пользователя.
+    permissions = customPermsCursor(context)
     if not permissions.tryGet(permission):
         # Разрешения не нашли, возвращаем False
         return False
-    rolePermissions=rolesCustomPermsCursor(context)
+    rolePermissions = rolesCustomPermsCursor(context)
     if userRoles.tryFindSet():
         while True:
             rolePermissions.setRange("roleid", userRoles.roleid)
             rolePermissions.setRange("permissionId", permission)
             if rolePermissions.tryFirst():
-                return True            
+                return True
             if not userRoles.nextInSet():
                 break
     return False
 
-def tableUpload(cursorInstance, fileData):    
+def tableUpload(cursorInstance, fileData):
     u"""Функция загрузки xml-данных fileData в таблицу с объектом курсора cursorInstance 
     """
     exchange = DataBaseXMLExchange(fileData, cursorInstance)
@@ -265,10 +259,10 @@ def tableUpload(cursorInstance, fileData):
 def tableDownload(cursorInstance, fileName):
     u"""Функция загрузки данных таблицы с объектом курсора cursorInstance в xml-файл
     """
-    filePath=os.path.join(os.path.dirname(os.path.abspath(__file__)), fileName+'.xml')
+    filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), fileName + '.xml')
     dataStream = FileOutputStream(filePath)
     exchange = DataBaseXMLExchange(dataStream, cursorInstance)
     exchange.downloadXML()
     dataStream.close()
-    report=File(filePath)    
-    return JythonDownloadResult(FileInputStream(report),fileName+'.xml')
+    report = File(filePath)
+    return JythonDownloadResult(FileInputStream(report), fileName + '.xml')
