@@ -79,7 +79,7 @@ def navDirU(context, session):
 #             pass
     return jsonnav
 
-navigator.navigatorsParts['2'] = navDirU
+navigator.navigatorsParts['3'] = navDirU
 
 
 

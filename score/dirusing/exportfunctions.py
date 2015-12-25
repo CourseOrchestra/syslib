@@ -335,10 +335,11 @@ def exportToExcel(context, grain_name,table_name,export_ref):
                 sht=fillSheet(refTable.meta(),sht,refTable,columnJsnsRef,styleStr)
         if len(map_table_names)!=0:
             for map_table_name in map_table_names:
-                sht=wb.createSheet(u"%s"%map_table_name)
-                mapTable=relatedTableCursorImport(grain_name, map_table_name)(context)
-                columnJsnsMap=getColumnJsns(mapTable.meta())
-                sht=fillSheet(mapTable.meta(),sht,mapTable,columnJsnsMap,styleStr)
+                if wb.getSheet(u"%s"%table) is None:
+                    sht=wb.createSheet(u"%s"%map_table_name)
+                    mapTable=relatedTableCursorImport(grain_name, map_table_name)(context)
+                    columnJsnsMap=getColumnJsns(mapTable.meta())
+                    sht=fillSheet(mapTable.meta(),sht,mapTable,columnJsnsMap,styleStr)
     #если не надо заполняем один лист
     else:
         sht=wb.createSheet(u"%s"%table_name)

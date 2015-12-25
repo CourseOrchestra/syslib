@@ -384,7 +384,7 @@ def getRecord(currentTable, context, table_meta, grain_name, rec, _headers):
                     #находим запись по primarykey'ям и получаем значение теребуемого поля и добавляем к уже найденным
                     if len(currentRecordIds) > 0:
                         if relatedTable.tryGet(*currentRecordIds):
-                            refValue = refValue + getattr(relatedTable, refTableColumn) + "; "
+                            refValue = refValue + str(getattr(relatedTable, refTableColumn)) + "; "
             rec_dict[fieldName] = refValue
     return rec_dict
 
