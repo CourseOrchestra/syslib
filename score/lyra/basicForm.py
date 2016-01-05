@@ -6,9 +6,11 @@ def register(c):
     _formclasses[cid] = c
 
 class formfield(object):
-    def __init__(self, celestatype, caption=None):
+    def __init__(self, celestatype, caption=None, editable = True, visible = True):
         self.celestatype = celestatype
         self.caption = caption
+        self.editable = editable
+        self.visible = visible
         self.fget = None
         self.fset = None
 

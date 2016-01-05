@@ -1,11 +1,22 @@
 # coding: utf-8
 import ru.curs.lyra.BasicCardForm as BasicCardForm
+import ru.curs.lyra.LyraFormField as LyraFormField
+import ru.curs.lyra.LyraFieldType as LyraFieldType
 
 class CardForm(BasicCardForm):
     u'''Basic class for a card form'''
     def __init__(self, context):
         BasicCardForm.__init__(self, context)
-    
+        
+    def _buildUnboundFieldsMeta(self, m):
+        for name, ff in self.__class__._properties.iteritems():
+            lff = LyraFormField(name);
+            m.addElement(lff);
+            lff.setType(LyraFieldType.valueOf(ff.celestatype.upper()));
+            lff.setCaption(ff.caption)
+            lff.setEditable(ff.editable)
+            lff.setVisible(ff.visible)
+        
     def _serializeFields(self):
         if not hasattr(self.__class__, "_properties"):
             raise Exception('Did you forget @form decorator for class %s?' % (self.__class__.__name__))
@@ -129,19 +140,14 @@ class CardForm(BasicCardForm):
         return formTemplate
     
     def _buildControls(self, formTemplate, meta):
-        for c in meta.getColumns().values():
-            formTemplate += """<div class="baseInput200 break">\n"""
-            tag = 'textarea' if c.getCelestaType() == 'TEXT' else 'input'
-            formTemplate += '''  <xf:%s ref="instance('xformId_mainInstance')/%s">\n''' % (tag, c.getName())
-            formTemplate += '    <xf:label>%s</xf:label>\n' % c.getName()
-            formTemplate += '  </xf:%s></div>\n' % tag
-            
-        for name, ff in self.__class__._properties.iteritems():
-            formTemplate += """<div class="baseInput200 break">\n"""
-            tag = 'textarea' if ff.celestatype == 'TEXT' else 'input'
-            formTemplate += '''  <xf:%s ref="instance('xformId_mainInstance')/%s">\n''' % (tag, name)
-            formTemplate += '    <xf:label>%s</xf:label>\n' % ff.caption
-            formTemplate += '  </xf:%s></div>\n' % tag
+        
+        for c in self.getFieldsMeta().values():
+            if c.isVisible():
+                formTemplate += """<div class="baseInput200 break">\n"""
+                tag = 'textarea' if c.getType().toString() == 'TEXT' else 'input'
+                formTemplate += '''  <xf:%s ref="instance('xformId_mainInstance')/%s">\n''' % (tag, c.getName())
+                formTemplate += '    <xf:label>%s</xf:label>\n' % c.getCaption()
+                formTemplate += '  </xf:%s></div>\n' % tag
 
         return formTemplate
 

@@ -19,6 +19,8 @@ def getFormInstance(context, main=None, add=None, filterinfo=None, session=None,
         result = lf[main]
     else:
         #TODO: отработка ошибки на не найденный класс формы
+        if not main in basicForm._formclasses:
+            raise Exception('No form %s registered' % main)
         c = basicForm._formclasses[main]
         result = c(context)
         lf[main] = result
