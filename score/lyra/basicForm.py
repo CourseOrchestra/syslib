@@ -12,7 +12,7 @@ class formfield(object):
         self.editable = editable
         self.visible = visible
         self.fget = None
-        self.fset = None
+        self.fset = lambda instance, value: None
 
     def __call__(self, f):
         name = f.__name__
@@ -29,10 +29,7 @@ class formfield(object):
         return self.fget(instance)
     
     def __set__(self, instance, value):
-        if not(self.fset is None):
-            return self.fset(instance, value)
-        else:
-            raise Exception('"%s" is a read-only field in form %s' % (self.caption, instance.__class__.__name__))
+        return self.fset(instance, value)
 
 def form(cls):
     cls._properties = {}

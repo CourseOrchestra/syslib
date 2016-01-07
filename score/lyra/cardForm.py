@@ -2,6 +2,7 @@
 import ru.curs.lyra.BasicCardForm as BasicCardForm
 import ru.curs.lyra.LyraFormField as LyraFormField
 import ru.curs.lyra.LyraFieldType as LyraFieldType
+import ru.curs.lyra.UnboundFieldAccessor as UnboundFieldAccessor
 
 class CardForm(BasicCardForm):
     u'''Basic class for a card form'''
@@ -9,26 +10,16 @@ class CardForm(BasicCardForm):
         BasicCardForm.__init__(self, context)
         
     def _buildUnboundFieldsMeta(self, m):
+        if not hasattr(self.__class__, "_properties"):
+            raise Exception('Did you forget @form decorator for class %s?' % (self.__class__.__name__))
         for name, ff in self.__class__._properties.iteritems():
-            lff = LyraFormField(name);
+            acc = UnboundFieldAccessor(ff.celestatype, ff.fget, ff.fset, self)
+            lff = LyraFormField(name, False, acc);
             m.addElement(lff);
             lff.setType(LyraFieldType.valueOf(ff.celestatype.upper()));
             lff.setCaption(ff.caption)
             lff.setEditable(ff.editable)
             lff.setVisible(ff.visible)
-        
-    def _serializeFields(self):
-        if not hasattr(self.__class__, "_properties"):
-            raise Exception('Did you forget @form decorator for class %s?' % (self.__class__.__name__))
-        
-        for name, ff in self.__class__._properties.iteritems():
-            self._saveFieldValue(ff.celestatype, name, ff.fget(self), ff.caption)
-    
-    def _restoreValue(self, name, value):
-        p = self.__class__._properties[name]
-        setter = p.fset
-        if not setter is None:
-            setter(self, value) 
     
     def _getId(self):
         return self.__class__.__module__ + "." + self.__class__.__name__
