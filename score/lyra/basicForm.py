@@ -1,4 +1,8 @@
 # coding: utf-8
+import ru.curs.lyra.LyraFormField as LyraFormField
+import ru.curs.lyra.LyraFieldType as LyraFieldType
+import ru.curs.lyra.UnboundFieldAccessor as UnboundFieldAccessor
+
 _formclasses = {}
 
 def register(c):
@@ -31,11 +35,38 @@ class formfield(object):
     def __set__(self, instance, value):
         return self.fset(instance, value)
 
+def _createUnboundField(self, m, name):
+    if not hasattr(self.__class__, "_properties"):
+        raise Exception('Did you forget @form decorator for class %s?' % (self.__class__.__name__))
+    ff = self.__class__._properties[name]
+    if ff is None:
+        return None
+    acc = UnboundFieldAccessor(ff.celestatype, ff.fget, ff.fset, self)
+    lff = LyraFormField(name, False, acc);
+    m.addElement(lff);
+    lff.setType(LyraFieldType.valueOf(ff.celestatype.upper()));
+    lff.setCaption(ff.caption)
+    lff.setEditable(ff.editable)
+    lff.setVisible(ff.visible)
+    return lff
+        
+def _createAllUnboundFields(self, m):
+    if not hasattr(self.__class__, "_properties"):
+        raise Exception('Did you forget @form decorator for class %s?' % (self.__class__.__name__))
+    for name in self.__class__._properties.keys():
+        self._createUnboundField(m, name)
+           
+def _getId(self):
+    return self.__class__.__module__ + "." + self.__class__.__name__
+
 def form(cls):
     cls._properties = {}
     for name, method in cls.__dict__.iteritems():
         if method.__class__ == formfield:
             cls._properties[name] = method
+    cls._createUnboundField = _createUnboundField
+    cls._createAllUnboundFields = _createAllUnboundFields
+    cls._getId = _getId
     register(cls)
     return cls
 
