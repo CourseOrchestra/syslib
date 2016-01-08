@@ -5,7 +5,7 @@ class GridForm(BasicGridForm):
     u'''Basic class for a grid form'''
     def __init__(self, context):
         BasicGridForm.__init__(self, context)
-    
-    def _getId(self):
-        return self.__class__.__module__ + "." + self.__class__.__name__
-    
+        
+    u'''OVERRIDE THIS TO RETURN CORRECT NUMBER OF ROWS IN GRID!'''
+    def getGridHeight(self):
+        return 10

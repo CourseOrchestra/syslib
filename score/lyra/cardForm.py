@@ -6,8 +6,7 @@ class CardForm(BasicCardForm):
     def __init__(self, context):
         BasicCardForm.__init__(self, context)
     
-    def setContext(self, context, session, main, add, elemetId):
-        self.setCallContext(context)
+    def setContext(self, session, main, add, elemetId):
         self.session = session
         self.main = main
         self.add = add
