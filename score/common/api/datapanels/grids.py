@@ -469,7 +469,7 @@ class Toolbar(ToolbarContainerMixIn, IXMLSerializable):
         
     def toJSONDict(self):
         if not self.items():
-            return {'gridtoolbar': ''}
+            return {'gridtoolbar': {ToolbarItemTypes.ITEM: ''}}
         
         return {'gridtoolbar': {'#sorted': self._toJSONDict()}}
     
