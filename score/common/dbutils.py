@@ -37,7 +37,7 @@ class UploadXMLHandler(DefaultHandler2):
             ins.tryUpdate()
         def actionI(ins):
             ins.tryInsert()
-        # определяем, какую фукнцию нам нужно использовать
+        # определяем, какую функцию нам нужно использовать
         self.funcAction = locals()['action%s' % action.upper()]
 
     def startElement(self, namespaceURI, lname, qname, attrs):
@@ -56,9 +56,9 @@ class UploadXMLHandler(DefaultHandler2):
 
             self.parentTag = qname
             if not attrs.getValue('name'):
-                raise CelestaException(u"Атрибут 'name' отсутствует в тэге 'table'")
+                raise CelestaException(u"Атрибут 'name' отсутствует в теге 'table'")
             elif attrs.getValue('name') != self.tableInstance.meta().getName():
-                raise CelestaException(u"Имя таблицы %s не осоответствует значению атрибута 'name'" % self.tableInstance.meta().getName())
+                raise CelestaException(u"Имя таблицы %s не соответствует значению атрибута 'name'" % self.tableInstance.meta().getName())
         elif qname == 'row' and self.flag == 0:
             if self.parentTag != 'table':
                 raise CelestaException(u"Неверный формат файла")
@@ -223,6 +223,7 @@ class DataBaseXMLExchange():
                 xmlWriter.writeStartElement("field")
                 xmlWriter.writeAttribute('name', field)
                 if self.tableInstance.meta().columns[field].getCelestaType() == 'BLOB':
+                    xmlWriter.writeAttribute('encoding', 'base64')
                     self.blobHandler(field, xmlWriter)
                 else:
                     xmlWriter.writeCharacters("\n\t\t\t")
