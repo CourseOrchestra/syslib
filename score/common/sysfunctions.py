@@ -21,9 +21,12 @@ def toHexForXml(s):
 def tableCursorImport(grainName, tableName):
     u'''Функция, импортирующая  класс курсора на таблицу'''
 
-    # Bмпорт гранулы
-    _grain_orm = __import__("%s._%s_orm" % (grainName, grainName),
-                            globals(), locals(), "%sCursor" % tableName, -1)
+    # Импорт гранулы
+    if grainName == "celesta":
+        from ru.curs.celesta import syscursors as _grain_orm
+    else:
+        _grain_orm = __import__("%s._%s_orm" % (grainName, grainName),
+                                globals(), locals(), "%sCursor" % tableName, -1)
 
     return getattr(_grain_orm, "%sCursor" % tableName)
 
