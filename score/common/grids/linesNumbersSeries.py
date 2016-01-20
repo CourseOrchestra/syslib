@@ -22,7 +22,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
     # Определяем переменную для JSON данных
     data = {"records":{"rec":[]}}
     
-    linesOfNumbersSeries.limit(firstrecord-1, pagesize)
+    linesOfNumbersSeries.limit(firstrecord - 1, pagesize)
     
     # Проходим по таблице и заполняем data    
     for linesOfNumbersSeries in linesOfNumbersSeries.iterate():
@@ -73,7 +73,7 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
-                                "properties": {"@pagesize":"50", "@gridWidth": "1000px", "@totalCount": totalcount, "@profile":"default.properties"},
+                                "properties": {"@pagesize":"50", "@gridWidth": "100%", "@totalCount": totalcount, "@profile":"default.properties"},
                                 "labels":{"header":header}
                                 }
     # Добавляем поля для отображения в gridsettings
@@ -170,7 +170,7 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                                                   }]
                                                       }
                                             })
-    data["gridtoolbar"]["item"].append(    {"@img": 'gridToolBar/arrowDown.png',
+    data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/arrowDown.png',
                                             "@text":"Скачать",
                                             "@hint":"Скачать экземпляры серий номеров в xml",
                                             "@disable": "false",
@@ -189,7 +189,7 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                                       }
                                             }
                                        )
-    data["gridtoolbar"]["item"].append(    {"@img": 'gridToolBar/arrowUp.png',
+    data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/arrowUp.png',
                                             "@text":"Загрузить",
                                             "@hint":"Загрузить экземпляры серий номеров из xml",
                                             "@disable": "false",
