@@ -110,11 +110,11 @@
                 <xf:input class="baseInput400" ref="./value"></xf:input>
               </xf:group>
               <!--String with len < 255 -->
-              <xf:group ref=".[type_id='9' and number(./max_length)&lt;=255]">
+              <xf:group ref=".[type_id='9' and (number(./max_length)&lt;=255 and number(./max_length)!=0)]">
                 <xf:input class="baseInput400" ref="./value"></xf:input>
               </xf:group>
                <!-- String with len > 255 -->
-              <xf:group ref=".[type_id='9' and number(./max_length)&gt;255]">
+              <xf:group ref=".[type_id='9' and (number(./max_length)&gt;255 or number(./max_length)=0)]">
                 <div class="baseInput400 textareaHeight60">
                   <xf:textarea ref="./value"></xf:textarea>
                 </div>
