@@ -42,7 +42,7 @@ def _setFilters(session, inOutCurrentTable):
         filtercol = "%'" + filtertext + "'%"
         inOutCurrentTable.setFilter(textcol, filtercol)
 
-def getTree(context, main=None, add=None, filterinfo=None, session=None, elementId=None, sortColumnList=None, parentId=None):
+def getTreeData(context, main=None, add=None, filterinfo=None, session=None, elementId=None, sortColumnList=None, parent_id=None):
     u'''Функция получения данных для tree-грида. '''
     # получение id grain и table
     grain_name = json.loads(main)['grain']
@@ -117,7 +117,7 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
                         if field in (u'deweyCode', u'deweyCod', u'deweyKod'):
                             field = u'sortNumber'
                         currentTable.orderBy(field + ' ' + sortindex)
-        if parentId is None:
+        if parent_id is None:
             # Обработка иерархического справочника
             for rec in currentTable.iterate():
 #                 rec_dict = {}
@@ -128,7 +128,7 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
                     rec_dict["HasChildren"] = '1' if hasChildren(context, rec, deweyColumn) else '0'
                     data["records"]["rec"].append(rec_dict)
         else:
-            selectedRecordId = json.loads(base64.b64decode(str(parentId)))
+            selectedRecordId = json.loads(base64.b64decode(str(parent_id)))
             currentTable.get(*selectedRecordId)
             parent = getattr(currentTable, deweyColumn)
             len_parent = len(parent.split('.'))
@@ -145,7 +145,18 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
         data = {"records":""}
 
     res = XMLJSONConverter.jsonToXml(json.dumps(data))
-
+    return JythonDTO(res, None)
+def getTreeSettings(context, main=None, add=None, filterinfo=None, session=None, elementId=None, parent_id=None):
+    u'''Функция получения настроек грида. '''
+    # получение id grain и table из контекста
+    grain_name = json.loads(main)['grain']
+    table_name = json.loads(main)['table']
+    
+    table_meta = context.getCelesta().getScore().getGrain(grain_name).getTable(table_name)
+    currentTable = relatedTableCursorImport(grain_name, table_name)(context)
+    _headers = getFieldsHeaders(table_meta, "grid")
+    #простановка фильтра на текстовые поля таблицы
+    _setFilters(session, currentTable)
     try:
         panelWidth = str(int(json.loads(session)['sessioncontext']['currentDatapanelWidth']) - 55) + 'px'
         panelHeight = int(json.loads(session)['sessioncontext']['currentDatapanelHeight']) - 115
@@ -155,6 +166,7 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
 
     # Заголовок таблицы
     table_name = json.loads(table_meta.getCelestaDoc())["name"]
+    totalcount = currentTable.count()
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
@@ -189,7 +201,7 @@ def getTree(context, main=None, add=None, filterinfo=None, session=None, element
     _sortedHeaders(s_number)
     res_set = XMLJSONConverter.jsonToXml(json.dumps(settings))
 
-    return JythonDTO(res, res_set)
+    return JythonDTO(None, res_set)
 
 def getData(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):

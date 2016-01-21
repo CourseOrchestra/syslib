@@ -85,7 +85,8 @@ def datapanelHierarchical(context, main=None, session=None):
         </element> -->
         <element id="11" type="xforms" template="dirusing/dirusing_filter.xml" proc="dirusing.xforms.dirfilter.cardData.celesta"> 
         </element>
-        <element id="13" type="grid" subtype="JS_TREE_GRID" plugin="treeDGrid" proc="dirusing.grids.dircontentgrid.getTree.celesta">
+        <element id="13" type="grid" subtype="JS_TREE_GRID" plugin="treeDGrid" proc="dirusing.grids.dircontentgrid.getTreeData.celesta">
+            <proc id="proc13" name="dirusing.grids.dircontentgrid.getTreeSettings.celesta" type="METADATA"/>
             <proc id="toolbar1" name="dirusing.grids.dircontentgrid.gridToolBar.celesta" type="TOOLBAR"/>
             <proc id="download1" name="dirusing.commonfunctions.downloadFileFromGrid.celesta" type="DOWNLOAD"/>
 			<related id="11"/>
