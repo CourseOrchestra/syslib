@@ -95,11 +95,12 @@ def getFieldsHeaders(table_meta, elem_type):
             [<Имя столбца для XML>,    #индекс 0 
             <ИД типа>,                 #индекс 1
             <Порядок>,                 #индекс 2
-            <Имя столбца>              #индекс 3
+            <Имя столбца>,             #индекс 3
+            <Ширина столбца>           #индекс 4
             ]
         }
     '''
-
+    colWidth=''
     # Заносим служебные поля
     _headers = {'~~id':['~~id', 0, 0, '~~id']}
 
@@ -111,14 +112,21 @@ def getFieldsHeaders(table_meta, elem_type):
             column_jsn = json.loads(table_meta.getColumn(col_name).getCelestaDoc())
             # Проверка на видимость столбца если грид
             if elem_type == "grid":
-                if column_jsn["visualLength"] == '0':
+                if column_jsn["visualLength"] != '0':
+                    #задание ширины столбцов
+                    try:
+                        colWidth = '%spx' %int(column_jsn["visualLength"])
+                    #если ширина не задана в celestaDoc, по умолчанию
+                    except ValueError:
+                        colWidth = ''
+                else:
                     continue
-            _headers[col_name] = [column_jsn["name"], int(column_jsn["fieldTypeId"]), int(column_jsn["fieldOrderInSort"]), column_jsn["name"]]
+            _headers[col_name] = [column_jsn["name"], int(column_jsn["fieldTypeId"]), int(column_jsn["fieldOrderInSort"]), column_jsn["name"], colWidth]
+        #Если неверно задан челестадок
         except:
             continue
     for col in _headers:
         _headers[col][0] = toHexForXml(_headers[col][0])
-#         _headers[col][3] = htmlDecode(_headers[col][0])
 
     return _headers
 

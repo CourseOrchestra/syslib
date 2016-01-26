@@ -186,11 +186,16 @@ def getTreeSettings(context, main=None, add=None, filterinfo=None, session=None,
                     continue
                 else:
                     if field not in ('~~id',) and _headers[field][1] != (4):
-                        settings["gridsettings"]["columns"]["col"].append({"@id":_headers[field][3]})
+                        settings["gridsettings"]["columns"]["col"].append({"@id":_headers[field][3],
+                                                                           "@width":_headers[field][4]
+                                                                           })
+                    #Для типа Файл                                                        
                     elif field not in ('~~id',) and _headers[field][1] == (4):
                         settings["gridsettings"]["columns"]["col"].append({"@id":_headers[field][3],
-                                                                            "@type": "DOWNLOAD",
-                                                                            "@linkId":"download1"})
+                                                                           "@type": "DOWNLOAD",
+                                                                           "@linkId":"download1",
+                                                                           "@width":_headers[field][4]
+                                                                           })
                     s_number += 1
                     _sortedHeaders(s_number)
                     break
@@ -442,11 +447,15 @@ def getSettings(context, main=None, add=None, filterinfo=None, session=None, ele
                     continue
                 else:
                     if field not in ('~~id',) and _headers[field][1] != (4):
-                        settings["gridsettings"]["columns"]["col"].append({"@id":_headers[field][3]})
+                        settings["gridsettings"]["columns"]["col"].append({"@id":_headers[field][3],
+                                                                           "@width":_headers[field][4]
+                                                                           })
                     elif field not in ('~~id',) and _headers[field][1] == (4):
                         settings["gridsettings"]["columns"]["col"].append({"@id":_headers[field][3],
                                                                             "@type": "DOWNLOAD",
-                                                                            "@linkId":"download1"})
+                                                                            "@linkId":"download1",
+                                                                            "@width":_headers[field][4]
+                                                                            })
                     s_number += 1
                     _sortedHeaders(s_number)
                     break
