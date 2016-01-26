@@ -42,7 +42,7 @@ def _setFilters(session, inOutCurrentTable):
         filtercol = "%'" + filtertext + "'%"
         inOutCurrentTable.setFilter(textcol, filtercol)
 
-def getTreeData(context, main=None, add=None, filterinfo=None, session=None, elementId=None, sortColumnList=None, parent_id=None):
+def getTreeData(context, main, add, filterinfo, session, elementId, sortColumnList, firstrecord, pagesize, parentId):
     u'''Функция получения данных для tree-грида. '''
     # получение id grain и table
     grain_name = json.loads(main)['grain']
@@ -117,7 +117,7 @@ def getTreeData(context, main=None, add=None, filterinfo=None, session=None, ele
                         if field in (u'deweyCode', u'deweyCod', u'deweyKod'):
                             field = u'sortNumber'
                         currentTable.orderBy(field + ' ' + sortindex)
-        if parent_id is None:
+        if parentId is None:
             # Обработка иерархического справочника
             for rec in currentTable.iterate():
 #                 rec_dict = {}
@@ -128,7 +128,7 @@ def getTreeData(context, main=None, add=None, filterinfo=None, session=None, ele
                     rec_dict["HasChildren"] = '1' if hasChildren(context, rec, deweyColumn) else '0'
                     data["records"]["rec"].append(rec_dict)
         else:
-            selectedRecordId = json.loads(base64.b64decode(str(parent_id)))
+            selectedRecordId = json.loads(base64.b64decode(str(parentId)))
             currentTable.get(*selectedRecordId)
             parent = getattr(currentTable, deweyColumn)
             len_parent = len(parent.split('.'))
@@ -146,7 +146,7 @@ def getTreeData(context, main=None, add=None, filterinfo=None, session=None, ele
 
     res = XMLJSONConverter.jsonToXml(json.dumps(data))
     return JythonDTO(res, None)
-def getTreeSettings(context, main=None, add=None, filterinfo=None, session=None, elementId=None, parent_id=None):
+def getTreeSettings(context, main, add, filterinfo, session, elementId):
     u'''Функция получения настроек грида. '''
     # получение id grain и table из контекста
     grain_name = json.loads(main)['grain']
