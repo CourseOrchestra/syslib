@@ -52,15 +52,15 @@ def rolesDatapanel(context, main=None, session=None):
                                                     "@type":"SAVE"
                                                     },
                                             "related":{"@id":"id_roles_grid"}
-                                            },                                          
+                                            },
                                            {"@id":"id_perm_roles_grid",
                                             "@type":"grid",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
-                                            "@proc":"security.grid.rolesPermissions.gridData.celesta",
+                                            "@proc":"security.grid.permissions.gridData.celesta",
                                             "@hideOnLoad":"true",
                                             "proc":{"@id":"id_perm_roles_grid_meta",
-                                                     "@name":"security.grid.rolesPermissions.gridMeta.celesta",
+                                                     "@name":"security.grid.permissions.gridMeta.celesta",
                                                      "@type":"METADATA"
                                                      },
                                             "related":{"@id":"id_roles_grid"}

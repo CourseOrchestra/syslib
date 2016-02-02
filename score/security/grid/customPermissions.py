@@ -1,10 +1,11 @@
 # coding: utf-8
 
 import json
+
+from common.sysfunctions import toHexForXml, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from common.sysfunctions import toHexForXml, getGridHeight, getGridWidth
 from security._security_orm import customPermsCursor
-from security.functions import Settings
+
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -16,29 +17,40 @@ def gridData(context, main=None, add=None, filterinfo=None,
     u'''Функция получения данных для грида. '''
     # Создание экземпляра курсора разрешения
     permissions = customPermsCursor(context)
+    if sortColumnList:
+        sortName = toHexForXml(sortColumnList[0].id)
+        sortType = unicode(sortColumnList[0].sorting).lower()
+    else:
+        sortName = None
+
     if 'formData' in session:
         typeId = json.loads(session)['sessioncontext']['related']['xformsContext']['formData']['schema']['permission']['@type']
-        if typeId<>'':
+        if typeId:
             permissions.setRange('type', typeId)
-    
-    permissions.limit(firstrecord-1, pagesize)
+
     permissions.orderBy('name')
 
     # Определяем переменную для JSON данных
     data = {"records":{"rec":[]}}
     # Проходим по таблице и заполняем data
-    columnsDict={u"Разрешение":"name",
-                 u"Описание":"description",
-                 u"Тип": "type"}
-    for column in sortColumnList:
-        sortindex = '%s' % column.getSorting()        
-        permissions.orderBy(columnsDict[column.getId()] +' '+sortindex)
+    _header = {"id": ["~~id"],
+               "name": [u"Разрешение"],
+               "description": [u"Описание"],
+               "type": [u"Тип"],
+
+               "properties": [u"properties"]
+               }
+    for column in _header:
+        _header[column].append(toHexForXml(_header[column][0]))
+        if sortName == _header[column][1]:
+            permissions.orderBy("%s %s" % (column, sortType))
+    permissions.limit(firstrecord - 1, pagesize)
     for permissions in permissions.iterate():
         permDict = {}
-        permDict[toHexForXml('~~id')] = permissions.name
-        permDict[u"Разрешение"] = permissions.name
-        permDict[u"Описание"] = permissions.description
-        permDict[u"Тип"] = permissions.type
+        permDict[_header["id"][1]] = getattr(permissions, column) or ''
+        for column in [x for x in _header.keys() if x not in ("id", "properties")]:
+            permDict[_header[column][1]] = getattr(permissions, column) or ''
+
         permDict['properties'] = {"event":{"@name":"row_single_click",
                                            "action":{"#sorted":[{"main_context": 'current'},
                                                                 {"datapanel":{'@type':"current",
@@ -64,27 +76,31 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     totalcount = permissions.count()
     # Заголовок таблицы
     header = "Разрешения"
-    # В случае если таблица пустая
-    if totalcount == 0 or totalcount is None:
-        totalcount = "0"
-        header = header + " ПУСТ"
-    
-    sec_settings = Settings()
 
+    _header = {"id": ["~~id"],
+               "name": [u"Разрешение"],
+               "description": [u"Описание"],
+               "type": [u"Тип"],
+
+               "properties": [u"properties"]
+               }
     # Определяем список полей таблицы для отображения
     settings = {}
-    settings["gridsettings"] = {"columns":{"col":[]},
-                                "properties":{"@pagesize":"50",
-                                              "@gridWidth": getGridWidth(session),
-                                              "@gridHeight":getGridHeight(session, numberOfGrids = 1 if sec_settings.loginIsSubject() else 2, delta=250),
-                                              "@totalCount":totalcount,
-                                              "@profile":"default.properties"},
-                                "labels":{"header":header}
+    settings["gridsettings"] = {"columns": {"col": []},
+                                "properties": {"@pagesize": "50",
+                                               "@gridWidth": "100%",
+                                               "@gridHeight": getGridHeight(session, numberOfGrids=2.1),
+                                               "@totalCount": totalcount,
+                                               "@profile": "default.properties"},
+                                "labels": {"header": header}
                                 }
     # Добавляем поля для отображения в gridsettings
-    settings["gridsettings"]["columns"]["col"].append({"@id":"Разрешение", "@width": "120px"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":"Описание", "@width": "240px"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":"Тип", "@width": "120px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id": _header["name"][0],
+                                                       "@width": "120px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id": _header["description"][0],
+                                                       "@width": "240px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id": _header["type"][0],
+                                                       "@width": "120px"})
     res = XMLJSONConverter.jsonToXml(json.dumps(settings))
     return JythonDTO(None, res)
 
@@ -159,44 +175,43 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                                                   }]
                                                       }
                                             })
-    data["gridtoolbar"]["item"].append(    {"@img": 'gridToolBar/arrowDown.png',
-                                            "@text":"Скачать",
-                                            "@hint":"Скачать прочие разрешения в xml",
-                                            "@disable": "false",
-                                            "action":{"@show_in": "MODAL_WINDOW",
-                                                      "#sorted":[{"main_context":"current"},
-                                                                 {"modalwindow":{"@caption": "Скачать разрешения",
-                                                                                 "@height": "300",
-                                                                                 "@width": "450"}
-                                                                  },
-                                                                 {"datapanel":{"@type": "current",
-                                                                               "@tab": "current",
-                                                                               "element": {"@id": "customPermissionsDownloadXform",
-                                                                                           "add_context":"download"}
-                                                                               }
-                                                                  }]
-                                                      }
-                                            }
-                                       )    
-    data["gridtoolbar"]["item"].append(    {"@img": 'gridToolBar/arrowUp.png',
-                                            "@text":"Загрузить",
-                                            "@hint":"Загрузить прочие разрешения из xml",
-                                            "@disable": "false",
-                                            "action":{"@show_in": "MODAL_WINDOW",
-                                                      "#sorted":[{"main_context":"current"},
-                                                                 {"modalwindow":{"@caption": "Загрузить разрешения",
-                                                                                 "@height": "300",
-                                                                                 "@width": "450"}
-                                                                  },
-                                                                 {"datapanel":{"@type": "current",
-                                                                               "@tab": "current",
-                                                                               "element": {"@id": "customPermissionsUploadXform",
-                                                                                           "add_context":"upload"}
-                                                                               }
-                                                                  }]
-                                                      }
-                                            }
+    data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/arrowDown.png',
+                                        "@text":"Скачать",
+                                        "@hint":"Скачать прочие разрешения в xml",
+                                        "@disable": "false",
+                                        "action":{"@show_in": "MODAL_WINDOW",
+                                                  "#sorted":[{"main_context":"current"},
+                                                             {"modalwindow":{"@caption": "Скачать разрешения",
+                                                                             "@height": "300",
+                                                                             "@width": "450"}
+                                                              },
+                                                             {"datapanel":{"@type": "current",
+                                                                           "@tab": "current",
+                                                                           "element": {"@id": "customPermissionsDownloadXform",
+                                                                                       "add_context":"download"}
+                                                                           }
+                                                              }]
+                                                  }
+                                        }
+                                       )
+    data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/arrowUp.png',
+                                        "@text":"Загрузить",
+                                        "@hint":"Загрузить прочие разрешения из xml",
+                                        "@disable": "false",
+                                        "action":{"@show_in": "MODAL_WINDOW",
+                                                  "#sorted":[{"main_context":"current"},
+                                                             {"modalwindow":{"@caption": "Загрузить разрешения",
+                                                                             "@height": "300",
+                                                                             "@width": "450"}
+                                                              },
+                                                             {"datapanel":{"@type": "current",
+                                                                           "@tab": "current",
+                                                                           "element": {"@id": "customPermissionsUploadXform",
+                                                                                       "add_context":"upload"}
+                                                                           }
+                                                              }]
+                                                  }
+                                        }
                                        )
 
     return XMLJSONConverter.jsonToXml(json.dumps(data))
-

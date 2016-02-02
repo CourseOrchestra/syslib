@@ -1,13 +1,12 @@
 # coding: utf-8
 
 import json
-import base64
+
+from common.sysfunctions import tableCursorImport, getGridHeight, toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from security._security_orm import loginsCursor, subjectsCursor
-import security.functions as func
 from security.functions import Settings
-import xml.dom.minidom
-from common.sysfunctions import tableCursorImport, getGridHeight, getGridWidth, toHexForXml
+import security.functions as func
 
 
 try:
@@ -21,204 +20,195 @@ except:
     pass
 
 
-# функции грида пользователей одни на все 4 режима работы гранулы. 
+# функции грида пользователей одни на все 4 режима работы гранулы.
 
 
 def gridData(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
-    u'''Функция получения данных для грида. '''    
-    settings=Settings()
-    logins = loginsCursor(context)    
-    # Определяем переменную для JSON данных    
+    u'''Функция получения данных для грида списка пользователей. '''
+    session = json.loads(session)["sessioncontext"]
+    settings = Settings()
+    logins = loginsCursor(context)
+    if sortColumnList:
+        sortName = toHexForXml(sortColumnList[0].id)
+        sortType = unicode(sortColumnList[0].sorting).lower()
+    else:
+        sortName = None
+    # Определяем переменную для JSON данных
     data = {"records":{"rec":[]}}
+    _header = {"id": ["~~id"],
+               "sid": [u"SID"],
+               "login": [u"Имя пользователя"],
+               "subject": [u"Субъект"],
+               "employee": [u"Сотрудник"],
+               "properties": [u"properties"]
+               }
+    event = {"event": {"@name": "row_single_click",
+                       "action": {"#sorted": [{"main_context": 'current'},
+                                              {"datapanel":{"@type":"current",
+                                                            "@tab":"current"}
+                                               }]
+                                  }
+                       }
+             }
+    for column in _header:
+        _header[column].append(toHexForXml(_header[column][0]))
+        if not settings.isUseAuthServer() and sortName == _header[column][1]:
+            logins.orderBy("%s %s" % (_header[column][1], sortType))
+
     isEmployees = settings.isEmployees()
+
     if isEmployees:
-        employeesGrain=settings.getEmployeesParam("employeesGrain")
-        employeesTable=settings.getEmployeesParam("employeesTable")
-        employeesName=settings.getEmployeesParam("employeesName") #название поля с именем        
-        employeesCursor=tableCursorImport(employeesGrain, employeesTable)
-        employees=employeesCursor(context)
+        employeesGrain = settings.getEmployeesParam("employeesGrain")
+        employeesTable = settings.getEmployeesParam("employeesTable")
+        employeesName = settings.getEmployeesParam("employeesName")    # название поля с именем
+        employeesCursor = tableCursorImport(employeesGrain, employeesTable)
+        employees = employeesCursor(context)
 
-    if settings.isUseAuthServer() and settings.loginIsSubject(): #isUseAuthServer = true, loginIsSubject = true
+    if settings.isUseAuthServer():
+        sessionId = session["sessionid"]    # получаем из контекста сессии Id сессии
+        server = SecurityParamsFactory.getAuthServerUrl()    # получаем url mellophone
+        logins_xml = func.getUsersFromAuthServer(server, sessionId)    # получаем xml с пользователями
+
+    if settings.isUseAuthServer() and settings.loginIsSubject():
         # грид состоит из колонок sid, имя пользователя и сотрудник
-        subjects=subjectsCursor(context)
-
-        server=SecurityParamsFactory.getAuthServerUrl() #получаем url mellophone
-        sessionId=json.loads(session)["sessioncontext"]["sessionid"] # получаем из контекста сессии Id сессии
-        logins_xml=func.getUsersFromAuthServer(server, sessionId) # получаем xml с пользователями
-        i=0
-        for user in logins_xml.getElementsByTagName("user"):
-            i+=1
-            if i<firstrecord:
-                continue # пропускаем элементы с 1 по firstrecord             
+        subjects = subjectsCursor(context)
+        for i, user in enumerate(logins_xml.getElementsByTagName("user")):
+            if i < firstrecord - 1:
+                continue    # пропускаем элементы с 1 по firstrecord
             loginsDict = {}
-            loginsDict[toHexForXml('~~id')] = base64.b64encode(json.dumps([user.getAttribute("login"), user.getAttribute("SID")]))
-            loginsDict["SID"] = user.getAttribute("SID")
-            loginsDict[toHexForXml(u"Имя пользователя")] = user.getAttribute("login")
+            loginsDict[_header["id"][1]] = json.dumps([user.getAttribute("login"),
+                                                       user.getAttribute("SID")])
+            loginsDict[_header["sid"][1]] = user.getAttribute("SID")
+            loginsDict[_header["login"][1]] = user.getAttribute("login")
             if isEmployees:
                 # если таблица сотрудников существует (прописана в настройках)
                 # добавляем в грид сотрудника колонку Сотрудник.
-                loginsDict["Сотрудник"] = ""
                 if logins.tryGet(user.getAttribute("login")) and \
                         subjects.tryGet(logins.subjectId) and\
                         employees.tryGet(subjects.employeeId):
-                    loginsDict["Сотрудник"] = getattr(employees, employeesName)                        
-            loginsDict['properties'] = {"event":{"@name":"row_single_click",
-                                                "action":{"#sorted":[{"main_context": 'current'},
-                                                                     {"datapanel":{"@type":"current",
-                                                                                   "@tab":"current"}
-                                                                      }]
-                                                          }
-                                                }
-                                       }
+                    loginsDict[_header["employee"][1]] = getattr(employees, employeesName)
+            loginsDict['properties'] = event
             data["records"]["rec"].append(loginsDict)
             if i >= firstrecord + pagesize:
-                break # прерываем цикл после достижения записи № firstrecord + pagesize
-    elif settings.isUseAuthServer(): #isUseAuthServer = true, loginIsSubject = false
+                break    # прерываем цикл после достижения записи № firstrecord + pagesize
+    elif settings.isUseAuthServer():
         # грид состоит из колонок sid, имя пользователя и субъект
-        server=SecurityParamsFactory.getAuthServerUrl() #получаем url mellophone        
-        sessionId=json.loads(session)["sessioncontext"]["sessionid"] # получаем из контекста сессии Id сессии        
-        logins_xml=func.getUsersFromAuthServer(server, sessionId)    # получаем xml с пользователями    
-        subjects=subjectsCursor(context)
-        i=0
-        for user in logins_xml.getElementsByTagName("user"):
-            i+=1
-            if i<firstrecord:
-                continue # пропускаем элементы с 1 по firstrecord
+        subjects = subjectsCursor(context)
+        for i, user in enumerate(logins_xml.getElementsByTagName("user")):
+            if i < firstrecord - 1:
+                continue    # пропускаем элементы с 1 по firstrecord
+
             loginsDict = {}
-            loginsDict[toHexForXml('~~id')] = user.getAttribute("login")
-            loginsDict["SID"] = user.getAttribute("SID")
-            loginsDict[toHexForXml(u"Имя пользователя")] = user.getAttribute("login")
-            loginsDict["Субъект"] = ""
-            if logins.tryGet(user.getAttribute("login")):
-                if subjects.tryGet(logins.subjectId):
-                    loginsDict["Субъект"] = subjects.name
-            loginsDict['properties'] = {"event":{"@name":"row_single_click",
-                                                "action":{"#sorted":[{"main_context": 'current'},
-                                                                     {"datapanel":{"@type":"current",
-                                                                                   "@tab":"current"}
-                                                                      }]
-                                                          }
-                                                }
-                                       }
+            loginsDict[_header["id"][1]] = user.getAttribute("login")
+            loginsDict[_header["sid"][1]] = user.getAttribute("SID")
+            loginsDict[_header["login"][1]] = user.getAttribute("login")
+            if logins.tryGet(user.getAttribute("login")) and subjects.tryGet(logins.subjectId):
+                    loginsDict[_header["subject"][1]] = subjects.name
+            loginsDict['properties'] = event
+
             data["records"]["rec"].append(loginsDict)
             if i >= firstrecord + pagesize:
-                break # прерываем цикл после достижения записи № firstrecord + pagesize
-    elif not settings.isUseAuthServer() and not settings.loginIsSubject(): #isUseAuthServer = false, loginIsSubject = false
+                break    # прерываем цикл после достижения записи № firstrecord + pagesize
+
+    elif not settings.isUseAuthServer() and not settings.loginIsSubject():
         # грид состоит из колонок имя пользователя и субъект
-        subjects=subjectsCursor(context)
-        columnsDict={u"Имя пользователя":"userName",
-                     u"Субъект": ""}
-        for column in sortColumnList:
-            # обработка сортировки грида
-            sortindex = '%s' % column.getSorting()
-            if column.getId()<>u"Субъект":
-                logins.orderBy(columnsDict[column.getId()] +' '+sortindex)                
-        logins.limit(firstrecord-1, pagesize)
+        subjects = subjectsCursor(context)
+
+        logins.limit(firstrecord - 1, pagesize)
+
         for logins in logins.iterate():
             loginsDict = {}
-            loginsDict[toHexForXml('~~id')] = logins.userName
-            loginsDict[toHexForXml(u"Имя пользователя")] = logins.userName
+            loginsDict[_header["id"][1]] = logins.userName
+            loginsDict[_header["login"][1]] = logins.userName
+
             if subjects.tryGet(logins.subjectId):
-                loginsDict["Субъект"] = subjects.name
-            else:
-                loginsDict["Субъект"] = ""
-            loginsDict['properties'] = {"event":{"@name":"row_single_click",
-                                                "action":{"#sorted":[{"main_context": 'current'},
-                                                                     {"datapanel":{"@type":"current",
-                                                                                   "@tab":"current"}
-                                                                      }]
-                                                          }
-                                                }
-                                       }
+                loginsDict[_header["subject"][1]] = subjects.name
+
+            loginsDict['properties'] = event
+
             data["records"]["rec"].append(loginsDict)
-    else: #isUseAuthServer = false, loginIsSubject = true
+    else:
         # грид состоит из колонки имя пользователя
-        columnsDict={u"Имя пользователя":"userName"}
-        subjects=subjectsCursor(context)
-        for column in sortColumnList:
-            # обработка сортировки грида
-            sortindex = '%s' % column.getSorting()
-            logins.orderBy(columnsDict[column.getId()] +' '+sortindex)
-        logins.limit(firstrecord-1, pagesize)
+        subjects = subjectsCursor(context)
+        logins.limit(firstrecord - 1, pagesize)
         for logins in logins.iterate():
             loginsDict = {}
-            loginsDict[toHexForXml('~~id')] = logins.userName
-            loginsDict[toHexForXml(u"Имя пользователя")] = logins.userName
+            loginsDict[_header["id"][1]] = logins.userName
+            loginsDict[_header["login"][1]] = logins.userName
             if isEmployees:
-                loginsDict["Сотрудник"] = ""
                 if subjects.tryGet(logins.subjectId):
                     if employees.tryGet(subjects.employeeId):
-                        loginsDict["Сотрудник"] = getattr(employees, employeesName)  
-            
-                
-            loginsDict['properties'] = {"event":{"@name":"row_single_click",
-                                                "action":{"#sorted":[{"main_context": 'current'
-                                                                      },
-                                                                     {"datapanel":{"@type":"current",
-                                                                                   "@tab":"current"}
-                                                                      }]
-                                                          }
-                                                }
-                                       }
+                        loginsDict[_header["employee"][1]] = getattr(employees, employeesName)
+
+
+            loginsDict['properties'] = event
             data["records"]["rec"].append(loginsDict)
-    
-    #сортировка
-    if len(sortColumnList) > 0:
-        sortName = toHexForXml(sortColumnList[0].id)
-        sortType = unicode(sortColumnList[0].sorting).lower()
-        data["records"]["rec"].sort(key=lambda x: (x["%s" % sortName].lower()), reverse=(sortType=='desc'))
-    
+
+    # сортировка
+    if settings.isUseAuthServer():
+        data["records"]["rec"].sort(key=lambda x: (x["%s" % sortName].lower()), reverse=(sortType == 'desc'))
     res = XMLJSONConverter.jsonToXml(json.dumps(data))
     return JythonDTO(res, None)
 
 def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Функция получения настроек грида. '''
-    settings=Settings()
-    totalcount=0   
+    settings = Settings()
 
-    if settings.isUseAuthServer():        
-        server=SecurityParamsFactory.getAuthServerUrl()        
-        sessionId=json.loads(session)["sessioncontext"]["sessionid"]
-        logins_xml=func.getUsersFromAuthServer(server, sessionId)
-        totalcount=len(logins_xml.getElementsByTagName("user"))
+    if settings.isUseAuthServer():
+        server = SecurityParamsFactory.getAuthServerUrl()
+        sessionId = json.loads(session)["sessioncontext"]["sessionid"]
+        logins_xml = func.getUsersFromAuthServer(server, sessionId)
+        totalcount = len(logins_xml.getElementsByTagName("user"))
     else:
         logins = loginsCursor(context)
         # Вычисляем количества записей в таблице
         totalcount = logins.count()
     # Заголовок таблицы
-    header_str = "Пользователи"
-    # В случае если таблица пустая
-    if totalcount == 0 or totalcount is None:
-        totalcount = "0"
-        header_str = header_str + " ПУСТ"
+    _header = {
+               "sid":[u"SID"],
+               "login":[u"Имя пользователя"],
+               "subject": [u"Субъект"],
+               "employee": [u"Сотрудник"]
+               }
 
-    # Определяем список полей таблицы для отображения    
-    columns={"Имя пользователя":320}
-    if settings.loginIsSubject() and settings.isEmployees():
-        columns["Сотрудник"]=640
-    elif not settings.loginIsSubject():
-        columns["Субъект"]=640
+
+    gridSettings = {}
+    gridSettings["gridsettings"] = {"columns": {"col":[]},
+                                    "properties": {"@pagesize":"50",
+                                                   "@gridWidth": "100%",
+                                                   "@gridHeight": getGridHeight(session, 1 if settings.loginIsSubject() else 2),
+                                                   "@totalCount": totalcount},
+                                    "labels":{"header": u"Пользователи"},
+                                }
+    # добавляем поля для отображения в gridsettings
     if settings.isUseAuthServer():
-        columns["SID"]=320
-    
-    gridSettings = func.generateGridSettings(columns, totalCount=totalcount, header=header_str, \
-                                         gridHeight = getGridHeight(session, numberOfGrids = 1 if settings.loginIsSubject() else 2), \
-                                         datapanelWidth = getGridWidth(session))
+        gridSettings["gridsettings"]["columns"]["col"].append({"@id":_header["sid"][0],
+                                                               "@width": "320px"})
+    gridSettings["gridsettings"]["columns"]["col"].append({"@id":_header["login"][0],
+                                                           "@width": "320px"})
+    if settings.loginIsSubject() and settings.isEmployees():
+        gridSettings["gridsettings"]["columns"]["col"].append({"@id":_header["employee"][0],
+                                                               "@width": "640px"})
+    elif not settings.loginIsSubject():
+        gridSettings["gridsettings"]["columns"]["col"].append({"@id":_header["subject"][0],
+                                                               "@width": "640px"})
+
+
     # Добавляем поля для отображения в gridsettings
     res = XMLJSONConverter.jsonToXml(json.dumps(gridSettings))
     return JythonDTO(None, res)
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Toolbar для грида. '''
-    settings=Settings()
+    settings = Settings()
 
-    #raise Exception(session)
-    if 'currentRecordId' not in json.loads(session)['sessioncontext']['related']['gridContext'] and not settings.isUseAuthServer():    
+    # raise Exception(session)
+    if 'currentRecordId' not in json.loads(session)['sessioncontext']['related']['gridContext'] and not settings.isUseAuthServer():
         style_add = "false"
         style_edit = "true"
         style_delete = "true"
-        style_roles = "true"        
+        style_roles = "true"
     elif not settings.isUseAuthServer():
         style_add = "false"
         style_edit = "false"
@@ -240,17 +230,17 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
         else:
             style_roles = "true"
         style_delete = "true"
-        
+
 
     data = {"gridtoolbar":{"item":[{"@img": 'gridToolBar/addDirectory.png',
                                     "@text":"Добавить",
                                     "@hint":"Добавить пользователя",
-                                    "@disable": style_add                                    
+                                    "@disable": style_add
                                     },
                                    {"@img": 'gridToolBar/editDocument.png',
                                     "@text":"Редактировать",
                                     "@hint":"Редактировать пользователя",
-                                    "@disable": style_edit                                    
+                                    "@disable": style_edit
                                     },
                                    {"@img": 'gridToolBar/deleteDocument.png',
                                     "@text":"Удалить",
@@ -264,18 +254,10 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                     }]
                            }
             }
-    
-    if style_add=="false":
-        data["gridtoolbar"]["item"][0]["action"]=func.getActionJSON("add", "usersXform", "Добавление пользователя", "350", "500")    
-    if style_edit=="false":
-        data["gridtoolbar"]["item"][1]["action"]=func.getActionJSON("edit", "usersXform", "Редактирование пользователя", "350", "500")    
-    if style_delete=="false":
-        data["gridtoolbar"]["item"][2]["action"]=func.getActionJSON("delete", "usersXformDelete", "Удаление пользователя", "150", "450")
-    if style_roles=="false":
-        data["gridtoolbar"]["item"][3]["action"]=func.getActionJSON("roles", "usersRolesXform", "Добавление ролей", "350", "500")
-        
-    
-    #raise Exception(data)    
+
+    data["gridtoolbar"]["item"][0]["action"] = func.getActionJSON("add", "usersXform", "Добавление пользователя", "350", "500")
+    data["gridtoolbar"]["item"][1]["action"] = func.getActionJSON("edit", "usersXform", "Редактирование пользователя", "350", "500")
+    data["gridtoolbar"]["item"][2]["action"] = func.getActionJSON("delete", "usersXformDelete", "Удаление пользователя", "150", "450")
+    data["gridtoolbar"]["item"][3]["action"] = func.getActionJSON("roles", "usersRolesXform", "Добавление ролей", "350", "500")
 
     return XMLJSONConverter.jsonToXml(json.dumps(data))
-

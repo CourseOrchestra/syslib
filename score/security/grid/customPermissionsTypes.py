@@ -1,9 +1,11 @@
 # coding: utf-8
 
 import json
+
+from common.sysfunctions import toHexForXml, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from common.sysfunctions import toHexForXml, getGridHeight, getGridWidth
 from security._security_orm import customPermsTypesCursor
+
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -15,24 +17,36 @@ def gridData(context, main=None, add=None, filterinfo=None,
     u'''Функция получения данных для грида. '''
 
     # Создание экземпляра курсора разрешения
-    permissionsTypes = customPermsTypesCursor(context)    
-    
-    permissionsTypes.limit(firstrecord-1, pagesize)
+    permissionsTypes = customPermsTypesCursor(context)
+
+    if sortColumnList:
+        sortName = toHexForXml(sortColumnList[0].id)
+        sortType = unicode(sortColumnList[0].sorting).lower()
+    else:
+        sortName = None
+
     permissionsTypes.orderBy('name')
 
     # Определяем переменную для JSON данных
     data = {"records":{"rec":[]}}
-    columnsDict={u"Тип":"name",
-                 u"Описание":"description"}
-    for column in sortColumnList:
-        sortindex = '%s' % column.getSorting()        
-        permissionsTypes.orderBy(columnsDict[column.getId()] +' '+sortindex)
+    _header = {"id": ["~~id"],
+               "name": [u"Тип"],
+               "description": [u"Описание"],
+
+               "properties": [u"properties"]
+               }
+    for column in _header:
+        _header[column].append(toHexForXml(_header[column][0]))
+        if sortName == _header[column][1]:
+            permissionsTypes.orderBy("%s %s" % (column, sortType))
+    permissionsTypes.limit(firstrecord - 1, pagesize)
     # Проходим по таблице и заполняем data
     for permissionsTypes in permissionsTypes.iterate():
         permDict = {}
-        permDict[toHexForXml('~~id')] = permissionsTypes.name
-        permDict[u"Тип"] = permissionsTypes.name
-        permDict[u"Описание"] = permissionsTypes.description
+        permDict[_header["id"][1]] = permissionsTypes.name
+        for column in [x for x in _header.keys() if x not in ("id", "properties")]:
+            permDict[_header[column][1]] = getattr(permissionsTypes, column) or ''
+
         permDict['properties'] = {"event":{"@name":"row_single_click",
                                            "action":{"#sorted":[{"main_context": 'current'},
                                                                 {"datapanel":{'@type':"current",
@@ -57,23 +71,28 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     # Заголовок таблицы
     header = "Типы разрешений"
     # В случае если таблица пустая
-    if totalcount == 0 or totalcount is None:
-        totalcount = "0"
-        header = header + " ПУСТ"
+    _header = {"id": ["~~id"],
+               "name": [u"Тип"],
+               "description": [u"Описание"],
+
+               "properties": [u"properties"]
+               }
 
     # Определяем список полей таблицы для отображения
     settings = {}
-    settings["gridsettings"] = {"columns":{"col":[]},
-                                "properties":{"@pagesize":"50",
-                                              "@gridWidth": getGridWidth(session),
-                                              "@gridHeight":getGridHeight(session, delta = 300),
-                                              "@totalCount":totalcount,
-                                              "@profile":"default.properties"},
-                                "labels":{"header":header}
+    settings["gridsettings"] = {"columns": {"col":[]},
+                                "properties": {"@pagesize":"50",
+                                               "@gridWidth": "100%",
+                                               "@gridHeight":getGridHeight(session, delta=300),
+                                               "@totalCount":totalcount,
+                                               "@profile":"default.properties"},
+                                "labels": {"header":header}
                                 }
     # Добавляем поля для отображения в gridsettings
-    settings["gridsettings"]["columns"]["col"].append({"@id":"Тип", "@width": "120px"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":"Описание", "@width": "480px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id": _header["name"][0],
+                                                       "@width": "120px"})
+    settings["gridsettings"]["columns"]["col"].append({"@id": _header["description"][0],
+                                                       "@width": "480px"})
     res = XMLJSONConverter.jsonToXml(json.dumps(settings))
     return JythonDTO(None, res)
 
@@ -148,7 +167,7 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                                                   }]
                                                       }
                                             })
-    data["gridtoolbar"]["item"].append(    {"@img": 'gridToolBar/arrowDown.png',
+    data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/arrowDown.png',
                                             "@text":"Скачать",
                                             "@hint":"Скачать типы разрешений в xml",
                                             "@disable": "false",
@@ -166,8 +185,8 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                                                   }]
                                                       }
                                             }
-                                       )    
-    data["gridtoolbar"]["item"].append(    {"@img": 'gridToolBar/arrowUp.png',
+                                       )
+    data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/arrowUp.png',
                                             "@text":"Загрузить",
                                             "@hint":"Загрузить типы разрешений из xml",
                                             "@disable": "false",

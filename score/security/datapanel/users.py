@@ -5,7 +5,7 @@ from security.functions import Settings
 
 def usersDatapanel(context, main, session):
     u'''Продедура возвращает информационную панель для пункта "Сотрудники и пользователи"'''
-    settings=Settings()
+    settings = Settings()
 
     data = {"datapanel":{"tab":{"@id":1,
                                 "@name":u"Сотрудники и пользователи",
@@ -58,12 +58,12 @@ def usersDatapanel(context, main, session):
                                             }]
                                 }
                          }
-            }    
-    
+            }
+
     if not settings.loginIsSubject():
         # если роли привязываются к сотрудникам (субъекты тождественны сотрудникам),
         # добавляем в датапанель гриды и карточки для ведения таблицы subjects
-        data["datapanel"]["tab"]["element"] +=      [{"@id":"subjectsGrid",
+        data["datapanel"]["tab"]["element"].append([{"@id":"subjectsGrid",
                                                      "@type":"grid",
                                                      "@subtype":"JS_LIVE_GRID",
                                                      "@plugin":"liveDGrid",
@@ -104,6 +104,6 @@ def usersDatapanel(context, main, session):
                                                               "@name":"security.xform.usersRoles.cardDataSave.celesta",
                                                               "@type":"SAVE"},
                                                       "related":{"@id":"subjectsGrid"}
-                                                      }]
+                                                      }])
     return XMLJSONConverter.jsonToXml(json.dumps(data))
 

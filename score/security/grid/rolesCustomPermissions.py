@@ -1,12 +1,12 @@
 # coding: utf-8
 
 import json
-import base64
+
+from common.sysfunctions import toHexForXml, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from common.sysfunctions import toHexForXml, getGridHeight, getGridWidth
 from ru.curs.celesta.syscursors import RolesCursor
 from security._security_orm import rolesCustomPermsCursor
-from security.functions import Settings
+
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -21,40 +21,42 @@ def gridData(context, main=None, add=None, filterinfo=None,
     # Создание экземпляра курсора разрешения
     roles = RolesCursor(context)
     rolesPermissions = rolesCustomPermsCursor(context)
-    if 'currentRecordId' in session:     
+    if 'currentRecordId' in session:
         currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
         rolesPermissions.setRange("permissionId", currId)
-    #rolesPermissions.limit(firstrecord-1, pagesize)
-    #rolesPermissions.orderBy("roleid")
-    roles.limit(firstrecord-1, pagesize)
+
     roles.orderBy("id")
     # Определяем переменную для JSON данных
 
     data = {"records":{"rec":[]}}
-    columnsDict={"exists":[u" "],
-                 "roleId":[u"Роль"],
-                 "description":[u"Описание"],
-                 "properties":[u"properties"],
-                 "id":["~~id"]}
-    for column in columnsDict:
-        columnsDict[column].append(toHexForXml(columnsDict[column][0]))
+    _header = {"id": ["~~id"],
+               "roleId": [u"Роль"],
+               "description": [u"Описание"],
+               "exists":[u" "],
 
-    if len(sortColumnList) > 0:
+               "properties": [u"properties"]
+               }
+
+    for column in _header:
+        _header[column].append(toHexForXml(_header[column][0]))
+
+    # Считываем параметры сортировки
+    if sortColumnList:
         sortName = sortColumnList[0].id
         sortType = unicode(sortColumnList[0].sorting).lower()
     else:
         sortName = None
-    # Проходим по таблице и заполняем data    
+    # Проходим по таблице и заполняем data
     if roles.tryFindSet():
         while True:
             permDict = {}
-            permDict[columnsDict["id"][1]] = json.dumps({"permission":currId,
-                                                         "role":roles.id})
-            permDict[columnsDict["roleId"][1]] = roles.id
-            permDict[columnsDict["description"][1]] = roles.description
+            permDict[_header["id"][1]] = json.dumps({"permission": currId,
+                                                     "role": roles.id})
+            permDict[_header["roleId"][1]] = roles.id
+            permDict[_header["description"][1]] = roles.description
             rolesPermissions.setRange("roleid", roles.id)
-            permDict[columnsDict["exists"][1]] = rolesPermissions.count()>0 if rolesPermissions.count() else ''
-            permDict[columnsDict["properties"][1]] = {"event":{"@name":"row_single_click",
+            permDict[_header["exists"][1]] = rolesPermissions.count() > 0 if rolesPermissions.count() else ''
+            permDict[_header["properties"][1]] = {"event":{"@name":"row_single_click",
                                                                "action":{"#sorted":[{"main_context": 'current'},
                                                                     {"datapanel":{'@type':"current",
                                                                                   '@tab':"current"}
@@ -62,16 +64,16 @@ def gridData(context, main=None, add=None, filterinfo=None,
                                                          }
                                                }
                                       }
-            
+
             data["records"]["rec"].append(permDict)
             if not roles.nextInSet():
                     break
-    
-    data["records"]["rec"].sort(key=lambda x: (not x[columnsDict["exists"][1]],x[columnsDict["roleId"][1]],))
-    for column in columnsDict:
-        if sortName == columnsDict[column][0]:
+
+    for column in _header:
+        if sortName == _header[column][0]:
             keyField = column if sortName else 'exists'
-            data["records"]["rec"].sort(key=lambda x: (x[columnsDict["%s" % keyField][1]]),reverse=(sortType=='desc'))
+            data["records"]["rec"].sort(key=lambda x: (x[_header["%s" % keyField][1]]), reverse=(sortType == 'desc'))
+            data["records"]["rec"] = data["records"]["rec"][firstrecord - 1:firstrecord - 1 + pagesize]
     res = XMLJSONConverter.jsonToXml(json.dumps(data))
     return JythonDTO(res, None)
 
@@ -83,33 +85,34 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     totalcount = roles.count()
     # Заголовок таблицы
     header = "Роли"
-    # В случае если таблица пустая
-    if totalcount == 0 or totalcount is None:
-        totalcount = "0"
-        header = header + " ПУСТ"
-        
-    sec_settings = Settings()
-    columnsDict={"exists":[u" "],
-                 "roleId":[u"Роль"],
-                 "description":[u"Описание"],
-                 "properties":[u"properties"]}
+
+    _header = {"id": ["~~id"],
+               "roleId": [u"Роль"],
+               "description": [u"Описание"],
+               "exists":[u" "],
+
+               "properties": [u"properties"]
+               }
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
-    "properties": {"@pagesize":"50",
-                   "@gridWidth": getGridWidth(session),
-                   "@gridHeight":getGridHeight(session, numberOfGrids = 1 if sec_settings.loginIsSubject() else 2, delta=250),
-                   "@totalCount": totalcount,
-                   "@profile":"editableGrid.properties"},
-    "labels":{"header":header}
-    }
+                                "properties": {"@pagesize": "50",
+                                               "@gridWidth": "100%",
+                                               "@gridHeight": getGridHeight(session, numberOfGrids=2.6),
+                                               "@totalCount": totalcount,
+                                               "@profile": "editableGrid.properties"},
+                                "labels": {"header":header}
+                                }
     # Добавляем поля для отображения в gridsettings
-    settings["gridsettings"]["columns"]["col"].append({"@id":columnsDict["exists"][0], "@width": "33px",
-                                                       "@readonly":"false",
-                                                       "@editor":"{ editor: 'checkbox'}"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":columnsDict["roleId"][0], "@width": "80px",
-                                                       "@readonly":"true"})
-    settings["gridsettings"]["columns"]["col"].append({"@id":columnsDict["description"][0], "@width": "400px",
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["exists"][0],
+                                                       "@width": "33px",
+                                                       "@readonly": "false",
+                                                       "@editor": "{editor: 'checkbox'}"})
+    settings["gridsettings"]["columns"]["col"].append({"@id": _header["roleId"][0],
+                                                       "@width": "80px",
+                                                       "@readonly": "true"})
+    settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0],
+                                                       "@width": "400px",
                                                        "@readonly":"true"})
     res = XMLJSONConverter.jsonToXml(json.dumps(settings))
     return JythonDTO(None, res)
@@ -118,7 +121,7 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
     u'''Toolbar для грида. '''
 
     data = {"gridtoolbar":{"item":[]}}
-    data["gridtoolbar"]["item"].append(    {"@img": 'gridToolBar/arrowDown.png',
+    data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/arrowDown.png',
                                             "@text":"Скачать",
                                             "@hint":"Скачать роли в xml",
                                             "@disable": "false",
@@ -136,8 +139,8 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
                                                                   }]
                                                       }
                                             }
-                                       )    
-    data["gridtoolbar"]["item"].append(    {"@img": 'gridToolBar/arrowUp.png',
+                                       )
+    data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/arrowUp.png',
                                             "@text":"Загрузить",
                                             "@hint":"Загрузить роли из xml",
                                             "@disable": "false",
