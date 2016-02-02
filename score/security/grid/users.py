@@ -146,7 +146,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
             data["records"]["rec"].append(loginsDict)
 
     # сортировка
-    if settings.isUseAuthServer():
+    if settings.isUseAuthServer() and sortColumnList:
         data["records"]["rec"].sort(key=lambda x: (x["%s" % sortName].lower()), reverse=(sortType == 'desc'))
     res = XMLJSONConverter.jsonToXml(json.dumps(data))
     return JythonDTO(res, None)
