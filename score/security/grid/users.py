@@ -88,6 +88,8 @@ def gridData(context, main=None, add=None, filterinfo=None,
                         subjects.tryGet(logins.subjectId) and\
                         employees.tryGet(subjects.employeeId):
                     loginsDict[_header["employee"][1]] = getattr(employees, employeesName)
+                else:
+                    loginsDict[_header["employee"][1]] = ''
             loginsDict['properties'] = event
             data["records"]["rec"].append(loginsDict)
             if i >= firstrecord + pagesize:
@@ -104,7 +106,9 @@ def gridData(context, main=None, add=None, filterinfo=None,
             loginsDict[_header["sid"][1]] = user.getAttribute("SID")
             loginsDict[_header["login"][1]] = user.getAttribute("login")
             if logins.tryGet(user.getAttribute("login")) and subjects.tryGet(logins.subjectId):
-                    loginsDict[_header["subject"][1]] = subjects.name
+                loginsDict[_header["subject"][1]] = subjects.name
+            else:
+                loginsDict[_header["subject"][1]] = ''        
             loginsDict['properties'] = event
 
             data["records"]["rec"].append(loginsDict)
