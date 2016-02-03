@@ -2,6 +2,7 @@
 import ru.curs.lyra.LyraFormField as LyraFormField
 import ru.curs.lyra.LyraFieldType as LyraFieldType
 import ru.curs.lyra.UnboundFieldAccessor as UnboundFieldAccessor
+import ru.curs.lyra.LyraFormProperties as LyraFormProperties
 
 _formclasses = {}
 
@@ -10,11 +11,18 @@ def register(c):
     _formclasses[cid] = c
 
 class formfield(object):
-    def __init__(self, celestatype, caption=None, editable = True, visible = True):
+    def __init__(self, celestatype, 
+                 caption=None, 
+                 editable = True, 
+                 visible = True, 
+                 scale = 2, 
+                 width = -1):
         self.celestatype = celestatype
         self.caption = caption
         self.editable = editable
         self.visible = visible
+        self.scale = scale
+        self.width = width
         self.fget = None
         self.fset = lambda instance, value: None
 
@@ -48,6 +56,8 @@ def _createUnboundField(self, m, name):
     lff.setCaption(ff.caption)
     lff.setEditable(ff.editable)
     lff.setVisible(ff.visible)
+    lff.setScale(ff.scale)
+    lff.setWidth(ff.width)
     return lff
         
 def _createAllUnboundFields(self, m):
@@ -59,14 +69,28 @@ def _createAllUnboundFields(self, m):
 def _getId(self):
     return self.__class__.__module__ + "." + self.__class__.__name__
 
-def form(cls):
-    cls._properties = {}
-    for name, method in cls.__dict__.iteritems():
-        if method.__class__ == formfield:
-            cls._properties[name] = method
-    cls._createUnboundField = _createUnboundField
-    cls._createAllUnboundFields = _createAllUnboundFields
-    cls._getId = _getId
-    register(cls)
-    return cls
+def _getFormProperties(self):
+    return self.__class__._formproperties
+
+class form(object):
+    def __init__(self, profile=None, gridwidth=-1, gridheight = -1, defaultaction=None):
+        lfp = LyraFormProperties()
+        lfp.setProfile(profile)
+        lfp.setGridwidth(gridwidth)
+        lfp.setGridheight(gridheight)
+        lfp.setDefaultaction(defaultaction)
+        self.lfp = lfp
+     
+    def __call__(self, cls):   
+        cls._formproperties = self.lfp;
+        cls.getFormProperties = _getFormProperties
+        cls._properties = {}
+        for name, method in cls.__dict__.iteritems():
+            if method.__class__ == formfield:
+                cls._properties[name] = method
+        cls._createUnboundField = _createUnboundField
+        cls._createAllUnboundFields = _createAllUnboundFields
+        cls._getId = _getId
+        register(cls)
+        return cls
 
