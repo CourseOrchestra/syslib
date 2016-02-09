@@ -15,7 +15,7 @@ class formfield(object):
                  caption=None, 
                  editable = True, 
                  visible = True, 
-                 scale = 2, 
+                 scale = LyraFormField.DEFAULT_SCALE, 
                  width = -1):
         self.celestatype = celestatype
         self.caption = caption
@@ -88,6 +88,11 @@ class form(object):
         for name, method in cls.__dict__.iteritems():
             if method.__class__ == formfield:
                 cls._properties[name] = method
+            elif name == 'get_properties_':
+                ff = formfield(celestatype='VARCHAR')(method)
+                ff.name = '_properties_'
+                ff.caption = ff.name
+                cls._properties[ff.name] = ff
         cls._createUnboundField = _createUnboundField
         cls._createAllUnboundFields = _createAllUnboundFields
         cls._getId = _getId
