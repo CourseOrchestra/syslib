@@ -14,7 +14,8 @@ class formfield(object):
     def __init__(self, celestatype, 
                  caption=None, 
                  editable = True, 
-                 visible = True, 
+                 visible = True,
+                 required = False, 
                  scale = LyraFormField.DEFAULT_SCALE, 
                  width = -1):
         self.celestatype = celestatype
@@ -23,6 +24,7 @@ class formfield(object):
         self.visible = visible
         self.scale = scale
         self.width = width
+        self.required = required
         self.fget = None
         self.fset = lambda instance, value: None
 
@@ -50,7 +52,7 @@ def _createUnboundField(self, m, name):
     if ff is None:
         return None
     acc = UnboundFieldAccessor(ff.celestatype, ff.fget, ff.fset, self)
-    lff = LyraFormField(name, False, acc);
+    lff = LyraFormField(name, acc);
     m.addElement(lff);
     lff.setType(LyraFieldType.valueOf(ff.celestatype.upper()));
     lff.setCaption(ff.caption)
@@ -58,6 +60,7 @@ def _createUnboundField(self, m, name):
     lff.setVisible(ff.visible)
     lff.setScale(ff.scale)
     lff.setWidth(ff.width)
+    lff.setRequired(ff.required)
     return lff
         
 def _createAllUnboundFields(self, m):
