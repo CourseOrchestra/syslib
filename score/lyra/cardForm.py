@@ -95,23 +95,19 @@ class CardForm(BasicCardForm):
 </html>
 '''
 
-    def _buildBinds(self, formTemplate, meta):
-        for c in meta.getColumns().values():
-            if c.getCelestaType() == 'VARCHAR':
-                formTemplate += '<xf:bind nodeset="%s" type="xs:string" constraint="fn:string-length(.) &lt; %d"/>' % (c.getName(), c.getLength())
-            else:
-                formTemplate += '<xf:bind nodeset="%s" type="xs:%s" required="%s"/>\n' % (c.getName(), self.typedict[c.getCelestaType()],
-                                                                                       'false()' if c.isNullable() else 'true()')
-        for name, ff in self.__class__._properties.iteritems():
-            if ff == 'VARCHAR':
-                formTemplate += '<xf:bind nodeset="%s" type="xs:string"/>' % name
-            else:
-                formTemplate += '<xf:bind nodeset="%s" type="xs:%s" required="false()"/>\n' % (name, self.typedict[ff.celestatype])
-       
-        
+    def _buildBinds(self, formTemplate):
+        formTemplate += '''
+            <xf:bind nodeset="*[@type='BIT']" type="xs:boolean" />
+            <xf:bind nodeset="*[@type='INT']" type="xs:int" />
+            <xf:bind nodeset="*[@type='REAL']" type="xs:decimal" />
+            <xf:bind nodeset="*[@type='DATETIME']" type="xs:dateTime" />
+            <xf:bind nodeset="*[@type='VARCHAR']" type="xs:string"
+            constraint="fn:string-length(.) &lt;= @scale"/>
+            <xf:bind nodeset="*[@required='true']" required="true()"/>
+            '''
         return formTemplate
     
-    def _buildControls(self, formTemplate, meta):
+    def _buildControls(self, formTemplate):
         
         for c in self.getFieldsMeta().values():
             if c.isVisible():
@@ -125,12 +121,10 @@ class CardForm(BasicCardForm):
 
 
     def _buildForm(self):
-        meta = self.meta()
-
         formTemplate = self.hdr
         formTemplate += '<xf:instance xmlns="" id="xformId_mainInstance" />'
         # БИНДЫ ТУТ
-        formTemplate = self._buildBinds(formTemplate, meta)
+        formTemplate = self._buildBinds(formTemplate)
 
         formTemplate += '''<xf:submission action="secured/submit?proc=lyra.lyraplayer.submissionFirst.cl" id="first" method="post" instance="xformId_mainInstance" ref="instance('xformId_mainInstance')" replace="instance">
         </xf:submission>
@@ -161,7 +155,7 @@ class CardForm(BasicCardForm):
 
         formTemplate += self.body1
         
-        formTemplate = self._buildControls(formTemplate, meta)
+        formTemplate = self._buildControls(formTemplate)
         
         formTemplate += self.body2
         return formTemplate
