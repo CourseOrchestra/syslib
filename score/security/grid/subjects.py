@@ -43,7 +43,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
     # Проходим по таблице и заполняем data
     for subjects in subjects.iterate():
         subjectsDict = {}
-        subjectsDict[_header["rowId"][1]] = subjects.sid
+        subjectsDict[_header["rowid"][1]] = subjects.sid
         for column in [x for x in _header.keys() if x not in ("rowid", "properties")]:
             subjectsDict[_header[column][1]] = getattr(subjects, column) or ''
         subjectsDict['properties'] = {"event":{"@name":"row_single_click",

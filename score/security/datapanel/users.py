@@ -63,7 +63,7 @@ def usersDatapanel(context, main, session):
     if not settings.loginIsSubject():
         # если роли привязываются к сотрудникам (субъекты тождественны сотрудникам),
         # добавляем в датапанель гриды и карточки для ведения таблицы subjects
-        data["datapanel"]["tab"]["element"].append([{"@id":"subjectsGrid",
+        data["datapanel"]["tab"]["element"].extend([{"@id":"subjectsGrid",
                                                      "@type":"grid",
                                                      "@subtype":"JS_LIVE_GRID",
                                                      "@plugin":"liveDGrid",
