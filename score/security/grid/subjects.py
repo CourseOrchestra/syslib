@@ -83,6 +83,8 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     if sec_settings.loginIsSubject():
         number =1
     else:
+        # Вычисляем numberOfGrids, где 2.0 - numberOfGrids для первого грида users.py из датапанели
+        # 59 - gridHeaderHeight для обоих гридов, 80 - суммарная дельта
         number = ((currentDatapanelHeight-59)*2.0)/(2.0*currentDatapanelHeight-2.0*80-currentDatapanelHeight+59)
     settings["gridsettings"] = {"columns": {"col": []},
                                 "properties":{"@pagesize": "25",
