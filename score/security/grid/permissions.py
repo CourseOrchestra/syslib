@@ -142,17 +142,24 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
                     "@width": "80px",
                     "@readonly": "false",
                     "@editor": "{editor: 'checkbox'}"}
-        numberOfGrids = 1.3
+        numberOfGrids = 1
+        gridHeaderHeight = 60
+        delta = 235
     else:
         def getBoolproperties(column):
             return {"@id": _header[column][0],
                     "@width": "80px",
                     "@type": "IMAGE"}
-        numberOfGrids = 2.5
+        currentDatapanelHeight = int(json.loads(session)["sessioncontext"]["currentDatapanelHeight"])
+        gridHeaderHeight = 48
+        # Вычисляем numberOfGrids, где 1.6 - numberOfGrids для первого грида roles.py из датапанели
+        # 59 - gridHeaderHeight для первого грида, 70 - суммарная дельта
+        numberOfGrids = ((currentDatapanelHeight-gridHeaderHeight)*1.6)/(1.6*currentDatapanelHeight-1.6*70-currentDatapanelHeight+59)
+        delta = 35
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize": "50",
                                                "@gridWidth": "100%",
-                                               "@gridHeight": getGridHeight(session, numberOfGrids=numberOfGrids),
+                                               "@gridHeight": getGridHeight(session, numberOfGrids, gridHeaderHeight, delta),
                                                "@totalCount": totalcount,
                                                "@profile": "editableGrid.properties"},
                                 "labels":{"header":header}

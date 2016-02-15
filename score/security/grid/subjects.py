@@ -79,11 +79,16 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
 
     # Определяем список полей таблицы для отображения
     settings = {}
+    currentDatapanelHeight = int(json.loads(session)["sessioncontext"]["currentDatapanelHeight"])
+    if sec_settings.loginIsSubject():
+        number =1
+    else:
+        number = ((currentDatapanelHeight-59)*2.0)/(2.0*currentDatapanelHeight-2.0*80-currentDatapanelHeight+59)
     settings["gridsettings"] = {"columns": {"col": []},
                                 "properties":{"@pagesize": "25",
                                               "@gridWidth": "100%",
                                               "@gridHeight": getGridHeight(session,
-                                                                           numberOfGrids=1 if sec_settings.loginIsSubject() else 2),
+                                                                           number, delta = 40),
                                               "@totalCount": totalcount,
                                               "@profile": "default.properties"},
                                 "labels":{"header":header}

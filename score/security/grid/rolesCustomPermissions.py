@@ -95,10 +95,14 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
                }
     # Определяем список полей таблицы для отображения
     settings = {}
+    currentDatapanelHeight = int(json.loads(session)["sessioncontext"]["currentDatapanelHeight"])
+    # Вычисляем numberOfGrids, где 2.1 - numberOfGrids для первого грида customPermissions.py из датапанели
+    # 60 - gridHeaderHeight для обоих гридов, 134 - суммарная дельта
+    numberOfGrids = ((currentDatapanelHeight-60)*2.1)/(2.1*currentDatapanelHeight-2.1*134-currentDatapanelHeight+60)
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize": "50",
                                                "@gridWidth": "100%",
-                                               "@gridHeight": getGridHeight(session, numberOfGrids=2.6),
+                                               "@gridHeight": getGridHeight(session, numberOfGrids, 60, 67),
                                                "@totalCount": totalcount,
                                                "@profile": "editableGrid.properties"},
                                 "labels": {"header":header}

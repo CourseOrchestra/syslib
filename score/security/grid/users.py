@@ -178,10 +178,14 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
 
 
     gridSettings = {}
+    if settings.loginIsSubject():
+        number = 1
+    else:
+        number = 2
     gridSettings["gridsettings"] = {"columns": {"col":[]},
                                     "properties": {"@pagesize":"50",
                                                    "@gridWidth": "100%",
-                                                   "@gridHeight": getGridHeight(session, 1 if settings.loginIsSubject() else 2),
+                                                   "@gridHeight": getGridHeight(session, number, delta =40),
                                                    "@totalCount": totalcount},
                                     "labels":{"header": u"Пользователи"},
                                 }

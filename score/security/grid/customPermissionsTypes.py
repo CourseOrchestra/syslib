@@ -83,7 +83,7 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
                                                "@gridWidth": "100%",
-                                               "@gridHeight":getGridHeight(session, delta=300),
+                                               "@gridHeight":getGridHeight(session, delta=40),
                                                "@totalCount":totalcount,
                                                "@profile":"default.properties"},
                                 "labels": {"header":header}
