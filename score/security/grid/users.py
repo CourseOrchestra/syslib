@@ -38,7 +38,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
     data = {"records":{"rec":[]}}
     _header = {"id": ["~~id"],
                "sid": [u"SID"],
-               "login": [u"Имя пользователя"],
+               "userName": [u"Имя пользователя"],
                "subject": [u"Субъект"],
                "employee": [u"Сотрудник"],
                "properties": [u"properties"]
@@ -53,8 +53,6 @@ def gridData(context, main=None, add=None, filterinfo=None,
              }
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
-        if not settings.isUseAuthServer() and sortName == _header[column][1]:
-            logins.orderBy("%s %s" % (column, sortType))
 
     isEmployees = settings.isEmployees()
 
@@ -80,7 +78,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
             loginsDict[_header["id"][1]] = json.dumps([user.getAttribute("login"),
                                                        user.getAttribute("SID")])
             loginsDict[_header["sid"][1]] = user.getAttribute("SID")
-            loginsDict[_header["login"][1]] = user.getAttribute("login")
+            loginsDict[_header["userName"][1]] = user.getAttribute("login")
             if isEmployees:
                 # если таблица сотрудников существует (прописана в настройках)
                 # добавляем в грид сотрудника колонку Сотрудник.
@@ -104,7 +102,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
             loginsDict = {}
             loginsDict[_header["id"][1]] = user.getAttribute("login")
             loginsDict[_header["sid"][1]] = user.getAttribute("SID")
-            loginsDict[_header["login"][1]] = user.getAttribute("login")
+            loginsDict[_header["userName"][1]] = user.getAttribute("login")
             if logins.tryGet(user.getAttribute("login")) and subjects.tryGet(logins.subjectId):
                 loginsDict[_header["subject"][1]] = subjects.name
             else:
@@ -124,10 +122,12 @@ def gridData(context, main=None, add=None, filterinfo=None,
         for logins in logins.iterate():
             loginsDict = {}
             loginsDict[_header["id"][1]] = logins.userName
-            loginsDict[_header["login"][1]] = logins.userName
+            loginsDict[_header["userName"][1]] = logins.userName
 
             if subjects.tryGet(logins.subjectId):
                 loginsDict[_header["subject"][1]] = subjects.name
+            else:
+                loginsDict[_header["subject"][1]] = ""
 
             loginsDict['properties'] = event
 
@@ -139,19 +139,19 @@ def gridData(context, main=None, add=None, filterinfo=None,
         for logins in logins.iterate():
             loginsDict = {}
             loginsDict[_header["id"][1]] = logins.userName
-            loginsDict[_header["login"][1]] = logins.userName
-            if isEmployees:
-                if subjects.tryGet(logins.subjectId):
-                    if employees.tryGet(subjects.employeeId):
-                        loginsDict[_header["employee"][1]] = getattr(employees, employeesName)
+            loginsDict[_header["userName"][1]] = logins.userName
+            if isEmployees and subjects.tryGet(logins.subjectId) and employees.tryGet(subjects.employeeId):
+                loginsDict[_header["employee"][1]] = getattr(employees, employeesName)
+            else:
+                loginsDict[_header["employee"][1]] = ""
 
 
             loginsDict['properties'] = event
             data["records"]["rec"].append(loginsDict)
 
     # сортировка
-    if settings.isUseAuthServer() and sortColumnList:
-        data["records"]["rec"].sort(key=lambda x: (x["%s" % sortName].lower()), reverse=(sortType == 'desc'))
+    if sortColumnList:
+        data["records"]["rec"].sort(key=lambda x: (x[unicode(sortName)].lower()), reverse=(sortType == 'desc'))
     res = XMLJSONConverter.jsonToXml(json.dumps(data))
     return JythonDTO(res, None)
 
@@ -171,7 +171,7 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     # Заголовок таблицы
     _header = {
                "sid":[u"SID"],
-               "login":[u"Имя пользователя"],
+               "userName":[u"Имя пользователя"],
                "subject": [u"Субъект"],
                "employee": [u"Сотрудник"]
                }
@@ -193,7 +193,7 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     if settings.isUseAuthServer():
         gridSettings["gridsettings"]["columns"]["col"].append({"@id":_header["sid"][0],
                                                                "@width": "320px"})
-    gridSettings["gridsettings"]["columns"]["col"].append({"@id":_header["login"][0],
+    gridSettings["gridsettings"]["columns"]["col"].append({"@id":_header["userName"][0],
                                                            "@width": "320px"})
     if settings.loginIsSubject() and settings.isEmployees():
         gridSettings["gridsettings"]["columns"]["col"].append({"@id":_header["employee"][0],
