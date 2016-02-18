@@ -54,28 +54,28 @@ def gridData(context, main=None, add=None, filterinfo=None,
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
         if not settings.isUseAuthServer() and sortName == _header[column][1]:
-            logins.orderBy("%s %s" % (_header[column][1], sortType))
+            logins.orderBy("%s %s" % (_header[column], sortType))
 
     isEmployees = settings.isEmployees()
 
     if isEmployees:
         employeesGrain = settings.getEmployeesParam("employeesGrain")
         employeesTable = settings.getEmployeesParam("employeesTable")
-        employeesName = settings.getEmployeesParam("employeesName")    # название поля с именем
+        employeesName = settings.getEmployeesParam("employeesName")  # название поля с именем
         employeesCursor = tableCursorImport(employeesGrain, employeesTable)
         employees = employeesCursor(context)
 
     if settings.isUseAuthServer():
-        sessionId = session["sessionid"]    # получаем из контекста сессии Id сессии
-        server = SecurityParamsFactory.getAuthServerUrl()    # получаем url mellophone
-        logins_xml = func.getUsersFromAuthServer(server, sessionId)    # получаем xml с пользователями
+        sessionId = session["sessionid"]  # получаем из контекста сессии Id сессии
+        server = SecurityParamsFactory.getAuthServerUrl()  # получаем url mellophone
+        logins_xml = func.getUsersFromAuthServer(server, sessionId)  # получаем xml с пользователями
 
     if settings.isUseAuthServer() and settings.loginIsSubject():
         # грид состоит из колонок sid, имя пользователя и сотрудник
         subjects = subjectsCursor(context)
         for i, user in enumerate(logins_xml.getElementsByTagName("user")):
             if i < firstrecord - 1:
-                continue    # пропускаем элементы с 1 по firstrecord
+                continue  # пропускаем элементы с 1 по firstrecord
             loginsDict = {}
             loginsDict[_header["id"][1]] = json.dumps([user.getAttribute("login"),
                                                        user.getAttribute("SID")])
@@ -93,13 +93,13 @@ def gridData(context, main=None, add=None, filterinfo=None,
             loginsDict['properties'] = event
             data["records"]["rec"].append(loginsDict)
             if i >= firstrecord + pagesize:
-                break    # прерываем цикл после достижения записи № firstrecord + pagesize
+                break  # прерываем цикл после достижения записи № firstrecord + pagesize
     elif settings.isUseAuthServer():
         # грид состоит из колонок sid, имя пользователя и субъект
         subjects = subjectsCursor(context)
         for i, user in enumerate(logins_xml.getElementsByTagName("user")):
             if i < firstrecord - 1:
-                continue    # пропускаем элементы с 1 по firstrecord
+                continue  # пропускаем элементы с 1 по firstrecord
 
             loginsDict = {}
             loginsDict[_header["id"][1]] = user.getAttribute("login")
@@ -108,12 +108,12 @@ def gridData(context, main=None, add=None, filterinfo=None,
             if logins.tryGet(user.getAttribute("login")) and subjects.tryGet(logins.subjectId):
                 loginsDict[_header["subject"][1]] = subjects.name
             else:
-                loginsDict[_header["subject"][1]] = ''        
+                loginsDict[_header["subject"][1]] = ''
             loginsDict['properties'] = event
 
             data["records"]["rec"].append(loginsDict)
             if i >= firstrecord + pagesize:
-                break    # прерываем цикл после достижения записи № firstrecord + pagesize
+                break  # прерываем цикл после достижения записи № firstrecord + pagesize
 
     elif not settings.isUseAuthServer() and not settings.loginIsSubject():
         # грид состоит из колонок имя пользователя и субъект
@@ -185,7 +185,7 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     gridSettings["gridsettings"] = {"columns": {"col":[]},
                                     "properties": {"@pagesize":"50",
                                                    "@gridWidth": "100%",
-                                                   "@gridHeight": getGridHeight(session, number, delta =40),
+                                                   "@gridHeight": getGridHeight(session, number, delta=40),
                                                    "@totalCount": totalcount},
                                     "labels":{"header": u"Пользователи"},
                                 }
