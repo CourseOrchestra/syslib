@@ -54,7 +54,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
         if not settings.isUseAuthServer() and sortName == _header[column][1]:
-            logins.orderBy("%s %s" % (_header[column], sortType))
+            logins.orderBy("%s %s" % (column, sortType))
 
     isEmployees = settings.isEmployees()
 
