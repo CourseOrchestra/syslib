@@ -14,7 +14,7 @@ def manageProcesses(context, main=None, session=None):
                                             },
                                            {"@id":"processesGrid",
                                             "@type":"grid",
-                                            "@proc":"workflow.grid.processesGrid.gridDataAndMeta.celesta",
+                                            "@proc":"workflow.grid.processesGrid.getData.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
                                             "proc":[{
@@ -24,7 +24,10 @@ def manageProcesses(context, main=None, session=None):
                                                     {
                                                     "@id":2,
                                                     "@name":"workflow.grid.processesGrid.downloadProcFile.celesta",
-                                                    "@type":"DOWNLOAD"}],
+                                                    "@type":"DOWNLOAD"},
+                                                    {"@id": "processesMeta",
+                                                     "@name": "workflow.grid.processesGrid.getMeta.celesta",
+                                                     "@type": "METADATA"}],
                                             "related":{"@id":"processFilter"}
                                             },
                                            {"@id":"suspendAllProcessCard",
@@ -45,13 +48,17 @@ def manageProcesses(context, main=None, session=None):
                                            {"@id":"processFormsGrid",
                                             "@type":"grid",
                                             "@hideOnLoad":"true",
-                                            "@proc":"workflow.grid.processFormsGrid.gridDataAndMeta.celesta",
+                                            "@proc":"workflow.grid.processFormsGrid.getData.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
                                             "related":{
                                                        "@id":"processesGrid"
                                                        },
-                                            "proc":[{
+                                            "proc":[
+                                                    {"@id": "processesMeta",
+                                                     "@name": "workflow.grid.processFormsGrid.getMeta.celesta",
+                                                     "@type": "METADATA"},
+                                                    {
                                                     "@id":"processFormsGridToolBar",
                                                     "@name":"workflow.grid.processFormsGrid.gridToolBar.celesta",
                                                     "@type":"TOOLBAR"}]
@@ -136,7 +143,7 @@ def manageProcesses(context, main=None, session=None):
                                                     "@type":"TOOLBAR"},
                                                     {"@id": "processSettings",
                                                      "@name": "workflow.grid.launchedProcessesGrid.getSettings.celesta",
-                                                     "@type": "METADATA"},
+                                                     "@type": "METADATA"}
                                                     ],
                                             "related":{"@id":"launchedProcessFilter"}
                                             },
@@ -167,13 +174,16 @@ def manageProcesses(context, main=None, session=None):
                                             {"@id":"launchedProcessesEventsGrid",
                                             "@type":"grid",
                                             "@hideOnLoad":"true",
-                                            "@proc":"workflow.grid.launchedProcessesEventsGrid.gridDataAndMeta.celesta",
+                                            "@proc":"workflow.grid.launchedProcessesEventsGrid.getData.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
                                             "related":{
                                                        "@id":"launchedProcessesGrid"
                                                        },
-                                            "proc":[{
+                                            "proc":[{"@id": "launchedProcessesEventsMeta",
+                                                     "@name": "workflow.grid.launchedProcessesEventsGrid.getMeta.celesta",
+                                                     "@type": "METADATA"},
+                                                    {
                                                     "@id":1,
                                                     "@name":"workflow.grid.launchedProcessesEventsGrid.gridToolBar.celesta",
                                                     "@type":"TOOLBAR"}
@@ -350,7 +360,7 @@ def drawProcesses(context, main=None, session=None):
 
 def userGroups(context, main=None, session=None):
     data = {"datapanel":{"tab":[{"@id":"1",
-                                "@name":u"Развёрнутые процессы",
+                                "@name":u"Группы пользователей",
                                 "element":[
 #                                            {"@id":"processFilter",
 #                                             "@type":"xforms",
@@ -359,13 +369,17 @@ def userGroups(context, main=None, session=None):
 #                                             },
                                            {"@id":"groupsGrid",
                                             "@type":"grid",
-                                            "@proc":"workflow.grid.groupsGrid.gridDataAndMeta.celesta",
+                                            "@proc":"workflow.grid.groupsGrid.getData.celesta",
                                             "@subtype":"JS_TREE_GRID",
                                             "@plugin":"treeDGrid",
                                             "proc":[{
+                                                    "@id":'groupsMeta',
+                                                    "@name":"workflow.grid.groupsGrid.getMeta.celesta",
+                                                    "@type":"METADATA"},
+                                                    {
                                                     "@id":"groupsGridToolBar",
                                                     "@name":"workflow.grid.groupsGrid.gridToolBar.celesta",
-                                                    "@type":"TOOLBAR"}],
+                                                    "@type":"TOOLBAR"}]
 #                                             "related":{"@id":"processFilter"}
                                             },
                                             {"@id":"addGroupCard",
