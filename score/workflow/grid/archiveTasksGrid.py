@@ -98,7 +98,8 @@ def getData(context, main=None, add=None, filterinfo=None,
 def getSettings(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     # Определяем список полей таблицы для отображения
     session = json.loads(session)
-    gridWidth = getGridWidth(session, 60)
+#     gridWidth = getGridWidth(session, 60)
+    gridWidth = "100%"
     gridHeight = getGridHeight(session, 1)
     tasks = view_finished_tasksCursor(context)
     sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")

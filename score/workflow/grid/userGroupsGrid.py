@@ -80,7 +80,7 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": "800px",
+                                               "@gridWidth": "100%",
                                                "@gridHeight": "300",
                                                "@totalCount": userGroup.count(),
                                                "@profile":"default.properties"},

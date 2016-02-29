@@ -6,7 +6,7 @@ Created on 19.12.2014
 '''
 
 
-import simplejson as json
+import json
 from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
@@ -19,24 +19,14 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO, JythonDownloadResult
 
-
-
-
-def gridDataAndMeta(context, main, add, filterinfo, session, elementId, sortColumnList, parentId=None):
+def getData(context, main=None, add=None, filterinfo=None, session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None, parentId=None):
     u'''Функция получения списка всех развернутых процессов. '''
     groups = groupsCursor(context)
-    # Получение списка развернутых процессов)
-    # Извлечение фильтра из related-контекста
-    # raise Exception(session)
+
     session = json.loads(session)
-    gridWidth = getGridWidth(session, 60)
-    gridHeigth = getGridHeight(session, 2, 55, 80)
+
     session = session['sessioncontext']
-#     if "formData" in session["related"]["xformsContext"]:
-#         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
-#         processName = info["@processName"]
-#     else:
-#         processName = ''
+
     data = {"records":{"rec":[]}}
     _header = {"id":["~~id"],
              "name":[u"Название"],
@@ -69,15 +59,40 @@ def gridDataAndMeta(context, main, add, filterinfo, session, elementId, sortColu
                                               }
         data["records"]["rec"].append(groupsDict)
 
+    res = XMLJSONConverter.jsonToXml(json.dumps(data))
+    return JythonDTO(res, None)
+    
+def getMeta(context, main=None, add=None, filterinfo=None, session=None, elementId=None): 
+    u'''Функция получения списка всех развернутых процессов. '''
+    groups = groupsCursor(context)
+    # Получение списка развернутых процессов)
+    # Извлечение фильтра из related-контекста
+    # raise Exception(session)
+    session = json.loads(session)
+    gridWidth = getGridWidth(session, 60)
+    gridHeigth = getGridHeight(session, 2, 55, 80)
+    session = session['sessioncontext']
+#     if "formData" in session["related"]["xformsContext"]:
+#         info = session["related"]["xformsContext"]["formData"]["schema"]["info"]
+#         processName = info["@processName"]
+#     else:
+#         processName = ''
+
+    _header = {"id":["~~id"],
+             "name":[u"Название"],
+             "properties":[u"properties"],
+             'hasChildren': [u'HasChildren'],
+             }
+    for column in _header:
+        _header[column].append(toHexForXml(_header[column][0]))
+
     # Определяем список полей таблицы для отображения
     settings = {}
 
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": gridWidth,
+                                               "@gridWidth": "100%",
                                                "@gridHeight": gridHeigth,
-
-                                               "@totalCount": groups.count(),
                                                "@profile":"default.properties"}
                                 }
     if add is not None and add != '':
@@ -85,11 +100,9 @@ def gridDataAndMeta(context, main, add, filterinfo, session, elementId, sortColu
     # Добавляем поля для отображения в gridsettings
 
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "300px"})
-
-    res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
-    res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
-
-    return JythonDTO(res1, res2)
+    
+    res = XMLJSONConverter.jsonToXml(json.dumps(settings))
+    return JythonDTO(None, res)
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Toolbar для грида. '''
