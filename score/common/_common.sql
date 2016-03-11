@@ -1,4 +1,4 @@
-create grain common version '1.0';
+create grain common version '1.01';
 
 create table numbersSeries (
 id varchar(50) not null primary key,
@@ -20,4 +20,10 @@ isOpened bit not null default 'TRUE',
 lastUsedDate datetime,
 
 PRIMARY KEY (seriesId, numberOfLine)
+);
+
+create table htmlHints (
+elementId varchar(50) not null primary key,
+htmlText varchar(20000),
+showOnLoad int
 );
