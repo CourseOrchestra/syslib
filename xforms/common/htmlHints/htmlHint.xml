@@ -36,20 +36,20 @@
         <!--xf:output value="serialize(instance('xformId_mainInstance'))"></xf:output-->
 		<div style="min-height: 0px; margin-bot: 10px; float: left; clear: both; width:20px; height:20px;">
             <xf:trigger class="groupHeader" id="xformId_Tab0001Button" appearance="minimal">
-                <xf:label><xf:output value="''"></xf:output><xf:output mediatype="image/*" value="'./solutions/default/resources/help.png'"></xf:output></xf:label>
+                <xf:label><xf:output value="''"></xf:output><xf:output mediatype="image/*" value="if(instance('xformId_mainInstance')/showHideHint = 0, './solutions/default/resources/help.png', './solutions/default/css/images/window-close.png')"></xf:output></xf:label>
                 <xf:action ev:event="DOMActivate">
                     <xf:setvalue ref="instance('xformId_mainInstance')/showHideHint" value="1 - instance('xformId_mainInstance')/showHideHint"></xf:setvalue>
                 </xf:action>
             </xf:trigger>
         </div>
 		<xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 1]">
-			<div style="min-height: 0px; border: solid 2px #30A5A5; padding: 5px; margin-left: 20px; overflow: scroll; width: 95%; height: 30vh;">
+			<div style="min-height: 0px; border: solid 2px #30A5A5; padding: 5px; margin-left: 22px; overflow: scroll; width: 96%; height: 30vh;">
 				<xf:output value="instance('xformId_mainInstance')/htmlText" mediatype="application/xhtml+xml"></xf:output>
 			</div>
 			<xf:group ref=".[instance('xformId_mainInstance')/userPerm = 1]">
 				<div style="min-height: 0px; margin-top: 2px; float: right; clear: both; width:20px; height:20px;">
 					<xf:trigger class="groupHeader" id="xformId_Tab0002Button" appearance="minimal">
-						<xf:label><xf:output value="''"></xf:output><xf:output mediatype="image/*" value="'./solutions/default/resources/edit3.png'"></xf:output></xf:label>
+						<xf:label><xf:output value="''"></xf:output><xf:output mediatype="image/*" value="if(instance('xformId_mainInstance')/showHideEdit = 0, './solutions/default/resources/edit3.png', './solutions/default/css/images/window-close.png')"></xf:output></xf:label>
 						<xf:action ev:event="DOMActivate">
 							<xf:setvalue ref="instance('xformId_mainInstance')/showHideEdit" value="1 - instance('xformId_mainInstance')/showHideEdit"></xf:setvalue>
 						</xf:action>
