@@ -43,7 +43,7 @@
             </xf:trigger>
         </div>
 		<xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 1]">
-			<div style="min-height: 0px; border: solid 2px #30A5A5; padding: 5px; margin-left: 20px;">
+			<div style="min-height: 0px; border: solid 2px #30A5A5; padding: 5px; margin-left: 20px; overflow: scroll; width: 95%; height: 30vh;">
 				<xf:output value="instance('xformId_mainInstance')/htmlText" mediatype="application/xhtml+xml"></xf:output>
 			</div>
 			<xf:group ref=".[instance('xformId_mainInstance')/userPerm = 1]">

@@ -101,6 +101,9 @@ def htmlEdit(context, main, add, filterinfo, session, elementId):
     jsonData = json.loads(filterinfo)
     htmlText = jsonData['schema']['filter']['htmlText']
     data = htmlText.replace('&lt;', '<').replace('&gt;', '>').replace('&lt', '<').replace('&gt', '>').replace('&nbsp;', ' ')#.replace('&nbsp', ' ')
+    #raise Exception(left(data, 5))
+    if data[:5] != '<div>':
+        data = "<div>%s</div>" % data
     settings = u'''
     <properties>
     </properties>
