@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet href="xsltforms/xsltforms.xsl" type="text/xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xsd="http://www.w3.org/2001/XMLschema" xmlns:fs="http://www.curs.ru/ns/FormServer" xmlns:xf="http://www.w3.org/2002/xforms">
+	<head>
+		<xf:model id="xformId_mainModel">
+			<xf:instance id="xformId_mainInstance">
+				<schema xmlns="">
+				</schema>
+			</xf:instance>
+
+			<xf:bind>
+			</xf:bind>
+		</xf:model>
+		<script language="javascript">
+			function changeDisplay(elementId, value){
+				document.getElementById(elementId).style.display=value;
+			}
+		</script>
+	</head>
+
+	<body>
+		<div id="card" style="display: block">
+			<!-- 		 <xf:output value="serialize(instance('xformId_mainInstance'))"/>
+ -->
+			<xf:upload id="xformId_cardUploadId" filenamesMapping="XPath(instance(quot(xformId_mainInstance))/content/fileName)"
+		singleFile="true" needClearFilenames="true"/>
+
+			<div class="break button200">
+				<xf:trigger>
+					<xf:label>Сохранить и Закрыть</xf:label>
+					<xf:action ev:event="DOMActivate">
+						<xf:action if="(is-valid(instance('xformId_mainInstance'))=false())">
+							<xf:message>Заполните поля формы</xf:message>
+						</xf:action>
+						<xf:action if="(is-valid(instance('xformId_mainInstance'))=true())">
+							<xf:load resource="javascript:
+								document.getElementById('card').style.display='none';
+								document.getElementById('spinner').style.display='block';
+
+								gwtXFormSave(	
+									'xformId', 'save',
+									Writer.toString(
+										getSubformInstanceDocument(	
+										'xformId_mainModel',
+										'xformId_mainInstance'
+										)
+									)
+								)
+							"
+						/>
+						</xf:action>
+					</xf:action>
+				</xf:trigger>
+			</div>					
+			<div class="button200">
+				<xf:trigger>
+					<xf:label>Закрыть</xf:label>
+					<xf:action ev:event="DOMActivate">
+						<xf:load resource="javascript:gwtXFormUpdate('xformId','save', null)"/>
+					</xf:action>
+				</xf:trigger>
+			</div>
+		</div>
+		<div id="spinner" style="display: none; width: 100%" align="center">
+			<div class="break">
+				<image src="./solutions/default/resources/datagrid/progress.gif"/>
+			</div>
+			<div class="break">Файл загружается на сервер.</div>
+		</div>
+	</body>
+</html>
