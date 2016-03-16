@@ -2,29 +2,36 @@
 
 from datetime import datetime
 from common._common_orm import linesOfNumbersSeriesCursor
+from ru.curs.celesta import CelestaException
 
-def getNextNoOfSeries(context, seriesId, linesOfNumbersSeries=None):
+
+def getNextNoOfSeries(context, seriesId, linesOfNumbersSeries=None, updateNum=True):
     if linesOfNumbersSeries is None:
         linesOfNumbersSeries = linesOfNumbersSeriesCursor(context)
     linesOfNumbersSeries.setRange('seriesId', seriesId)
     linesOfNumbersSeries.setRange('isOpened', True)
-    linesOfNumbersSeries.setRange('startingDate', datetime.strptime('1900-01-01', '%Y-%m-%d') , datetime.today())
 
-    for linesOfNumbersSeries in linesOfNumbersSeries.iterate():
+    if linesOfNumbersSeries.count() > 1:
+        raise Exception("There is more than one opened line")
+
+    linesOfNumbersSeries.setRange('startingDate',
+                                  datetime.strptime('1900-01-01', '%Y-%m-%d'),
+                                  datetime.today())
+    if linesOfNumbersSeries.tryFindSet():
         seriesObject = GettingNextNumberOfSeries(linesOfNumbersSeries.lastUsedNumber,
-                                  linesOfNumbersSeries.startingNumber,
-                                  linesOfNumbersSeries.endingNumber,
-                                  linesOfNumbersSeries.incrimentByNumber,
-                                  linesOfNumbersSeries.isFixedLength)
-        try:
-            nextNum = seriesObject.getNextNum()
-            linesOfNumbersSeries.lastUsedNumber = int(nextNum)
-            linesOfNumbersSeries.lastUsedDate = datetime.today()
+                                                 linesOfNumbersSeries.startingNumber,
+                                                 linesOfNumbersSeries.endingNumber,
+                                                 linesOfNumbersSeries.incrimentByNumber,
+                                                 linesOfNumbersSeries.isFixedLength)
+        nextNum = seriesObject.getNextNum()
+        linesOfNumbersSeries.lastUsedNumber = int(nextNum)
+        linesOfNumbersSeries.lastUsedDate = datetime.today()
+        if updateNum:
             linesOfNumbersSeries.update()
-            return '%s%s%s' % (linesOfNumbersSeries.prefix, nextNum, linesOfNumbersSeries.postfix)
-        except:
-            continue
-    raise Exception("There are no available numbers in the current series!")
+        return '%s%s%s' % (linesOfNumbersSeries.prefix, nextNum, linesOfNumbersSeries.postfix)
+    else:
+        CelestaException("There are no available numbers in the current series!")
+
 
 class GettingNextNumberOfSeries():
     def __init__(self, lastUsed, startNum=0, endNum=0, incr=1, isFixedLength=True):
@@ -36,7 +43,6 @@ class GettingNextNumberOfSeries():
 
         if int(self.startNum) > int(self.endNum):
             raise Exception('Min value more then max value')
-
 
     def getNextNum(self):
         """Finding next num"""
@@ -50,9 +56,7 @@ class GettingNextNumberOfSeries():
                 nextNum = '0' * (len(unicode(self.endNum)) - len(nextNum)) + nextNum
                 """If nextNum == '2' but it should be like '0002' """
 
-
         else:
-            raise Exception('Last used value more than max value')
+            raise CelestaException('Last used value more than max value')
 
         return nextNum
-
