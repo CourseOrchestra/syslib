@@ -1,22 +1,25 @@
 # coding: utf-8
 from ru.curs.celesta import CelestaException
 
+
 def generateSortValue(number, rankList=[3]):
     u'''Функция формирует сортировочное значение из номера иерархии Дьюи.
     @number - номер иерархии Дьюи типа 1.1.1
     @rankList - список отвечающий за количество разрядов на каждом уровне rankList[0] количество по умолчанию
     Данный параметр не обязателен по умолчанию равен [3]
-    Пример: generateSortValue('1.2.3.4', [3,1,2,3])=102003004'''
-    if  not(isinstance(number, (str, unicode)) and isinstance(rankList, list)):
-        raise  CelestaException(u'Неверный формат аргументов. аргументы должны иметь вид (строка,список)')
+    Пример: generateSortValue('1.2.3.4', [3,1,2,3])='102003004' '''
+    if not(isinstance(number, (str, unicode)) and isinstance(rankList, list)):
+        raise CelestaException(u'Неверный формат аргументов. аргументы должны иметь вид (строка,список)')
     lenRankList = len(rankList)
+#     убираем пустые строки
     numberList = filter(bool, number.split('.'))
 
-    sortVal = ''
+    sortVal = []
     for idx, val in enumerate(numberList):
         rank = rankList[idx + 1] if idx + 1 < lenRankList else rankList[0]
-        sortVal += ('0' * rank + val)[-rank:]
-    return sortVal
+        sortVal.append(val.zfill(rank))
+    return ''.join(sortVal)
+
 
 def moveNodeInHierarchy(context, cursorInstance, numberField, position, isOneHierarchy=False):
     u'''Функция передвигает куст в иерархии на указанную позицию на том же уровне
@@ -42,6 +45,7 @@ def moveNodeInHierarchy(context, cursorInstance, numberField, position, isOneHie
     cursorInstance.__setattr__(numberField, '.'.join(numberList))
     cursorInstance.update()
     cursorInstanceClone.close()
+
 
 def deleteNodeFromHierarchy(context, cursorInstance, numberField, sortField, isOneHierarchy=False):
     u'''Функция удаляет куст из иерархии, сдвигая все нижестоящие кусты на одну позицию вверх'''
@@ -73,8 +77,10 @@ def deleteNodeFromHierarchy(context, cursorInstance, numberField, sortField, isO
         numberListChild = getattr(cursorInstanceClone, numberField).split('.')
         moveNodeInHierarchy(context, cursorInstanceClone, numberField, int(numberListChild[-1]) - 1)
     cursorInstanceClone.close()
-    
-def changeNodePositionInLevelOfHierarchy(context, cursorInstance, numberField, sortField, shift, isOneHierarchy=False):
+
+
+def changeNodePositionInLevelOfHierarchy(context, cursorInstance, numberField,
+                                         sortField, shift, isOneHierarchy=False):
     u'''Функция перемещает куст на @shift позиций, сдвигая при этом необходимое количество соседних кустов'''
     currentNumber = getattr(cursorInstance, numberField)
     numberList = currentNumber.split('.')
@@ -111,13 +117,16 @@ def changeNodePositionInLevelOfHierarchy(context, cursorInstance, numberField, s
     moveNodeInHierarchy(context, cursorInstance, numberField, int(numberList[-1]) + countOfDownNodes * sign)
     cursorInstanceClone.close()
 
+
 def leftShiftNodeInHierarchy(context, cursorInstance, numberField, sortField):
     u'''Функция перемещает куст на один уровень выше'''
     currentNumber = getattr(cursorInstance, numberField)
     numberList = currentNumber.split('.')
     shiftNodeToOtherLevelInHierarchy(context, cursorInstance, numberField, sortField, '.'.join(numberList[:-2]))
 
-def shiftNodeToOtherLevelInHierarchy(context, cursorInstance, numberField, sortField, parentNumber=None, isOneHierarchy=False):
+
+def shiftNodeToOtherLevelInHierarchy(context, cursorInstance, numberField,
+                                     sortField, parentNumber=None, isOneHierarchy=False):
     u'''Функция перемещает куст на уровень @parentNumber'''
     currentNumber = getattr(cursorInstance, numberField)
     numberList = currentNumber.split('.')
@@ -162,6 +171,7 @@ def shiftNodeToOtherLevelInHierarchy(context, cursorInstance, numberField, sortF
         moveNodeInHierarchy(context, cursorInstanceClone, numberField, int(numberListChild[-1]) - 1)
     cursorInstanceClone.close()
 
+
 def hasChildren(context, cursorInstance, numberField, isOneHierarchy=False):
     u'''Функция определяет наличие у элемента детей.'''
     currentNumber = getattr(cursorInstance, numberField)
@@ -174,6 +184,7 @@ def hasChildren(context, cursorInstance, numberField, isOneHierarchy=False):
     result = True if cursorInstanceClone.count() > 0 else False
     cursorInstanceClone.close()
     return result
+
 
 def getNewItemInLevelInHierarchy(context, cursorInstance, numberField, isOneHierarchy=False):
     u'''Функция возвращает номер для нового элемента в указанном уровне иерархии'''
