@@ -1,10 +1,11 @@
 # coding=UTF-8
-import re
-from datetime import datetime
-from common._common_orm import numbersSeriesCursor, linesOfNumbersSeriesCursor
 
-def getNextNoOfSeries(context, seriesId):
-    linesOfNumbersSeries = linesOfNumbersSeriesCursor(context)
+from datetime import datetime
+from common._common_orm import linesOfNumbersSeriesCursor
+
+def getNextNoOfSeries(context, seriesId, linesOfNumbersSeries=None):
+    if linesOfNumbersSeries is None:
+        linesOfNumbersSeries = linesOfNumbersSeriesCursor(context)
     linesOfNumbersSeries.setRange('seriesId', seriesId)
     linesOfNumbersSeries.setRange('isOpened', True)
     linesOfNumbersSeries.setRange('startingDate', datetime.strptime('1900-01-01', '%Y-%m-%d') , datetime.today())
