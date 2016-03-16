@@ -114,11 +114,11 @@ def putFile(context, native_filename, stream_input, current_cluster_num=1, rewri
     d = array('b',[0 for i in xrange(4096)])
     
     try: 
-
-        while buffer.read(d, 0, 4096) != -1:
-            fileToWrite.write(d)
+        c = buffer.read(d, 0, 4096)
+        while c != -1:
+            fileToWrite.write(d[:c])
             size_of_file += 1
- 
+            c = buffer.read(d, 0, 4096)
     finally:
         stream_input.close()
         fileToWrite.close()
