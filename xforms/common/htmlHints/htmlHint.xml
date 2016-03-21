@@ -86,7 +86,7 @@
 								elem.style.visibility = 'visible';
 								elem.focus();
 								elem.blur();
-								elem.style.visibility = 'hidden';
+								elem.style.visibility = 'visible';
 								}
 								}
 								}
@@ -117,15 +117,15 @@
 						</xf:trigger>
 					</div>
 				</xf:group>
+				<xf:textarea id="html_editor" style="visibility: visible; padding: 5px; margin-left: 22px; overflow: scroll; width: 60%; height: 20vh;"
+					ref="instance('xformId_mainInstance')/htmlText">
+					<xf:action ev:event="xforms-value-changed">
+						<xf:action ev:event="DOMActivate">
+							<xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
+						</xf:action>
+					</xf:action>
+				</xf:textarea>
 			</xf:group>
 		</xf:group>
-		<xf:textarea id="html_editor" style="visibility: hidden; height: 0px; opacity: 0; border:0; padding: 0px 0px 0px 0px;"
-			ref="instance('xformId_mainInstance')/htmlText">
-			<xf:action ev:event="xforms-value-changed">
-				<xf:action ev:event="DOMActivate">
-					<xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
-				</xf:action>
-			</xf:action>
-		</xf:textarea>
     </body>
 </html>
