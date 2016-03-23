@@ -24,6 +24,6 @@ PRIMARY KEY (seriesId, numberOfLine)
 
 create table htmlHints (
 elementId varchar(50) not null primary key,
-htmlText varchar(20000),
+htmlText TEXT,
 showOnLoad int
 );

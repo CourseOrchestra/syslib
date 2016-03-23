@@ -10,7 +10,7 @@ from com.jayway.jsonpath import JsonPath
 from common._common_orm import htmlHintsCursor
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from security.functions import userHasPermission
-
+from org.apache.commons.lang3.StringEscapeUtils import unescapeHtml4
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -40,14 +40,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     htmlHints = htmlHintsCursor(context)
     if htmlHints.tryGet(elementId):
         htmlText = htmlHints.htmlText
-        htmlText = htmlText\
-            .replace('&lt;', '<')\
-            .replace('&gt;', '>')\
-            .replace('&lt', '<')\
-            .replace('&gt', '>')\
-            .replace('&nbsp;', ' ')\
-            .replace('&laquo;', '"')\
-            .replace('&raquo;', '"')
+        htmlText = htmlText
         showOnLoad = htmlHints.showOnLoad
         if showOnLoad is None:
             showOnLoad = 0
@@ -113,18 +106,12 @@ def cardSave(context, main=None, add=None, filterinfo=None, session=None,
 def htmlEdit(context, main, add, filterinfo, session, elementId):
     jsonData = json.loads(filterinfo)
     htmlText = jsonData['schema']['filter']['htmlText']
-    data = htmlText\
-        .replace('&lt;', '<')\
-        .replace('&gt;', '>')\
-        .replace('&lt', '<')\
-        .replace('&gt', '>')\
-        .replace('&nbsp;', ' ')  # .replace('&nbsp', ' ')
-    #raise Exception(left(data, 5))
+    data = htmlText
     if data[:5] != '<div>':
         data = "<div>%s</div>" % data
     settings = u'''
     <properties>
     </properties>
     '''
-    res = JythonDTO(data, settings)
+    res = JythonDTO(unescapeHtml4(data), settings)
     return res
