@@ -40,7 +40,11 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     htmlHints = htmlHintsCursor(context)
     if htmlHints.tryGet(elementId):
         htmlText = htmlHints.htmlText
-        htmlText = htmlText
+        if htmlText is not None:
+            htmlText = htmlText
+        else:
+            htmlText = u""
+            showOnLoad = 0
         showOnLoad = htmlHints.showOnLoad
         if showOnLoad is None:
             showOnLoad = 0
@@ -54,7 +58,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     xformsdata = {
         "schema": {
             "@xmlns": "",
-            "htmlText": htmlText,
+            "htmlText": unescapeHtml4(htmlText),
             "showHideHint": showOnLoad,
             "showOnLoad": showOnLoad,
             "showHideEdit": 0,
@@ -81,7 +85,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
         }
     }
 
-    return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(xformsdata)),
+    return JythonDTO((XMLJSONConverter.jsonToXml(json.dumps(xformsdata))),
                      XMLJSONConverter.jsonToXml(json.dumps(xformssettings)))
 
 
@@ -107,6 +111,7 @@ def htmlEdit(context, main, add, filterinfo, session, elementId):
     jsonData = json.loads(filterinfo)
     htmlText = jsonData['schema']['filter']['htmlText']
     data = htmlText
+    #raise Exception(left(data, 5))
     if data[:5] != '<div>':
         data = "<div>%s</div>" % data
     settings = u'''
