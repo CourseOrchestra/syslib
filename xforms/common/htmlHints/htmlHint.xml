@@ -117,7 +117,7 @@
 						</xf:trigger>
 					</div>
 				</xf:group>
-				<xf:textarea id="html_editor" style="visibility: visible; padding: 5px; margin-left: 22px; overflow: scroll; width: 60%; height: 20vh;"
+				<xf:textarea id="html_editor" style="visibility: visible; padding: 5px; margin-left: 22px; overflow: scroll; width: 50%; height: 20vh;"
 					ref="instance('xformId_mainInstance')/htmlText">
 					<xf:action ev:event="xforms-value-changed">
 						<xf:action ev:event="DOMActivate">
@@ -126,6 +126,8 @@
 					</xf:action>
 				</xf:textarea>
 			</xf:group>
+			
 		</xf:group>
+		
     </body>
 </html>
