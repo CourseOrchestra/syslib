@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import simplejson as json
+import json
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -18,11 +18,10 @@ from common import  hierarchy
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 
-def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList, parentId=None):
+def treeGridData(context, main=None, add=None, filterinfo=None, session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None, parentId=None):
     u'''Функция получения данных для грида. '''
     session = json.loads(session)
-    gridWidth = getGridWidth(session, 60)
-    gridHeight = getGridHeight(session,2)
+
     sid = session['sessioncontext']['sid']
     _headers = {'id': '~~id',
                 'name': u'Название',
@@ -107,7 +106,17 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
                 _data["records"]["rec"].append(row)
             if isEmptyFlag:
                 _data = {"records": ''}
-    resultData = XMLJSONConverter.jsonToXml(json.dumps(_data))
+    
+    res = XMLJSONConverter.jsonToXml(json.dumps(_data))
+    return JythonDTO(res, None)
+
+def treeGridMeta(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
+    u'''Функция получения настроек для tree-грида. '''
+
+    session = json.loads(session)
+    gridWidth = getGridWidth(session, 60)
+    gridHeight = getGridHeight(session,2)
+                
     settings = {"gridsettings":
                 {"action":
                  {"#sorted":
@@ -129,9 +138,10 @@ def treeGrid(context, main, add, filterinfo, session, elementId, sortColumnList,
                      "@gridHeight": gridHeight,
                      "@totalCount": "0"}
                  }}
-    settings = XMLJSONConverter.jsonToXml(json.dumps(settings))
+    
+    res_set = XMLJSONConverter.jsonToXml(json.dumps(settings))
 
-    return JythonDTO(resultData, settings)
+    return JythonDTO(None, res_set)
 
 def hasChildren(context, ident, cursor):
     u'''Функция определения, имеет ли элемент детей. '''

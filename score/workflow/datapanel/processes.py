@@ -255,16 +255,19 @@ def editingProcesses(context, main=None, session=None):
                                            {"@id":"matchingCircuitGrid",
                                             "@type":"grid",
                                             "@hideOnLoad":"true",
-                                            "@proc":"workflow.grid.matchingCircuitGrid.treeGrid.celesta",
+                                            "@proc":"workflow.grid.matchingCircuitGrid.treeGridData.celesta",
                                             "@subtype":"JS_TREE_GRID",
                                             "@plugin":"treeDGrid",
                                             "related":{
                                                        "@id":"selectionProcess"
                                                        },
-                                            "proc":[{
-                                                    "@id":1,
+                                            "proc":[
+                                                    {"@id":1,
                                                     "@name":"workflow.grid.matchingCircuitGrid.gridToolBar.celesta",
-                                                    "@type":"TOOLBAR"}
+                                                    "@type":"TOOLBAR"},
+                                                    {"@id": "matchingCircuitMeta",
+                                                    "@name":"workflow.grid.matchingCircuitGrid.treeGridMeta.celesta",
+                                                     "@type": "METADATA"}
                                                     ]
                                             },
                                            {"@id":"generateProcessImage",
