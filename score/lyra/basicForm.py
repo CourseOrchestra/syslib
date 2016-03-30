@@ -48,9 +48,17 @@ class formfield(object):
 def _createUnboundField(self, m, name):
     if not hasattr(self.__class__, "_properties"):
         raise Exception('Did you forget @form decorator for class %s?' % (self.__class__.__name__))
-    ff = self.__class__._properties[name]
-    if ff is None:
+    
+    if name in self.__class__._properties:
+        ff = self.__class__._properties[name]
+        if ff.name == '_properties_':
+            lff = m.get(ff.name)
+            if not (lff is None):
+                return lff
+    else:
         return None
+    
+    
     acc = UnboundFieldAccessor(ff.celestatype, ff.fget, ff.fset, self)
     lff = LyraFormField(name, acc);
     m.addElement(lff);
@@ -76,7 +84,7 @@ def _getFormProperties(self):
     return self.__class__._formproperties
 
 class form(object):
-    def __init__(self, profile=None, gridwidth=-1, gridheight = -1, defaultaction=None):
+    def __init__(self, profile=None, gridwidth=None, gridheight = None, defaultaction=None):
         lfp = LyraFormProperties()
         lfp.setProfile(profile)
         lfp.setGridwidth(gridwidth)
