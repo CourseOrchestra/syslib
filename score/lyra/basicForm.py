@@ -51,7 +51,7 @@ def _createUnboundField(self, m, name):
     
     if name in self.__class__._properties:
         ff = self.__class__._properties[name]
-        if ff.name == '_properties_':
+        if name == '_properties_':
             lff = m.get(ff.name)
             if not (lff is None):
                 return lff
