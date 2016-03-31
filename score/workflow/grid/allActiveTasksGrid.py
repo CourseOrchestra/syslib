@@ -172,7 +172,7 @@ def getData(context, main=None, add=None, filterinfo=None,
         timeList.append(task.id_ + ' get reassign ' + str(time.time() - timeStartTask))
 #         link = 'a'
         if form.tryGet(task.processKey, task.form_key_):
-            link = form.link.replace('&[processId]', processInstanceId).replace('&[taskId]', task.id_)
+            link = form.link.replace('$[processId]', processInstanceId).replace('$[taskId]', task.id_)
         else:
             link = "./?userdata=%s&mode=task&processId=%s&taskId=%s" % (session["userdata"], processInstanceId, task.id_)
         taskDict[_header["document"][1]] = {"div":
