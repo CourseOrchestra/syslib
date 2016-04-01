@@ -10,15 +10,15 @@ def getNextNoOfSeries(context, seriesId, linesOfNumbersSeries=None, updateNum=Tr
         linesOfNumbersSeries = linesOfNumbersSeriesCursor(context)
     linesOfNumbersSeries.setRange('seriesId', seriesId)
     linesOfNumbersSeries.setRange('isOpened', True)
-
-    if linesOfNumbersSeries.count() > 1:
-        raise Exception("There is more than one opened line")
-
     linesOfNumbersSeries.setRange('startingDate',
                                   datetime.strptime('1900-01-01', '%Y-%m-%d'),
                                   datetime.today())
+    if linesOfNumbersSeries.count() > 1:
+        raise Exception("There is more than one opened line in the series '%s'" % seriesId)
+
     if linesOfNumbersSeries.tryFindSet():
-        seriesObject = GettingNextNumberOfSeries(linesOfNumbersSeries.lastUsedNumber,
+        seriesObject = GettingNextNumberOfSeries(seriesId,
+                                                 linesOfNumbersSeries.lastUsedNumber,
                                                  linesOfNumbersSeries.startingNumber,
                                                  linesOfNumbersSeries.endingNumber,
                                                  linesOfNumbersSeries.incrimentByNumber,
@@ -30,11 +30,12 @@ def getNextNoOfSeries(context, seriesId, linesOfNumbersSeries=None, updateNum=Tr
             linesOfNumbersSeries.update()
         return '%s%s%s' % (linesOfNumbersSeries.prefix, nextNum, linesOfNumbersSeries.postfix)
     else:
-        CelestaException("There are no available numbers in the current series!")
+        CelestaException("There are no available opened lines in the series '%s'!" % seriesId)
 
 
 class GettingNextNumberOfSeries():
-    def __init__(self, lastUsed, startNum=0, endNum=0, incr=1, isFixedLength=True):
+    def __init__(self, seriesId, lastUsed, startNum=0, endNum=0, incr=1, isFixedLength=True):
+        self.seriesId = seriesId
         self.startNum = startNum
         self.endNum = endNum
         self.lastUsed = lastUsed
@@ -42,7 +43,7 @@ class GettingNextNumberOfSeries():
         self.incr = incr if incr >= 1 else 1
 
         if int(self.startNum) > int(self.endNum):
-            raise Exception('Min value more then max value')
+            raise Exception('Min value is greater than max value for series %s' % self.seriesId)
 
     def getNextNum(self):
         """Finding next num"""
@@ -51,12 +52,12 @@ class GettingNextNumberOfSeries():
         elif self.lastUsed < self.endNum:
             nextNum = unicode(self.lastUsed + self.incr)
             if int(nextNum) > self.endNum:
-                raise Exception('Next number value more than max value')
+                raise Exception('Next number value is greater than max value for series %s' % self.seriesId)
             if self.isFixedLength:
                 nextNum = '0' * (len(unicode(self.endNum)) - len(nextNum)) + nextNum
                 """If nextNum == '2' but it should be like '0002' """
 
         else:
-            raise CelestaException('Last used value more than max value')
+            raise CelestaException('Last used value is greater than max value for series %s' % self.seriesId)
 
         return nextNum
