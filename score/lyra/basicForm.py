@@ -12,12 +12,14 @@ def register(c):
 
 class formfield(object):
     def __init__(self, celestatype, 
-                 caption=None, 
+                 caption = None, 
                  editable = True, 
                  visible = True,
                  required = False, 
                  scale = LyraFormField.DEFAULT_SCALE, 
-                 width = -1):
+                 width = -1,
+                 subtype = None,
+                 linkId = None):
         self.celestatype = celestatype
         self.caption = caption
         self.editable = editable
@@ -25,6 +27,8 @@ class formfield(object):
         self.scale = scale
         self.width = width
         self.required = required
+        self.subtype = subtype
+        self.linkId = linkId
         self.fget = None
         self.fset = lambda instance, value: None
 
@@ -69,6 +73,8 @@ def _createUnboundField(self, m, name):
     lff.setScale(ff.scale)
     lff.setWidth(ff.width)
     lff.setRequired(ff.required)
+    lff.setSubtype(ff.subtype)
+    lff.setLinkId(ff.linkId)
     return lff
         
 def _createAllUnboundFields(self, m):
@@ -84,12 +90,20 @@ def _getFormProperties(self):
     return self.__class__._formproperties
 
 class form(object):
-    def __init__(self, profile=None, gridwidth=None, gridheight = None, defaultaction=None):
+    def __init__(self, 
+                 profile = None, 
+                 gridwidth = None, 
+                 gridheight = None, 
+                 defaultaction = None,
+                 header = None,
+                 footer = None):
         lfp = LyraFormProperties()
         lfp.setProfile(profile)
         lfp.setGridwidth(gridwidth)
         lfp.setGridheight(gridheight)
         lfp.setDefaultaction(defaultaction)
+        lfp.setHeader(header)
+        lfp.setFooter(footer)
         self.lfp = lfp
      
     def __call__(self, cls):   
