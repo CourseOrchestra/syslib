@@ -28,7 +28,10 @@ def getNextNoOfSeries(context, seriesId, linesOfNumbersSeries=None, updateNum=Tr
         linesOfNumbersSeries.lastUsedDate = datetime.today()
         if updateNum:
             linesOfNumbersSeries.update()
-        return '%s%s%s' % (linesOfNumbersSeries.prefix, nextNum, linesOfNumbersSeries.postfix)
+        prefix = linesOfNumbersSeries.prefix
+        postfix = linesOfNumbersSeries.postfix
+        linesOfNumbersSeries.close()
+        return '%s%s%s' % (prefix, nextNum, postfix)
     else:
         CelestaException("There are no available opened lines in the series '%s'!" % seriesId)
 
