@@ -58,7 +58,7 @@
 			</div>
 		</xf:group>
 		<xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 1]">
-			<div class="break button100" style="width: 100px; margin-top: 2px; float: left; ">
+			<div class="break button100" style="width: 100px; margin-top: 2px; margin-bottom: 2px; float: left; ">
 				<xf:trigger class="break" style="margin-top: 0px">
 					<xf:label>Свернуть</xf:label>
 					<xf:action ev:event="DOMActivate">
@@ -81,7 +81,7 @@
 					</xf:trigger>
 				</div-->
 				<xf:group ref=".[instance('xformId_mainInstance')/showHideEdit = 0]">
-					<div class="break button100" style="width: 100px; margin-top: 0px; float: right;">
+					<div class="break button100" style="width: 100px; margin-top: 2px; float: right;">
 						<xf:trigger class="break" style="margin-top: 0px">
 							<xf:label>Настройки</xf:label>
 							<xf:action ev:event="DOMActivate">
@@ -91,7 +91,7 @@
 					</div>
 				</xf:group>
 				<xf:group ref=".[instance('xformId_mainInstance')/showHideEdit = 1]">
-					<div class="break button100" style="width: 100px; margin-top: 0px; float: right; ">
+					<div class="break button100" style="width: 100px; margin-top: 2px; float: right; ">
 						<xf:trigger class="break" style="margin-top: 0px">
 							<xf:label>Свернуть</xf:label>
 							<xf:action ev:event="DOMActivate">
@@ -162,7 +162,7 @@
 						</xf:trigger>
 					</div>
 				</xf:group>
-				<xf:textarea id="html_editor" style="visibility: visible; padding: 5px; margin-left: 2px; overflow: scroll; width: 50%; height: 20vh;"
+				<xf:textarea id="html_editor" style="visibility: visible; padding: 5px; margin-top: 2px; margin-left: 2px; overflow: scroll; width: 50%; height: 20vh;"
 					ref="instance('xformId_mainInstance')/htmlText">
 					<xf:action ev:event="xforms-value-changed">
 						<xf:action ev:event="DOMActivate">
