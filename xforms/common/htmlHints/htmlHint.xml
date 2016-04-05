@@ -68,7 +68,7 @@
 			</div>
 		</xf:group>
 		<xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 1]">
-			<div style="background: #C7D0CC; min-height: 50px; border: solid 2px #30A5A5; padding: 5px; margin-left: 2px; overflow: auto; width: 98.2%; height: 30vh;">
+			<div style="background: #C7D0CC; min-height: 50px; padding: 5px; margin-left: 2px; overflow: auto; width: 98.6%; height: 30vh;">
 				<xf:output class="htmlOutput" value="instance('xformId_mainInstance')/htmlText" mediatype="application/xhtml+xml"></xf:output>
 			</div>
 			<xf:group ref=".[instance('xformId_mainInstance')/userPerm = 1]">
@@ -81,7 +81,7 @@
 					</xf:trigger>
 				</div-->
 				<xf:group ref=".[instance('xformId_mainInstance')/showHideEdit = 0]">
-					<div class="break button100" style="width: 100px; margin-top: 0px; float: right; ">
+					<div class="break button100" style="width: 100px; margin-top: 0px; float: right;">
 						<xf:trigger class="break" style="margin-top: 0px">
 							<xf:label>Настройки</xf:label>
 							<xf:action ev:event="DOMActivate">
@@ -141,7 +141,7 @@
 					</xf:trigger>
 				</div>
 				<xf:group ref=".[instance('xformId_mainInstance')/showOnLoad = 1]">
-					<div class="button150" style="width: 150px; margin-top: 2px; margin-right: 0px; float: right; ">
+					<div class="button200" style="width: 200px; margin-top: 2px; margin-right: 2px; float: right; ">
 						<xf:trigger class="break" style="margin-top: 0px">
 							<xf:label>Скрывать при загрузке  </xf:label>
 							<xf:action ev:event="DOMActivate">
@@ -152,7 +152,7 @@
 					</div>
 				</xf:group>
 				<xf:group ref=".[instance('xformId_mainInstance')/showOnLoad != 1]">
-					<div class="button150" style="width: 150px; margin-top: 2px; margin-right: 0px; float: right; ">
+					<div class="button200" style="width: 200px; margin-top: 2px; margin-right: 2px; float: right; ">
 						<xf:trigger class="break" style="margin-top: 0px">
 							<xf:label>Показывать при загрузке</xf:label>
 							<xf:action ev:event="DOMActivate">
