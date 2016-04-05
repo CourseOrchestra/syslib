@@ -4,6 +4,11 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLschema" xmlns:fs="http://www.curs.ru/ns/FormServer"
 	xmlns:xf="http://www.w3.org/2002/xforms" xmlns:xsltforms="http://www.agencexml.com/xsltforms" xmlns:rte="http://www.agencexml.com/xsltforms/rte">
     <head>
+	<style type="text/css">
+	.htmlOutput {
+            display: block;
+            width: 100px !important;}
+	</style>
         <xf:model id="xformId_mainModel">
 		
             <xf:instance id="xformId_mainInstance">
@@ -34,30 +39,70 @@
     </head>
     <body>
         <!--xf:output value="serialize(instance('xformId_mainInstance'))"></xf:output-->
-		<div style="min-height: 0px; margin-bot: 10px; float: left; clear: both; width:20px; height:20px;">
+		<!--div style="min-height: 0px; margin-bot: 10px; float: left; clear: both; width:20px; height:20px;">
             <xf:trigger class="groupHeader" id="xformId_Tab0001Button" appearance="minimal">
                 <xf:label><xf:output value="''"></xf:output><xf:output mediatype="image/*" value="if(instance('xformId_mainInstance')/showHideHint = 0, './solutions/default/resources/help.png', './solutions/default/css/images/window-close.png')"></xf:output></xf:label>
                 <xf:action ev:event="DOMActivate">
                     <xf:setvalue ref="instance('xformId_mainInstance')/showHideHint" value="1 - instance('xformId_mainInstance')/showHideHint"></xf:setvalue>
                 </xf:action>
             </xf:trigger>
-        </div>
+        </div-->
+		<xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 0]">
+			<div class="break button100" style="width: 100px; margin-top: 2px; float: left; ">
+				<xf:trigger class="break" style="margin-top: 0px">
+					<xf:label>Справка</xf:label>
+					<xf:action ev:event="DOMActivate">
+							<xf:setvalue ref="instance('xformId_mainInstance')/showHideHint" value="1 - instance('xformId_mainInstance')/showHideHint"></xf:setvalue>
+					</xf:action>
+				</xf:trigger>
+			</div>
+		</xf:group>
 		<xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 1]">
-			<div style="min-height: 0px; border: solid 2px #30A5A5; padding: 5px; margin-left: 22px; overflow: scroll; width: 96%; height: 30vh;">
-				<xf:output value="instance('xformId_mainInstance')/htmlText" mediatype="application/xhtml+xml"></xf:output>
+			<div class="break button100" style="width: 100px; margin-top: 2px; float: left; ">
+				<xf:trigger class="break" style="margin-top: 0px">
+					<xf:label>Свернуть</xf:label>
+					<xf:action ev:event="DOMActivate">
+							<xf:setvalue ref="instance('xformId_mainInstance')/showHideHint" value="1 - instance('xformId_mainInstance')/showHideHint"></xf:setvalue>
+					</xf:action>
+				</xf:trigger>
+			</div>
+		</xf:group>
+		<xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 1]">
+			<div style="background: #C7D0CC; min-height: 50px; border: solid 2px #30A5A5; padding: 5px; margin-left: 2px; overflow: auto; width: 98.2%; height: 30vh;">
+				<xf:output class="htmlOutput" value="instance('xformId_mainInstance')/htmlText" mediatype="application/xhtml+xml"></xf:output>
 			</div>
 			<xf:group ref=".[instance('xformId_mainInstance')/userPerm = 1]">
-				<div style="min-height: 0px; margin-top: 2px; float: right; clear: both; width:20px; height:20px;">
+				<!--div style="min-height: 0px; margin-top: 2px; float: right; clear: both; width:20px; height:20px;">
 					<xf:trigger class="groupHeader" id="xformId_Tab0002Button" appearance="minimal">
 						<xf:label><xf:output value="''"></xf:output><xf:output mediatype="image/*" value="if(instance('xformId_mainInstance')/showHideEdit = 0, './solutions/default/resources/edit3.png', './solutions/default/css/images/window-close.png')"></xf:output></xf:label>
 						<xf:action ev:event="DOMActivate">
 							<xf:setvalue ref="instance('xformId_mainInstance')/showHideEdit" value="1 - instance('xformId_mainInstance')/showHideEdit"></xf:setvalue>
 						</xf:action>
 					</xf:trigger>
-				</div>
+				</div-->
+				<xf:group ref=".[instance('xformId_mainInstance')/showHideEdit = 0]">
+					<div class="break button100" style="width: 100px; margin-top: 0px; float: right; ">
+						<xf:trigger class="break" style="margin-top: 0px">
+							<xf:label>Настройки</xf:label>
+							<xf:action ev:event="DOMActivate">
+									<xf:setvalue ref="instance('xformId_mainInstance')/showHideEdit" value="1 - instance('xformId_mainInstance')/showHideEdit"></xf:setvalue>
+						</xf:action>
+						</xf:trigger>
+					</div>
+				</xf:group>
+				<xf:group ref=".[instance('xformId_mainInstance')/showHideEdit = 1]">
+					<div class="break button100" style="width: 100px; margin-top: 0px; float: right; ">
+						<xf:trigger class="break" style="margin-top: 0px">
+							<xf:label>Свернуть</xf:label>
+							<xf:action ev:event="DOMActivate">
+									<xf:setvalue ref="instance('xformId_mainInstance')/showHideEdit" value="1 - instance('xformId_mainInstance')/showHideEdit"></xf:setvalue>
+						</xf:action>
+						</xf:trigger>
+					</div>
+				</xf:group>
 			</xf:group>
 			<xf:group ref=".[instance('xformId_mainInstance')/showHideEdit = 1]">
-				<div calss="break button100" style="width: 100px; margin-top: 2px; margin-right: 65px; float: right; clear: both;">
+				<div class="button150" style="width: 150px; margin-top: 2px; margin-right: 1.5%; float: right; clear: both;">
 					<xf:trigger class="break" style="margin-top: 0px">
 						<xf:label>Редактировать подсказку</xf:label>
 						<xf:action ev:event="DOMActivate">
@@ -96,7 +141,7 @@
 					</xf:trigger>
 				</div>
 				<xf:group ref=".[instance('xformId_mainInstance')/showOnLoad = 1]">
-					<div calss="break button100" style="width: 100px; margin-top: 2px; margin-right: 65px; float: right; ">
+					<div class="button150" style="width: 150px; margin-top: 2px; margin-right: 0px; float: right; ">
 						<xf:trigger class="break" style="margin-top: 0px">
 							<xf:label>Скрывать при загрузке  </xf:label>
 							<xf:action ev:event="DOMActivate">
@@ -107,7 +152,7 @@
 					</div>
 				</xf:group>
 				<xf:group ref=".[instance('xformId_mainInstance')/showOnLoad != 1]">
-					<div calss="break button100" style="width: 100px; margin-top: 2px; margin-right: 65px; float: right; ">
+					<div class="button150" style="width: 150px; margin-top: 2px; margin-right: 0px; float: right; ">
 						<xf:trigger class="break" style="margin-top: 0px">
 							<xf:label>Показывать при загрузке</xf:label>
 							<xf:action ev:event="DOMActivate">
@@ -117,7 +162,7 @@
 						</xf:trigger>
 					</div>
 				</xf:group>
-				<xf:textarea id="html_editor" style="visibility: visible; padding: 5px; margin-left: 22px; overflow: scroll; width: 50%; height: 20vh;"
+				<xf:textarea id="html_editor" style="visibility: visible; padding: 5px; margin-left: 2px; overflow: scroll; width: 50%; height: 20vh;"
 					ref="instance('xformId_mainInstance')/htmlText">
 					<xf:action ev:event="xforms-value-changed">
 						<xf:action ev:event="DOMActivate">
@@ -126,8 +171,6 @@
 					</xf:action>
 				</xf:textarea>
 			</xf:group>
-			
 		</xf:group>
-		
     </body>
 </html>
