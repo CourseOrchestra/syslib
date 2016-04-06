@@ -68,7 +68,7 @@
 			</div>
 		</xf:group>
 		<xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 1]">
-			<div style="background: #C7D0CC; min-height: 50px; padding: 5px; margin-left: 2px; overflow: auto; width: 98.6%; height: 30vh;">
+			<div style="background: rgba(255,255,205,0.6); min-height: 50px; padding: 5px; margin-left: 2px; overflow: auto; width: 98.6%; height: 30vh;">
 				<xf:output class="htmlOutput" value="instance('xformId_mainInstance')/htmlText" mediatype="application/xhtml+xml"></xf:output>
 			</div>
 			<xf:group ref=".[instance('xformId_mainInstance')/userPerm = 1]">
