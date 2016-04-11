@@ -42,7 +42,7 @@ def _setFilters(session, inOutCurrentTable):
         filtercol = "%'" + filtertext + "'%"
         inOutCurrentTable.setFilter(textcol, filtercol)
 
-def getTreeData(context, main, add, filterinfo, session, elementId, sortColumnList, firstrecord, pagesize, parentId):
+def getTreeData(context, main, add, filterinfo, session, elementId, sortColumnList, firstrecord, pagesize, parentId=None):
     u'''Функция получения данных для tree-грида. '''
     # получение id grain и table
     grain_name = json.loads(main)['grain']
