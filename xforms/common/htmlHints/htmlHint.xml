@@ -7,7 +7,9 @@
 	<style type="text/css">
 	.htmlOutput {
             display: block;
-            width: 100px !important;}
+            width: 75%;
+			min-width: 300px;
+			max-width: 800px;}
 	</style>
         <xf:model id="xformId_mainModel">
 		
