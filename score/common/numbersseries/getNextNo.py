@@ -6,8 +6,10 @@ from ru.curs.celesta import CelestaException
 
 
 def getNextNoOfSeries(context, seriesId, linesOfNumbersSeries=None, updateNum=True):
+    lonsFlag = False
     if linesOfNumbersSeries is None:
         linesOfNumbersSeries = linesOfNumbersSeriesCursor(context)
+        lonsFlag = True
     linesOfNumbersSeries.setRange('seriesId', seriesId)
     linesOfNumbersSeries.setRange('isOpened', True)
     linesOfNumbersSeries.setRange('startingDate',
@@ -30,7 +32,8 @@ def getNextNoOfSeries(context, seriesId, linesOfNumbersSeries=None, updateNum=Tr
             linesOfNumbersSeries.update()
         prefix = linesOfNumbersSeries.prefix
         postfix = linesOfNumbersSeries.postfix
-        linesOfNumbersSeries.close()
+        if lonsFlag:
+            linesOfNumbersSeries.close()
         return '%s%s%s' % (prefix, nextNum, postfix)
     else:
         CelestaException("There are no available opened lines in the series '%s'!" % seriesId)
