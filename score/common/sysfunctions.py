@@ -2,6 +2,7 @@
 import os
 import json
 from ru.curs.celesta import Celesta
+import importlib
 
 def toHexForXml(s):
     '''Функция модифицирует спецсимволы в строке в формат пригодный для имен тегов xml'''
@@ -29,6 +30,13 @@ def tableCursorImport(grainName, tableName):
                                 globals(), locals(), "%sCursor" % tableName, -1)
 
     return getattr(_grain_orm, "%sCursor" % tableName)
+
+def objectImport(path):
+    u'''Импорт объекта по пути пакет.модуль.....функция.'''
+    
+    (module_name, fun_name) = (".".join(path.split(".")[:-1]),path.split(".")[-1])
+    
+    return getattr(importlib.import_module(module_name), fun_name)
 
 def getGridWidth(session, delta=51):
     u"""Функция получает ширину грида, в зависимости от ширины датапанели."""
