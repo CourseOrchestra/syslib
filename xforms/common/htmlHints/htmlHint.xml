@@ -7,9 +7,18 @@
 	<style type="text/css">
 	.htmlOutput {
             display: block;
-            width: 75%;
-			min-width: 300px;
-			max-width: 800px;}
+			width: 98.6%;
+			background: rgba(255,255,205,0.5);
+			padding: 5px;
+			margin-left: 2px;
+			overflow: auto;
+			max-height: 300px;
+			}
+	.htmlOutput .xforms-value {
+		white-space: normal;
+	}
+			
+			
 	</style>
         <xf:model id="xformId_mainModel">
 		
@@ -70,9 +79,7 @@
 			</div>
 		</xf:group>
 		<xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 1]">
-			<div style="background: rgba(255,255,205,0.6); min-height: 50px; padding: 5px; margin-left: 2px; overflow: auto; width: 98.6%; height: 30vh;">
 				<xf:output class="htmlOutput" value="instance('xformId_mainInstance')/htmlText" mediatype="application/xhtml+xml"></xf:output>
-			</div>
 			<xf:group ref=".[instance('xformId_mainInstance')/userPerm = 1]">
 				<!--div style="min-height: 0px; margin-top: 2px; float: right; clear: both; width:20px; height:20px;">
 					<xf:trigger class="groupHeader" id="xformId_Tab0002Button" appearance="minimal">

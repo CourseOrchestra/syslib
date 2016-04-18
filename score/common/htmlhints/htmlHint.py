@@ -111,8 +111,7 @@ def htmlEdit(context, main, add, filterinfo, session, elementId):
     jsonData = json.loads(filterinfo)
     htmlText = jsonData['schema']['filter']['htmlText']
     data = htmlText
-    #raise Exception(left(data, 5))
-    if data[:5] != '<div>':
+    if u'div' not in data[:11]:
         data = "<div>%s</div>" % data
     settings = u'''
     <properties>
