@@ -91,7 +91,7 @@ create table act_ge_bytearray (
     id_ varchar(64) not null,
     rev_ int,
     name_ varchar(255),
-    deployment_id_ varchar(64) not null default '',
+    deployment_id_ varchar(64),
     bytes_ blob,
     generated_ bit,
     constraint pk_bytearray primary key (id_)
@@ -116,7 +116,7 @@ create table act_re_model (
     last_update_time_ datetime,
     version_ int,
     meta_info_ varchar(4000),
-    deployment_id_ varchar(64) not null default '',
+    deployment_id_ varchar(64),
     editor_source_value_id_ varchar(64) not null default '',
     editor_source_extra_value_id_ varchar(64) not null default '',
     tenant_id_ varchar(255) default '',
@@ -127,10 +127,10 @@ create table act_ru_execution (
     id_ varchar(64) not null,
     rev_ int,
     proc_inst_id_ varchar(64) not null default '',
-    business_key_ varchar(255) not null default '',
-    parent_id_ varchar(64) not null default '',
+    business_key_ varchar(255),
+    parent_id_ varchar(64),
     proc_def_id_ varchar(64) not null default '',
-    super_exec_ varchar(64) not null default '',
+    super_exec_ varchar(64),
     act_id_ varchar(255),
     is_active_ bit,
     is_concurrent_ bit,
@@ -207,12 +207,12 @@ create table act_ru_task(
 create table act_ru_identitylink (
     id_ varchar(64) not null,
     rev_ int,
-    group_id_ varchar(255) not null default '',
+    group_id_ varchar(255),
     type_ varchar(255),
     user_id_ varchar(255) not null default '',
-    task_id_ varchar(64) not null default '',
+    task_id_ varchar(64),
     proc_inst_id_ varchar(64) not null default '',
-    proc_def_id_ varchar (64) not null default '',
+    proc_def_id_ varchar (64),
     constraint pk_identitylink primary key (id_)
 )with no version check;
 
@@ -223,8 +223,8 @@ create table act_ru_variable (
     name_ varchar(255) not null,
     execution_id_ varchar(64) not null default '',
     proc_inst_id_ varchar(64) not null default '',
-    task_id_ varchar(64) not null default '',
-    bytearray_id_ varchar(64) not null default '',
+    task_id_ varchar(64),
+    bytearray_id_ varchar(64),
     double_ real,
     long_ int,
     text_ varchar(4000),
@@ -267,10 +267,10 @@ create table act_evt_log (
 create table act_hi_procinst (
     id_ varchar(64) not null,
     proc_inst_id_ varchar(64) not null,
-    business_key_ varchar(255) not null default '',
+    business_key_ varchar(255),
     proc_def_id_ varchar(64) not null,
     start_time_ datetime not null,
-    end_time_ datetime not null default '21000101',
+    end_time_ datetime,
     duration_ real,
     start_user_id_ varchar(255),
     start_act_id_ varchar(255),
@@ -294,7 +294,7 @@ create table act_hi_actinst (
     act_type_ varchar(255) not null,
     assignee_ varchar(255),
     start_time_ datetime not null,
-    end_time_ datetime not null default '21000101',
+    end_time_ datetime,
     duration_ real,
     tenant_id_ varchar(255) default '',
     constraint pk_hi_actinst primary key (id_)
@@ -347,8 +347,8 @@ create table act_hi_detail (
     type_ varchar(255) not null,
     proc_inst_id_ varchar(64) not null default '',
     execution_id_ varchar(64),
-    task_id_ varchar(64) not null default '',
-    act_inst_id_ varchar(64) not null default '',
+    task_id_ varchar(64),
+    act_inst_id_ varchar(64),
     name_ varchar(255) not null,
     var_type_ varchar(64),
     rev_ int,
@@ -393,7 +393,7 @@ create table act_hi_identitylink (
     group_id_ varchar(255),
     type_ varchar(255),
     user_id_ varchar(255) not null default '',
-    task_id_ varchar(64) not null default '',
+    task_id_ varchar(64),
     proc_inst_id_ varchar(64) not null default '',
     constraint pk_hi_ident primary key (id_)
 )with no version check;
@@ -503,14 +503,11 @@ inner join celesta.userroles as userroles
 on subjects.sid = userroles.userid
 where roleid = 'workflowDev' or roleid = 'workflowUser';
 
-create index act_idx_exec_buskey on act_ru_execution(business_key_);
 create index act_idx_task_create on act_ru_task(create_time_);
 create index act_idx_ident_lnk_user on act_ru_identitylink(user_id_);
-create index act_idx_ident_lnk_group on act_ru_identitylink(group_id_);
 create index act_idx_event_subscr_config_ on act_ru_event_subscr(configuration_);
-create index act_idx_variable_task_id on act_ru_variable(task_id_);
 
-create index act_idx_bytear_depl on act_ge_bytearray(deployment_id_);
+
 alter table act_ge_bytearray
     add constraint act_fk_bytearr_depl
     foreign key (deployment_id_) 
@@ -524,13 +521,11 @@ alter table act_ru_execution
     foreign key (proc_inst_id_) 
     references act_ru_execution (id_);
 
-create index act_idx_exe_parent on act_ru_execution(parent_id_);
 alter table act_ru_execution
     add constraint act_fk_exe_parent
     foreign key (parent_id_) 
     references act_ru_execution (id_);
     
-create index act_idx_exe_super on act_ru_execution(super_exec_);
 alter table act_ru_execution
     add constraint act_fk_exe_super
     foreign key (super_exec_) 
@@ -543,13 +538,11 @@ alter table act_ru_execution
     references act_re_procdef (id_);    
     
 
-create index act_idx_tskass_task on act_ru_identitylink(task_id_);
 alter table act_ru_identitylink
     add constraint act_fk_tskass_task
     foreign key (task_id_) 
     references act_ru_task (id_);
     
-create index act_idx_athrz_procedef on act_ru_identitylink(proc_def_id_);
 alter table act_ru_identitylink
     add constraint act_fk_athrz_procedef
     foreign key (proc_def_id_) 
@@ -591,7 +584,6 @@ alter table act_ru_variable
     foreign key (proc_inst_id_)
     references act_ru_execution(id_);
 
-create index act_idx_var_bytearray on act_ru_variable(bytearray_id_);
 alter table act_ru_variable 
     add constraint act_fk_var_bytearray 
     foreign key (bytearray_id_) 
@@ -620,28 +612,21 @@ alter table act_re_model
     add constraint act_fk_model_source_extra 
     foreign key (editor_source_extra_value_id_) 
     references act_ge_bytearray (id_);
-    
-create index act_idx_model_deployment on act_re_model(deployment_id_);    
+      
 alter table act_re_model 
     add constraint act_fk_model_deployment 
     foreign key (deployment_id_) 
     references act_re_deployment (id_); 
 
-create index act_idx_hi_pro_inst_end on act_hi_procinst(end_time_);
-create index act_idx_hi_pro_i_buskey on act_hi_procinst(business_key_);
 create index act_idx_hi_act_inst_start on act_hi_actinst(start_time_);
-create index act_idx_hi_act_inst_end on act_hi_actinst(end_time_);
 create index act_idx_hi_detail_proc_inst on act_hi_detail(proc_inst_id_);
-create index act_idx_hi_detail_act_inst on act_hi_detail(act_inst_id_);
 create index act_idx_hi_detail_time on act_hi_detail(time_);
 create index act_idx_hi_detail_name on act_hi_detail(name_);
-create index act_idx_hi_detail_task_id on act_hi_detail(task_id_);
 create index act_idx_hi_procvar_proc_inst on act_hi_varinst(proc_inst_id_);
 create index act_idx_hi_procvar_name_type on act_hi_varinst(name_, var_type_);
 create index act_idx_hi_act_inst_procinst on act_hi_actinst(proc_inst_id_, act_id_);
 create index act_idx_hi_act_inst_exec on act_hi_actinst(execution_id_, act_id_);
 create index act_idx_hi_ident_lnk_user on act_hi_identitylink(user_id_);
-create index act_idx_hi_ident_lnk_task on act_hi_identitylink(task_id_);
 create index act_idx_hi_ident_lnk_procinst on act_hi_identitylink(proc_inst_id_);
 
 
