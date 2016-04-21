@@ -1,8 +1,9 @@
 # coding: utf-8
 
-from common.navigator import navigatorsParts
-from fileRepository.navigator import navigatorFileRepository
 import initcontext
+from common.navigator import navigatorsParts
+from fileRepository.numbersSeries.tablesInit import initTables
+from fileRepository.navigator import navigatorFileRepository
 from functions import clusterInit
 from common.grainssettings import SettingsManager
 
@@ -18,5 +19,7 @@ try:
         grains_settings_XML.setGrainSettings("frSettings/parameter[@name='isSystemInitialised']/@value", 'true', 'fileRepository') 
 except IndexError:
     print('File repository is not initialized')
+    
+initTables(context)
 
     

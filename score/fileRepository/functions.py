@@ -165,7 +165,7 @@ def getPathToFile(context, current_cluster_num):
     if files_version_cursor.fileName:
         ''' Следующая функция создаёт следующий по порядку файл и прописывает(создает) для него путь '''
         path_to_file = createDirectories(temp_path, files_version_cursor.fileName, file_multiplicator, amount_and_nest['filesAmount'])
-        file_name = path_to_file[path_to_file.rfind('\\')+1:]   # Вытаскиваем имя файла
+        file_name = os.path.basename(path_to_file)   # Вытаскиваем имя файла
         if not path_to_file:
             context.error(u'В текущих кластерах слишком много файлов, создайте новый кластер.')
     else:
@@ -174,20 +174,20 @@ def getPathToFile(context, current_cluster_num):
         '''Чистим директорию от посторонних объектов.'''
         try:
             for directory in dirs:
-                shutil.rmtree('\\'.join([root, directory]))
+                shutil.rmtree(os.path.join(root, directory))
             for fil in files:
-                os.remove('\\'.join([root, fil]))
+                os.remove(os.path.join(root, fil))
         except:
             context.error(u'Недостаточно прав для очистки выбранной под кластер папки. Выберите другой адрес.')
         '''Создаем путь до первого файла в кластере.'''
         i = 0
         while i < amount_and_nest['nestingSize']:
             temp_path += '\\%s1' % ('0' * (file_multiplicator-1))     # Составляем путь до папки, где будут лежать файлa
-            os.mkdir(temp_path)
+            os.mkdir(os.path.abspath(temp_path))
             i += 1
 
         file_name = ('0' * (file_multiplicator - 1) + '1') * (amount_and_nest['nestingSize'] + 1)  # Составляем имя первого файла в кластере
-        path_to_file = '\\'.join([temp_path, file_name])
+        path_to_file = os.path.join(temp_path, file_name)
         
     return path_to_file, file_name, amount_and_nest
 
@@ -225,12 +225,12 @@ def createDirectories(path, file_name, file_multiplicator, restriction):
     '''Создаём корректный путь к размещаемому файлу.'''
     dir_names = [str(x).zfill(file_multiplicator) for x in dir_names]
     for dir_name in dir_names[:-1]:
-        path = '\\'.join([path, dir_name])        
+        path = os.path.join(path, dir_name)
         if not os.path.isdir(path):
             os.mkdir(path)
     '''Составляем имя файла.'''
     file_name = ''.join(dir_names)   
-    return '\\'.join([path, file_name])
+    return os.path.join(path, file_name)
 
 
 def nameToPathList(file_name, file_multiplicator):
@@ -288,7 +288,7 @@ def throughListToPath(cluster_path, file_name, file_multiplicator):
     path_to_dying_file = [cluster_path]                                             # Путь до кластера
     path_to_dying_file.extend(nameToPathList(file_name, file_multiplicator)[:-1])   # Путь до файла, последний элемент - порядковый номер файла
     path_to_dying_file.append(file_name)                                            # Собственно файл
-    path_to_dying_file = '\\'.join(path_to_dying_file)            # Обращаем в путь
+    path_to_dying_file = os.path.abspath('\\'.join(path_to_dying_file))            # Обращаем в путь
     return path_to_dying_file    
 
 
@@ -326,7 +326,7 @@ def downloadFile(context, file_id):
 def grainsSettingsPath():
     '''Функция возвращает путь к grainsSettings.xml'''
     path_to_grainsS = os.path.abspath(__file__)
-    path_to_grainsS = '%s//%s' % (path_to_grainsS[:path_to_grainsS.find('common.sys')], 'grainsSettings.xml')
+    path_to_grainsS = os.path.join(path_to_grainsS[:path_to_grainsS.find('common.sys')], 'grainsSettings.xml')
     if not os.path.exists(path_to_grainsS):
         return None
     return path_to_grainsS
@@ -355,9 +355,9 @@ def profilactic(context):
                     '''Чистим директорию от посторонних объектов.'''
                     try:
                         for directory in dirs:
-                            shutil.rmtree('\\'.join([root, directory]))
+                            shutil.rmtree(os.path.join(root, directory))
                         for fil in files:
-                            os.remove('\\'.join([root, fil]))
+                            os.remove(os.path.join(root, fil))
                     except:
                         raise Exception(u'Недостаточно прав для очистки выбранной под кластер папки. Выберите другой адрес.')
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table name="numbersSeries">
+	<row>
+		<field name="id">
+			filesNS
+		</field>
+		<field name="description">
+			Серия номеров для файлов.
+		</field>
+	</row>	<row>
+		<field name="id">
+			fileVerNS
+		</field>
+		<field name="description">
+			Серия номеров для журнала файлов.
+		</field>
+	</row>	
+</table>
