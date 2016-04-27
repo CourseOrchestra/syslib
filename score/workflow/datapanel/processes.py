@@ -217,7 +217,7 @@ def manageProcesses(context, main=None, session=None):
                                             {"@id":"finishedProcessEventsGrid",
                                             "@type":"grid",
                                             "@hideOnLoad":"true",
-                                            "@proc":"workflow.grid.finishedProcessEventsGrid.gridDataAndMeta.celesta",
+                                            "@proc":"workflow.grid.finishedProcessEventsGrid.gridData.celesta",
                                             "@subtype":"JS_LIVE_GRID",
                                             "@plugin":"liveDGrid",
                                             "related":{
@@ -226,7 +226,10 @@ def manageProcesses(context, main=None, session=None):
                                             "proc":[{
                                                     "@id":1,
                                                     "@name":"workflow.grid.finishedProcessEventsGrid.gridToolBar.celesta",
-                                                    "@type":"TOOLBAR"}
+                                                    "@type":"TOOLBAR"},
+                                                    {"@id": "finishedProcessEventsMeta",
+                                                     "@name": "workflow.grid.finishedProcessEventsGrid.getSettings.celesta",
+                                                     "@type": "METADATA"}
                                                     ]
                                             }
 

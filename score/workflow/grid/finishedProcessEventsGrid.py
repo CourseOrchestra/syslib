@@ -6,8 +6,7 @@ Created on 27.10.2014
 @author: tr0glo)|(I╠╣
 '''
 
-
-import simplejson as json
+import json
 from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject
@@ -18,15 +17,10 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO, JythonDownloadResult
 
-
-
-
-def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
-             session=None, elementId=None, sortColumnList=[]):
-    u'''Функция получения списка всех запущенных процессов. '''
+def gridData(context, main=None, add=None, filterinfo=None,
+             session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
     session = json.loads(session)
-    gridWidth = getGridWidth(session, 60)
-    gridHeight = getGridHeight(session,2)
+
     # raise Exception(session)
     procId = session["sessioncontext"]['related']['gridContext']["currentRecordId"]
     activiti = ActivitiObject()
@@ -100,7 +94,6 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     for column in _header:
         _header[column].append(toHexForXml(_header[column][0]))
     # Проходим по таблице и заполняем data
-    # raise Exception(processesList)
 
     for instance in sorted(answerList, reverse=True):
         procDict = {}
@@ -111,22 +104,59 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
         procDict[_header["value"][1]] = instance[5]
         procDict[_header["comment"][1]] = instance[6]
         procDict[_header["date"][1]] = SimpleDateFormat("HH:mm dd.MM.yyyy").format(instance[0])
-#         procDict[_header["schema"][1]] = {"div":
-#                                            {"@align": "center",
-#                                             "img":
-#                                             {"@src": "solutions/default/resources/flowblock.png", "@height": "20px"}}}
-        # procDict[_header["description"][1]] = process.description
-        # procDict[_header["version"][1]] = process.version
+
         procDict[_header["properties"][1]] = { }
         data["records"]["rec"].append(procDict)
-    #raise Exception(data)
+
+    res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
+
+    return JythonDTO(res1, None)
+
+
+def getSettings(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
+    u'''Функция получения списка всех запущенных процессов. '''
+    session = json.loads(session)
+
+    gridHeight = getGridHeight(session,2)
+    # raise Exception(session)
+    procId = session["sessioncontext"]['related']['gridContext']["currentRecordId"]
+    activiti = ActivitiObject()
+    procInstance = activiti.historyService.createHistoricProcessInstanceQuery().processInstanceId(procId).singleResult()
+    answerCount = 2
+
+    taskList = activiti.historyService.createHistoricTaskInstanceQuery().processInstanceId(procInstance.getId()).list()
+
+    for task in taskList:
+        if task.getStartTime() is not None:
+            answerCount = answerCount + 1
+
+        if task.getEndTime() is not None:
+            answerCount = answerCount + 1
+    # raise Exception(answerList)
+    variableList = activiti.historyService.createHistoricDetailQuery().processInstanceId(procInstance.getId()).excludeTaskDetails().list()
+    if variableList:
+        answerCount = answerCount + len(variableList)
+
+    _header = {"id":["~~id"],
+             "pid":[u"Код"],
+             "name":[u"Название"],
+             "description":[u"Описание"],
+             "type":[u"Тип"],
+             "date":[u"Дата"],
+             "comment":[u"Комментарий"],
+             "properties":[u"properties"],
+             "value":[u"Значение"]}
+
+    for column in _header:
+        _header[column].append(toHexForXml(_header[column][0]))
+
     # Определяем список полей таблицы для отображения
     settings = {}
     settings["gridsettings"] = {"columns": {"col":[]},
                                 "properties": {"@pagesize":"50",
-                                               "@gridWidth": gridWidth,
-                                               "@gridHeight": "300",
-                                               "@totalCount": len(answerList),
+                                               "@gridWidth": "100%",
+                                               "@gridHeight": gridHeight,
+                                               "@totalCount": answerCount,
                                                "@profile":"default.properties"},
                                 "labels":{"header":"События"}
                                 }
@@ -137,12 +167,134 @@ def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["value"][0], "@width": "100px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["date"][0], "@width": "100px"})
     settings["gridsettings"]["columns"]["col"].append({"@id":_header["comment"][0], "@width": "200px"})
-    # settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
-    # settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "400px"})
-    res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
+
     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
 
-    return JythonDTO(res1, res2)
+    return JythonDTO(None, res2)
+
+# 
+# def gridDataAndMeta(context, main=None, add=None, filterinfo=None,
+#              session=None, elementId=None, sortColumnList=[]):
+#     u'''Функция получения списка всех запущенных процессов. '''
+#     session = json.loads(session)
+#     gridWidth = getGridWidth(session, 60)
+#     gridHeight = getGridHeight(session,2)
+#     # raise Exception(session)
+#     procId = session["sessioncontext"]['related']['gridContext']["currentRecordId"]
+#     activiti = ActivitiObject()
+#     procInstance = activiti.historyService.createHistoricProcessInstanceQuery().processInstanceId(procId).singleResult()
+#     answerList = list()
+#     pushList = list()
+#     pushList.append(procInstance.getStartTime())
+#     pushList.append(procInstance.getId() + 'pis')
+#     pushList.append(procInstance.getName())
+#     pushList.append(u'Старт процесса')
+#     pushList.append(procInstance.getId())
+#     pushList.append('')
+#     pushList.append('')
+#     answerList.append(pushList)
+#     pushList = list()
+#     pushList.append(procInstance.getEndTime())
+#     pushList.append(procInstance.getId() + 'pif')
+#     pushList.append(procInstance.getName())
+#     pushList.append(u'Завершение процесса')
+#     pushList.append(procInstance.getId())
+#     pushList.append('')
+#     pushList.append('')
+#     answerList.append(pushList)
+#     taskList = activiti.historyService.createHistoricTaskInstanceQuery().processInstanceId(procInstance.getId()).list()
+# 
+#     for task in taskList:
+#         if task.getStartTime() is not None:
+#             pushList = list()
+#             pushList.append(task.getStartTime())
+#             pushList.append(task.getId() + 's')
+#             pushList.append(task.getName())
+#             pushList.append(u'Старт задачи')
+#             pushList.append(task.getId())
+#             pushList.append('')
+#             pushList.append('')
+#             answerList.append(pushList)
+# 
+#         if task.getEndTime() is not None:
+#             pushList = list()
+#             pushList.append(task.getEndTime())
+#             pushList.append(task.getId() + 'f')
+#             pushList.append(task.getName())
+#             pushList.append(u'Конец задачи')
+#             pushList.append(task.getId())
+#             pushList.append('')
+#             pushList.append(' '.join([comment.getFullMessage() for comment in activiti.taskService.getTaskComments(task.id)]))
+#             answerList.append(pushList)
+#     # raise Exception(answerList)
+#     variableList = activiti.historyService.createHistoricDetailQuery().processInstanceId(procInstance.getId()).excludeTaskDetails().list()
+#     for variable in variableList:
+#         pushList = list()
+#         pushList.append(variable.getTime())
+#         pushList.append(variable.getId() + 'v')
+#         pushList.append(variable.getName())
+#         pushList.append(u'Изменение переменной')
+#         pushList.append(variable.getId())
+#         pushList.append(unicode(variable.getValue()))
+#         pushList.append('')
+#         answerList.append(pushList)
+#     data = {"records":{"rec":[]}}
+#     _header = {"id":["~~id"],
+#              "pid":[u"Код"],
+#              "name":[u"Название"],
+#              "description":[u"Описание"],
+#              "type":[u"Тип"],
+#              "date":[u"Дата"],
+#              "comment":[u"Комментарий"],
+#              "properties":[u"properties"],
+#              "value":[u"Значение"]}
+# 
+#     for column in _header:
+#         _header[column].append(toHexForXml(_header[column][0]))
+#     # Проходим по таблице и заполняем data
+#     # raise Exception(processesList)
+# 
+#     for instance in sorted(answerList, reverse=True):
+#         procDict = {}
+#         procDict[_header["id"][1]] = instance[1]
+#         procDict[_header["pid"][1]] = instance[4]
+#         procDict[_header["name"][1]] = instance[2]
+#         procDict[_header["type"][1]] = instance[3]
+#         procDict[_header["value"][1]] = instance[5]
+#         procDict[_header["comment"][1]] = instance[6]
+#         procDict[_header["date"][1]] = SimpleDateFormat("HH:mm dd.MM.yyyy").format(instance[0])
+# #         procDict[_header["schema"][1]] = {"div":
+# #                                            {"@align": "center",
+# #                                             "img":
+# #                                             {"@src": "solutions/default/resources/flowblock.png", "@height": "20px"}}}
+#         # procDict[_header["description"][1]] = process.description
+#         # procDict[_header["version"][1]] = process.version
+#         procDict[_header["properties"][1]] = { }
+#         data["records"]["rec"].append(procDict)
+#     #raise Exception(data)
+#     # Определяем список полей таблицы для отображения
+#     settings = {}
+#     settings["gridsettings"] = {"columns": {"col":[]},
+#                                 "properties": {"@pagesize":"50",
+#                                                "@gridWidth": gridWidth,
+#                                                "@gridHeight": "300",
+#                                                "@totalCount": len(answerList),
+#                                                "@profile":"default.properties"},
+#                                 "labels":{"header":"События"}
+#                                 }
+#     # Добавляем поля для отображения в gridsettings
+#     settings["gridsettings"]["columns"]["col"].append({"@id":_header["pid"][0], "@width": "50px"})
+#     settings["gridsettings"]["columns"]["col"].append({"@id":_header["name"][0], "@width": "300px"})
+#     settings["gridsettings"]["columns"]["col"].append({"@id":_header["type"][0], "@width": "100px"})
+#     settings["gridsettings"]["columns"]["col"].append({"@id":_header["value"][0], "@width": "100px"})
+#     settings["gridsettings"]["columns"]["col"].append({"@id":_header["date"][0], "@width": "100px"})
+#     settings["gridsettings"]["columns"]["col"].append({"@id":_header["comment"][0], "@width": "200px"})
+#     # settings["gridsettings"]["columns"]["col"].append({"@id":_header["version"][0], "@width": "100px"})
+#     # settings["gridsettings"]["columns"]["col"].append({"@id":_header["description"][0], "@width": "400px"})
+#     res1 = XMLJSONConverter.jsonToXml(json.dumps(data))
+#     res2 = XMLJSONConverter.jsonToXml(json.dumps(settings))
+# 
+#     return JythonDTO(res1, res2)
 
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Toolbar для грида. '''

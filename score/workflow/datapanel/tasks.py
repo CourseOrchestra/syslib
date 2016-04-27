@@ -217,9 +217,13 @@ def drawTasksByProcId(context, main=None, session=None):
                 },
                {"@id":"tasksGrid",
                 "@type":"grid",
-                "@proc":"workflow.grid.activeTasksByProcIdGrid.gridDataAndMeta.celesta",
+                "@proc":"workflow.grid.activeTasksByProcIdGrid.getData.celesta",
                 "@subtype":"JS_LIVE_GRID",
                 "@plugin":"liveDGrid",
+                "proc":[
+                    {"@id": "tasksMeta",
+                     "@name": "workflow.grid.activeTasksByProcIdGrid.getMeta.celesta",
+                     "@type": "METADATA"}],
                 "related":{"@id":"tasksFilter"},
 #                 "proc":[{
 #                         "@id":1,
