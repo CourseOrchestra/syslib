@@ -23,7 +23,8 @@ def htmlHintElement(elementId):
         '@id': elementId,
         '@type': 'xforms',
         '@proc': 'common.htmlhints.htmlHint.cardData.celesta',
-        '@template': 'common/htmlHints/htmlHint.xml',
+        #'@template': 'common/htmlHints/htmlHint.xml',
+        '@template': 'common.htmlhints.htmlHintXForm.xformTemplate.celesta',
         '@hideOnLoad': 'false',
         'proc': {
             '@id': 'save',
@@ -46,11 +47,19 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             htmlText = u""
             showOnLoad = 0
         showOnLoad = htmlHints.showOnLoad
-        if showOnLoad is None:
-            showOnLoad = 0
+        fullScreen = htmlHints.fullScreen
+        if showOnLoad == 1: 
+            showOnLoad='true' 
+        else:
+            showOnLoad='false'
+        if fullScreen == 1: 
+            fullScreen='true' 
+        else:
+            fullScreen='false'
     else:
         htmlText = u""
-        showOnLoad = 0
+        fullScreen='false'
+        showOnLoad = 'true'
     if userHasPermission(context, sid, 'htmlHintsEdit'):
         userPerm = 1
     else:
@@ -62,7 +71,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             "showHideHint": showOnLoad,
             "showOnLoad": showOnLoad,
             "showHideEdit": 0,
-            "userPerm": userPerm
+            "userPerm": userPerm,
+            "fullScreen": fullScreen
         }
     }
 
@@ -96,14 +106,25 @@ def cardSave(context, main=None, add=None, filterinfo=None, session=None,
 
     htmlText = json.loads(xformsdata)["schema"]["htmlText"]
     showOnLoad = json.loads(xformsdata)["schema"]["showOnLoad"]
+    fullScreen = json.loads(xformsdata)["schema"]["fullScreen"]
+    if showOnLoad == 'true': 
+        showOnLoad=1 
+    else:
+        showOnLoad=0
+    if fullScreen == 'true': 
+        fullScreen=1 
+    else:
+        fullScreen=0
     if htmlHints.tryGet(elementId):
         htmlHints.htmlText = htmlText
         htmlHints.showOnLoad = showOnLoad
+        htmlHints.fullScreen = fullScreen
         htmlHints.update()
     else:
         htmlHints.elementId = elementId
         htmlHints.htmlText = htmlText
         htmlHints.showOnLoad = showOnLoad
+        htmlHints.fullScreen = fullScreen
         htmlHints.insert()
 
 
