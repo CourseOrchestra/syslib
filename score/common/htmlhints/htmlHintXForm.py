@@ -22,6 +22,8 @@ def xformTemplate(context, main=None, add=None, filterinfo=None, session=None, e
     htmlHints = htmlHintsCursor(context)
     if htmlHints.tryGet(elementId):
         fullScreen = htmlHints.fullScreen
+    else:
+        fullScreen = 0
     if fullScreen==1:
         if not isinstance(session, dict):
             width = unicode(int(json.loads(session)["sessioncontext"]["currentDatapanelWidth"])) + "px"
