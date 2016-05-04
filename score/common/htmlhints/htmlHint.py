@@ -11,6 +11,8 @@ from common._common_orm import htmlHintsCursor
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from security.functions import userHasPermission
 from org.apache.commons.lang3.StringEscapeUtils import unescapeHtml4
+from xml.sax import make_parser, handler, ContentHandler
+import StringIO
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -127,16 +129,26 @@ def cardSave(context, main=None, add=None, filterinfo=None, session=None,
         htmlHints.fullScreen = fullScreen
         htmlHints.insert()
 
+class parserSAXHandlerhtmlEdit(ContentHandler):
+    def __init__(self):
+        self.firstDiv = False
 
 def htmlEdit(context, main, add, filterinfo, session, elementId):
     jsonData = json.loads(filterinfo)
     htmlText = jsonData['schema']['filter']['htmlText']
     data = htmlText
-    if u'div' not in data[:11]:
+    try:
+        parser = make_parser()
+        handler = parserSAXHandlerhtmlEdit()
+        parser.setContentHandler(handler)
+        parser.parse(StringIO.StringIO(unescapeHtml4(data).encode('utf8')))
+    except:
         data = "<div>%s</div>" % data
+        pass
     settings = u'''
     <properties>
     </properties>
     '''
+    
     res = JythonDTO(unescapeHtml4(data), settings)
     return res
