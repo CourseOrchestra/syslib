@@ -43,27 +43,27 @@ def xformTemplate(context, main=None, add=None, filterinfo=None, session=None, e
     xformXml = u'''<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="xsltforms/xsltforms.xsl" type="text/xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ev="http://www.w3.org/2001/xml-events"
-	xmlns:xsd="http://www.w3.org/2001/XMLschema" xmlns:fs="http://www.curs.ru/ns/FormServer"
-	xmlns:xf="http://www.w3.org/2002/xforms" xmlns:xsltforms="http://www.agencexml.com/xsltforms" xmlns:rte="http://www.agencexml.com/xsltforms/rte">
+    xmlns:xsd="http://www.w3.org/2001/XMLschema" xmlns:fs="http://www.curs.ru/ns/FormServer"
+    xmlns:xf="http://www.w3.org/2002/xforms" xmlns:xsltforms="http://www.agencexml.com/xsltforms" xmlns:rte="http://www.agencexml.com/xsltforms/rte">
     <head>
-	<style type="text/css">
-	.htmlOutput {
+    <style type="text/css">
+    .htmlOutput {
             display: block;
-			width: 98.6%;
-			background: rgba(210, 227, 243, 0.25);
-			padding: 5px;
-			margin-left: 2px;
-			overflow: auto;
-			max-height: '''+height+''';
-			}
-	.htmlOutput .xforms-value {
-		white-space: normal;
-	}
-			
-			
-	</style>
+            width: 98.6%;
+            background: rgba(210, 227, 243, 0.25);
+            padding: 5px;
+            margin-left: 2px;
+            overflow: auto;
+            max-height: '''+height+''';
+            }
+    .htmlOutput .xforms-value {
+        white-space: normal;
+    }
+            
+            
+    </style>
         <xf:model id="xformId_mainModel">
-		
+        
             <xf:instance id="xformId_mainInstance">
                 <schema xmlns=""/>
             </xf:instance>
@@ -83,18 +83,18 @@ def xformTemplate(context, main=None, add=None, filterinfo=None, session=None, e
             </xf:instance>
 
             <xf:bind>
-				<xf:bind nodeset="instance('xformId_mainInstance')/htmlText" readonly="false()"></xf:bind>
-				<xf:bind nodeset="instance('xformId_mainInstance')/fullScreen" type="boolean"></xf:bind>
-				<xf:bind nodeset="instance('xformId_mainInstance')/showOnLoad" type="boolean"></xf:bind>
+                <xf:bind nodeset="instance('xformId_mainInstance')/htmlText" readonly="false()"></xf:bind>
+                <xf:bind nodeset="instance('xformId_mainInstance')/fullScreen" type="boolean"></xf:bind>
+                <xf:bind nodeset="instance('xformId_mainInstance')/showOnLoad" type="boolean"></xf:bind>
             </xf:bind>
-			
+            
         </xf:model>
         <script type="text/javascript"/>
-		
+        
     </head>
     <body>
         <!--xf:output value="serialize(instance('xformId_mainInstance'))"></xf:output-->
-		<!--div style="min-height: 0px; margin-bot: 10px; float: left; clear: both; width:20px; height:20px;">
+        <!--div style="min-height: 0px; margin-bot: 10px; float: left; clear: both; width:20px; height:20px;">
             <xf:trigger class="groupHeader" id="xformId_Tab0001Button" appearance="minimal">
                 <xf:label><xf:output value="''"></xf:output><xf:output mediatype="image/*" value="if(instance('xformId_mainInstance')/showHideHint = 0, './solutions/default/resources/help.png', './solutions/default/css/images/window-close.png')"></xf:output></xf:label>
                 <xf:action ev:event="DOMActivate">
@@ -102,149 +102,149 @@ def xformTemplate(context, main=None, add=None, filterinfo=None, session=None, e
                 </xf:action>
             </xf:trigger>
         </div-->
-		<xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 'false']">
-			<div class="break button100" style="width: 100px; margin-top: 2px; float: left; ">
-				<xf:trigger class="break" style="margin-top: 0px">
-					<xf:label>Справка</xf:label>
-					<xf:action ev:event="DOMActivate">
-							<xf:setvalue ref="instance('xformId_mainInstance')/showHideHint" value="'true'"></xf:setvalue>
-					</xf:action>
-				</xf:trigger>
-			</div>
-		</xf:group>
-		<xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 'true']">
-			<div class="break button100" style="width: 100px; margin-top: 2px; margin-bottom: 2px; float: left; ">
-				<xf:trigger class="break" style="margin-top: 0px">
-					<xf:label>Свернуть</xf:label>
-					<xf:action ev:event="DOMActivate">
-							<xf:setvalue ref="instance('xformId_mainInstance')/showHideHint" value="'false'"></xf:setvalue>
-					</xf:action>
-				</xf:trigger>
-			</div>
-		</xf:group>
-		<xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 'true']">
-				<xf:output class="htmlOutput" value="instance('xformId_mainInstance')/htmlText" mediatype="application/xhtml+xml"></xf:output>
-			<xf:group ref=".[instance('xformId_mainInstance')/userPerm = 1]">
-				<!--div style="min-height: 0px; margin-top: 2px; float: right; clear: both; width:20px; height:20px;">
-					<xf:trigger class="groupHeader" id="xformId_Tab0002Button" appearance="minimal">
-						<xf:label><xf:output value="''"></xf:output><xf:output mediatype="image/*" value="if(instance('xformId_mainInstance')/showHideEdit = 0, './solutions/default/resources/edit3.png', './solutions/default/css/images/window-close.png')"></xf:output></xf:label>
-						<xf:action ev:event="DOMActivate">
-							<xf:setvalue ref="instance('xformId_mainInstance')/showHideEdit" value="1 - instance('xformId_mainInstance')/showHideEdit"></xf:setvalue>
-						</xf:action>
-					</xf:trigger>
-				</div-->
-				<xf:group ref=".[instance('xformId_mainInstance')/showHideEdit = 0]">
-					<div class="break button100" style="width: 100px; margin-top: 2px; float: right;">
-						<xf:trigger class="break" style="margin-top: 0px">
-							<xf:label>Настройки</xf:label>
-							<xf:action ev:event="DOMActivate">
-									<xf:setvalue ref="instance('xformId_mainInstance')/showHideEdit" value="1 - instance('xformId_mainInstance')/showHideEdit"></xf:setvalue>
-						</xf:action>
-						</xf:trigger>
-					</div>
-				</xf:group>
-				<xf:group ref=".[instance('xformId_mainInstance')/showHideEdit = 1]">
-					<div class="break button100" style="width: 100px; margin-top: 2px; float: right; ">
-						<xf:trigger class="break" style="margin-top: 0px">
-							<xf:label>Свернуть</xf:label>
-							<xf:action ev:event="DOMActivate">
-									<xf:setvalue ref="instance('xformId_mainInstance')/showHideEdit" value="1 - instance('xformId_mainInstance')/showHideEdit"></xf:setvalue>
-						</xf:action>
-						</xf:trigger>
-					</div>
-				</xf:group>
-			</xf:group>
-			<xf:group ref=".[instance('xformId_mainInstance')/showHideEdit = 1]">
-				<div class="button200" style="width: 200px; margin-top: 2px; float: right; clear: both;">
-					<xf:trigger class="break" style="margin-top: 0px">
-						<xf:label>Редактировать подсказку</xf:label>
-						<xf:action ev:event="DOMActivate">
-							<xf:load
-								resource="javascript:gwtCreatePlugin({
-								id:'xformId',
-								/*parentId:'pluginWraper',*/
-								plugin:'htmlEditorTinymce',
-								generalFilters: ['XPath(instance(quot(xformId_mainInstance))/htmlText)'],
-								proc:'common.htmlhints.htmlHint.htmlEdit.celesta',
-								params:{
-								tinymce: {
-								plugins: ['textcolor', 'code', 'image', 'table', 'link', 'fullscreen', 'media', 'paste', 'textcolor', 'wordcount', 'visualblocks', 'preview', 'colorpicker'],
-								width: '1000',
-								height: '480'
-								}
-								},
-								options: {								
-								dataWidth: '1000px',
-								dataHeight: '600px',
-								windowCaption: 'Редактирование HTML',
-								onSelectionComplete: function(ok, plugin) {
-								if (ok) {
-								var elem = document.getElementById('html_editor').getElementsByTagName('textarea')[0];
-								elem.value = plugin.getTinymceEditor().getContent();
-								elem.style.visibility = 'visible';
-								elem.focus();
-								elem.blur();
-								elem.style.visibility = 'visible';
-								}
-								}
-								}
-								});"
-								></xf:load>
-						</xf:action>
-					</xf:trigger>
-				</div>
-				<div class="boolInput200 break" style="width: 200px;  margin-right: 15px; float: right; ">
-					<xf:input ref="instance('xformId_mainInstance')/fullScreen">
-						<xf:label>Показывать на весь экран</xf:label>
-						<xf:action ev:event="xforms-value-changed">
-							<xf:action ev:event="DOMActivate">
-								<xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
-							</xf:action>
-						</xf:action>
-					</xf:input>
-				</div>
-				<div class="boolInput200 break" style="width: 200px;  margin-right: 15px; float: right; ">
-					<xf:input ref="instance('xformId_mainInstance')/showOnLoad">
-						<xf:label>Показывать при загрузке</xf:label>
-						<xf:action ev:event="xforms-value-changed">
-							<xf:action ev:event="DOMActivate">
-								<xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
-							</xf:action>
-						</xf:action>
-					</xf:input>
-				</div>
-				<!--xf:group ref=".[instance('xformId_mainInstance')/showOnLoad = 1]">
-					<div class="button200" style="width: 200px; margin-top: 2px; margin-right: 2px; float: right; ">
-						<xf:trigger class="break" style="margin-top: 0px">
-							<xf:label>Скрывать при загрузке  </xf:label>
-							<xf:action ev:event="DOMActivate">
-									<xf:setvalue ref="instance('xformId_mainInstance')/showOnLoad" value="1 - instance('xformId_mainInstance')/showOnLoad"></xf:setvalue>
-									<xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
-							</xf:action>
-						</xf:trigger>
-					</div>
-				</xf:group>
-				<xf:group ref=".[instance('xformId_mainInstance')/showOnLoad != 1]">
-					<div class="button200" style="width: 200px; margin-top: 2px; margin-right: 2px; float: right; ">
-						<xf:trigger class="break" style="margin-top: 0px">
-							<xf:label>Показывать при загрузке</xf:label>
-							<xf:action ev:event="DOMActivate">
-									<xf:setvalue ref="instance('xformId_mainInstance')/showOnLoad" value="1 - instance('xformId_mainInstance')/showOnLoad"></xf:setvalue>
-									<xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
-							</xf:action>
-						</xf:trigger>
-					</div>
-				</xf:group-->
-				<xf:textarea id="html_editor" style="visibility: visible; padding: 5px; margin-top: 2px; margin-left: 2px; overflow: scroll; width: 50%; height: 20vh;"
-					ref="instance('xformId_mainInstance')/htmlText">
-					<xf:action ev:event="xforms-value-changed">
-						<xf:action ev:event="DOMActivate">
-							<xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
-						</xf:action>
-					</xf:action>
-				</xf:textarea>
-			</xf:group>
-		</xf:group>
+        <xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 'false']">
+            <div class="break button100" style="width: 100px; margin-top: 2px; float: left; ">
+                <xf:trigger class="break" style="margin-top: 0px">
+                    <xf:label>Справка</xf:label>
+                    <xf:action ev:event="DOMActivate">
+                            <xf:setvalue ref="instance('xformId_mainInstance')/showHideHint" value="'true'"></xf:setvalue>
+                    </xf:action>
+                </xf:trigger>
+            </div>
+        </xf:group>
+        <xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 'true']">
+            <div class="break button100" style="width: 100px; margin-top: 2px; margin-bottom: 2px; float: left; ">
+                <xf:trigger class="break" style="margin-top: 0px">
+                    <xf:label>Свернуть</xf:label>
+                    <xf:action ev:event="DOMActivate">
+                            <xf:setvalue ref="instance('xformId_mainInstance')/showHideHint" value="'false'"></xf:setvalue>
+                    </xf:action>
+                </xf:trigger>
+            </div>
+        </xf:group>
+        <xf:group ref=".[instance('xformId_mainInstance')/showHideHint = 'true']">
+                <xf:output class="htmlOutput" value="instance('xformId_mainInstance')/htmlText" mediatype="application/xhtml+xml"></xf:output>
+            <xf:group ref=".[instance('xformId_mainInstance')/userPerm = 1]">
+                <!--div style="min-height: 0px; margin-top: 2px; float: right; clear: both; width:20px; height:20px;">
+                    <xf:trigger class="groupHeader" id="xformId_Tab0002Button" appearance="minimal">
+                        <xf:label><xf:output value="''"></xf:output><xf:output mediatype="image/*" value="if(instance('xformId_mainInstance')/showHideEdit = 0, './solutions/default/resources/edit3.png', './solutions/default/css/images/window-close.png')"></xf:output></xf:label>
+                        <xf:action ev:event="DOMActivate">
+                            <xf:setvalue ref="instance('xformId_mainInstance')/showHideEdit" value="1 - instance('xformId_mainInstance')/showHideEdit"></xf:setvalue>
+                        </xf:action>
+                    </xf:trigger>
+                </div-->
+                <xf:group ref=".[instance('xformId_mainInstance')/showHideEdit = 0]">
+                    <div class="break button100" style="width: 100px; margin-top: 2px; float: right;">
+                        <xf:trigger class="break" style="margin-top: 0px">
+                            <xf:label>Настройки</xf:label>
+                            <xf:action ev:event="DOMActivate">
+                                    <xf:setvalue ref="instance('xformId_mainInstance')/showHideEdit" value="1 - instance('xformId_mainInstance')/showHideEdit"></xf:setvalue>
+                        </xf:action>
+                        </xf:trigger>
+                    </div>
+                </xf:group>
+                <xf:group ref=".[instance('xformId_mainInstance')/showHideEdit = 1]">
+                    <div class="break button100" style="width: 100px; margin-top: 2px; float: right; ">
+                        <xf:trigger class="break" style="margin-top: 0px">
+                            <xf:label>Свернуть</xf:label>
+                            <xf:action ev:event="DOMActivate">
+                                    <xf:setvalue ref="instance('xformId_mainInstance')/showHideEdit" value="1 - instance('xformId_mainInstance')/showHideEdit"></xf:setvalue>
+                        </xf:action>
+                        </xf:trigger>
+                    </div>
+                </xf:group>
+            </xf:group>
+            <xf:group ref=".[instance('xformId_mainInstance')/showHideEdit = 1]">
+                <div class="button200" style="width: 200px; margin-top: 2px; float: right; clear: both;">
+                    <xf:trigger class="break" style="margin-top: 0px">
+                        <xf:label>Редактировать подсказку</xf:label>
+                        <xf:action ev:event="DOMActivate">
+                            <xf:load
+                                resource="javascript:gwtCreatePlugin({
+                                id:'xformId',
+                                /*parentId:'pluginWraper',*/
+                                plugin:'htmlEditorTinymce',
+                                generalFilters: ['XPath(instance(quot(xformId_mainInstance))/htmlText)'],
+                                proc:'common.htmlhints.htmlHint.htmlEdit.celesta',
+                                params:{
+                                tinymce: {
+                                plugins: ['textcolor', 'code', 'image', 'table', 'link', 'fullscreen', 'media', 'paste', 'textcolor', 'wordcount', 'visualblocks', 'preview', 'colorpicker'],
+                                width: '1000',
+                                height: '480'
+                                }
+                                },
+                                options: {                                
+                                dataWidth: '1000px',
+                                dataHeight: '600px',
+                                windowCaption: 'Редактирование HTML',
+                                onSelectionComplete: function(ok, plugin) {
+                                if (ok) {
+                                var elem = document.getElementById('html_editor').getElementsByTagName('textarea')[0];
+                                elem.value = plugin.getTinymceEditor().getContent();
+                                elem.style.visibility = 'visible';
+                                elem.focus();
+                                elem.blur();
+                                elem.style.visibility = 'visible';
+                                }
+                                }
+                                }
+                                });"
+                                ></xf:load>
+                        </xf:action>
+                    </xf:trigger>
+                </div>
+                <div class="boolInput200 break" style="width: 200px;  margin-right: 15px; float: right; ">
+                    <xf:input ref="instance('xformId_mainInstance')/fullScreen">
+                        <xf:label>Показывать на весь экран</xf:label>
+                        <xf:action ev:event="xforms-value-changed">
+                            <xf:action ev:event="DOMActivate">
+                                <xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
+                            </xf:action>
+                        </xf:action>
+                    </xf:input>
+                </div>
+                <div class="boolInput200 break" style="width: 200px;  margin-right: 15px; float: right; ">
+                    <xf:input ref="instance('xformId_mainInstance')/showOnLoad">
+                        <xf:label>Показывать при загрузке</xf:label>
+                        <xf:action ev:event="xforms-value-changed">
+                            <xf:action ev:event="DOMActivate">
+                                <xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
+                            </xf:action>
+                        </xf:action>
+                    </xf:input>
+                </div>
+                <!--xf:group ref=".[instance('xformId_mainInstance')/showOnLoad = 1]">
+                    <div class="button200" style="width: 200px; margin-top: 2px; margin-right: 2px; float: right; ">
+                        <xf:trigger class="break" style="margin-top: 0px">
+                            <xf:label>Скрывать при загрузке  </xf:label>
+                            <xf:action ev:event="DOMActivate">
+                                    <xf:setvalue ref="instance('xformId_mainInstance')/showOnLoad" value="1 - instance('xformId_mainInstance')/showOnLoad"></xf:setvalue>
+                                    <xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
+                            </xf:action>
+                        </xf:trigger>
+                    </div>
+                </xf:group>
+                <xf:group ref=".[instance('xformId_mainInstance')/showOnLoad != 1]">
+                    <div class="button200" style="width: 200px; margin-top: 2px; margin-right: 2px; float: right; ">
+                        <xf:trigger class="break" style="margin-top: 0px">
+                            <xf:label>Показывать при загрузке</xf:label>
+                            <xf:action ev:event="DOMActivate">
+                                    <xf:setvalue ref="instance('xformId_mainInstance')/showOnLoad" value="1 - instance('xformId_mainInstance')/showOnLoad"></xf:setvalue>
+                                    <xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
+                            </xf:action>
+                        </xf:trigger>
+                    </div>
+                </xf:group-->
+                <xf:textarea id="html_editor" style="visibility: visible; padding: 5px; margin-top: 2px; margin-left: 2px; overflow: scroll; width: 50%; height: 20vh;"
+                    ref="instance('xformId_mainInstance')/htmlText">
+                    <xf:action ev:event="xforms-value-changed">
+                        <xf:action ev:event="DOMActivate">
+                            <xf:load resource="javascript:gwtXFormSave('xformId','1',  Writer.toString(getSubformInstanceDocument('xformId_mainModel', 'xformId_mainInstance')))"></xf:load>
+                        </xf:action>
+                    </xf:action>
+                </xf:textarea>
+            </xf:group>
+        </xf:group>
     </body>
 </html>'''
     return JythonDTO(xformXml)
