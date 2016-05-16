@@ -10,8 +10,9 @@ Created on 01 авг. 2015 г.
 
 from common.api.core import IJSONSerializable, IXMLSerializable
 from common.api.events.action import Action
-from common.api.utils.tools import objectQualifiedName
+from common.api.utils.tools import objectQualifiedName, classQualifiedName
 from common.api.datapanels.datapanel import DatapanelElement, DatapanelElementTypes, ProcTypes
+from inspect import isfunction
 
 
 class GridTypes(object):
@@ -110,6 +111,14 @@ class GridElement(DatapanelElement):
         загрузки настроек грида
         @return ссылка на себя
         """
+        pp = self.metadataProc()
+        
+        if pp:
+            if isfunction(value):    
+                value = classQualifiedName(value) + '.celesta'
+            pp['@name'] = value
+            return self
+        
         self._addProc(GridProcTypes.METADATA, value)
         return self
     
