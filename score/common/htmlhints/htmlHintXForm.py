@@ -55,6 +55,7 @@ def xformTemplate(context, main=None, add=None, filterinfo=None, session=None, e
             margin-left: 2px;
             overflow: auto;
             max-height: '''+height+''';
+			clear: both;
             }
     .htmlOutput .xforms-value {
         white-space: normal;
@@ -88,6 +89,18 @@ def xformTemplate(context, main=None, add=None, filterinfo=None, session=None, e
                 <xf:bind nodeset="instance('xformId_mainInstance')/showOnLoad" type="boolean"></xf:bind>
             </xf:bind>
             
+            
+            <xf:submission id="xformId_showOnLoadSave" method="post" instance="xformId_mainInstance" replace="none"
+                ref="instance('xformId_mainInstance')"
+                action="secured/submit?proc=common.htmlhints.htmlHint.showOnLoadSave.celesta">
+                <xf:action ev:event="xforms-submit-done">
+                </xf:action>
+                <xf:action if="event('response-body')!='null'" ev:event="xforms-submit-error">
+                    <!--  xf:message>Ошибки при заполнении:<xf:output value="event('response-body')"/>
+                    </xf:message-->
+                 </xf:action>
+
+            </xf:submission>
         </xf:model>
         <script type="text/javascript"/>
         
@@ -108,6 +121,7 @@ def xformTemplate(context, main=None, add=None, filterinfo=None, session=None, e
                     <xf:label>Справка</xf:label>
                     <xf:action ev:event="DOMActivate">
                             <xf:setvalue ref="instance('xformId_mainInstance')/showHideHint" value="'true'"></xf:setvalue>
+                            <xf:send submission="xformId_showOnLoadSave"/>
                     </xf:action>
                 </xf:trigger>
             </div>
@@ -118,6 +132,7 @@ def xformTemplate(context, main=None, add=None, filterinfo=None, session=None, e
                     <xf:label>Свернуть</xf:label>
                     <xf:action ev:event="DOMActivate">
                             <xf:setvalue ref="instance('xformId_mainInstance')/showHideHint" value="'false'"></xf:setvalue>
+                            <xf:send submission="xformId_showOnLoadSave"/>
                     </xf:action>
                 </xf:trigger>
             </div>

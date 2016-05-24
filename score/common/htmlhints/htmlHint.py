@@ -7,7 +7,7 @@ HTML подсказки
 import json
 
 from com.jayway.jsonpath import JsonPath
-from common._common_orm import htmlHintsCursor
+from common._common_orm import htmlHintsCursor, htmlHintsUsersCursor
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from security.functions import userHasPermission
 from org.apache.commons.lang3.StringEscapeUtils import unescapeHtml4
@@ -41,6 +41,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     u'''Карточка HTML подсказки'''
     sid = JsonPath.read(session, "$.sessioncontext.sid")
     htmlHints = htmlHintsCursor(context)
+    htmlHintsUsers = htmlHintsUsersCursor(context)
+    
     if htmlHints.tryGet(elementId):
         htmlText = htmlHints.htmlText
         if htmlText is not None:
@@ -66,11 +68,21 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
         userPerm = 1
     else:
         userPerm = 0
+    
+    if htmlHintsUsers.tryGet(elementId, sid):
+        showHideHint = htmlHintsUsers.showOnLoad
+        if showHideHint == 1: 
+            showHideHint='true' 
+        else:
+            showHideHint='false'
+    else:
+        showHideHint  = showOnLoad
     xformsdata = {
         "schema": {
             "@xmlns": "",
+            "elementId":elementId,
             "htmlText": unescapeHtml4(htmlText),
-            "showHideHint": showOnLoad,
+            "showHideHint": showHideHint,
             "showOnLoad": showOnLoad,
             "showHideEdit": 0,
             "userPerm": userPerm,
@@ -152,3 +164,24 @@ def htmlEdit(context, main, add, filterinfo, session, elementId):
     
     res = JythonDTO(unescapeHtml4(data), settings)
     return res
+    
+def showOnLoadSave(context, main=None, add=None, filterinfo=None, session=None, xformsdata=None):
+    u'''функция сабмишна для проверки СНИЛС.'''
+    showHideHint = json.loads(xformsdata)["schema"]["showHideHint"]
+    elementId = json.loads(xformsdata)["schema"]["elementId"]
+    sid = JsonPath.read(session, "$.sessioncontext.sid")
+    htmlHintsUsers = htmlHintsUsersCursor(context)
+    #raise Exception (main, add, filterinfo, session, xformsdata)
+    if showHideHint == 'true': 
+        showHideHint=1 
+    else:
+        showHideHint=0
+    if htmlHintsUsers.tryGet(elementId,sid):
+        htmlHintsUsers.showOnLoad = showHideHint
+        htmlHintsUsers.update()
+    else:
+        htmlHintsUsers.elementId = elementId
+        htmlHintsUsers.sid = sid
+        htmlHintsUsers.showOnLoad = showHideHint
+        htmlHintsUsers.insert()
+    return xformsdata

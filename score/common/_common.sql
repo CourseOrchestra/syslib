@@ -28,3 +28,10 @@ htmlText TEXT,
 showOnLoad int,
 fullScreen int
 );
+
+create table htmlHintsUsers (
+elementId varchar(50) not null foreign key references htmlHints(elementId),
+sid varchar(200) not null foreign key references security.subjects(sid),
+showOnLoad int,
+PRIMARY KEY (elementId, sid)
+) WITH NO VERSION CHECK;
