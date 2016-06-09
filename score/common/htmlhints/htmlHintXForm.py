@@ -49,13 +49,13 @@ def xformTemplate(context, main=None, add=None, filterinfo=None, session=None, e
     <style type="text/css">
     .htmlOutput {
             display: block;
-            width: 98.6%;
+            width: 96%;
             background: rgba(210, 227, 243, 0.25);
-            padding: 5px;
+            padding: 2%;
             margin-left: 2px;
             overflow: auto;
             max-height: '''+height+''';
-			clear: both;
+            clear: both;
             }
     .htmlOutput .xforms-value {
         white-space: normal;
