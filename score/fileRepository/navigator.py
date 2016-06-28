@@ -1,28 +1,24 @@
 # coding: utf-8
 
+
 def navigatorFileRepository(context, session):
-    
+
     resultJSON = {
-        "group": 
-        {
-            "@id"   : "fileRepository",
-            "@name" : u"Хранилище файлов",
-            "level1":[]
+        "group": {
+            "@id": "fileRepository",
+            "@name": u"Хранилище файлов",
+            "level1": []
         }
     }
-    resultJSON["group"]["level1"].extend(
-    [
+    resultJSON["group"]["level1"].extend([
         {
             "@name": u"Файлы",
             "@id": "files",
-            "#sorted": 
-            [
+            "#sorted": [
                 {
-                    "action": 
-                    {
+                    "action": {
                         "main_context": "fileData",
-                        "datapanel": 
-                        {
+                        "datapanel": {
                             "@type": "fileDatapanel.xml",
                             "@tab": "1"
                         }
