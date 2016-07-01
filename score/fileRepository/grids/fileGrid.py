@@ -139,7 +139,7 @@ def gridToolBar(context, main=None, add=None, filterinfo=None,
                                 "modalwindow": {
                                     "@caption": "Добавление файла",
                                     "@height": "150",
-                                    "@width": "500"
+                                    "@width": "440"
                                 }
                             },
                             {
@@ -170,7 +170,7 @@ def gridToolBar(context, main=None, add=None, filterinfo=None,
                                 "modalwindow": {
                                     "@caption": "Добавление новой версии файла",
                                     "@height": "150",
-                                    "@width": "500"
+                                    "@width": "440"
                                 }
                             },
                             {
@@ -201,7 +201,7 @@ def gridToolBar(context, main=None, add=None, filterinfo=None,
                                 "modalwindow": {
                                     "@caption": "Удаление файла вместе со всеми записями о нём",
                                     "@height": "150",
-                                    "@width": "500"
+                                    "@width": "440"
                                 }
                             },
                             {
@@ -232,7 +232,7 @@ def gridToolBar(context, main=None, add=None, filterinfo=None,
                                 "modalwindow": {
                                     "@caption": "Скачивание файла",
                                     "@height": "150",
-                                    "@width": "500"
+                                    "@width": "440"
                                 }
                             },
                             {
@@ -275,7 +275,7 @@ def takeDataForGridToolbarUpload(identifier, style="true"):
                     "modalwindow": {
                         "@caption": "Добавление файла",
                         "@height": "150",
-                        "@width": "500"
+                        "@width": "440"
                     }
                 },
                 {
