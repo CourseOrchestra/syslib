@@ -139,7 +139,10 @@ def putFile(context, native_filename, stream_input, current_cluster_num=1,
         file_cursor.update()
     file_version_cursor.insert()
 
-    return file_version_cursor.id
+    return {
+        "file_version_id": file_version_cursor.id,
+        "file_id": file_cursor.id
+    }
 
 
 def getPathToFile(context, current_cluster_num):
