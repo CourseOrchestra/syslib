@@ -13,8 +13,8 @@ navigatorsParts['navigatorFileRepository'] = navigatorFileRepository
 context = initcontext()
 try:
     grains_settings_XML = SettingsManager(context)
-    clusterInit(context)
     if grains_settings_XML.getGrainSettings("frSettings/parameter[@name='isSystemInitialised']/@value", 'fileRepository')[0] == u'false':
+        clusterInit(context)
         grains_settings_XML.setGrainSettings(
             "frSettings/parameter[@name='isSystemInitialised']/@value", 'true', 'fileRepository')
 except IndexError:
