@@ -5,19 +5,16 @@ Created on 28.01.2016
 @author: s.gavrilov
 
 '''
-from java.io import FileInputStream
 import json
 
 from fileRepository import functions
-from fileRepository._fileRepository_orm import fileCursor
-from fileRepository.functions import getFilePathById
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 
 
 try:
-    from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
+    from ru.curs.showcase.core.jython import JythonDTO
 except:
-    from ru.curs.celesta.showcase import JythonDTO, JythonDownloadResult
+    from ru.curs.celesta.showcase import JythonDTO
 
 
 def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
@@ -40,9 +37,8 @@ def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
             "event": {
                 "@name": "single_click",
                 "@linkId": "save",
-                "action": {
-                    "main_context": "current",
-                    "datapanel": {
+                "action": {"#sorted":[{ "main_context": "current"},
+                    {"datapanel": {
                         "@type": "current",
                         "@tab": "current",
                         "element": {
@@ -50,7 +46,7 @@ def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
                             "add_context": ""
                         }
                     }
-                }
+                }]}
             }
         }
     }

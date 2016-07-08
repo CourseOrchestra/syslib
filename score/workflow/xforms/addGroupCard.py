@@ -48,13 +48,13 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                    {"@name":"single_click",
                     "@linkId": "1",
                     "action":
-                        {"main_context": "current",
-                         "datapanel":
+                        {"#sorted":[{"main_context": "current"},
+                         {"datapanel":
                             {"@type": "current",
                              "@tab": "current",
                              "element":
                                 {"@id":"groupsGrid",
-                                 "add_context": groupId}}}}}}
+                                 "add_context": groupId}}}]}}}}
     return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(data)),
                      XMLJSONConverter.jsonToXml(json.dumps(settings)))
 
@@ -108,13 +108,13 @@ def delCardData(context, main=None, add=None, filterinfo=None, session=None, ele
     xformssettings = {"properties":{
                                     "event":[{"@name": "single_click",
                                               "@linkId": "1",
-                                              "action":{"main_context": "current",
-                                                        "datapanel":{"@type": "current",
+                                              "action":{"#sorted":[{"main_context": "current"},
+                                                        {"datapanel":{"@type": "current",
                                                                      "@tab": "current",
                                                                      "element":{"@id": "grid",
                                                                                 "add_context": 'current'}
                                                                      }
-                                                        }
+                                                        }]}
                                               }]
                                     }
                       }

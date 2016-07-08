@@ -39,16 +39,16 @@ def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
                         [{"@name": "single_click",
                          "@linkId": "1",
                          "action":
-                          {"main_context": "current",
-                           "datapanel":
-                            {"@type": "current",
-                             "@tab": "current",
-                             "element":
-                                [{"@id": "matchingCircuitGrid",
-                                  "add_context": '',
-                                  "@keep_user_settings": "true"},
-                                  {"@id":'generateProcessImage'},
-                                  {"@id":'generateProcessDefinition'}]}}}]}}
+                          {"#sorted":[{"main_context": "current"},
+                                       {"datapanel":
+                                        {"@type": "current",
+                                         "@tab": "current",
+                                         "element":
+                                            [{"@id": "matchingCircuitGrid",
+                                              "add_context": '',
+                                              "@keep_user_settings": "true"},
+                                              {"@id":'generateProcessImage'},
+                                              {"@id":'generateProcessDefinition'}]}}]}}]}}
     jsonData = XMLJSONConverter.jsonToXml(json.dumps(xformsdata))
     jsonSettings = XMLJSONConverter.jsonToXml(json.dumps(xformssettings))
     return JythonDTO(jsonData, jsonSettings)

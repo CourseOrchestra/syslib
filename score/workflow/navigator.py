@@ -15,10 +15,10 @@ def testNavigator(context, session):
                             "@icon": "journals.png",
                             "level1":[{"@id": "j1",
                                        "@name": u"Тест",
-                                       "action":{"main_context": "current",
-                                                 "datapanel":{"@type": "test.xml",
-                                                              "@tab": "firstOrCurrent"}
-                                                 }
+                                       "action":{"#sorted":[{"main_context": "current"},
+                                                             {"datapanel":{"@type": "test.xml",
+                                                                          "@tab": "firstOrCurrent"}
+                                                             }]}
                                        }]
 
                             }
@@ -71,11 +71,11 @@ def manageProcessesNav(context, session):
                                   "@selectOnLoad": "true",
                                   "@name": u"Схема процесса",
                                   "action":
-                                    {"main_context": "current",
-                                     "datapanel":
-                                        {"@type": "workflow.datapanel.processes.drawProcesses.celesta",
-                                         "@tab": "schemaProcess"}
-                                     }
+                                    {"#sorted":[{"main_context": "current"},
+                                                 {"datapanel":
+                                                    {"@type": "workflow.datapanel.processes.drawProcesses.celesta",
+                                                     "@tab": "schemaProcess"}
+                                                 }]}
                                   }]
                             }
                            }
@@ -92,10 +92,10 @@ def manageProcessesNav(context, session):
                                   "@selectOnLoad": "true",
                                   "@name": u"Активные задачи",
                                   "action":
-                                    {"main_context": "current",
-                                     "datapanel":
-                                        {"@type": "workflow.datapanel.tasks.drawTasksByProcId.celesta",
-                                         "@tab": "firstOrCurrent"}}}]}}
+                                    {"#sorted":[{"main_context": "current"},
+                                                 {"datapanel":
+                                                    {"@type": "workflow.datapanel.tasks.drawTasksByProcId.celesta",
+                                                     "@tab": "firstOrCurrent"}}]}}]}}
             return myNavigator
         elif documentTask or startProcess:
             if startProcess:
@@ -114,9 +114,9 @@ def manageProcessesNav(context, session):
                                   "@selectOnLoad": "true",
                                   "@name": u"Схема процесса",
                                   "action":
-                                    {"main_context": "current",
-                                     "datapanel":
-                                        {"@type": datapanelSetup(context, formType, session)}}}]}}
+                                    {"#sorted":[{"main_context": "current"},
+                                                 {"datapanel":
+                                                    {"@type": datapanelSetup(context, formType, session)}}]}}]}}
             return myNavigator
 #         elif documentTask:
 #             filePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'datapanelSettings.json')
@@ -151,10 +151,10 @@ def manageProcessesNav(context, session):
         myNavigator["group"]["level1"].append({
                                           "@id": "w1",
                                           "@name": u"Управление процессами",
-                                          "action":{"main_context": "current",
-                                                     "datapanel":{"@type": "workflow.datapanel.processes.manageProcesses.celesta",
-                                                                  "@tab": "firstOrCurrent"}
-                                                     }
+                                          "action":{"#sorted":[{"main_context": "current"},
+                                                                 {"datapanel":{"@type": "workflow.datapanel.processes.manageProcesses.celesta",
+                                                                              "@tab": "firstOrCurrent"}
+                                                                 }]}
                                           })
     # Пункт меню редактирования процессов
     if userHasPermission(context, sid, 'processDesigner'):
@@ -162,22 +162,22 @@ def manageProcessesNav(context, session):
         myNavigator["group"]["level1"].append({"@id": "editingProcesses",
                                               "@name": u"Конструктор процессов",
                                               "action":
-                                                {"main_context": "current",
-                                                 "datapanel":
-                                                    {"@type": "workflow.datapanel.processes.editingProcesses.celesta",
-                                                     "@tab": "firstOrCurrent"
-                                                     }
-                                                 }
+                                                {"#sorted":[{"main_context": "current"},
+                                                             {"datapanel":
+                                                                {"@type": "workflow.datapanel.processes.editingProcesses.celesta",
+                                                                 "@tab": "firstOrCurrent"
+                                                                 }
+                                                             }]}
                                               })
     if userHasPermission(context,sid,'userGroups'):
         emptyNavigatorFlag = False
         myNavigator["group"]["level1"].append({
                                           "@id": "userGroups",
                                           "@name": u"Группы пользователей",
-                                          "action":{"main_context": "current",
-                                                     "datapanel":{"@type": "workflow.datapanel.processes.userGroups.celesta",
-                                                                  "@tab": "firstOrCurrent"}
-                                                     }
+                                          "action":{"#sorted":[{"main_context": "current"},
+                                                                 {"datapanel":{"@type": "workflow.datapanel.processes.userGroups.celesta",
+                                                                              "@tab": "firstOrCurrent"}
+                                                                 }]}
                                           })
     if userHasPermission(context, sid, 'activeTasks'):
         emptyNavigatorFlag = False
@@ -185,12 +185,12 @@ def manageProcessesNav(context, session):
                                               "@name": u"Текущие задачи",
                                               "@selectOnLoad": "true",
                                               "action":
-                                                {"main_context": "current",
-                                                 "datapanel":
-                                                    {"@type": "workflow.datapanel.tasks.activeTasks.celesta",
-                                                     "@tab": "firstOrCurrent"
-                                                     }
-                                                 }
+                                                {"#sorted":[{"main_context": "current"},
+                                                             {"datapanel":
+                                                                {"@type": "workflow.datapanel.tasks.activeTasks.celesta",
+                                                                 "@tab": "firstOrCurrent"
+                                                                 }
+                                                             }]}
                                               })
 
     if userHasPermission(context, sid, 'archiveTasks'):
@@ -198,24 +198,24 @@ def manageProcessesNav(context, session):
         myNavigator["group"]["level1"].append({"@id": "archiveTasks",
                                               "@name": u"Выполненные задачи",
                                               "action":
-                                                {"main_context": "current",
-                                                 "datapanel":
-                                                    {"@type": "workflow.datapanel.tasks.archiveTasks.celesta",
-                                                     "@tab": "firstOrCurrent"
-                                                     }
-                                                 }
+                                                {"#sorted":[{"main_context": "current"},
+                                                             {"datapanel":
+                                                                {"@type": "workflow.datapanel.tasks.archiveTasks.celesta",
+                                                                 "@tab": "firstOrCurrent"
+                                                                 }
+                                                             }]}
                                               })
     if userHasPermission(context, sid, 'allActiveTasks'):
         emptyNavigatorFlag = False
         myNavigator["group"]["level1"].append({"@id": "allActiveTasks",
                                               "@name": u"Все задачи",
                                               "action":
-                                                {"main_context": "current",
-                                                 "datapanel":
-                                                    {"@type": "workflow.datapanel.tasks.allActiveTasks.celesta",
-                                                     "@tab": "firstOrCurrent"
-                                                     }
-                                                 }
+                                                {"#sorted":[{"main_context": "current"},
+                                                             {"datapanel":
+                                                                {"@type": "workflow.datapanel.tasks.allActiveTasks.celesta",
+                                                                 "@tab": "firstOrCurrent"
+                                                                 }
+                                                             }]}
                                               })
     if emptyNavigatorFlag:
         return {"group":None}

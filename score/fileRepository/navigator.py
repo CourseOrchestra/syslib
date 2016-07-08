@@ -14,17 +14,13 @@ def navigatorFileRepository(context, session):
         {
             "@name": u"Файлы",
             "@id": "files",
-            "#sorted": [
-                {
-                    "action": {
-                        "main_context": "fileData",
-                        "datapanel": {
-                            "@type": "fileDatapanel.xml",
-                            "@tab": "1"
-                        }
-                    }
-                }
-            ]
+            "action": {"#sorted": [{"main_context": "fileData"},
+                                   {"datapanel": {
+                                       "@type": "fileDatapanel.xml",
+                                       "@tab": "1"
+                                   }
+            }]}
+
         }
     ])
 

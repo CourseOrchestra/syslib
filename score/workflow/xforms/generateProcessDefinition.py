@@ -86,21 +86,21 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                          [{"@name": "single_click",
                            "@linkId": "1",
                            "action":
-                                {"main_context": "current",
-                                 "datapanel":
-                                    {"@type": "current",
-                                     "@tab": "current",
-                                     "element":
-                                     [
-                                        {"@id": 'matchingCircuitGrid',
-                                         "add_context": 'current'
-                                         },
-                                      {"@id": 'generateProcessDefinition',
-                                         "add_context": 'current'
-                                         }
-                                     ]
-                                     }
-                                 }
+                                {"#sorted":[{"main_context": "current"},
+                                             {"datapanel":
+                                                {"@type": "current",
+                                                 "@tab": "current",
+                                                 "element":
+                                                 [
+                                                    {"@id": 'matchingCircuitGrid',
+                                                     "add_context": 'current'
+                                                     },
+                                                  {"@id": 'generateProcessDefinition',
+                                                     "add_context": 'current'
+                                                     }
+                                                 ]
+                                                 }
+                                             }]}
                            }]
                          }
                       }

@@ -37,16 +37,16 @@ def archiveTasksFilter(context, main=None, add=None, filterinfo=None, session=No
                          [{"@name": "single_click",
                            "@linkId": "1",
                            "action":
-                                {"main_context": "current",
-                                 "datapanel":
-                                    {"@type": "current",
-                                     "@tab": "current",
-                                     "element":
-                                        {"@id": "tasksGrid",
-                                         "add_context": 'current'
-                                         }
-                                     }
-                                 }
+                                {"#sorted":[{"main_context": "current"},
+                                             {"datapanel":
+                                                {"@type": "current",
+                                                 "@tab": "current",
+                                                 "element":
+                                                    {"@id": "tasksGrid",
+                                                     "add_context": 'current'
+                                                     }
+                                                 }
+                                             }]}
                            }]
                          }
                       }
@@ -69,16 +69,16 @@ def activeTasksFilter(context, main=None, add=None, filterinfo=None, session=Non
                          [{"@name": "single_click",
                            "@linkId": "1",
                            "action":
-                                {"main_context": "current",
-                                 "datapanel":
-                                    {"@type": "current",
-                                     "@tab": "current",
-                                     "element":
-                                        {"@id": "tasksGrid",
-                                         "add_context": 'current'
-                                         }
-                                     }
-                                 }
+                                {"#sorted":[{"main_context": "current"},
+                                             {"datapanel":
+                                                {"@type": "current",
+                                                 "@tab": "current",
+                                                 "element":
+                                                    {"@id": "tasksGrid",
+                                                     "add_context": 'current'
+                                                     }
+                                                 }
+                                             }]}
                            }]
                          }
                       }
@@ -104,16 +104,16 @@ def allActiveTasksFilter(context, main=None, add=None, filterinfo=None, session=
                          [{"@name": "single_click",
                            "@linkId": "1",
                            "action":
-                                {"main_context": "current",
-                                 "datapanel":
-                                    {"@type": "current",
-                                     "@tab": "current",
-                                     "element":
-                                        {"@id": "tasksGrid",
-                                         "add_context": 'current'
-                                         }
-                                     }
-                                 }
+                                {"#sorted":[{"main_context": "current"},
+                                             {"datapanel":
+                                                {"@type": "current",
+                                                 "@tab": "current",
+                                                 "element":
+                                                    {"@id": "tasksGrid",
+                                                     "add_context": 'current'
+                                                     }
+                                                 }
+                                             }]}
                            }]
                          }
                       }
@@ -136,16 +136,16 @@ def activeTasksByProcIdFilter(context, main=None, add=None, filterinfo=None, ses
                          [{"@name": "single_click",
                            "@linkId": "1",
                            "action":
-                                {"main_context": "current",
-                                 "datapanel":
-                                    {"@type": "current",
-                                     "@tab": "current",
-                                     "element":
-                                        {"@id": "tasksGrid",
-                                         "add_context": 'current'
-                                         }
-                                     }
-                                 }
+                                {"#sorted":[{"main_context": "current"},
+                                             {"datapanel":
+                                                {"@type": "current",
+                                                 "@tab": "current",
+                                                 "element":
+                                                    {"@id": "tasksGrid",
+                                                     "add_context": 'current'
+                                                     }
+                                                 }
+                                             }]}
                            }]
                          }
                       }

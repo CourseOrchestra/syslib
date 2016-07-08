@@ -56,13 +56,13 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                        [{"@name": "single_click",
                          "@linkId": "1",
                          "action":
-                            {"main_context": "current",
-                             "datapanel":
-                                {"@type": "current",
-                                 "@tab": "current",
-                                 "element":
-                                    {"@id":'completeTaskCard',
-                                     "add_context":"added"}}}}]}}
+                            {"#sorted":[{"main_context": "current"},
+                                         {"datapanel":
+                                            {"@type": "current",
+                                             "@tab": "current",
+                                             "element":
+                                                {"@id":'completeTaskCard',
+                                                 "add_context":"added"}}}]}}]}}
     return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(xformsdata)),
                      XMLJSONConverter.jsonToXml(json.dumps(xformssettings)))
 

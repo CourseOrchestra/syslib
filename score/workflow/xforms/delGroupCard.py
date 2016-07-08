@@ -55,16 +55,16 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                    {"@name":"single_click",
                     "@linkId": "1",
                     "action":
-                        {"main_context": "current",
-                         "datapanel":
-                            {"@type": "current",
-                             "@tab": "current",
-                             "element":
-                                [{"@id":"groupsGrid",
-                                 "add_context": ''},
-                                 {"@id":"userGroupsGrid",
-                                 "add_context": 'hide'}
-                                 ]}}}}}
+                        {"#sorted":[{"main_context": "current"},
+                                     {"datapanel":
+                                        {"@type": "current",
+                                         "@tab": "current",
+                                         "element":
+                                            [{"@id":"groupsGrid",
+                                             "add_context": ''},
+                                             {"@id":"userGroupsGrid",
+                                             "add_context": 'hide'}
+                                             ]}}]}}}}
     return JythonDTO(XMLJSONConverter.jsonToXml(json.dumps(data)),
                      XMLJSONConverter.jsonToXml(json.dumps(settings)))
 

@@ -123,14 +123,14 @@ def getData(context, main=None, add=None, filterinfo=None,
                                                 },
                                                 {"@name":"row_single_click",
                                                                  "action":
-                                                                    {"main_context": "current",
-                                                                     "datapanel":
-                                                                        {'@type':"current",
-                                                                         '@tab':"current",
-                                                                         "element": {"@id":"launchedProcessesEventsGrid",
-                                                                                     "add_context": ''}
-                                                                         }
-                                                                    }
+                                                                    {"#sorted":[{"main_context": "current"},
+                                                                                 {"datapanel":
+                                                                                    {'@type':"current",
+                                                                                     '@tab':"current",
+                                                                                     "element": {"@id":"launchedProcessesEventsGrid",
+                                                                                                 "add_context": ''}
+                                                                                     }
+                                                                                }]}
                                                                  }
                                                ]
                                               }
