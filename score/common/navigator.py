@@ -53,11 +53,11 @@ def seriesNavigator(context, session):
     if userHasPermission(context, sid, 'numbersSeriesPoint'):
         resultJSON["group"]["level1"].append({"@id": "numbersSeries",
                                               "@name": u"Серии номеров",
-                                              "action":{"main_context": "current",
-                                                        "datapanel":{"@type": "common.datapanel.numbersSeries.datapanel.celesta",
-                                                                     "@tab": "firstOrCurrent"
-                                                                     }
-                                                        }
+                                              "action":{"#sorted": [{"main_context": "current"},
+                                                                    {"datapanel":{"@type": "common.datapanel.numbersSeries.datapanel.celesta",
+                                                                                 "@tab": "firstOrCurrent"
+                                                                                 }
+                                                                    }]}
                                               })
     else:
         resultJSON = {"group":None}
