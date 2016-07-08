@@ -20,29 +20,32 @@ def authentificationNavigator(context, session):
     if userHasPermission(context, sid, 'loginsSubjectsPoint'):  
         resultJSON["group"]["level1"].append({"@id": "users",
                                               "@name": "Сотрудники и пользователи",
-                                              "action":{"main_context": "current",
-                                                        "datapanel":{"@type": "security.datapanel.users.usersDatapanel.celesta",
+                                              "action":{"#sorted": [{"main_context": "current"},
+                                                        {"datapanel":{"@type": "security.datapanel.users.usersDatapanel.celesta",
                                                                      "@tab": "firstOrCurrent"
                                                                      }
+                                                         }]
                                                         }
                                               })
     if userHasPermission(context, sid, 'rolesPoint'):
         resultJSON["group"]["level1"].append({"@id": "roles",
                                               "@name": "Роли",
-                                              "action":{"main_context": "current",
-                                                        "datapanel":{"@type": "security.datapanel.roles.rolesDatapanel.celesta",
+                                              "action":{"#sorted": [{"main_context": "current"},
+                                                        {"datapanel":{"@type": "security.datapanel.roles.rolesDatapanel.celesta",
                                                                      "@tab": "firstOrCurrent"
                                                                      }
+                                                        }]
                                                         }
+                                                        
                                               })
     if userHasPermission(context, sid, 'permissionsPoint'):
         resultJSON["group"]["level1"].append({"@id": "permissions",
                                               "@name": "Разрешения",
-                                              "action":{"main_context": "current",
-                                                        "datapanel":{"@type": "security.datapanel.permissions.datapanel.celesta",
+                                              "action":{"#sorted": [{"main_context": "current"},
+                                                        {"datapanel":{"@type": "security.datapanel.permissions.datapanel.celesta",
                                                                      "@tab": "firstOrCurrent"
                                                                      }
-                                                        }
+                                                        }]}
                                               })
     
 #     resultJSON["group"]["level1"].append({"@id": "test",

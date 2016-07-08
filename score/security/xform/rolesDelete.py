@@ -18,16 +18,16 @@ def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
     xformsdata = {"schema":{"@xmlns":""}}
     xformssettings = {"properties":{"event":[{"@name":"single_click",
                                              "@linkId": "1",
-                                             "action":{"main_context": "current",
-                                                       "datapanel": {"@type": "current",
-                                                                     "@tab": "current",
-                                                                     "element": [{"@id":"id_roles_grid",
-                                                                                 "add_context": ""},
-                                                                                 {"@id":"id_perm_roles_grid",
-                                                                                 "add_context": "hide"}
-                                                                                 ]
-                                                                     }
-                                                       }
+                                             "action":{"#sorted":[{"main_context": "current"},
+                                                                   {"datapanel": {"@type": "current",
+                                                                                 "@tab": "current",
+                                                                                 "element": [{"@id":"id_roles_grid",
+                                                                                             "add_context": ""},
+                                                                                             {"@id":"id_perm_roles_grid",
+                                                                                             "add_context": "hide"}
+                                                                                             ]
+                                                                                 }
+                                                                   }]}
                                              }]
                                     }
                       }

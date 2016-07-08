@@ -17,16 +17,16 @@ def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
     xformsdata = {"schema":{"@xmlns":""}}
     xformssettings = {"properties":{"event":[{"@name":"single_click",
                                              "@linkId": "1",
-                                             "action":{"main_context": "current",
-                                                       "datapanel": {"@type": "current",
-                                                                     "@tab": "current",
-                                                                     "element": [{"@id":"rolesCustomPermissionsGrid",
-                                                                                 "add_context": "hide"},
-                                                                                 {"@id":"customPermissionsGrid",
-                                                                                 "add_context": ""}                                                                                 
-                                                                                 ]
-                                                                     }
-                                                       }
+                                             "action":{"#sorted":[{"main_context": "current"},
+                                                                   {"datapanel": {"@type": "current",
+                                                                                 "@tab": "current",
+                                                                                 "element": [{"@id":"rolesCustomPermissionsGrid",
+                                                                                             "add_context": "hide"},
+                                                                                             {"@id":"customPermissionsGrid",
+                                                                                             "add_context": ""}                                                                                 
+                                                                                             ]
+                                                                                 }
+                                                                   }]}
                                              }]
                                     }
                       }

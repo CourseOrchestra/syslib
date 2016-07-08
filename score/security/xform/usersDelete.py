@@ -16,18 +16,17 @@ def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
     xformsdata = {"schema":{"@xmlns":""}}
     xformssettings = {"properties":{"event":{"@name":"single_click",
                                              "@linkId": "1",
-                                             "action":{"@name":"single_click",
-                                                       "main_context": "current",                                                       
-                                                       "datapanel": {"@type": "current",
-                                                                     "@tab": "current",
-                                                                     "element": [{"@id":"usersGrid",
-                                                                                 "add_context": ""
-                                                                                 },
-                                                                                 {"@id":"employeesGrid",
-                                                                                 "add_context": ""
-                                                                                 }]
+                                             "action":{"#sorted":[{"main_context": "current"},                                                       
+                                                                  {"datapanel": {"@type": "current",
+                                                                         "@tab": "current",
+                                                                         "element": [{"@id":"usersGrid",
+                                                                                     "add_context": ""
+                                                                                     },
+                                                                                     {"@id":"employeesGrid",
+                                                                                     "add_context": ""
+                                                                                     }]
                                                                      }
-                                                       }
+                                                       }]}
                                              }
                                     }
                       }

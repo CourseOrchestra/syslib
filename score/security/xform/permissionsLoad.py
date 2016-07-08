@@ -30,13 +30,13 @@ def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
                   }
     xformssettings = {"properties":{"event":[{"@name": "single_click",
                                               "@linkId": "1",
-                                              "action":{"main_context": "current",
-                                                        "datapanel":{"@type": "current",
-                                                                     "@tab": "current",
-                                                                     "element":{"@id": "permGrid",
-                                                                                "add_context": 'current'}
-                                                                     }
-                                                        }
+                                              "action":{"#sorted":[{"main_context": "current"},
+                                                                    {"datapanel":{"@type": "current",
+                                                                                 "@tab": "current",
+                                                                                 "element":{"@id": "permGrid",
+                                                                                            "add_context": 'current'}
+                                                                                 }
+                                                                    }]}
                                               }]
                                     }
                       }

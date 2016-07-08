@@ -26,28 +26,28 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
                             }
                   }
     xformssettings = {"properties":{
-                                    "action":{"main_context": "current",
-                                              "datapanel":{"@type": "current",
-                                                           "@tab": "current",
-                                                           "element":[{"@id": "rolesCustomPermissionsGrid",
-                                                                       "add_context": "hide"},
-                                                                      {"@id": "customPermissionsGrid",
-                                                                       "add_context": 'current'}
-                                                                      ]
-                                                           }
-                                              },
+                                    "action":{"#sorted":[{"main_context": "current"},
+                                                          {"datapanel":{"@type": "current",
+                                                                       "@tab": "current",
+                                                                       "element":[{"@id": "rolesCustomPermissionsGrid",
+                                                                                   "add_context": "hide"},
+                                                                                  {"@id": "customPermissionsGrid",
+                                                                                   "add_context": 'current'}
+                                                                                  ]
+                                                                       }
+                                                         }]},
                                     "event":[{"@name": "single_click",
                                               "@linkId": "11",
-                                              "action":{"main_context": "current",
-                                                        "datapanel":{"@type": "current",
-                                                                     "@tab": "current",
-                                                                     "element":[{"@id": "rolesCustomPermissionsGrid",
-                                                                                "add_context": "hide"},
-                                                                                {"@id": "customPermissionsGrid",
-                                                                                "add_context": 'current'}
-                                                                                ]
-                                                                     }
-                                                        }
+                                              "action":{"#sorted":[{"main_context": "current"},
+                                                                    {"datapanel":{"@type": "current",
+                                                                                 "@tab": "current",
+                                                                                 "element":[{"@id": "rolesCustomPermissionsGrid",
+                                                                                            "add_context": "hide"},
+                                                                                            {"@id": "customPermissionsGrid",
+                                                                                            "add_context": 'current'}
+                                                                                            ]
+                                                                                 }
+                                                                    }]}
                                               }]
                                     }
                       }
