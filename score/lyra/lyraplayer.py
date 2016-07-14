@@ -23,7 +23,7 @@ def getFormInstance(context, formId, main=None, add=None, filterinfo=None, sessi
         if not formId in basicForm._formclasses:
             raise Exception('No form %s registered' % formId)
         c = basicForm._formclasses[formId]
-        result = c(context)
+        result = c(context, session, main, add, elementId)
         lf[formId] = result
     result.setContext(session, main, add, elementId)        
     return result

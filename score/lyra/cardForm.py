@@ -3,7 +3,8 @@ import ru.curs.lyra.BasicCardForm as BasicCardForm
 
 class CardForm(BasicCardForm):
     u'''Basic class for a card form'''
-    def __init__(self, context):
+    def __init__(self, context, session, main, add, elementId):
+        self.setContext(session, main, add, elementId)
         BasicCardForm.__init__(self, context)
     
     def setContext(self, session, main, add, elemetId):

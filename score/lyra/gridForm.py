@@ -3,7 +3,8 @@ import ru.curs.lyra.BasicGridForm as BasicGridForm
 
 class GridForm(BasicGridForm):
     u'''Basic class for a grid form'''
-    def __init__(self, context):
+    def __init__(self, context, session, main, add, elementId):
+        self.setContext(session, main, add, elementId)
         BasicGridForm.__init__(self, context)
         
         
