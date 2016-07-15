@@ -10,7 +10,10 @@ from com.jayway.jsonpath import JsonPath
 from common._common_orm import htmlHintsCursor, htmlHintsUsersCursor
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from security.functions import userHasPermission
-from org.apache.commons.lang3.StringEscapeUtils import unescapeHtml4
+try:
+    from org.apache.commons.lang3.StringEscapeUtils import unescapeHtml4
+except:
+    pass
 from xml.sax import make_parser, handler, ContentHandler
 import StringIO
 
@@ -64,6 +67,11 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
         htmlText = u""
         fullScreen='false'
         showOnLoad = 'true'
+        htmlHints.elementId = elementId
+        htmlHints.htmlText = htmlText
+        htmlHints.showOnLoad = 1
+        htmlHints.fullScreen = 0
+        htmlHints.tryInsert()
     if userHasPermission(context, sid, 'htmlHintsEdit'):
         userPerm = 1
     else:

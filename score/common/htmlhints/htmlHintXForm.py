@@ -5,7 +5,6 @@ HTML подсказки
 @author: a.rudenko
 '''
 import json
-
 from com.jayway.jsonpath import JsonPath
 from common._common_orm import htmlHintsCursor
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
