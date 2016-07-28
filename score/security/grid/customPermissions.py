@@ -12,6 +12,7 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDTO
 
+
 def gridData(context, main=None, add=None, filterinfo=None,
              session=None, elementId=None, sortColumnList=None, firstrecord=None, pagesize=None):
     u'''Функция получения данных для грида. '''
@@ -24,14 +25,15 @@ def gridData(context, main=None, add=None, filterinfo=None,
         sortName = None
 
     if 'formData' in session:
-        typeId = json.loads(session)['sessioncontext']['related']['xformsContext']['formData']['schema']['permission']['@type']
+        typeId = json.loads(session)['sessioncontext']['related']['xformsContext'][
+            'formData']['schema']['permission']['@type']
         if typeId:
             permissions.setRange('type', typeId)
 
     permissions.orderBy('name')
 
     # Определяем переменную для JSON данных
-    data = {"records":{"rec":[]}}
+    data = {"records": {"rec": []}}
     # Проходим по таблице и заполняем data
     _header = {"id": ["~~id"],
                "name": [u"Разрешение"],
@@ -47,25 +49,26 @@ def gridData(context, main=None, add=None, filterinfo=None,
     permissions.limit(firstrecord - 1, pagesize)
     for permissions in permissions.iterate():
         permDict = {}
-        permDict[_header["id"][1]] = getattr(permissions, column) or ''
-        for column in [x for x in _header.keys() if x not in ("id", "properties")]:
-            permDict[_header[column][1]] = getattr(permissions, column) or ''
+        permDict[_header["id"][1]] = permissions.id
+        permDict[_header["name"][1]] = permissions.name or ''
+        permDict[_header["description"][1]] = permissions.description or ''
+        permDict[_header["type"][1]] = permissions.type or ''
 
-        permDict['properties'] = {"event":{"@name":"row_single_click",
-                                           "action":{"#sorted":[{"main_context": 'current'},
-                                                                {"datapanel":{'@type':"current",
-                                                                              '@tab':"current",
-                                                                              "element":{"@id":"rolesCustomPermissionsGrid"}
-                                                                              }
-                                                                 }]
-                                                     }
-                                           }
+        permDict['properties'] = {"event": {"@name": "row_single_click",
+                                            "action": {"#sorted": [{"main_context": 'current'},
+                                                                   {"datapanel": {'@type': "current",
+                                                                                  '@tab': "current",
+                                                                                  "element": {"@id": "rolesCustomPermissionsGrid"}
+                                                                                  }
+                                                                    }]
+                                                       }
+                                            }
                                   }
         data["records"]["rec"].append(permDict)
 
-
     res = XMLJSONConverter.jsonToXml(json.dumps(data))
     return JythonDTO(res, None)
+
 
 def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Функция получения настроек грида. '''
@@ -104,6 +107,7 @@ def gridMeta(context, main=None, add=None, filterinfo=None, session=None, elemen
     res = XMLJSONConverter.jsonToXml(json.dumps(settings))
     return JythonDTO(None, res)
 
+
 def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     u'''Toolbar для грида. '''
 
@@ -112,105 +116,105 @@ def gridToolBar(context, main=None, add=None, filterinfo=None, session=None, ele
     else:
         style = "false"
 
-    data = {"gridtoolbar":{"item":[]
-                           }
+    data = {"gridtoolbar": {"item": []
+                            }
             }
     # Курсор таблицы permissions
     permissions = customPermsCursor(context)
 
     if permissions.canInsert():
         data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/addDirectory.png',
-                                            "@text":"Добавить",
-                                            "@hint":"Добавить",
+                                            "@text": "Добавить",
+                                            "@hint": "Добавить",
                                             "@disable": "false",
-                                            "action":{"@show_in": "MODAL_WINDOW",
-                                                      "#sorted":[{"main_context":"current"},
-                                                                 {"modalwindow":{"@caption": "Добавление типа разрешения",
-                                                                                 "@height": "400",
-                                                                                 "@width": "500"}
-                                                                  },
-                                                                 {"datapanel":{"@type": "current",
-                                                                               "@tab": "current",
-                                                                               "element": {"@id": "customPermissionsXforms",
-                                                                                           "add_context":"add"}
-                                                                               }
-                                                                  }]
-                                                      }
+                                            "action": {"@show_in": "MODAL_WINDOW",
+                                                       "#sorted": [{"main_context": "current"},
+                                                                   {"modalwindow": {"@caption": "Добавление типа разрешения",
+                                                                                    "@height": "400",
+                                                                                    "@width": "500"}
+                                                                    },
+                                                                   {"datapanel": {"@type": "current",
+                                                                                  "@tab": "current",
+                                                                                  "element": {"@id": "customPermissionsXforms",
+                                                                                              "add_context": "add"}
+                                                                                  }
+                                                                    }]
+                                                       }
                                             })
     if permissions.canModify():
         data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/editDocument.png',
-                                            "@text":"Редактировать",
-                                            "@hint":"Редактировать",
+                                            "@text": "Редактировать",
+                                            "@hint": "Редактировать",
                                             "@disable": style,
-                                            "action":{"@show_in": "MODAL_WINDOW",
-                                                      "#sorted":[{"main_context":"current"},
-                                                                 {"modalwindow":{"@caption": "Редактирование типа разрешения",
-                                                                                 "@height": "400",
-                                                                                 "@width": "500"}
-                                                                  },
-                                                                 {"datapanel":{"@type": "current",
-                                                                               "@tab": "current",
-                                                                               "element": {"@id": "customPermissionsXforms",
-                                                                                           "add_context":"edit"}
-                                                                               }
-                                                                  }]
-                                                      }
+                                            "action": {"@show_in": "MODAL_WINDOW",
+                                                       "#sorted": [{"main_context": "current"},
+                                                                   {"modalwindow": {"@caption": "Редактирование типа разрешения",
+                                                                                    "@height": "400",
+                                                                                    "@width": "500"}
+                                                                    },
+                                                                   {"datapanel": {"@type": "current",
+                                                                                  "@tab": "current",
+                                                                                  "element": {"@id": "customPermissionsXforms",
+                                                                                              "add_context": "edit"}
+                                                                                  }
+                                                                    }]
+                                                       }
                                             })
     if permissions.canDelete():
         data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/deleteDocument.png',
-                                            "@text":"Удалить",
-                                            "@hint":"Удалить",
+                                            "@text": "Удалить",
+                                            "@hint": "Удалить",
                                             "@disable": style,
-                                            "action":{"@show_in": "MODAL_WINDOW",
-                                                      "#sorted":[{"main_context":"current"},
-                                                                 {"modalwindow":{"@caption": "Удаление типа разрешения",
-                                                                                 "@height": "300",
-                                                                                 "@width": "450"}
-                                                                  },
-                                                                 {"datapanel":{"@type": "current",
-                                                                               "@tab": "current",
-                                                                               "element": {"@id": "customPermissionsXformDelete",
-                                                                                           "add_context":"delete"}
-                                                                               }
-                                                                  }]
-                                                      }
+                                            "action": {"@show_in": "MODAL_WINDOW",
+                                                       "#sorted": [{"main_context": "current"},
+                                                                   {"modalwindow": {"@caption": "Удаление типа разрешения",
+                                                                                    "@height": "300",
+                                                                                    "@width": "450"}
+                                                                    },
+                                                                   {"datapanel": {"@type": "current",
+                                                                                  "@tab": "current",
+                                                                                  "element": {"@id": "customPermissionsXformDelete",
+                                                                                              "add_context": "delete"}
+                                                                                  }
+                                                                    }]
+                                                       }
                                             })
     data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/arrowDown.png',
-                                        "@text":"Скачать",
-                                        "@hint":"Скачать прочие разрешения в xml",
+                                        "@text": "Скачать",
+                                        "@hint": "Скачать прочие разрешения в xml",
                                         "@disable": "false",
-                                        "action":{"@show_in": "MODAL_WINDOW",
-                                                  "#sorted":[{"main_context":"current"},
-                                                             {"modalwindow":{"@caption": "Скачать разрешения",
-                                                                             "@height": "300",
-                                                                             "@width": "450"}
-                                                              },
-                                                             {"datapanel":{"@type": "current",
-                                                                           "@tab": "current",
-                                                                           "element": {"@id": "customPermissionsDownloadXform",
-                                                                                       "add_context":"download"}
-                                                                           }
-                                                              }]
-                                                  }
+                                        "action": {"@show_in": "MODAL_WINDOW",
+                                                   "#sorted": [{"main_context": "current"},
+                                                               {"modalwindow": {"@caption": "Скачать разрешения",
+                                                                                "@height": "300",
+                                                                                "@width": "450"}
+                                                                },
+                                                               {"datapanel": {"@type": "current",
+                                                                              "@tab": "current",
+                                                                              "element": {"@id": "customPermissionsDownloadXform",
+                                                                                          "add_context": "download"}
+                                                                              }
+                                                                }]
+                                                   }
                                         }
                                        )
     data["gridtoolbar"]["item"].append({"@img": 'gridToolBar/arrowUp.png',
-                                        "@text":"Загрузить",
-                                        "@hint":"Загрузить прочие разрешения из xml",
+                                        "@text": "Загрузить",
+                                        "@hint": "Загрузить прочие разрешения из xml",
                                         "@disable": "false",
-                                        "action":{"@show_in": "MODAL_WINDOW",
-                                                  "#sorted":[{"main_context":"current"},
-                                                             {"modalwindow":{"@caption": "Загрузить разрешения",
-                                                                             "@height": "300",
-                                                                             "@width": "450"}
-                                                              },
-                                                             {"datapanel":{"@type": "current",
-                                                                           "@tab": "current",
-                                                                           "element": {"@id": "customPermissionsUploadXform",
-                                                                                       "add_context":"upload"}
-                                                                           }
-                                                              }]
-                                                  }
+                                        "action": {"@show_in": "MODAL_WINDOW",
+                                                   "#sorted": [{"main_context": "current"},
+                                                               {"modalwindow": {"@caption": "Загрузить разрешения",
+                                                                                "@height": "300",
+                                                                                "@width": "450"}
+                                                                },
+                                                               {"datapanel": {"@type": "current",
+                                                                              "@tab": "current",
+                                                                              "element": {"@id": "customPermissionsUploadXform",
+                                                                                          "add_context": "upload"}
+                                                                              }
+                                                                }]
+                                                   }
                                         }
                                        )
 
