@@ -49,7 +49,7 @@ def gridData(context, main=None, add=None, filterinfo=None,
     permissions.limit(firstrecord - 1, pagesize)
     for permissions in permissions.iterate():
         permDict = {}
-        permDict[_header["id"][1]] = permissions.id
+        permDict[_header["id"][1]] = permissions.name
         permDict[_header["name"][1]] = permissions.name or ''
         permDict[_header["description"][1]] = permissions.description or ''
         permDict[_header["type"][1]] = permissions.type or ''
