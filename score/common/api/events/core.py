@@ -72,7 +72,7 @@ class ActionBaseElement(IJSONSerializable):
 class _BaseActivityElement(ActionBaseElement, ShowcaseBaseElementMixIn):
     """Базовый класс для конкретных действий, выполняемых в тэге action"""
     
-    def __init__(self, inId, inAddContext="current", inKeepUserSettings=None, inIsPartialUpdate=None):
+    def __init__(self, inId, inAddContext=None, inKeepUserSettings=None, inIsPartialUpdate=None):
         """
         @param inId (@c string) ИД конкретного действия
         @param inAddContext (<tt>любой тип</tt>) 

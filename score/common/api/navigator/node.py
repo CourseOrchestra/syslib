@@ -30,19 +30,21 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
     @see common.api.tree.treenode.Node, common.api.core.ShowcaseBaseNamedElement
     """
     
-    def __init__(self, inId, inName, inAction=None):
+    def __init__(self, inId, inName, inAction=None, inIcon=None):
         """
         @param inId (@c string) ИД узла навигатора
         @param inName (@c string) отображаемое наименование узла
         @param inAction (@c common.api.events.action.Action) действие при клике
+        @param inIcon (@c string) иконка для группы (см. #setIcon) 
         на узел навигатора   
         """
         
         super(NavigatorNode, self).__init__(inId, inName)
         self.__action = inAction
         self.__selectOnLoad = False
+        self.__icon = inIcon
         self.initializeNode()
-    
+
     
     def setAction(self, inAction):
         """Устанавливает действие, вызываемое при клике на узел
@@ -87,15 +89,37 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
         @return @c bool
         """
         return self.__selectOnLoad
+    
+    
+    def setIcon(self, icon):
+        """Устанавливает иконку для группы.
         
+        @param icon (@c string)
+        
+        @note Действует только для узлов, являющихся группами, т.е. родителями которых является 
+        корневрй узел. Для простых узлов (пунктов и подпунктов) заданное значение игнорируется.  
+        """
+        self.__icon = icon
+        return self
+    
+    
+    def icon(self):
+        """Возвращает иконку, заданную для узла.
+        @return @c string
+        """
+        return self.__icon
         
     
     def toJSONDict(self):
-        
         if self.isRoot() and self.getNumberOfChildren() == 0:
             raise Exception('There are no child (group) nodes in root node! Root node has to have at least one child node!')
         
         d = {}
+        
+        # значит узел - группа
+        if self.parent and self.parent.isRoot():
+            if self.__icon:
+                d['@icon'] = self.__icon
         
         childrenLevel = self.getLevel() + 1
         
@@ -126,9 +150,7 @@ class NavigatorNode(ShowcaseBaseNamedElement, Node):
         if srtLst:
             d["#sorted"] = srtLst 
         
-        
         return d 
-            
 
 
 if __name__ == '__main__':
@@ -137,13 +159,15 @@ if __name__ == '__main__':
     
 #     print rootNode.toJSONDict()
     
-    n1 = NavigatorNode('g1', u'Group 1')
+    n1 = NavigatorNode('g1', u'Group 1', inIcon='icon.png')
     
     n11 = NavigatorNode('n1.1', u'Node 1.1', 
             Action().addActivity(
                 DatapanelActivity().add('datapanel1.xml','firstOrCurrent')
             )
-        ) 
+        )
+    
+    n11.setIcon('icon11.png')
      
     n1.addChild(n11)
      
@@ -166,12 +190,13 @@ if __name__ == '__main__':
                     DatapanelActivity().add('datapanel4.xml','firstOrCurrent')
                 )
         )
+    
+    n2.setIcon(n1.icon())
+    
     n21 = NavigatorNode('n1.3.1', u'Node 1.3') 
     
     rootNode.addChild(n1)
-
-    
-    
+#     rootNode.addChild(n2)
     
 #     print t.getRoot().toJSONDict()
     print rootNode.toJSONDict()

@@ -146,8 +146,17 @@ class Action(ActionBaseElement):
         @param inModalWindow (@c common.api.events.action.ModalWindow)
         @return ссылка на себя 
         """
+        
         self.__modalWindow = inModalWindow
         return self
+    
+    
+    def modalWindow(self):
+        """Возвращает модальное окно. Если не модальное окно не задано, то @c None.
+        @return @c common.api.events.action.ModalWindow или @c None
+        """
+        
+        return self.__modalWindow
     
     
     def addActivity(self, inActivity):

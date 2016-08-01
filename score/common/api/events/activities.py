@@ -37,7 +37,7 @@ class ActivityElementType(object):
 class DatapanelElement(_BaseActivityElement):
     """Описывает обновляемый элемент информационной панели"""
     
-    def __init__(self, inId, inAddContext="current", inKeepUserSettings=None, inIsPartialUpdate=None):
+    def __init__(self, inId, inAddContext=None, inKeepUserSettings=None, inIsPartialUpdate=None):
         """
         @param inId, inAddContext, inKeepUserSettings, inIsPartialUpdate см. 
         common.api.events.common._BaseActivityElement
@@ -57,7 +57,7 @@ class DatapanelElement(_BaseActivityElement):
 class ActivityElement(_BaseActivityElement):
     """Непосредственное действие, выполняемое в server/client action"""
     
-    def __init__(self, inId, inProcName, inAddContext="current"):
+    def __init__(self, inId, inProcName, inAddContext=None):
         """
         @param inId, inAddContext см. 
         common.api.events.common._BaseActivityElement
@@ -100,7 +100,7 @@ class ServerElement(ActivityElement):
     Служит для конкретной идентификации типа при использовании в 
     common.api.events.action.Action.add
     """
-    def __init__(self, inId, inProcName, inAddContext="current"):
+    def __init__(self, inId, inProcName, inAddContext=None):
         super(ServerElement, self).__init__(inId, inProcName, inAddContext)
 
 
@@ -111,7 +111,7 @@ class ClientElement(ActivityElement):
     Служит для конкретной идентификации типа при использовании в 
     common.api.events.action.Action.add
     """
-    def __init__(self, inId, inProcName, inAddContext="current"):
+    def __init__(self, inId, inProcName, inAddContext=None):
         super(ClientElement, self).__init__(inId, inProcName, inAddContext)
 
 
@@ -311,7 +311,7 @@ class DatapanelActivity(ActionActivity):
 
 
 class ServerActivity(ActionActivity):
-    """Описывает серверное десйствие"""
+    """Описывает серверное действие"""
     
     def __init__(self):
         super(ServerActivity, self).__init__(ActionActivityType.SERVER)

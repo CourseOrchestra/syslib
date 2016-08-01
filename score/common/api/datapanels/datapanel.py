@@ -282,15 +282,17 @@ class DatapanelElement(ShowcaseBaseElement):
 class XForm(DatapanelElement):
     """Описывает элемент с типом XForm"""
     
-    def __init__(self, elementId, templateName=None, procName=None):
+    def __init__(self, elementId, templateName=None, procName=None, buildTemplate=True):
         """
         @param elementId (@c string) ИД элемента
         @param templateName (@c string) имя файла шаблона
         @param procName (<tt>string or function object</tt>) функция-обработчик
         загрузки данных для элемента
+        @param buildTemplate (@c boolean) фдаг сборки шаблона из частей
         """
         super(XForm, self).__init__(elementId, DatapanelElementTypes.XFORMS, procName)
         
+        self.setBuildTemplate(buildTemplate)
         self.setTemplate(templateName)
 
     
@@ -309,8 +311,24 @@ class XForm(DatapanelElement):
         """
         self.__template = value
         return self
-        
-        
+    
+    
+    def buildTemplate(self):
+        """Возвращает флаг сборки шаблона формы из частей.
+        @return @c boolean
+        """
+        return self.__buildTemplate    
+    
+    
+    def setBuildTemplate(self, value):
+        """Устанавливает флаг сборки шаблона формы из частей.
+        @param value (@c boolean) @c True - собирать шаблон из частей.
+        """
+        self.__buildTemplate = value
+        return self
+    
+    
+    
     def toJSONDict(self):
         if not self.__template:
             raise ValueError(u"Template for XForms element id = '%s' is not set!" % self.id())
@@ -318,6 +336,7 @@ class XForm(DatapanelElement):
         d = super(XForm, self).toJSONDict()
         
         d["@template"] = self.template()
+        d["@buildTemplate"] = str(self.buildTemplate()).lower()
         
         return d
         
@@ -405,7 +424,7 @@ class Tab(ShowcaseBaseNamedElement):
         """Добавляет элемент на вкладку
         @param datapanelElement (@c common.api.datapanels.datapanel.DatapanelElement)
         @return ссылка на себя
-        @throw ValueError если элемент с таким ИД уже существует на вкладке
+        @throw @c ValueError если элемент с таким ИД уже существует на вкладке
         """
         if isIdExists(datapanelElement, self.__elements):
             raise ValueError(u"Error adding element to the tab id = '%s': element with the same id = '%s' already exists!" % (self.id, datapanelElement.id))
