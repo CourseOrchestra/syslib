@@ -327,6 +327,33 @@ def getFilePathById(context, file_id, file_version_id=None):
         nestingSize)
 
 
+def getRelativePathById(context, file_id, file_version_id=None):
+    "Функция возвращает относительный путь к последней версии файла либо к указанной"
+    file_cursor = fileCursor(context)
+    file_version_cursor = fileVersionCursor(context)
+
+    if not file_cursor.tryGet(file_id):
+        return
+
+    if not file_version_id:
+        file_version_cursor.setRange("fileId", file_cursor.id)
+        file_version_cursor.setRange("exist", True)
+        file_version_cursor.orderBy("fileName desc")
+    else:
+        file_version_cursor.setRange("id", file_version_id)
+
+    if not file_version_cursor.tryFirst():
+        return
+    dict_settings = getClusterSettings(context, file_version_cursor.clasterId)
+    nestingSize = len(str(dict_settings["filesAmount"]))
+    path_to_file = []
+    path_to_file.extend(nameToPathList(file_version_cursor.fileName,
+                                       nestingSize)[:-1])
+    # Собственно файл
+    path_to_file.append(file_version_cursor.fileName)
+    return "\\".join(path_to_file)
+
+
 def profilactic(context):
     """Функция очищает кластеры от неуказанных в базе файлов,
         если все файлы в кластере являются неуказанными"""
