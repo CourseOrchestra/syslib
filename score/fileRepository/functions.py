@@ -351,7 +351,7 @@ def getRelativePathById(context, file_id, file_version_id=None):
                                        nestingSize)[:-1])
     # Собственно файл
     path_to_file.append(file_version_cursor.fileName)
-    return "\\".join(path_to_file)
+    return path_to_file
 
 
 def profilactic(context):
