@@ -219,6 +219,7 @@
                               <div class="button200 buttonMs">
                                   <xf:multiselector buttonLabel="Добавить" dataWidth="'400px'" dataHeight="'400px'"
                                      selectedDataWidth="'400px'" visibleRecordCount="'48'"
+									 startWith="false"
                                      procListAndCount="'nsi.filtertools.filter_selector.itemsListAndCount.celesta'"
                                      generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))])']"
                                      currentValue="''" windowCaption="'Выбор фильтров'" needClear="true" needInitSelection="true"
@@ -245,14 +246,15 @@
                           </xf:group>
                           
                           <xf:group ref=".[@style='selector']">
-                          	<div class="selectorLong200 buttonMs fullWidth"> <!-- было 3 пикселя паддинг вниз -->
+                          	<div class="selectorLong200 buttonMs fullWidth">
                           		<xf:input ref="./item/@name">
                           		</xf:input>
 							<xf:selector buttonLabel="..."
 								procListAndCount="'nsi.filtertools.filter_selector.special_selector.celesta'"
-								generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))])']" 
+								generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters/filter)', 'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))])']" 
 								currentValue="''" windowCaption="'Выбор значения'"
 								dataWidth="'300px'"
+								startWith="false"
 								xpathMapping="{	'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))]/item/@id)': 'id',
 												'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))]/item/@name)': 'name'}"/>
 							<xf:trigger>
@@ -296,6 +298,7 @@
 		                         generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters)']"
 		                         currentValue="''" windowCaption="'Select criteria'"  
 		                         selectedFirst="true"
+								 startWith="false"
 								 onSelectionCompleteAction="&lt;xf:action&gt;
                                 &lt;xf:insert context=&quot;instance('xformId_mainInstance')/filters&quot;
                                            nodeset=&quot;instance('xformId_mainInstance')/filters/filter&quot;

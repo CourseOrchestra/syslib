@@ -1,5 +1,5 @@
 # coding: utf-8
-from common.filtertools.filter import recovery
+from nsi.filtertools.filter import recovery
 import json
 
 def card_info(context, elementId):
@@ -44,7 +44,7 @@ def card_save(xformsdata, context, filter_id):
                         stable_filter['items']['item'] = []
                     break
 
-def add_filter_buttons(filter_id, session, height=False, width=700):   # в параметр heigth можно задавать число фильтров в *filter для гибкого отображения размеров окна 
+def add_filter_buttons(filter_id, session, height=False, width=700, add_info=u'', add_context=None):   # в параметр heigth можно задавать число фильтров в *filter для гибкого отображения размеров окна 
     u'''
     filter_id - id карточки в датапанели, 
     height="300" - высота карточки фильтра
@@ -58,8 +58,8 @@ def add_filter_buttons(filter_id, session, height=False, width=700):   # в па
     button = [
         {
             "@img": 'gridToolBar/formMagnify.png',
-            "@text":"Параметры поиска",
-            "@hint":"Установить фильтр",
+            "@text": add_info or u"Параметры поиска",
+            "@hint": u"Установить фильтр",
             "@disable": 'false',
             "action":
             {
@@ -69,7 +69,7 @@ def add_filter_buttons(filter_id, session, height=False, width=700):   # в па
                     {"main_context":"current"},
                     {
                         "modalwindow"   :
-                        {   "@caption"  : "Параметры поиска",
+                        {   "@caption"  : u"Параметры поиска",
                             "@height"   : height,
                             "@width"    : width
                         }
@@ -82,7 +82,7 @@ def add_filter_buttons(filter_id, session, height=False, width=700):   # в па
                             "element": 
                             {
                                 "@id": filter_id,
-                                "add_context": filter_id
+                                "add_context": add_context or filter_id
                             }
                         }
                     }

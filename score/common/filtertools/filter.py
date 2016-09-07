@@ -1,6 +1,7 @@
 # coding: utf-8
 from datetime import date, datetime
 from time import clock
+from sys import maxint, minint
 
 
 def filter_assembly(context, cursor, filter_id, field_name_list, table_name):
@@ -183,7 +184,9 @@ def filtered_function(context, filter_name, cursor):
                     'text'      : filter_dict['@value'],
                     'bool'      : True if filter_dict['@boolInput'] == 'true' else False,
                     'item'      : filter_dict['item'],
-                    'condition' : filter_dict['@current_condition']
+                    'condition' : filter_dict['@current_condition'],
+                    'minValue'  : filter_dict['@minValue'],
+                    'maxValue'  : filter_dict['@maxValue']
                 }
                 
             if filter_dict['@style'] == 'usuall':
@@ -199,7 +202,7 @@ def filtered_function(context, filter_name, cursor):
                     if filter_dict['@current_condition'] == 'equal' and filter_dict['@value']:
                         cursor.setRange(filter_dict['@id'], int(filter_dict['@value']))
                     elif filter_dict['@current_condition'] == 'between' and (filter_dict['@maxValue'] or filter_dict['@minValue']):
-                        cursor.setFilter(filter_dict['@id'], '..%s&%s..' % (filter_dict['@maxValue'] or 9999999999, filter_dict['@minValue'] or 0))
+                        cursor.setFilter(filter_dict['@id'], '..%s&%s..' % (filter_dict['@maxValue'] or maxint, filter_dict['@minValue'] or minint))
                     elif filter_dict['@current_condition'] == 'right' and filter_dict['@value']:
                         cursor.setFilter(
                             filter_dict['@id'], '..%s' % filter_dict['@value']
@@ -322,12 +325,5 @@ def recovery(context, add):
         if add in context.getData().get('card_save', []):
             context.getData()['card_save'].remove(add)
             
-        
-def filter_expection(expression):
-    #simbols = {x for x in expression}
-    TRUE_conditions = [True]
-    FALSE_conditions = [
-        (expression in {'', None, False}), (expression.count(".")%2 != 0), ]
-    return True in FALSE_conditions and False not in TRUE_conditions 
     
     

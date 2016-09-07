@@ -135,7 +135,8 @@ def itemsListAndCount(context, main=None, add=None, filterinfo=None, session=Non
 def special_selector(context, main=None, add=None, filterinfo=None, session=None, params=None,
                 curvalue=None, startswith=None, firstrecord=None, recordcount=None):
     u'''Функция для получения списка элементов в пределе одного фильтра типа itemset'''
-    field_name = json.loads(XMLJSONConverter.xmlToJson(params))['schema']['filter']['filter']['@id']
+    all_fields, current = (x['filter'] for x in json.loads(XMLJSONConverter.xmlToJson(params))['schema']['filter'])
+    field_name = current['@id']
     
     selector_path = [
         neccessary_field['@selector_data']
