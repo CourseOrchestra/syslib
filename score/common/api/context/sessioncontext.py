@@ -38,7 +38,7 @@ class GridContext:
     def __init__(self, gridContextJson):
         """
         @param gridContextJson (@c dict) JSON-словарь c содержимым тэга 
-        gridContext  
+        *gridContext*
         """
         
         ## (@c string) ИД выбранного столбца
@@ -99,8 +99,8 @@ class FormsContext:
 
     def __init__(self, formContextJson):
         """
-        @param gridContextJson (@c dict) JSON-словарь c содержимым тэга 
-        xformsContext  
+        @param formContextJson (@c dict) JSON-словарь c содержимым тэга 
+        *xformsContext*
         """
 
         ## (@c string) ИД элемента формы на информационной панели
@@ -110,10 +110,57 @@ class FormsContext:
         self.data = formContextJson.get("formData", None)
         
 
+class URLParams(object):
+    """Класс доступа к параметрам URL через атрибуты.
+    
+    @see common.api.context.sessioncontext.SessionContext.urlparams
+    """
+    
+    PARAM_KEY = 'urlparam'
+    
+    def __init__ (self, urlparams):
+        """
+        @param urlparams (@c dict | @c None) содержимое тэга *urlparams* в 
+        session context
+        """
+        
+        self.__params = urlparams or {}
+        if self.__params:
+            self.__params = self.__params.get(self.PARAM_KEY, {})
+        
+        
+        if self.__params:
+            res = {}
+            if isinstance(self.__params, list):
+                for p in self.__params:
+                    res[p['@name']] = p['@value'][0]
+            else:
+                res[self.__params['@name']] = self.__params['@value'][0]
+            
+            self.__params = res
+    
+    
+    def __getattr__(self, name):
+        try:
+            return self.__params[name]
+        except KeyError:
+            raise AttributeError("URL parameter '{}' does not set".format(name))
+        
+    
+    def __bool__(self):
+        return bool(self.__params)
+            
+    __nonzero__ = __bool__
+    
+    
+    def __repr__(self, ):
+        return "{}({})".format(self.__class__.__name__, str(self.__params).replace('{', '').replace('}').replace(':','='))
+    
+
 class SessionContext:
     """Описывает структуру session context."""
     
-    def __init__(self, jsonString, panelGridsCount = 1):
+    def __init__(self, jsonString, panelGridsCount=1):
         """
         @param jsonString (@ string) JSON-строка, содержащая session context.
         Обычно такая строка приходит одним из параметров функции-обработчика
@@ -177,6 +224,21 @@ class SessionContext:
             if fc is not None:
                 self._createRelatedForms(fc)
                 
+        ## (@c common.api.context.sessioncontext.URLParams) Параметры URL.
+        #
+        # Доступ к парметрам осуществляется через атрибуты, соответствующие
+        # имени параметра:
+        #
+        # @code
+        # ses = SessionContext(session)
+        # try:
+        #     # получение значения параметра с именем param1
+        #     param1Value = ses.urlparams.param1
+        # except AttributeError:
+        #    # выбрасывает AttributeError, если параметр не был задан 
+        # @endcode
+        self.urlparams = URLParams(sesJson.get('urlparams'))
+                
                    
     def getGridContext(self, gridId=None):
         """Возвращает контекст грида с ИД @a gridId.
@@ -211,7 +273,7 @@ class SessionContext:
         Если нет ни одного контекста или контекст для заданного @a formId не
         найден, возвращает @c None.
         
-        @param formId (@c string) ИД грида
+        @param formId (@c string) ИД формы
         @return @c common.api.context.sessioncontext.FormsContext
         """
         
