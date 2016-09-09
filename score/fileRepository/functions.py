@@ -119,8 +119,6 @@ def putFile(context, native_filename, stream_input, current_cluster_num=1,
         stream_input.close()
         fileToWrite.close()
 
-    if 0 < size_of_file < 8:
-        repairNullString(path_to)
     """3апись в БД в случае, если при загрузке не произошла ошибка"""
     if not rewritten_file_id:
         file_cursor.insert()
