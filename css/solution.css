@@ -2,6 +2,7 @@
 
 @import "security.css";
 @import "udStyle.css";
+@import "filter_styles.css";
 
 /*Общие стили*/
 body, table td, select {
