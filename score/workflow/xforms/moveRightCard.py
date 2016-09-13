@@ -5,7 +5,7 @@ Created on 25.12.2014
 @author: tr0glo)|(I╠╣
 '''
 
-import simplejson as json
+import json
 from java.util import ArrayList
 
 from common import hierarchy

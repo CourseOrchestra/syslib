@@ -8,7 +8,7 @@ Created on 21.10.2014
 все активные задачи всех пользователей и групп
 '''
 
-import simplejson as json
+import json
 import os
 from com.google.gson import Gson
 import time

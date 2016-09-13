@@ -7,7 +7,7 @@ Created on 22.10.2014
 '''
 
 
-import simplejson as json
+import json
 
 from common.sysfunctions import toHexForXml
 from workflow.processUtils import ActivitiObject

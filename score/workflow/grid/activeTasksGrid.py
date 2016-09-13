@@ -11,7 +11,7 @@ Created on 21.10.2014
 '''
 
 from com.google.gson import Gson
-import simplejson as json
+import json
 import os
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter

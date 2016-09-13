@@ -7,7 +7,7 @@ Created on 21.10.2014
 '''
 
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-import simplejson as json
+import json
 from workflow.processUtils import getLinkPermisson
 
 def activeTasks(context, main=None, session=None):

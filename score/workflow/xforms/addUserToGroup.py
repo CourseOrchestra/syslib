@@ -11,7 +11,7 @@ from java.util import ArrayList
 
 
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-import simplejson as json
+import json
 from workflow._workflow_orm import userGroupCursor, view_subjectsCursor, \
     groupsCursor
 

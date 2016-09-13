@@ -5,7 +5,7 @@ Created on 23.10.2014
 @author: m.prudyvus
 '''
 
-import simplejson as json
+import json
 from java.util import ArrayList
 # from org.activiti.engine.delegate.event import BaseEntityEventListener
 try:

@@ -7,7 +7,7 @@ Created on 31.10.2014
 '''
 
 
-import simplejson as json
+import json
 from com.google.gson import Gson
 from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter

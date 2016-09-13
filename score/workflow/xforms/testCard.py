@@ -5,7 +5,7 @@ Created on 03.12.2013
 @author: v.popov
 
 '''
-import simplejson as json
+import json
 from java.util import ArrayList
 try:
     from ru.curs.showcase.core.jython import JythonDTO

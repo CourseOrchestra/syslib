@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-import simplejson as json
+import json
 from workflow.processUtils import getLinkPermisson
 
 def manageProcesses(context, main=None, session=None):

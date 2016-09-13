@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import simplejson as json
+import json
 from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow._workflow_orm import groupsCursor, userGroupCursor

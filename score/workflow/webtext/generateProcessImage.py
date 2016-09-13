@@ -9,7 +9,7 @@ Created on 12.11.2014
 
 
 import re, os
-import simplejson as json
+import json
 
 from common.sysfunctions import toHexForXml
 from workflow.processUtils import ActivitiObject

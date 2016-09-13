@@ -5,7 +5,7 @@ Created on 04.08.2014
 @author: m.prudyvus
 '''
 
-import simplejson as json
+import json
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO

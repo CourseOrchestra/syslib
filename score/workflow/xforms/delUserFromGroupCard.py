@@ -6,7 +6,7 @@ Created on 26.12.2014
 '''
 
 
-import simplejson as json
+import json
 
 
 from workflow.processUtils import ActivitiObject

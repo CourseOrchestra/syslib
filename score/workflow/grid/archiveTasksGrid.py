@@ -6,7 +6,7 @@ Created on 21.10.2014
 @author: m.prudyvus
 '''
 
-import simplejson as json
+import json
 from common.sysfunctions import toHexForXml, getGridWidth, getGridHeight
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject

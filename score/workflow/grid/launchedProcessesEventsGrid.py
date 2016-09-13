@@ -7,7 +7,7 @@ Created on 27.10.2014
 '''
 
 
-import simplejson as json
+import json
 from common.sysfunctions import toHexForXml
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from workflow.processUtils import ActivitiObject

@@ -6,7 +6,7 @@ Created on 10.11.2014
 '''
 
 
-import simplejson as json
+import json
 import urlparse
 import cgi
 

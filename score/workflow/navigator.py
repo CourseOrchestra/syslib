@@ -1,5 +1,5 @@
 # coding: utf-8
-import simplejson as json
+import json
 import os
 from security.functions import userHasPermission
 try:

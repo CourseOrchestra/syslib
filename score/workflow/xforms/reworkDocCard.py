@@ -5,7 +5,7 @@ Created on 28.11.2014
 @author: tr0gLo)|(IH
 '''
 
-import simplejson as json
+import json
 
 from workflow.processUtils import ActivitiObject
 try:

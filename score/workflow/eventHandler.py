@@ -6,7 +6,7 @@ from ru.curs.showcase.runtime import ConnectionFactory,AppInfoSingleton
 from com.ziclix.python.sql import zxJDBC,PyConnection
 from ru.curs.showcase.core.jython import JythonProc;
 from workflow.processUtils import ActivitiObject
-import simplejson as json
+import json
 
 from workflow._workflow_orm import act_ru_identitylinkCursor, act_task_linksCursor 
     
