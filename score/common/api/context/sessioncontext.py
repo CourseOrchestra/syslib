@@ -154,7 +154,7 @@ class URLParams(object):
     
     
     def __repr__(self, ):
-        return "{}({})".format(self.__class__.__name__, str(self.__params).replace('{', '').replace('}').replace(':','='))
+        return "{}({})".format(self.__class__.__name__, str(self.__params).replace('{', '').replace('}', '').replace(': ','='))
     
 
 class SessionContext:
