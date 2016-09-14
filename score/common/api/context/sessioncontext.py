@@ -131,11 +131,12 @@ class URLParams(object):
         
         if self.__params:
             res = {}
+            getValue = lambda valuesList: valuesList[0] if len(valuesList) == 1 else valuesList
             if isinstance(self.__params, list):
                 for p in self.__params:
-                    res[p['@name']] = p['@value'][0]
+                    res[p['@name']] = getValue(p['@value'])
             else:
-                res[self.__params['@name']] = self.__params['@value'][0]
+                res[self.__params['@name']] = getValue(self.__params['@value'])
             
             self.__params = res
     
@@ -237,6 +238,9 @@ class SessionContext:
         # except AttributeError:
         #    # выбрасывает AttributeError, если параметр не был задан 
         # @endcode
+        #
+        # @note Если у запрашиваемого параметра больше одного значения, то
+        # они будут возвращены в виде списка.
         self.urlparams = URLParams(sesJson.get('urlparams'))
                 
                    
@@ -307,7 +311,7 @@ class SessionContext:
         @return (@c int) размер в пикселях
         
         @see #gridsCount
-        @see common.sysfunctions.getGridWidth
+        @see common.sysfunctions.getGridHeight
         """
         return int(getGridHeight(self.sessionString, self.gridsCount))
     
