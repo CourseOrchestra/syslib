@@ -57,7 +57,7 @@ class HeaderDict:
             standard_header_dict = current_values
 
         header_list = [self.header]
-        unsensitive = [] if not self.header else [False]
+        unsensitive = [False]
         for key, values_dict in self.header_dict.items():
             if key not in standard_header_dict:
                 continue
