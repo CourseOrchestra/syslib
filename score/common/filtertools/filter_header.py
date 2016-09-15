@@ -1,8 +1,9 @@
 #coding: utf-8
-from datetime import date, datetime, timedelta
+#from datetime import date, datetime, timedelta
 from collections import OrderedDict
 from any_functions import is_exist
 from filter import unbound_types, unbound_dict_filler
+from __builtin__ import len
 
 
 # Class chapter
@@ -16,15 +17,14 @@ class IncorrectHeaderInput(ValueError):
 
 class HeaderDict:
     u'''labels = {'field_id': {'Значение':'Наименование'}}'''
-    data_types = {'date', 'num', 'text', 'bool'}
-
+    data_types = {'date', 'float', 'text', 'bool'}
 
     def __init__(self, labels, header=u'', special_condition=''):
         self.header_dict = OrderedDict([(i, self.preprocessor(j)) for i, j in unicoder(labels).items()])
         self.header = header
 
     def preprocessor(self, values_dict):
-        must_have_settings = {'data_type', 'empty', 'label', 'values_to_header', 'end'}
+        must_have_settings = {'data_type', 'empty', 'label', 'values_to_header', 'end', 'case_sensitive'}
 
         if 'data_type' not in values_dict.keys() or values_dict['data_type'] not in self.data_types:
             raise IncorrectHeaderInput("Incorrect input: not specified field data type.")
@@ -35,20 +35,32 @@ class HeaderDict:
                                                        else '.'
             elif setting == 'end':
                 result[setting] = '; '
+            elif setting == 'case_sensitive':
+                result[setting] = False
             else:
                 result[setting] = ''
 
         return result
-
-    def return_header(self, current_values):
+    
+    def replace_header(self, new_header):
+        self.header = new_header
+    
+    def return_header(self, current_values, context_filter=False):
         u'''current_values = {id_field: value} for non-standard filtering and
             {id_field: {data_types : value, ...}} for STANDARTEN'''
-        standard_header_dict = current_values\
-            if not filter((lambda x: not isinstance(current_values[x], dict)), current_values.keys()) else\
-            through_filler(current_values, self.header_dict)
+        if context_filter is False:
+            standard_header_dict = through_filler(current_values, self.header_dict)
+        else:
+            for y in current_values.values():
+                if y['item']:
+                    y['text'] = y['item']['@name']
+            standard_header_dict = current_values
 
         header_list = [self.header]
+        unsensitive = [] if not self.header else [False]
         for key, values_dict in self.header_dict.items():
+            if key not in standard_header_dict:
+                continue
             datatype = get_value_through_type(values_dict['data_type'], standard_header_dict[key])
 
             if datatype in ('', None):
@@ -67,35 +79,53 @@ class HeaderDict:
 
                 if isinstance(format_string, list):
                     if values_dict['data_type'] == 'date':
-                        print(format_string)
                         first_chapter = (u'с %s ' % format_string[0]) if format_string[0] else u''
                         second_chapter = (u'по %s' % format_string[1]) if format_string[1] else u''
                         format_string = u'%s%s' % (first_chapter, second_chapter)
             else:
                 scheduler = u'{}'
                 format_string = values_dict['empty']
-
+                
+            unsensitive.append(self.header_dict[key]['case_sensitive'])
             header_list.append(scheduler.format(format_string))
 
         header_list[-1] = header_list[-1].rstrip().rstrip(';')
-        header_list = filter(None, header_list)
+        # Проклятый костыль для того, чтобы видеть, какое поле нулевое
+        new_header_list = []
+        insensitive = []
+        for i, head in enumerate(header_list):
+            if head:
+                new_header_list.append(head)
+                insensitive.append(unsensitive[i])
+        header_list = new_header_list
         upper_case = True
         finished_header = []
-
-        for header_field in header_list:
+        for i, header_field in enumerate(header_list):            
             if upper_case:
-                titled_header = header_field.split()
-                if len(titled_header) > 1:
-                    tempo = titled_header[0].capitalize()
-                    header_field = u'{} {}'.format(unicode(tempo), ' '.join(titled_header[1:]))
-                else:
-                    header_field = unicode(titled_header[0])
+                if not insensitive[i]:
+                    titled_header = header_field.split()
+                    if len(titled_header) > 1:
+                        tempo = titled_header[0].capitalize()
+                        header_field = u'{} {}'.format(unicode(tempo), ' '.join(titled_header[1:]))
+                    else:
+                        header_field = unicode(titled_header[0])
                 upper_case = False
 
             if header_field.rstrip()[-1] == '.':
                 upper_case = True
             finished_header.append(header_field)
-        finished_header = filter((lambda x: x != '.'), finished_header)
+        
+        if len(finished_header) == 0:
+            return u'Параметры фильтрации не указаны'
+        elif (len(finished_header) == 1 and self.header != ''):
+            return u'{}: не указаны'.format(finished_header[0]) 
+        
+        if self.header == '':
+            finished_header = filter((lambda x: x != '.'), finished_header)
+        else:
+            if finished_header[1] == '.' and len(finished_header) > 2:
+                return u'{} {}'.format(''.join([finished_header[0], finished_header[1]]), ' '.join(finished_header[2:]))
+        
         return ' '.join(finished_header)
 
 
@@ -104,7 +134,7 @@ def header_type_to_filter_type():
     return {
     #data_type: position in unbound_dict_filler
         'date': {'from': 'minValue', 'to': 'maxValue'},
-        'num' : 'text',
+        'float' : 'text',
         'text': 'text',
         'bool': 'bool'
     }
@@ -151,7 +181,8 @@ def through_filler(values_dict, types_dict):
                 unbound_string.append(dt_value[max_dt])
             else:
                 unbound_string = ['']
-        output[i_key] = unbound_dict_filler(unbound_string)
+        
+        output[i_key] =  unbound_dict_filler(unbound_string)
     return output
 
 
