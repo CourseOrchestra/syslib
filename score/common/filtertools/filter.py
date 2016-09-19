@@ -96,7 +96,7 @@ def create_filter_map(cursor, field_name_dict, free_variables):
     return_dict = {
         'DATETIME': 'date', 'VARCHAR': 'text', 'NUMERIC': 'float',
         'TEXT': 'text', 'INT': 'float', 'FLOAT': 'float', 'DATE': 'date',
-        'BOOLEAN': 'bool'
+        'BOOLEAN': 'bool', 'BIT': 'bool'
     }
     fnd_set = set(field_name_dict.keys())
     styles_set = {'itemset', 'unbound', 'free', 'selector', 'select'}
