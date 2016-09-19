@@ -101,7 +101,7 @@
 				instance="xformId_mainInstance" 
 				ref="instance('xformId_mainInstance')/filters/filter[index('xformId_filterRow')]"
 				targetref="instance('xformId_filterInstance')/filters/filter"
-				action="secured/submit?proc=nsi.filtertools.filter_selector.submissionUnview.celesta"
+				action="secured/submit?proc=common.filtertools.filter_selector.submissionUnview.celesta"
 				replace="none" 
 				validate='false' mode="synchronous">
 			</xf:submission>
@@ -110,7 +110,7 @@
 				targetref="instance('xformId_mainInstance')/filters/filter[index('xformId_filterRow')]" 
 				replace="instance" 
 				ref="instance('xformId_mainInstance')/filters/filter[index('xformId_filterRow')]"
-				action="secured/submit?proc=nsi.filtertools.filter_selector.submissionView.celesta"
+				action="secured/submit?proc=common.filtertools.filter_selector.submissionView.celesta"
 				validate='false' mode="synchronous">
 			</xf:submission>
 
@@ -118,7 +118,7 @@
 				targetref="instance('xformId_mainInstance')/filters" 
 				replace="instance" 
 				ref="instance('xformId_mainInstance')/filters"
-				action="secured/submit?proc=nsi.filtertools.filter_selector.submissionSort.celesta"
+				action="secured/submit?proc=common.filtertools.filter_selector.submissionSort.celesta"
 				validate='false' mode="synchronous">
 			</xf:submission>
 		</xf:model>
@@ -236,7 +236,7 @@
 													<xf:multiselector buttonLabel="Добавить" dataWidth="'400px'" dataHeight="'400px'"
                                      selectedDataWidth="'400px'" visibleRecordCount="'48'"
 									 startWith="false"
-                                     procListAndCount="'nsi.filtertools.filter_selector.itemsListAndCount.celesta'"
+                                     procListAndCount="'common.filtertools.filter_selector.itemsListAndCount.celesta'"
                                      generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))])']"
                                      currentValue="''" windowCaption="'Выбор фильтров'" needClear="true" needInitSelection="true"
                                      xpathRoot="'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))]/items)'"
@@ -266,7 +266,7 @@
 													<xf:input ref="./item/@name">
 													</xf:input>
 													<xf:selector buttonLabel="..."
-								procListAndCount="'nsi.filtertools.filter_selector.special_selector.celesta'"
+								procListAndCount="'common.filtertools.filter_selector.special_selector.celesta'"
 								generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters/filter)', 'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))])']" 
 								currentValue="''" windowCaption="'Выбор значения'"
 								dataWidth="'300px'"
@@ -312,8 +312,8 @@
 					<xf:group ref=".[@maxFilters &gt; count(./filters/filter)]">
 						<div class="defineFilterEnable">
 							<xf:selector buttonLabel="Добавить" 
-		                         procList="'nsi.filtertools.filter_selector.filtersList.celesta'"
-		                         procCount="'nsi.filtertools.filter_selector.filtersCount.celesta'"
+		                         procList="'common.filtertools.filter_selector.filtersList.celesta'"
+		                         procCount="'common.filtertools.filter_selector.filtersCount.celesta'"
 		                         generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters)']"
 		                         currentValue="''" windowCaption="'Select criteria'"  
 		                         selectedFirst="true"
