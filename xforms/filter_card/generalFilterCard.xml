@@ -45,48 +45,48 @@
 				</schema>
 			</xf:instance>
 			<xf:bind>
-				<xf:bind type="decimal" nodeset="instance('xformId_mainInstance')/filters/filter[@type='float']/@minValue" 
+				<xf:bind type="decimal" nodeset="instance('xformId_mainInstance')/filters/filter[@type='float']/@minValue"
                 	constraint=". &lt;= ../@maxValue or  .='' or  ../@maxValue=''"
-                	required="if(instance('xformId_mainInstance')/filters/filter[@type='float']/@required='true' and 
-                				instance('xformId_mainInstance')/filters/filter[@type='float']/@current_condition='between', 
+                	required="if(instance('xformId_mainInstance')/filters/filter[@type='float']/@required='true' and
+                				instance('xformId_mainInstance')/filters/filter[@type='float']/@current_condition='between',
                 			  true(), false())"/>
 
 				<xf:bind type="decimal" nodeset="instance('xformId_mainInstance')/filters/filter[@type='float']/@maxValue"
-                	required="if(instance('xformId_mainInstance')/filters/filter[@type='float']/@required='true' and 
-                				instance('xformId_mainInstance')/filters/filter[@type='float']/@current_condition='between', 
+                	required="if(instance('xformId_mainInstance')/filters/filter[@type='float']/@required='true' and
+                				instance('xformId_mainInstance')/filters/filter[@type='float']/@current_condition='between',
                 			  true(), false())"/>
 
 				<xf:bind type="decimal" nodeset="instance('xformId_mainInstance')/filters/filter[@type='float']/@value"
-                		required="if(instance('xformId_mainInstance')/filters/filter[@type='float']/@required='true' and 
+                		required="if(instance('xformId_mainInstance')/filters/filter[@type='float']/@required='true' and
                 				(instance('xformId_mainInstance')/filters/filter[@type='float']/@current_condition='equal' or
                 				instance('xformId_mainInstance')/filters/filter[@type='float']/@current_condition='masked' or
                 				instance('xformId_mainInstance')/filters/filter[@type='float']/@current_condition='right' or
-                				instance('xformId_mainInstance')/filters/filter[@type='float']/@current_condition='left'), 
+                				instance('xformId_mainInstance')/filters/filter[@type='float']/@current_condition='left'),
                 			true(), false())"/>
 
-				<xf:bind type="date" nodeset="instance('xformId_mainInstance')/filters/filter[@type='date']/@minValue" 
+				<xf:bind type="date" nodeset="instance('xformId_mainInstance')/filters/filter[@type='date']/@minValue"
                 	constraint=". &lt;= ../@maxValue or  .='' or  ../@maxValue=''"
-                	required="if(instance('xformId_mainInstance')/filters/filter[@type='date']/@required='true' and 
-                				(instance('xformId_mainInstance')/filters/filter[@type='date']/@current_condition='between'), 
+                	required="if(instance('xformId_mainInstance')/filters/filter[@type='date']/@required='true' and
+                				(instance('xformId_mainInstance')/filters/filter[@type='date']/@current_condition='between'),
                 			  true(), false())"/>
 
 				<xf:bind type="date" nodeset="instance('xformId_mainInstance')/filters/filter[@type='date']/@maxValue"
-                	required="if(instance('xformId_mainInstance')/filters/filter[@type='date']/@required='true' and 
-                				(instance('xformId_mainInstance')/filters/filter[@type='date']/@current_condition='between'), 
+                	required="if(instance('xformId_mainInstance')/filters/filter[@type='date']/@required='true' and
+                				(instance('xformId_mainInstance')/filters/filter[@type='date']/@current_condition='between'),
                 			  true(), false())"/>
 
 				<xf:bind type="date" nodeset="instance('xformId_mainInstance')/filters/filter[@type='date']/@value"
-                	required="if(instance('xformId_mainInstance')/filters/filter[@type='date']/@required='true' and 
+                	required="if(instance('xformId_mainInstance')/filters/filter[@type='date']/@required='true' and
                 				(instance('xformId_mainInstance')/filters/filter[@type='date']/@current_condition='equal' or
                 				instance('xformId_mainInstance')/filters/filter[@type='float']/@current_condition='masked' or
                 				instance('xformId_mainInstance')/filters/filter[@type='date']/@current_condition='right' or
-                				instance('xformId_mainInstance')/filters/filter[@type='date']/@current_condition='left'), 
+                				instance('xformId_mainInstance')/filters/filter[@type='date']/@current_condition='left'),
                 			  true(), false())"/>
 
 				<xf:bind type="boolean" nodeset="instance('xformId_mainInstance')/filters/filter[@type='bool']/@boolInput"/>
 
 				<xf:bind nodeset="instance('xformId_mainInstance')/filters/filter[@type='text']/@value"
-                	required="if(instance('xformId_mainInstance')/filters/filter[@type='text' and @style='usuall']/@required='true', true(), false())"/> 
+                	required="if(instance('xformId_mainInstance')/filters/filter[@type='text' and @style='usuall']/@required='true', true(), false())"/>
 
 				<xf:bind readonly="true()" nodeset="instance('xformId_mainInstance')/filters/filter/@label"/>
 
@@ -98,25 +98,25 @@
 			</xf:bind>
 			<!-- submission-ы для смены в context.getData состояния видимости фильтра по данному полю -->
 			<xf:submission id="xformId_submitUnview" method="post"
-				instance="xformId_mainInstance" 
+				instance="xformId_mainInstance"
 				ref="instance('xformId_mainInstance')/filters/filter[index('xformId_filterRow')]"
 				targetref="instance('xformId_filterInstance')/filters/filter"
 				action="secured/submit?proc=common.filtertools.filter_selector.submissionUnview.celesta"
-				replace="none" 
+				replace="none"
 				validate='false' mode="synchronous">
 			</xf:submission>
 
 			<xf:submission id="xformId_submitView" method="post"
-				targetref="instance('xformId_mainInstance')/filters/filter[index('xformId_filterRow')]" 
-				replace="instance" 
+				targetref="instance('xformId_mainInstance')/filters/filter[index('xformId_filterRow')]"
+				replace="instance"
 				ref="instance('xformId_mainInstance')/filters/filter[index('xformId_filterRow')]"
 				action="secured/submit?proc=common.filtertools.filter_selector.submissionView.celesta"
 				validate='false' mode="synchronous">
 			</xf:submission>
 
 			<xf:submission id="xformId_sort" method="post"
-				targetref="instance('xformId_mainInstance')/filters" 
-				replace="instance" 
+				targetref="instance('xformId_mainInstance')/filters"
+				replace="instance"
 				ref="instance('xformId_mainInstance')/filters"
 				action="secured/submit?proc=common.filtertools.filter_selector.submissionSort.celesta"
 				validate='false' mode="synchronous">
@@ -126,7 +126,7 @@
 	<body>
 		<!-- <xf:output value="serialize(instance('xformId_mainInstance'))"/>
 		 <br/><br/>
-         <xf:output value="serialize(instance('xformId_filterInstance'))"/> --> 
+         <xf:output value="serialize(instance('xformId_filterInstance'))"/> -->
 		<div id="card" class="blocked-open">
 			<xf:group ref="instance('xformId_mainInstance')">
 				<!-- Тело фильтра -->
@@ -193,7 +193,7 @@
 										<xf:group ref=".[@current_condition='right' or @current_condition='left' or @current_condition='equal' or @current_condition='masked']">
 											<xf:group ref=".[(@type='text' or @type='float') and (@style='usuall' or @style='unbound')]">
 												<div class="textCondition single">
-													<xf:input ref="@value"/>                                   
+													<xf:input ref="@value"/>
 												</div>
 											</xf:group>
 
@@ -210,12 +210,27 @@
 													</xf:input>
 												</div>
 											</xf:group>
+											
+										
+											
 											<xf:group ref=".[@style='itemset']">
-												<xf:repeat id="xformId_itemRow" nodeset="instance('xformId_mainInstance')/filters/filter[@id = current()/@id]/items/item">
+											
+												<div class="buttonMs">
+													<xf:multiselector buttonLabel="Выбрать значения" dataWidth="'400px'" dataHeight="'400px'"
+									 selectedDataWidth="'400px'" visibleRecordCount="'48'"
+									 startWith="false"
+									 procListAndCount="'common.filtertools.filter_selector.itemsListAndCount.celesta'"
+									 generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))])']"
+									 currentValue="''" windowCaption="'Выбор фильтров'" needClear="true" needInitSelection="true"
+									 xpathRoot="'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))]/items)'"
+									 xpathMapping="{'XPath(instance(quot(xformId_itemInstance))/items/item)':{'id': '@id','name':'@name'}}" />
+												</div>												
+											
+												<xf:repeat class = "multiValueItems" id="xformId_itemRow" nodeset="instance('xformId_mainInstance')/filters/filter[@id = current()/@id]/items/item">
 													<table class="fieldConditionValueMs">
 														<tr>
 															<td>
-																<div class="inlineButton">                       
+																<div class="inlineButton">
 																	<xf:trigger>
 																		<xf:label>X</xf:label>
 																		<xf:action ev:event="DOMActivate">
@@ -232,26 +247,17 @@
 														</tr>
 													</table>
 												</xf:repeat>
-												<div class="buttonMs">
-													<xf:multiselector buttonLabel="Добавить" dataWidth="'400px'" dataHeight="'400px'"
-                                     selectedDataWidth="'400px'" visibleRecordCount="'48'"
-									 startWith="false"
-                                     procListAndCount="'common.filtertools.filter_selector.itemsListAndCount.celesta'"
-                                     generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))])']"
-                                     currentValue="''" windowCaption="'Выбор фильтров'" needClear="true" needInitSelection="true"
-                                     xpathRoot="'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))]/items)'"
-                                     xpathMapping="{'XPath(instance(quot(xformId_itemInstance))/items/item)':{'id': '@id','name':'@name'}}" />
-												</div>
+
 											</xf:group>
 
-											<xf:group ref=".[@style='select']">                            
+											<xf:group ref=".[@style='select']">
 												<div class="listCondition single">
 													<xf:select1 ref="@value" class="listConditionValues">
 														<xf:itemset ref="../selects/select">
 															<xf:label ref="@label"/>
 															<xf:value ref="@name"/>
 														</xf:itemset>
-													</xf:select1>		                            	
+													</xf:select1>
 												</div>
 												<xf:trigger class="clearConditionValues">
 													<xf:label>X</xf:label>
@@ -267,7 +273,7 @@
 													</xf:input>
 													<xf:selector buttonLabel="..."
 								procListAndCount="'common.filtertools.filter_selector.special_selector.celesta'"
-								generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters/filter)', 'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))])']" 
+								generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters/filter)', 'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))])']"
 								currentValue="''" windowCaption="'Выбор значения'"
 								dataWidth="'300px'"
 								startWith="false"
@@ -290,14 +296,14 @@
 										<xf:trigger class="aidButton">
 											<xf:label>-</xf:label>
 											<xf:action ev:event="DOMActivate">
-												<xf:send submission="xformId_submitUnview"/> 
-												<xf:delete nodeset="current()"/> 
+												<xf:send submission="xformId_submitUnview"/>
+												<xf:delete nodeset="current()"/>
 											</xf:action>
 										</xf:trigger>
 									</div>
-								</td> 
+								</td>
 							</tr>
-						</table> 
+						</table>
 					</xf:repeat>
 				</div>
 				<!-- Управляющие кнопки -->
@@ -305,17 +311,17 @@
 					<xf:group ref=".[@maxFilters &lt;= count(./filters/filter)]">
 						<div class="defineFilterDisable">
 							<xf:trigger>
-								<xf:label>Добавить</xf:label>						
+								<xf:label>Добавить</xf:label>
 							</xf:trigger>
 						</div>
 					</xf:group>
 					<xf:group ref=".[@maxFilters &gt; count(./filters/filter)]">
 						<div class="defineFilterEnable">
-							<xf:selector buttonLabel="Добавить" 
+							<xf:selector buttonLabel="Добавить"
 		                         procList="'common.filtertools.filter_selector.filtersList.celesta'"
 		                         procCount="'common.filtertools.filter_selector.filtersCount.celesta'"
 		                         generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters)']"
-		                         currentValue="''" windowCaption="'Select criteria'"  
+		                         currentValue="''" windowCaption="'Select criteria'"
 		                         selectedFirst="true"
 								 startWith="false"
 								 onSelectionCompleteAction="&lt;xf:action&gt;
@@ -327,9 +333,9 @@
                                 &lt;xf:send submission=&quot;xformId_submitView&quot; /&gt;
                                 &lt;xf:send submission=&quot;xformId_sort&quot;/&gt;
                                 &lt;xf:load resource = &quot;javascript:
-                               		xforms.ready = false; 
-                                	getSubformModel('xformId_mainModel').rebuild(); 
-                                	getSubformModel('xformId_mainModel').revalidate(); 
+                               		xforms.ready = false;
+                                	getSubformModel('xformId_mainModel').rebuild();
+                                	getSubformModel('xformId_mainModel').revalidate();
                                 	xforms.refresh();
                                 	xforms.ready = true;&quot;/&gt;
                             &lt;/xf:action&gt;"
@@ -341,8 +347,8 @@
 		                                        'XPath(instance(quot(xformId_filterInstance))/filters/filter/@boolInput)': 'boolInput',
 		                                        'XPath(instance(quot(xformId_filterInstance))/filters/filter/@randint)': 'randint'}" />
 
-						</div> 
-					</xf:group>  
+						</div>
+					</xf:group>
 
 				</div>
 				<div class="filterRightManageButton">
@@ -376,8 +382,8 @@
 							<xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"/>
 						</xf:action>
 					</xf:trigger>
-				</div>			 
+				</div>
 			</xf:group>
-		</div>                   				
+		</div>
 	</body>
 </html>
