@@ -1,4 +1,4 @@
-﻿#   coding=utf-8
+#   coding=utf-8
 
 from common.grainssettings import SettingsManager
 
@@ -11,10 +11,12 @@ from email.MIMEText import MIMEText
 from email.Utils import formatdate
 from email.header import Header
 
+
 def test(context):
     class DummyFlute:
+
         def __init__(self):
-            self.params =  """<letter>
+            self.params = """<letter>
     <header>
         <template>template3.txt</template><!-- Имя шаблона -->
         <to>iponomarev@mail.ru</to> <!-- Далеее идёт любая комбинация тэгов to и cc, в которых перечислены получатели -->
@@ -39,6 +41,7 @@ def test(context):
     sendmail(context, dummyFlute)
     print 'test run!'
 
+
 def sendmail(context, flute):
     settingsObject = SettingsManager(context)
 
@@ -50,11 +53,12 @@ def sendmail(context, flute):
     is_auth = settingsObject.getGrainSettings('mailsender/isauth', 'common')[0]
     password = settingsObject.getGrainSettings('mailsender/password', 'common')[0]
 
-    #1. Parse XML and make from it a convenient data sctructure
-    xmlcontext = xml.etree.ElementTree.iterparse(StringIO.StringIO(flute.params.encode('utf-16')), ['start', 'end']); 
+    # 1. Parse XML and make from it a convenient data sctructure
+    xmlcontext = xml.etree.ElementTree.iterparse(StringIO.StringIO(flute.params.encode('utf-16')), ['start', 'end'])
 
     to = []
     cc = []
+
     data = {}
     curdata = data
 
@@ -70,17 +74,18 @@ def sendmail(context, flute):
                 to.append(e.text)
             elif tagname == "cc":
                 cc.append(e.text)
+            elif tagname == "from":
+                mailfrom = "\"%s\" <%s>" % (Header(e.text, 'utf-8'), mailfrom)
             elif tagname == "field":
-                curdata[e.attrib['name']] = '' if e.text == None else e.text.encode('utf-8')
+                curdata[e.attrib['name']] = '' if e.text is None else e.text.encode('utf-8')
             elif tagname == "repeat":
                 repeatid = e.attrib['id']
                 if not (repeatid in data.keys()):
-                    data[repeatid] = [] 
+                    data[repeatid] = []
                 data[repeatid].append(curdata)
                 curdata = data
 
-
-    #2. Now we are parsing template and preparing a message subject and body            
+    # 2. Now we are parsing template and preparing a message subject and body
     class Parser(object):
         BODY = 1
         REPEATBLOCK = 2
@@ -92,26 +97,26 @@ def sendmail(context, flute):
             self.subject = ''
             self.body = ''
             self.__reset()
-            self.PARSEMAP = {Parser.BODY: lambda  line: self.__parsebody(line),
-                    Parser.REPEATBLOCK:   lambda  line: self.__parserepeat(line),
-                    Parser.REPEMPTYBLOCK: lambda  line: self.__parseempty(line),
-                    Parser.IFDEFBLOCK:    lambda  line: self.__parseifdef(line),
-                    Parser.ELSEBLOCK:     lambda  line: self.__parseelse(line)}
-        
+            self.PARSEMAP = {Parser.BODY: lambda line: self.__parsebody(line),
+                             Parser.REPEATBLOCK: lambda line: self.__parserepeat(line),
+                             Parser.REPEMPTYBLOCK: lambda line: self.__parseempty(line),
+                             Parser.IFDEFBLOCK: lambda line: self.__parseifdef(line),
+                             Parser.ELSEBLOCK: lambda line: self.__parseelse(line)}
+
         def parseline(self, line):
-            #Every remark is skipped
+            # Every remark is skipped
             m = re.search("^REM:", line)
-            if m != None:
+            if m is not None:
                 return
             self.PARSEMAP[self.state](line)
-            
+
         def __reset(self):
             self.curdata = data
             self.state = Parser.BODY
             self.ifblock = []
             self.elseblock = []
             self.ifValue = False
-            
+
         def __finalizeRepeat(self):
             if len(self.curdata) > 0:
                 for c in self.curdata:
@@ -121,20 +126,20 @@ def sendmail(context, flute):
                 for l in self.elseblock:
                     self.body += (l % data)
             self.__reset()
-        
+
         def __finalizeIf(self):
             block = self.ifblock if self.ifValue else self.elseblock
             for l in block:
                 self.body += (l % self.curdata)
             self.__reset()
-        
+
         def __parsebody(self, line):
             m = re.search("^SUBJECT: *(.*)", line)
-            if m != None:
+            if m is not None:
                 self.subject = m.group(1) % data
                 return
             m = re.search("^REPEAT\(([^)]+)\):", line)
-            if m != None:
+            if m is not None:
                 if m.group(1) in data.keys():
                     self.curdata = data[m.group(1)]
                 else:
@@ -142,50 +147,49 @@ def sendmail(context, flute):
                 self.state = Parser.REPEATBLOCK
                 return
             m = re.search("^IFDEF\(([^)]+)\):", line)
-            if m != None:
+            if m is not None:
                 self.ifValue = m.group(1) in data.keys()
                 self.state = Parser.IFDEFBLOCK
                 return
-               
+
             self.body += (line % self.curdata)
 
         def __parserepeat(self, line):
             m = re.search("^END:", line)
-            if m != None:
+            if m is not None:
                 self.__finalizeRepeat()
                 return
             m = re.search("^EMPTY:", line)
-            if m != None:
+            if m is not None:
                 self.state = Parser.REPEMPTYBLOCK
                 return
-            
+
             self.ifblock.append(line)
-            
+
         def __parseempty(self, line):
             m = re.search("^END:", line)
-            if m != None:
+            if m is not None:
                 self.__finalizeRepeat()
-                return 
+                return
             self.elseblock.append(line)
-            
+
         def __parseifdef(self, line):
             m = re.search("^ELSE:", line)
-            if m != None:
+            if m is not None:
                 self.state = Parser.ELSEBLOCK
                 return
             m = re.search("^END:", line)
-            if m != None:
+            if m is not None:
                 self.__finalizeIf()
-                return 
+                return
             self.ifblock.append(line)
-            
+
         def __parseelse(self, line):
             m = re.search("^END:", line)
-            if m != None:
+            if m is not None:
                 self.__finalizeIf()
-                return 
+                return
             self.elseblock.append(line)
-
 
     template = open(template, 'r')
     parser = Parser()
@@ -195,13 +199,13 @@ def sendmail(context, flute):
             parser.parseline(line)
     finally:
         template.close()
-              
-    #3. All done, sending message
+
+    # 3. All done, sending message
     msg = MIMEMultipart()
     msg["To"] = ",".join(to)
     msg["CC"] = ",".join(cc)
     msg["From"] = mailfrom
-    msg["Subject"] = Header(parser.subject, 'utf-8') 
+    msg["Subject"] = Header(parser.subject, 'utf-8')
     msg['Date'] = formatdate(localtime=True)
 
     # attach a message
@@ -209,7 +213,7 @@ def sendmail(context, flute):
     msg.attach(part1)
     port = int(port) if port != '' else 25
     server = smtplib.SMTP(smtphost, port)
-    server.set_debuglevel(1) #connection log
+    server.set_debuglevel(1)  # connection log
     if is_auth == "True":
         server.ehlo()
         server.starttls()
