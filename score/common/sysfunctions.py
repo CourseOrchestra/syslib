@@ -72,15 +72,3 @@ def getSettingsPath():
     except:
         settingsPath = Celesta.getInstance().setupProperties.getProperty('grainssettings.path')
     return settingsPath
-
-
-def getFieldType(cursor, field):
-    u"""Функция для получения типа поля курсора
-        (хранится по разному в таблице и вьюхе)"""
-    meta = cursor.meta()
-    if isinstance(cursor, Cursor):
-        field_type = meta.getColumn(field).celestaType
-    elif isinstance(cursor, ViewCursor):
-        field_type = meta.columns[field].celestaType
-
-    return unicode(field_type)
