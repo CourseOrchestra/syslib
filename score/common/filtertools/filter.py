@@ -3,8 +3,6 @@ from datetime import date, datetime
 from sys import maxint, minint
 from time import clock
 
-from common.sysfunctions import getFieldType
-
 
 def filter_assembly(context, cursor, filter_id, field_name_list, table_name):
     u'''Функция для сборки в context.getData пустого фильтра
@@ -83,6 +81,9 @@ def create_filter_map(cursor, field_name_dict, free_variables):
                 return style if style != 'free' else 'unbound'  # полукостыль для того, чтобы убрать необхоидмость дублировать unbound после free
 
         return ''
+
+    def getFieldType(cursor, field_name):
+        return cursor.meta().columns[field_name].celestaType
     # Проверка на тип курсора. У курсора есть метод getColumn.
 #     attrSubstitution = lambda x: cursor.meta().getColumns()[x].getCelestaType()
 #     keySubstitution = """field_name"""

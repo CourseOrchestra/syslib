@@ -8,7 +8,7 @@ from common.filtertools.filter import recovery
 
 
 def card_info(context, elementId):
-    u'''Функция переведения данных из context.getData в xforms'''
+    u'''Функция перевода данных из context.getData в xforms'''
     filters = [
         x
         for x in context.getData()[elementId]
@@ -19,11 +19,11 @@ def card_info(context, elementId):
 
 
 def card_save(xformsdata, context, filter_id):
-    u'''Функция переведения данных из xforms в context.getData'''
+    u'''Функция перевода данных из xforms в context.getData'''
     if xformsdata == 'del':
         recovery(context, filter_id)
     elif 'filter' in xformsdata["schema"]["filters"]:
-        # Возможна ситуация, когда карточка бyдет вызвана,
+        # Возможна ситуация, когда карточка будет вызвана,
         # но не будет использован фильтр. Для исключения избыточной проверки на наличие значений словаря вводим ключ-флаг.
         if not context.getData().get(u'card_save'):
             context.getData()[u'card_save'] = set([])
@@ -54,10 +54,10 @@ def card_save(xformsdata, context, filter_id):
 
 def add_filter_buttons(filter_id, session, height=False, width=700,
                        add_info=u"", add_context=None, is_object=False):
-    u'''
-        filter_id - id карточки в датапанели, 
+    u'''Функция, формирующая кнопку тулбара грида
+        filter_id - id карточки в датапанели,
         height="300" - высота карточки фильтра
-        в параметр heigth можно задавать число фильтров в *filter для гибкого отображения размеров окна
+        в параметр height можно задавать число фильтров в *filter для гибкого отображения размеров окна
     '''
     if isinstance(session, unicode) or isinstance(session, str):
         session = json.loads(session)['sessioncontext']
@@ -72,10 +72,10 @@ def add_filter_buttons(filter_id, session, height=False, width=700,
         .setCaption(add_info or u"Параметры поиска")\
         .setHint(u"Установить фильтр")\
         .setAction(Action()
-            .add(DatapanelElement(filter_id,
-                                add_context or filter_id))
-            .showIn(ModalWindow(u"Параметры поиска",
-                                width, height)))\
+                   .add(DatapanelElement(filter_id,
+                                         add_context or filter_id))
+                   .showIn(ModalWindow(u"Параметры поиска",
+                                       width, height)))\
         .setImage("gridToolBar/filter.png")
 
     if not is_object:
