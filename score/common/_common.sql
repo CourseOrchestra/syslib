@@ -1,37 +1,50 @@
-create grain common version '1.01';
+CREATE GRAIN common VERSION '1.02';
 
-create table numbersSeries (
-id varchar(50) not null primary key,
-description varchar(250)
+-- *** TABLES ***
+CREATE TABLE htmlHints(
+  /**Текст подсказок*/
+  elementId VARCHAR(50) NOT NULL,
+  htmlText TEXT,
+  showOnLoad INT,
+  fullScreen INT,
+  CONSTRAINT pk_htmlHints PRIMARY KEY (elementId)
 );
 
-create table linesOfNumbersSeries (
-seriesId varchar(50) not null foreign key references numbersSeries(id),
-numberOfLine int not null,
-startingDate datetime not null,
-startingNumber int  not null,
-endingNumber int  not null,
-incrimentByNumber int not null,
-lastUsedNumber int,
-prefix varchar(20) not null default '',
-postfix varchar(20) not null default '',
-isFixedLength bit not null default 'TRUE',
-isOpened bit not null default 'TRUE',
-lastUsedDate datetime,
-
-PRIMARY KEY (seriesId, numberOfLine)
-);
-
-create table htmlHints (
-elementId varchar(50) not null primary key,
-htmlText TEXT,
-showOnLoad int,
-fullScreen int
-);
-
-create table htmlHintsUsers (
-elementId varchar(50) not null foreign key references htmlHints(elementId),
-sid varchar(200) not null foreign key references security.subjects(sid),
-showOnLoad int,
-PRIMARY KEY (elementId, sid)
+CREATE TABLE htmlHintsUsers(
+  /**Настройки отображения подсказок пользователям*/
+  elementId VARCHAR(50) NOT NULL,
+  sid VARCHAR(200) NOT NULL,
+  showOnLoad INT,
+  CONSTRAINT pk_htmlHintsUsers PRIMARY KEY (elementId, sid)
 ) WITH NO VERSION CHECK;
+
+CREATE TABLE linesOfNumbersSeries(
+  /**Линии серий номеров*/
+  seriesId VARCHAR(50) NOT NULL,
+  numberOfLine INT NOT NULL,
+  startingDate DATETIME NOT NULL,
+  startingNumber INT NOT NULL,
+  endingNumber INT NOT NULL,
+  incrimentByNumber INT NOT NULL,
+  lastUsedNumber INT,
+  prefix VARCHAR(20) NOT NULL DEFAULT '',
+  postfix VARCHAR(20) NOT NULL DEFAULT '',
+  isFixedLength BIT NOT NULL DEFAULT 'TRUE',
+  isOpened BIT NOT NULL DEFAULT 'TRUE',
+  lastUsedDate DATETIME,
+  CONSTRAINT pk_linesOfNumbersSeries PRIMARY KEY (seriesId, numberOfLine)
+);
+
+CREATE TABLE numbersSeries(
+  /**Серии номеров*/
+  id VARCHAR(50) NOT NULL,
+  description VARCHAR(250),
+  CONSTRAINT pk_numbersSeries PRIMARY KEY (id)
+);
+
+-- *** FOREIGN KEYS ***
+ALTER TABLE htmlHintsUsers ADD CONSTRAINT fk_common_hintsUsers_hint FOREIGN KEY (elementId) REFERENCES common.htmlHints(elementId);
+ALTER TABLE htmlHintsUsers ADD CONSTRAINT fk_common_hintsUsers_subjects FOREIGN KEY (sid) REFERENCES security.subjects(sid) ON DELETE CASCADE;
+ALTER TABLE linesOfNumbersSeries ADD CONSTRAINT fk_common_lines_series FOREIGN KEY (seriesId) REFERENCES common.numbersSeries(id);
+-- *** INDICES ***
+-- *** VIEWS ***
