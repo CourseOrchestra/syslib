@@ -201,18 +201,18 @@ class SessionContext:
         # Если существует только один связанный грид, то #relatedGrids - список
         # с одним элементом.
         #
-        # Как правило прямое использование этого поля не требуется
-        # (см. #getGridContext)
+        # Как правило прямое использование этого поля не требуется.
+        # @see #getGridContext
         self.relatedGrids = []
         ## (<tt>list of common.api.context.sessioncontext.FormsContext</tt>) Список
         # контекстов связанных форм. 
         #
         # Состояние по умолчанию - пустой список.
-        # Если существует только одна связанная форма, то #relatedGrids - список
+        # Если существует только одна связанная форма, то #relatedForms - список
         # с одним элементом.
         #
         # Как правило прямое использование этого поля не требуется
-        # (см. #getFromContext)
+        # @see #getFormContext
         self.relatedForms = []
         
         related = sesJson.get('related', None)
