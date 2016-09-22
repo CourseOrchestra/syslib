@@ -52,7 +52,7 @@ def card_save(xformsdata, context, filter_id):
                     break
 
 
-def add_filter_buttons(filter_id, session, height=False, width=700,
+def add_filter_buttons(filter_id, session, height=False, width=800,
                        add_info=u"", add_context=None, is_object=False):
     u'''Функция, формирующая кнопку тулбара грида
         filter_id - id карточки в датапанели,

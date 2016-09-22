@@ -58,6 +58,7 @@ def sendmail(context, flute):
 
     to = []
     cc = []
+    bcc = []
 
     data = {}
     curdata = data
@@ -74,6 +75,8 @@ def sendmail(context, flute):
                 to.append(e.text)
             elif tagname == "cc":
                 cc.append(e.text)
+            elif tagname == "bcc":
+                bcc.append(e.text)
             elif tagname == "from":
                 mailfrom = "\"%s\" <%s>" % (Header(e.text, 'utf-8'), mailfrom)
             elif tagname == "field":
@@ -204,6 +207,7 @@ def sendmail(context, flute):
     msg = MIMEMultipart()
     msg["To"] = ",".join(to)
     msg["CC"] = ",".join(cc)
+    msg["BCC"] = ",".join(bcc)
     msg["From"] = mailfrom
     msg["Subject"] = Header(parser.subject, 'utf-8')
     msg['Date'] = formatdate(localtime=True)
