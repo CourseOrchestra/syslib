@@ -14,6 +14,11 @@
     padding: 4px 4px;
 }
 
+.tdFieldName .xforms-value {
+    word-break: break-word;
+    font-size: 0.9em;
+}
+
 .tdValue {
     width: 400px;
     padding: 4px 4px;    
@@ -68,7 +73,9 @@
 
 .filterConditionsTd button {
 	height: 24px;
+	font-weight: bold;
 }
+
 
 
 /* значения */
@@ -112,15 +119,47 @@
     text-transform: lowercase;
 }
 
+.filterConditionsTd .dateCondition {
+	float: left;
+	margin-right: 4px
+}
+
+.filterConditionsTd .dateCondition button {
+	margin-left: 2px;
+}
+
+.filterConditionsTd .floatCondtion {
+	float: left;
+	margin-right: 4px
+}
+
+
 /* Кнопки */
-.defineFilterDisable {
+.defineFilterDisable, .defineFilterEnable {
 	float: left;
 	margin-top: 18px;
 }
 
-.defineFilterDisable button {
+
+.defineFilterDisable button, .defineFilterEnable button {
 	min-width: 100px;
 }
+
+.defineFilterDisable button {
+	background-color: #DDD;
+}
+
+.defineFilterDisable button:hover {
+	background-color: #DDD;
+}
+
+.defineFilterDisable button:focus {
+	background-color: #DDD;
+	outline: 1px dotted grey !important;
+
+}
+
+
 
 .filterRightManageButton {
 	float: right;
@@ -134,4 +173,27 @@
 .filterRightManageButton>span button {
 	margin-left: 2px;
 	min-width: 120px;
+}
+
+.filterConditionsTd .multiValueItems {
+	border: none;
+}
+
+.filterConditionsTd .multiValueItems td {
+	border: none;
+
+}
+
+.filterConditionsTd .multiValueItems .xforms-repeat-item {
+	float: left;
+}
+
+.filterConditionsTd .multiValueItems table {
+	border: 1px solid #D8CDAD;
+	margin-right: 3px;
+	margin-top: 3px;
+}
+
+.filterConditionsTd .buttonMs button {
+	width: 130px;
 }
