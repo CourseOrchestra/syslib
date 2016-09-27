@@ -48,7 +48,7 @@ def card_save(xformsdata, context, filter_id):
                         stable_filter['items']['item'] = []
                     break
 
-def add_filter_buttons(filter_id, session, height=False, width=700, add_info=u'', add_context=None, caption=u'Параметры поиска'):   # в параметр heigth можно задавать число фильтров в *filter для гибкого отображения размеров окна 
+def add_filter_buttons(filter_id, session, height=False, width=700, add_info=u'', add_context=None, is_object=None, caption=u'Параметры поиска'):   # в параметр heigth можно задавать число фильтров в *filter для гибкого отображения размеров окна 
     u'''
     filter_id - id карточки в датапанели, 
     height="300" - высота карточки фильтра
@@ -66,10 +66,8 @@ def add_filter_buttons(filter_id, session, height=False, width=700, add_info=u''
         .setCaption(add_info or u"Параметры поиска")\
         .setHint(u"Установить фильтр")\
         .setAction(Action()
-                   .add(DatapanelElement(filter_id,
-                                         filter_id if not add_context else '%s|%s' % (filter_id, add_context)))
-                   .showIn(ModalWindow(caption,
-                                       width, height)))\
+            .add(DatapanelElement(filter_id, filter_id if not add_context else '%s|%s' % (filter_id, add_context)))
+            .showIn(ModalWindow(caption, width, height)))\
         .setImage("gridToolBar/filter.png")
 
     if not is_object:
