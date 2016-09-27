@@ -17,3 +17,14 @@ class GridForm(BasicGridForm):
     u'''OVERRIDE THIS TO RETURN CORRECT NUMBER OF ROWS IN GRID!'''
     def getGridHeight(self):
         return 10
+    
+    def _beforeShow(self, context):
+        '''Override this method to implement some actions 
+        to be performed before the grid is shown or refreshed, 
+        e. g. position cursor to a certain record'''
+        pass
+    
+    def _beforeSending(self, c):
+        '''Override this method to implement some actions 
+        to be performed before data XML serialization and sending to client'''
+        pass

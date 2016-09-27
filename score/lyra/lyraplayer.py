@@ -8,7 +8,7 @@ except:
 import basicForm
 import simplejson as json
         
-def getFormInstance(context, formId, main=None, add=None, filterinfo=None, session=None, elementId=None):
+def getFormInstance(context, formId):
     if '_lyraForms' in context.data:
         lf = context.data['_lyraForms']
     else:
@@ -25,7 +25,7 @@ def getFormInstance(context, formId, main=None, add=None, filterinfo=None, sessi
         c = basicForm._formclasses[formId]
         result = c(context)
         lf[formId] = result
-    result.setContext(session, main, add, elementId)        
+    result._beforeShow(context)   
     return result
 
 
