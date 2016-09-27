@@ -4,6 +4,7 @@ from collections import OrderedDict
 from any_functions import is_exist
 from filter import unbound_types, unbound_dict_filler
 from __builtin__ import len
+from common.filtertools.any_functions import Something
 
 
 # Class chapter
@@ -18,28 +19,53 @@ class IncorrectHeaderInput(ValueError):
 class HeaderDict:
     u'''labels = {'field_id': {'Значение':'Наименование'}}'''
     data_types = {'date', 'float', 'text', 'bool'}
-
-    def __init__(self, labels, header=u'', special_condition=''):
-        self.header_dict = OrderedDict([(i, self.preprocessor(j)) for i, j in unicoder(labels).items()])
+    smth = Something()
+    
+    def __init__(self, labels, header=u'', context_list=False):
+        # main processing
+        if not context_list:
+            self.header_dict = OrderedDict([(i, self.preprocessor_any(j)) for i, j in unicoder(labels).items()])
+        else:
+            self.string_count = 0
+            self.header_dict = OrderedDict([(val_dict['@id'], self.preprocessor_context(val_dict)) for val_dict in unicoder(labels)])
         self.header = header
+        self.is_context = context_list
 
-    def preprocessor(self, values_dict):
-        must_have_settings = {'data_type', 'empty', 'label', 'values_to_header', 'end', 'case_sensitive'}
+    def preprocessor_any(self, values_dict):
+        must_have_settings = {'data_type', 'empty', 'label', 'values_to_header', 
+                              'end', 'case_sensitive'}
 
         if 'data_type' not in values_dict.keys() or values_dict['data_type'] not in self.data_types:
             raise IncorrectHeaderInput("Incorrect input: not specified field data type.")
         result = {}
         for setting in must_have_settings:
             if setting in values_dict.keys():
-                result[setting] = values_dict[setting] if not (setting == 'end' and values_dict[setting] == '.')\
-                                                       else '.'
+                result[setting] = values_dict[setting]
             elif setting == 'end':
                 result[setting] = '; '
             elif setting == 'case_sensitive':
                 result[setting] = False
             else:
                 result[setting] = ''
-
+        # postprocessing
+        if is_exist(values_dict, u'newline'):
+            result['newline'] = True
+        return result
+    
+    def preprocessor_context(self, context_field):
+        result = {}
+        result['data_type'] = context_field['@type']
+        result['empty'] = u''
+        result['label'] = u'%s' % context_field['@label']   
+        self.string_count += len(context_field['@label'])
+        result['values_to_header'] = {}
+        result['end'] = '.'
+        #result['case_sensitive'] = '.'
+        
+        if self.string_count > 100 or context_field['@face'] == 'itemset':
+            result['newline'] = True
+            self.string_count = 0
+            
         return result
     
     def replace_header(self, new_header):
@@ -48,95 +74,106 @@ class HeaderDict:
     def return_header(self, current_values, context_filter=False):
         u'''current_values = {id_field: value} for non-standard filtering and
             {id_field: {data_types : value, ...}} for STANDARTEN'''
+        # New view
+        # Приведение всех значений в поле, которое обрабатывается в соответствие с типом
         if context_filter is False:
-            standard_header_dict = through_filler(current_values, self.header_dict)
+            standard_header_dict = through_filler(current_values, self.header_dict)      
         else:
             for y in current_values.values():
-                if y['item']:
+                if is_exist(y, 'item', {'@id': self.smth}):
                     y['text'] = y['item']['@name']
+                if is_exist(y, 'items'):
+                    if '@name' not in y['items']:
+                        y['text'] = u'; '.join([x['@name'] for x in y['items']])
+                    else:
+                        y['text'] = y['items']['@name']
             standard_header_dict = current_values
-
-        header_list = [self.header]
-        unsensitive = [False]
+        header_list = [{"@class": 'header-class', "span": {"@class": 'header-header', '#text': self.header}}]
+        i = 0
+        next_upper = False
+        # Формирование списка с подстановкой значений, либо emtpy-вариантом
         for key, values_dict in self.header_dict.items():
-            if key not in standard_header_dict:
-                continue
-            datatype = get_value_through_type(values_dict['data_type'], standard_header_dict[key])
-
-            if datatype in ('', None):
-                format_string = values_dict['empty']
-            elif is_exist(values_dict, 'values_to_header'):
-                format_string = values_dict['values_to_header'][datatype]
+            datatype = get_value_through_type(
+                values_dict['data_type'], 
+                standard_header_dict[key] if key in standard_header_dict.keys() else unbound_dict_filler(['']))
+            h_key = ''
+            h_cond = ''
+            h_value = ''
+            if datatype in ('', ['', ''], None):
+                h_value = values_dict['empty']
             else:
-                format_string = datatype
-
-            if format_string not in ('', ['', '']):
-                scheduler = u"{}{}{}".format(
-                    u'%s ' % values_dict['label'] if values_dict['label'] else '',
-                    u'{}',
-                    values_dict['end']
-                )
-
+                if is_exist(values_dict, 'values_to_header'):
+                    format_string = values_dict['values_to_header'][datatype]
+                else:
+                    format_string = datatype
                 if isinstance(format_string, list):
                     if values_dict['data_type'] == 'date':
                         first_chapter = (u'с %s ' % format_string[0]) if format_string[0] else u''
                         second_chapter = (u'по %s' % format_string[1]) if format_string[1] else u''
-                        format_string = u'%s%s' % (first_chapter, second_chapter)
-            else:
-                scheduler = u'{}'
-                format_string = values_dict['empty']
-                
-            unsensitive.append(self.header_dict[key]['case_sensitive'])
-            header_list.append(scheduler.format(format_string))
-
-        header_list[-1] = header_list[-1].rstrip().rstrip(';')
-        # Проклятый костыль для того, чтобы видеть, какое поле нулевое
-        new_header_list = []
-        insensitive = []
-        for i, head in enumerate(header_list):
-            if head:
-                new_header_list.append(head)
-                insensitive.append(unsensitive[i])
-        header_list = new_header_list
-        upper_case = True
-        finished_header = []
-        for i, header_field in enumerate(header_list):            
-            if upper_case:
-                if not insensitive[i]:
-                    titled_header = header_field.split()
-                    if len(titled_header) > 1:
-                        tempo = titled_header[0].capitalize()
-                        header_field = u'{} {}'.format(unicode(tempo), ' '.join(titled_header[1:]))
+                        third_chapter = format_string[2]
+                        h_key = values_dict['label']
+                        h_value = (first_chapter + second_chapter) if first_chapter or second_chapter else third_chapter
+                else:
+                    if values_dict['data_type'] == 'bool':
+                        h_key = values_dict['label'] if format_string in {True, 'true', 'True'} else values_dict['empty']
                     else:
-                        header_field = unicode(titled_header[0])
-                upper_case = False
-
-            if header_field.rstrip()[-1] == '.':
-                upper_case = True
-            finished_header.append(header_field)
+                        h_key = values_dict['label'] if values_dict['label'] else ''
+                        if self.is_context:
+                            h_cond = standard_header_dict[key]['condition']['@label']\
+                                if '@label' in standard_header_dict[key]['condition'] else u''
+                        h_value = format_string
+                        
+            if is_exist(values_dict, 'newline'):
+                h_value = unicode(h_value) + u'\n'
+                next_upper = True
+            if h_value != values_dict['empty']:
+                h_value = unicode(h_value) + values_dict['end']
+                first_string = h_key or h_value or u'' 
+                if next_upper and not is_exist(values_dict, 'case_sensitive', True) and first_string:
+                    first_string = u' '.join([first_string.split()[0].capitalize(), u' '.join(first_string.split()[1:])])\
+                                if len(first_string.split()) > 1 else first_string.capitalize()
+                if first_string:
+                    if h_key:
+                        h_key = first_string
+                    elif h_value:
+                        h_value = first_string     
+                    next_upper = False
+            if '.' in values_dict['end']:
+                next_upper = True
+            i += 1
+            
+            header_key = {"@class": "header-key", "#text": h_key + u' '}
+            header_condition = {"@class": "header-condition", "#text": (h_cond + (u': ' if ';' in h_value else u' ')) if h_cond else ''}
+            header_value = {"@class": "header-value", "#text": h_value + u' '}
+            header_list.append({
+                "@class": "header-clause",
+                "span": []})
+            if h_key.strip() not in {'.', ''} and (values_dict['data_type'] == 'bool' or (values_dict['data_type'] != 'bool' and h_value)):
+                header_list[-1]['span'].append(header_key)
+            if h_cond.strip() not in {'.', ''}:
+                header_list[-1]['span'].append(header_condition)
+            if h_value.strip() not in {'.', ''}:
+                header_list[-1]['span'].append(header_value)
         
-        if len(finished_header) == 0:
-            return u'Параметры фильтрации не указаны'
-        elif (len(finished_header) == 1 and self.header != ''):
-            return u'{}: не указаны'.format(finished_header[0]) 
-        
-        if self.header == '':
-            finished_header = filter((lambda x: x != '.'), finished_header)
-        else:
-            if finished_header[1] == '.' and len(finished_header) > 2:
-                return u'{} {}'.format(''.join([finished_header[0], finished_header[1]]), ' '.join(finished_header[2:]))
-        
-        return ' '.join(finished_header)
-
+        header_list = filter(lambda x: x['span'] != [], header_list)
+        if len(header_list) == int(bool(self.header)):
+            if len(header_list) == 1:
+                header_list[0]['span']["#text"] += u' нет.'
+            else:
+                header_list.append({
+                    "@class": "header-clause",
+                    "#text": u'Не заданы параметры поиска'})
+        return {'span': header_list}
+    
 
 # Filler-functions
 def header_type_to_filter_type():
     return {
     #data_type: position in unbound_dict_filler
-        'date': {'from': 'minValue', 'to': 'maxValue'},
-        'float' : 'text',
-        'text': 'text',
-        'bool': 'bool'
+        'date' :{'from': 'minValue', 'to': 'maxValue'},
+        'float': 'text',
+        'text' : 'text',
+        'bool' : 'bool'
     }
 
 
@@ -148,7 +185,8 @@ def get_value_through_type(value_type, value_dict):
         return value_dict[format_dict[value_type]]
     elif value_type == 'date':
         return [fast_trancate(x) for x in
-                [value_dict[format_dict[value_type]['from']], value_dict[format_dict[value_type]['to']]]]
+                [value_dict[format_dict[value_type]['from']], value_dict[format_dict[value_type]['to']], 
+                 value_dict[format_dict['text']]]]
 
 
 def through_filler(values_dict, types_dict):

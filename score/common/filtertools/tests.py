@@ -132,6 +132,7 @@ class FilterTest(unittest.TestCase):
     #     #self.assertEqual(recovery('context', 'add'), False)
 
     def headers_check(self):
+        from filter_header import HeaderDict
         a = fill_example()
         self.assertEqual(a.return_header({'dichotomy': 'stool', 'punkt': False, 'posta': 783,
                                           'filtr_date': {'from': '2016-01-01', 'to': '2016-09-14'}}),
@@ -153,6 +154,21 @@ class FilterTest(unittest.TestCase):
                                           'filtr_date': {'from': '2000-01-01', 'to': ''}}),
             u'С 01.01.2000')
         print('Fifth is gone')
+        b = HeaderDict(OrderedDict([
+            ('date', {'data_type': 'date', 'label': u'', 'empty': u'с 01.01.2016 по 15.09.2016'}),
+            ('tu', {'data_type': 'text', 'label': '', 'end': '.'}),
+            ('strUnit', {'data_type': 'text', 'label': u'', 'end': '.'}),
+            ('dateType', {'data_type': 'bool', 'values_to_header': {
+                True: u'на текущий день',  False: u'',
+                }})
+        ]), header=u'Фильтрация')
+        self.assertEqual(b.return_header({
+            'strUnit': {'item': '', 'maxValue': '', 'minValue': '', 'condition': '', 'text': '', 'bool': ''},
+            'tu': {'item': '', 'maxValue': '', 'minValue': '', 'condition': '', 'text': '', 'bool': ''},
+            'date': {'item': '', 'maxValue': '', 'minValue': '', 'condition': '', 'text': '', 'bool': ''}}, context_filter=True),
+            u'Фильтрация с 01.01.2016 по 15.09.2016')
+
+
 
 
 def fill_example():
@@ -164,7 +180,7 @@ def fill_example():
             ('punkt', {'data_type': 'bool', 'label': '', 'values_to_header': {
                 True: u'пункт выполнен',  False: u'пункт не выполнен',
                 }, 'empty': '\n', 'end': '.'}),
-            ('posta', {'data_type': 'num', 'label': u'постановлений:', 'end': '.'}),
+            ('posta', {'data_type': 'float', 'label': u'постановлений:', 'end': '.'}),
             ('filtr_date', {'data_type': 'date'})
         ]))
 
