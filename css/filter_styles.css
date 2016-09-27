@@ -197,3 +197,18 @@
 .filterConditionsTd .buttonMs button {
 	width: 130px;
 }
+.header-class {
+	font-height: 150%;
+}
+.header-clause {
+	font-weight: lighter;
+}
+.header-key {
+	font-weight: lighter;
+}
+.header-condition {
+	font-weight: lighter;
+}
+.header-value {
+	font-weight: lighter;
+}
