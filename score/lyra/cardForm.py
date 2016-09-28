@@ -12,6 +12,14 @@ class CardForm(BasicCardForm):
         self.add = add
         self.elemetId = elemetId
         
+        
+    def _beforeShow(self, context):
+        '''Override this method to implement some actions 
+        to be performed before the grid is shown or refreshed, 
+        e. g. position cursor to a certain record'''
+        pass
+        
+        
     typedict = {'INT': 'int',
             'REAL': 'decimal',
             'VARCHAR': 'string',
