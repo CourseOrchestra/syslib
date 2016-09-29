@@ -48,7 +48,7 @@ def card_save(xformsdata, context, filter_id):
                         stable_filter['items']['item'] = []
                     break
 
-def add_filter_buttons(filter_id, session, height=False, width=700, add_info=u'', add_context=None, is_object=None, caption=u'Параметры поиска'):   # в параметр heigth можно задавать число фильтров в *filter для гибкого отображения размеров окна 
+def add_filter_buttons(filter_id, session, height=False, width=800, add_info=u'', add_context=None, is_object=None, caption=u'Параметры поиска'):   # в параметр heigth можно задавать число фильтров в *filter для гибкого отображения размеров окна 
     u'''
     filter_id - id карточки в датапанели, 
     height="300" - высота карточки фильтра
