@@ -212,7 +212,7 @@
                               </div>
                           </xf:group>
                           <xf:group ref=".[@face='itemset']">      
-							<div class="button200 buttonMs">
+							<div class="buttonMs">
                                   <xf:multiselector buttonLabel="Добавить" dataWidth="'400px'" dataHeight="'400px'"
                                      selectedDataWidth="'400px'" visibleRecordCount="'48'"
 									 startWith="false"
