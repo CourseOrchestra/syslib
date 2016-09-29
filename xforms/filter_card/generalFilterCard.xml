@@ -86,7 +86,7 @@
                 <xf:bind type="boolean" nodeset="instance('xformId_mainInstance')/filters/filter[@type='bool']/@boolInput"/>
                 
                 <xf:bind nodeset="instance('xformId_mainInstance')/filters/filter[@type='text']/@value"
-                	required="if(instance('xformId_mainInstance')/filters/filter[@type='text' and @bound='usuall']/@required='true', true(), false())"/> 
+                	required="if(instance('xformId_mainInstance')/filters/filter[@type='text']/@required='true', true(), false())"/> 
                 	
                 <xf:bind readonly="true()" nodeset="instance('xformId_mainInstance')/filters/filter/@label"/>
                 
@@ -168,7 +168,7 @@
 								<td class="tdValue">
 									<div class="fieldConditionValue">
         					<xf:group ref=".[@current_condition='between']">
-         					<xf:group ref=".[@type='date' and @bound!='free']">
+         					<xf:group ref=".[@type='date' and @face='usuall']">
 												<div class="dateCondition first">
 													<xf:input ref="@minValue">
 													</xf:input>
@@ -179,7 +179,7 @@
 												</div>
 											</xf:group>
                           
-                          <xf:group ref=".[@type='float' and @bound!='free']">
+                          <xf:group ref=".[@type='float' and @face='usuall']">
                               <div class="floatCondtion first">
                                   <xf:input ref="@minValue">
                                   </xf:input>
@@ -192,13 +192,13 @@
         					</xf:group>
         					
         					<xf:group ref=".[@current_condition='right' or @current_condition='left' or @current_condition='equal' or @current_condition='masked']">
-         					<xf:group ref=".[(@type='text' or @type='float') and @bound!='free' and @face='usuall']">
+         					<xf:group ref=".[(@type='text' or @type='float') and @face='usuall']">
 												<div class="textCondition single">
                                   <xf:input ref="@value"/>                                   
                               </div>
                           </xf:group>
                           
-         					<xf:group ref=".[@type='date' and @bound!='free']">
+         					<xf:group ref=".[@type='date' and @face='usuall']">
 												<div class="dateCondition single">
                                   <xf:input ref="@value">
                                   </xf:input>
@@ -211,27 +211,8 @@
                                   </xf:input>
                               </div>
                           </xf:group>
-                          <xf:group ref=".[@face='itemset']">                     
-												<xf:repeat class = "multiValueItems" id="xformId_itemRow" nodeset="instance('xformId_mainInstance')/filters/filter[@id = current()/@id]/items/item">
-													<table class="fieldConditionValueMs">
-														<tr>
-															<td>
-																<div class="inlineButton">
-																	<xf:trigger>
-																		<xf:label>X</xf:label>
-																		<xf:action ev:event="DOMActivate">
-																			<xf:delete nodeset="current()"/>
-																		</xf:action>
-																	</xf:trigger>
-																</div>
-															</td>
-															<td>
-																<div class="fieldConditionValue">
-                                                  <xf:output value="@name"/>
-                                          </div></td>
-                                  </tr></table>
-                              </xf:repeat>
-                              <div class="button200 buttonMs">
+                          <xf:group ref=".[@face='itemset']">      
+							<div class="button200 buttonMs">
                                   <xf:multiselector buttonLabel="Добавить" dataWidth="'400px'" dataHeight="'400px'"
                                      selectedDataWidth="'400px'" visibleRecordCount="'48'"
 									 startWith="false"
@@ -240,25 +221,44 @@
                                      currentValue="''" windowCaption="'Выбор фильтров'" needClear="true" needInitSelection="true"
                                      xpathRoot="'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))]/items)'"
                                      xpathMapping="{'XPath(instance(quot(xformId_itemInstance))/items/item)':{'id': '@id','name':'@name'}}" />
-                              </div>
-                          </xf:group>
-                          
-        				  <xf:group ref=".[@face='select']">                            
-												<div class="listCondition single">
-													<xf:select1 ref="@value" class="listConditionValues">
-														<xf:itemset ref="../selects/select">
-															<xf:label ref="@label"/>
-															<xf:value ref="@name"/>
-														</xf:itemset>
-													</xf:select1>
+                              </div>						  
+								<xf:repeat class = "multiValueItems" id="xformId_itemRow" nodeset="instance('xformId_mainInstance')/filters/filter[@id = current()/@id]/items/item">
+									<table class="fieldConditionValueMs">
+										<tr>
+											<td>
+												<div class="inlineButton">
+													<xf:trigger>
+														<xf:label>X</xf:label>
+														<xf:action ev:event="DOMActivate">
+															<xf:delete nodeset="current()"/>
+														</xf:action>
+													</xf:trigger>
 												</div>
-												<xf:trigger class="clearConditionValues">
-													<xf:label>X</xf:label>
-													<xf:action ev:event="DOMActivate">
-														<xf:setvalue ref="@value" value="" />
-													</xf:action>
-												</xf:trigger>
-											</xf:group>
+											</td>
+											<td>
+												<div class="fieldConditionValue">
+                                                  <xf:output value="@name"/>
+                                          </div></td>
+                                  </tr></table>
+                                </xf:repeat>
+                            </xf:group>
+                          
+        				    <xf:group ref=".[@face='select']">                            
+								<div class="listCondition single">
+									<xf:select1 ref="@value" class="listConditionValues">
+										<xf:itemset ref="../selects/select">
+											<xf:label ref="@label"/>
+											<xf:value ref="@name"/>
+										</xf:itemset>
+									</xf:select1>
+								</div>
+								<xf:trigger class="clearConditionValues">
+									<xf:label>X</xf:label>
+									<xf:action ev:event="DOMActivate">
+										<xf:setvalue ref="@value" value="" />
+									</xf:action>
+								</xf:trigger>
+							</xf:group>
                           
                           <xf:group ref=".[@face='selector']">
 												<div class="selectorListCondtion single">
