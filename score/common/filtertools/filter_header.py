@@ -107,12 +107,22 @@ class HeaderDict:
                 else:
                     format_string = datatype
                 if isinstance(format_string, list):
-                    if values_dict['data_type'] == 'date':
-                        first_chapter = (u'с %s ' % format_string[0]) if format_string[0] else u''
-                        second_chapter = (u'по %s' % format_string[1]) if format_string[1] else u''
-                        third_chapter = format_string[2]
-                        h_key = values_dict['label']
-                        h_value = (first_chapter + second_chapter) if first_chapter or second_chapter else third_chapter
+                    if values_dict['data_type'] in {'date', 'float'}:
+                        if filter(None, format_string):
+                            first_chapter = u'с %s '
+                            second_chapter = u'по %s'
+                            third_chapter = format_string[2]
+                            h_key = values_dict['label']
+                            if standard_header_dict[key]['condition']['@value'] == 'equal':
+                                h_cond = standard_header_dict[key]['condition']['@label']
+                                h_value = third_chapter
+                            elif standard_header_dict[key]['condition']['@value'] == 'right':
+                                h_value = second_chapter % third_chapter
+                            elif standard_header_dict[key]['condition']['@value'] == 'left':
+                                h_value = first_chapter % third_chapter
+                            else:
+                                h_value = u'%s%s' % ((first_chapter  % format_string[0]) if format_string[0] != '' else '', 
+                                                     (second_chapter % format_string[1]) if format_string[1] != '' else '')
                 else:
                     if values_dict['data_type'] == 'bool':
                         h_key = values_dict['label'] if format_string in {True, 'true', 'True'} else values_dict['empty']
@@ -171,7 +181,7 @@ def header_type_to_filter_type():
     return {
     #data_type: position in unbound_dict_filler
         'date' :{'from': 'minValue', 'to': 'maxValue'},
-        'float': 'text',
+        'float': {'from': 'minValue', 'to': 'maxValue'},
         'text' : 'text',
         'bool' : 'bool'
     }
@@ -181,9 +191,9 @@ def header_type_to_filter_type():
 def get_value_through_type(value_type, value_dict):
     format_dict = header_type_to_filter_type()
     fast_trancate = lambda x: '.'.join(x.split('-')[::-1])
-    if value_type != 'date':
+    if value_type not in {'date', 'float'}:
         return value_dict[format_dict[value_type]]
-    elif value_type == 'date':
+    else:
         return [fast_trancate(x) for x in
                 [value_dict[format_dict[value_type]['from']], value_dict[format_dict[value_type]['to']], 
                  value_dict[format_dict['text']]]]

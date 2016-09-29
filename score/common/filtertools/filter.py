@@ -92,7 +92,7 @@ def create_filter_map(cursor, field_name_dict):
     type_to_type = {
         'DATETIME': 'date', 'VARCHAR': 'text', 'NUMERIC': 'float',
         'TEXT': 'text', 'INT': 'float', 'FLOAT': 'float', 'DATE': 'date',
-        'BOOLEAN': 'bool', 'BIT': 'bool', 'BOOL': 'bool'
+        'BOOLEAN': 'bool', 'BIT': 'bool', 'BOOL': 'bool', 'REAL': 'float'
     }    
     # Генератор для выделения стиля оформления, либо присвоения не выделяемого челестой типа данных
     table_fields = {
