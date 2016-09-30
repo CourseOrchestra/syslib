@@ -193,6 +193,14 @@
 	margin-right: 3px;
 	margin-top: 3px;
 }
+.filterLeftManageButton {
+	float: left;
+	margin-top: 18px;
+}
+.filterLeftManageButton>span button {
+	margin-left: 4px;
+	min-width: 120px;
+}
 
 .filterConditionsTd .buttonMs button {
 	width: 130px;

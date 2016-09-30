@@ -300,7 +300,7 @@
         		</xf:repeat>
          </div>
 	     <!-- Управляющие кнопки -->
-				<div class="filterDefineFilter">
+				
 	     	<xf:group ref=".[@maxFilters &lt;= count(./filters/filter)]">
 						<div class="defineFilterDisable">
 		            <xf:trigger>
@@ -308,6 +308,7 @@
 		            </xf:trigger>
 		        </div>
 		    </xf:group>
+		    
 		    <xf:group ref=".[@maxFilters &gt; count(./filters/filter)]">
 						<div class="defineFilterEnable">
 		            <xf:selector buttonLabel="Добавить" 
@@ -341,12 +342,11 @@
 		                                        'XPath(instance(quot(xformId_filterInstance))/filters/filter/@boolInput)': 'boolInput',
 		                                        'XPath(instance(quot(xformId_filterInstance))/filters/filter/@randint)': 'randint'}" />
 
+		        
 		        </div> 
 		    </xf:group>  
-		    
-				</div>
-				<div class="filterRightManageButton">
-					<!-- Восстановить -->
+		    <!-- Восстановить -->
+		    <div class="filterLeftManageButton">
 					<xf:trigger class="restoreFilter">
 						<xf:label>Восстановить фильтр по умолчанию</xf:label>
 						<xf:action ev:event="DOMActivate">
@@ -355,6 +355,9 @@
 							</xf:action>
 						</xf:action>
 					</xf:trigger>
+				</div>
+				<div class="filterRightManageButton">
+					
 					<!-- Искать -->
 					<xf:trigger class="makeSearch">
 						<xf:label>Выполнить поиск</xf:label>
