@@ -4,13 +4,19 @@ Created 28.02.2016 by s.gavrilov
 '''
 from array import array
 from datetime import datetime
-from java.io import FileOutputStream, BufferedInputStream
+from java.io import FileOutputStream, BufferedInputStream, FileInputStream
 import os
 
 from common.grainssettings import SettingsManager
 from common.numbersseries.getNextNo import getNextNoOfSeries
 from fileRepository._fileRepository_orm import fileCounterCursor, \
     fileCursor, fileVersionCursor
+
+
+try:
+    from ru.curs.showcase.core.jython import JythonDTO, JythonDownloadResult
+except:
+    from ru.curs.celesta.showcase import JythonDTO, JythonDownloadResult
 
 
 def putFile(context, native_filename, stream_input, current_cluster_num=1,
@@ -467,3 +473,27 @@ def repairNullString(path_to_file):
 def toIntList(list_of_strings):
     """Функция, интующая переданный в нее список"""
     return map(lambda x: int(x), list_of_strings)
+
+
+def downloadFile(context, file_id=None, file_version_id=None):
+    '''
+    Скачивание файла по file_id или file_version_id
+    '''
+
+    file_cursor = fileCursor(context)
+    file_version_cursor = fileVersionCursor(context)
+
+    if file_version_id:
+        file_version_cursor.get(file_version_id)
+        if file_id is not None and file_id != file_version_cursor.fileId:
+            raise Exception(u"Неверное соответствие уникального идентификатора файла и его версии")
+        if not file_cursor.tryGet(file_version_cursor.fileId):
+            context.error(u"Файл не найден")
+    elif file_id:
+        if not file_cursor.tryGet(file_id):
+            context.error(u"Файл не найден")
+    else:
+        raise Exception(u"Передайте уникальный идентификатор файла либо его версии")
+    out_stream = FileInputStream(getFilePathById(context, file_id, file_version_id))
+
+    return JythonDownloadResult(out_stream, file_cursor.name)
