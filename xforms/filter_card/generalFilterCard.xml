@@ -268,7 +268,7 @@
 								procListAndCount="'common.filtertools.filter_selector.itemsListAndCount.celesta'"
 								generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters/filter)', 'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))])']" 
 								currentValue="''" windowCaption="'Выбор значения'"
-								dataWidth="'300px'"
+								dataWidth="'500px'"
 								startWith="false"
 								xpathMapping="{	'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))]/item/@id)': 'id',
 												'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))]/item/@name)': 'name'}"/>
