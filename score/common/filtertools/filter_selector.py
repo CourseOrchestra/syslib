@@ -127,11 +127,11 @@ def itemsListAndCount(context, main=None, add=None, filterinfo=None, session=Non
     recordList = ArrayList()
     # набираем список значений
     i = 0
-    if curvalue:
-        cursor.setRange(field_name, curvalue)
+#     if curvalue:
+#         cursor.setRange(field_name, curvalue)
     while cursor.tryFirst() and i < (firstrecord + recordcount):
         current_name = getattr(cursor, field_name)
-        if i >= firstrecord:
+        if (i >= firstrecord and not curvalue) or (i > firstrecord and curvalue):
             rec = DataRecord()
             rec.setId("rec%i" % i)
             rec.setName(unicode(current_name))

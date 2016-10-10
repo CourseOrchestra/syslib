@@ -57,7 +57,6 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name):
                 ] if 'select' in field_dict else []
             },
             'item'      : {'@id': '', '@name': ''},
-            '@randint'  : 0,
             'default'   : field_name_dict[field_name]['default'] if 'default' in field_name_dict[field_name] else '',
             '@selector_data'    : field_name_dict[field_name]['select_info'] if 'select_info' in field_name_dict[field_name] else '',
             '@current_condition': 'equal' if filtered_fields[field_name]['type'] != 'date' else 'between',

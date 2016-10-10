@@ -17,12 +17,29 @@ class IncorrectHeaderInput(ValueError):
 
 
 class HeaderDict:
-    u'''labels = {'field_id': {'Значение':'Наименование'}}'''
+    u'''
+    Класс, собирающий данные для хэдера из сторонних источников. Состоит из двух чатей -- 
+    функции-конструктора, получающей метаданные, описывающие каждое выводящееся поле, и 
+    функции return_header, которая на основе метаданных и переданных занчений, формирует
+    хэдер. Описание:
+        INIT::
+    В переменной labels приходит либо словарь вида {'field_id': {'Значение':'Наименование'}}, либо 
+    фильтр-контекст, к которому надо добавлять context_list=True.
+    
+    Обозначения для словаря RETURN, который содержит метаданные вывода:
+    - 'data_type' -- тип данных поля;
+    - 'empty' -- то, что выводится в хэдере, если не приходят данные;
+    - 'label' -- надпись, выводимая нпосредственно перед значениями фильтра;
+    - 'values_to_header' -- словарь значений, которые подменяют пришедшие из фильтра;
+    - 'end' -- значение, добавляющееся в конце строки хэдера;
+    - 'case_sensitive' -- если True, то не происходит текстовая обработка получаемых данных.
+    '''
     data_types = {'date', 'float', 'text', 'bool'}
     smth = Something()
     
     def __init__(self, labels, header=u'', context_list=False):
         # main processing
+        # Переработка входных в label данных для создания фильтровых строк хэдера
         if not context_list:
             self.header_dict = OrderedDict([(i, self.preprocessor_any(j)) for i, j in unicoder(labels).items()])
         else:
@@ -30,7 +47,8 @@ class HeaderDict:
             self.header_dict = OrderedDict([(val_dict['@id'], self.preprocessor_context(val_dict)) for val_dict in unicoder(labels)])
         self.header = header
         self.is_context = context_list
-
+        
+    # Функция переработки вручную сработанного словаря
     def preprocessor_any(self, values_dict):
         must_have_settings = {'data_type', 'empty', 'label', 'values_to_header', 
                               'end', 'case_sensitive'}
@@ -52,6 +70,7 @@ class HeaderDict:
             result['newline'] = True
         return result
     
+    # Функция переработки контекста из фильтра
     def preprocessor_context(self, context_field):
         result = {}
         result['data_type'] = context_field['@type']
@@ -193,7 +212,7 @@ def header_type_to_filter_type():
 # Function chapter
 def get_value_through_type(value_type, value_dict):
     format_dict = header_type_to_filter_type()
-    fast_trancate = lambda x: '.'.join(x.split('-')[::-1])
+    fast_trancate = lambda x: '.'.join(x.split('-')[::-1]) if isinstance(x, (str, unicode)) else x
     if value_type not in {'date', 'float'}:
         return value_dict[format_dict[value_type]]
     else:
@@ -238,6 +257,7 @@ def through_filler(values_dict, types_dict):
 
 
 def list_find(find_list, find_str):
+    u'''Функция, которая ищет элемент в не отсортированном списке'''
     for i, elem in enumerate(find_list):
         if elem == find_str:
             return i
@@ -245,6 +265,7 @@ def list_find(find_list, find_str):
 
 
 def unicoder(outer_elem):
+    u'''Функция, переводящая из строк в unicode всё содержимое объекта'''
     if isinstance(outer_elem, (str, unicode)):
         return unicode(outer_elem)
     if isinstance(outer_elem, (float, int)):
