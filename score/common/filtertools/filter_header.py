@@ -58,7 +58,10 @@ class HeaderDict:
         result['empty'] = u''
         result['label'] = u'%s' % context_field['@label']   
         self.string_count += len(context_field['@label'])
-        result['values_to_header'] = {}
+        if context_field['@face'] == 'select':
+            result['values_to_header'] = {x['@name'] : x['@label'] for x in context_field['selects']["select"]}
+        else:
+            result['values_to_header'] = {}
         result['end'] = '.'
         #result['case_sensitive'] = '.'
         
