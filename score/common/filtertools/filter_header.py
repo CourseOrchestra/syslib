@@ -147,7 +147,7 @@ class HeaderDict:
                                                      (second_chapter % format_string[1]) if format_string[1] != '' else '')
                 else:
                     if values_dict['data_type'] == 'bool':
-                        h_key = values_dict['label'] if format_string in {True, 'true', 'True'} else values_dict['empty']
+                        h_key = (values_dict['label'] + '.') if format_string in {True, 'true', 'True'} else values_dict['empty']
                     else:
                         h_key = values_dict['label'] if values_dict['label'] else ''
                         if self.is_context:
