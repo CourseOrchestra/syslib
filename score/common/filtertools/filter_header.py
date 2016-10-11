@@ -125,7 +125,7 @@ class HeaderDict:
             h_key = ''
             h_cond = ''
             h_value = ''
-            if not current_value or list_find(current_value, self.smth) != -1:
+            if current_value in (['', '', ''], '', None):
                 h_value = values_dict['empty']
             else:
                 # Если получаемые значения должны подставляться с использованием алиасов, то заменяем значения
