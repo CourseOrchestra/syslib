@@ -37,7 +37,7 @@ class HeaderDict:
     data_types = {'date', 'float', 'text', 'bool'}
     smth = Something()
     
-    def __init__(self, labels, header=u'', context_list=False):
+    def __init__(self, labels, header=u'', context_list=False, boolean_prefix=u''):
         # main processing
         # Переработка входных в label данных для создания фильтровых строк хэдера
         if not context_list:
@@ -47,6 +47,7 @@ class HeaderDict:
             self.header_dict = OrderedDict([(val_dict['@id'], self.preprocessor_context(val_dict)) for val_dict in unicoder(labels)])
         self.header = header
         self.is_context = context_list
+        self.boolean_prefix = boolean_prefix
         
     # Функция переработки вручную сработанного словаря
     def preprocessor_any(self, values_dict):
@@ -75,7 +76,7 @@ class HeaderDict:
         result = {}
         result['data_type'] = context_field['@type']
         result['empty'] = u''
-        result['label'] = u'%s' % context_field['@label']   
+        result['label'] = unicode(context_field['@label'])   
         self.string_count += len(context_field['@label'])
         if context_field['@face'] == 'select':
             result['values_to_header'] = {x['@name'] : x['@label'] for x in context_field['selects']["select"]}
@@ -83,7 +84,6 @@ class HeaderDict:
             result['values_to_header'] = {}
         result['end'] = '.'
         #result['case_sensitive'] = '.'
-        
         if self.string_count > 100 or context_field['@face'] == 'itemset':
             result['newline'] = True
             self.string_count = 0
@@ -101,67 +101,77 @@ class HeaderDict:
         if context_filter is False:
             standard_header_dict = through_filler(current_values, self.header_dict)      
         else:
+            # Переработка полученных значений в текст в поле text, вне зависиммости от способа отображения
             for y in current_values.values():
                 if is_exist(y, 'item', {'@id': self.smth}):
                     y['text'] = y['item']['@name']
-                if is_exist(y, 'items'):
+                elif is_exist(y, 'items'):
                     if '@name' not in y['items']:
                         y['text'] = u'; '.join([x['@name'] for x in y['items']])
                     else:
                         y['text'] = y['items']['@name']
             standard_header_dict = current_values
+            
         header_list = [{"@class": 'header-class', "span": {"@class": 'header-header', '#text': self.header}}]
         i = 0
         next_upper = False
         # Формирование списка с подстановкой значений, либо emtpy-вариантом
         for key, values_dict in self.header_dict.items():
-            datatype = get_value_through_type(
+            # Получение из пришедшего словаря данных
+            current_value = get_value_through_type(
                 values_dict['data_type'], 
                 standard_header_dict[key] if key in standard_header_dict.keys() else unbound_dict_filler(['']))
+            # Переменные для стилей-словарей
             h_key = ''
             h_cond = ''
             h_value = ''
-            if datatype in ('', ['', ''], None):
+            if not current_value or list_find(current_value, self.smth) != -1:
                 h_value = values_dict['empty']
             else:
-                if is_exist(values_dict, 'values_to_header'):
-                    format_string = values_dict['values_to_header'][datatype]
+                # Если получаемые значения должны подставляться с использованием алиасов, то заменяем значения
+                if is_exist(values_dict, 'values_to_header', self.smth):
+                    format_string = values_dict['values_to_header'][current_value]
                 else:
-                    format_string = datatype
+                    format_string = current_value
+                # Проверка на полученные значения -- одно или много
                 if isinstance(format_string, list):
                     if values_dict['data_type'] in {'date', 'float'}:
-                        if filter(None, format_string):
-                            first_chapter = u'с %s '
-                            second_chapter = u'по %s'
-                            third_chapter = format_string[2]
-                            h_key = values_dict['label']
-                            if standard_header_dict[key]['condition']['@value'] == 'equal':
-                                h_cond = standard_header_dict[key]['condition']['@label']
-                                h_value = third_chapter
-                            elif standard_header_dict[key]['condition']['@value'] == 'right':
-                                h_value = second_chapter % third_chapter
-                            elif standard_header_dict[key]['condition']['@value'] == 'left':
-                                h_value = first_chapter % third_chapter
-                            else:
-                                h_value = u'%s%s' % ((first_chapter  % format_string[0]) if format_string[0] != '' else '', 
-                                                     (second_chapter % format_string[1]) if format_string[1] != '' else '')
+                        # Задаем текстовые шаблоны для интервальных значений
+                        first_chapter = u'с %s '
+                        second_chapter = u'по %s'
+                        third_chapter = format_string[2]
+                        h_key = values_dict['label']
+                        # Формируем окончательный вариант
+                        if is_exist(standard_header_dict[key], 'condition', {'@value': 'equal'}):
+                            h_cond = standard_header_dict[key]['condition']['@label']
+                            h_value = third_chapter
+                        elif is_exist(standard_header_dict[key], 'condition', {'@value': 'right'}):
+                            h_value = second_chapter % third_chapter
+                        elif is_exist(standard_header_dict[key], 'condition', {'@value': 'left'}):
+                            h_value = first_chapter % third_chapter
+                        else:
+                            h_value = u'%s%s' % ((first_chapter  % format_string[0]) if format_string[0] != '' else '', 
+                                                 (second_chapter % format_string[1]) if format_string[1] != '' else '')
                 else:
                     if values_dict['data_type'] == 'bool':
-                        h_key = (values_dict['label'] + '.') if format_string in {True, 'true', 'True'} else values_dict['empty']
+                        h_key = (u'%s%s.' % (self.boolean_prefix, values_dict['label'].rstrip()))\
+                            if format_string in {True, 'true', 'True'} else values_dict['empty']
                     else:
                         h_key = values_dict['label'] if values_dict['label'] else ''
                         if self.is_context:
                             h_cond = standard_header_dict[key]['condition']['@label']\
                                 if '@label' in standard_header_dict[key]['condition'] else u''
                         h_value = format_string
-                        
-            if is_exist(values_dict, 'newline'):
-                h_value = unicode(h_value) + u'\n'
-                next_upper = True
+            # Добавляем переход на новую строку        
+#             if is_exist(values_dict, 'newline'):
+#                 h_value = unicode(h_value) + u'\n'
+#                 next_upper = True
+                
             if h_value != values_dict['empty']:
-                h_value = unicode(h_value) + values_dict['end']
+                h_value = unicode(h_value + values_dict['end'])
                 first_string = h_key or h_value or u'' 
-                if next_upper and not is_exist(values_dict, 'case_sensitive', True) and first_string:
+                # Штука для того, чтобы следующий фильтр шёл с большой буквы
+                if next_upper and not is_exist(values_dict, 'case_sensitive', True) and first_string and first_string[0].islower():
                     first_string = u' '.join([first_string.split()[0].capitalize(), u' '.join(first_string.split()[1:])])\
                                 if len(first_string.split()) > 1 else first_string.capitalize()
                 if first_string:
@@ -202,7 +212,7 @@ class HeaderDict:
 def header_type_to_filter_type():
     return {
     #data_type: position in unbound_dict_filler
-        'date' :{'from': 'minValue', 'to': 'maxValue'},
+        'date' : {'from': 'minValue', 'to': 'maxValue'},
         'float': {'from': 'minValue', 'to': 'maxValue'},
         'text' : 'text',
         'bool' : 'bool'
@@ -211,6 +221,7 @@ def header_type_to_filter_type():
 
 # Function chapter
 def get_value_through_type(value_type, value_dict):
+    u'''Получить корректные значения // сформировать их'''
     format_dict = header_type_to_filter_type()
     fast_trancate = lambda x: '.'.join(x.split('-')[::-1]) if isinstance(x, (str, unicode)) else x
     if value_type not in {'date', 'float'}:
@@ -222,17 +233,18 @@ def get_value_through_type(value_type, value_dict):
 
 
 def through_filler(values_dict, types_dict):
+    u'''Для вручную заданных данных для фильтра, функция получения словарей, идентичных возвращаемым из фильтра'''
     type_to_value = header_type_to_filter_type()
     types = unbound_types()
     type_to_lst_id = {}
     for key, j in type_to_value.items():
-        if isinstance(j, dict):
+        if isinstance(j, (dict, OrderedDict)):
             type_to_lst_id[key] = {x: list_find(types, y) for x, y in j.items()}
         else:
             type_to_lst_id[key] = list_find(types, j)
     output = {}
     for i_key, i_value in values_dict.items():
-        if not isinstance(type_to_lst_id[types_dict[i_key]['data_type']], dict):
+        if not isinstance(type_to_lst_id[types_dict[i_key]['data_type']], (dict, OrderedDict)):
             unbound_string = [''] * type_to_lst_id[types_dict[i_key]['data_type']]
             unbound_string.append(i_value)
         else:
@@ -258,6 +270,8 @@ def through_filler(values_dict, types_dict):
 
 def list_find(find_list, find_str):
     u'''Функция, которая ищет элемент в не отсортированном списке'''
+    if not isinstance(find_list, list):
+        return -1
     for i, elem in enumerate(find_list):
         if elem == find_str:
             return i

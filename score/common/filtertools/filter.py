@@ -3,6 +3,7 @@ from datetime import date, datetime
 from time import clock
 from sys import maxint, minint
 from common.filtertools.any_functions import is_exist
+from collections import OrderedDict
 
 
 def filter_assembly(context, cursor, filter_id, field_name_list, table_name):
@@ -168,7 +169,7 @@ def filtered_function(context, filter_name, cursor):
                     break
             # Добавление значений unbound-полей для использования вовне    
             unbound_values[filter_dict['@id']] = unbound_dict_filler(filter_dict['@value'],
-                True if filter_dict['@boolInput'] == 'true' else False, filter_dict['item'],
+                filter_dict['@boolInput'] == 'true', filter_dict['item'],
                 cond_in_value, 
                 filter_dict['@minValue'], filter_dict['@maxValue'],
                 filter_dict['items']['item']
@@ -242,7 +243,7 @@ def filtered_function(context, filter_name, cursor):
                         filter_schedule = "%s"
                     # В зависимости от записанного значения -- из карточки или из сессии, выделяются значения для фильтрации
                     items_list = filter_dict['items']['item'] if isinstance(filter_dict['items']['item'], list) else [filter_dict['items']['item']]
-                    if isinstance(items_list[0], dict):
+                    if isinstance(items_list[0], (dict, OrderedDict)):
                         filter_list = [filter_schedule % x['@name'] for x in items_list if x['@name']]
                     else:
                         filter_list = [filter_schedule % x for x in items_list if x not in {None, ''}]
@@ -328,7 +329,7 @@ def unbound_dict_filler(*tuple_of_values):
     if len(tuple_of_values) == 1:
         if isinstance(tuple_of_values[0], list):
             tuple_of_values = tuple_of_values[0]
-        elif isinstance(tuple_of_values[0], dict):
+        elif isinstance(tuple_of_values[0], (dict, OrderedDict)):
             inst_dict = tuple_of_values[0]
             tuple_of_values = []
             for key_type in unbound_types():
