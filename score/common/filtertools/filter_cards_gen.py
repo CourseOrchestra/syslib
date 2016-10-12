@@ -28,6 +28,11 @@ def card_save(xformsdata, context, filter_id):
             context.getData()[u'card_save'] = set([])
         context.getData()[u'card_save'].add(filter_id)    
         temp_context = xformsdata["schema"]["filters"]['filter']
+        handle = {'float': lambda x: float(x) if x.isdigit() else '', 
+                  'text': unicode, 
+                  'bool': unicode, 
+                  'date': unicode    # Потом везде сделать нормальную обработку
+                  }
         if isinstance(temp_context, dict):
             temp_context = [temp_context]
         # Перенесение данных в контекст
@@ -35,9 +40,9 @@ def card_save(xformsdata, context, filter_id):
             for stable_filter in context.getData()[filter_id]:
                 if temp_filter['@id'] == stable_filter['@id']:
                     # Передача данных из xforms в context
-                    stable_filter['@minValue'] = temp_filter['@minValue']
-                    stable_filter['@value'] = temp_filter['@value']
-                    stable_filter['@maxValue'] = temp_filter['@maxValue']
+                    stable_filter['@minValue'] = handle[temp_filter['@type']](temp_filter['@minValue'])
+                    stable_filter['@value'] = handle[temp_filter['@type']](temp_filter['@value'])
+                    stable_filter['@maxValue'] = handle[temp_filter['@type']](temp_filter['@maxValue'])
                     stable_filter['@boolInput'] = temp_filter['@boolInput']
                     stable_filter['item'] = temp_filter['item']
                     stable_filter['@current_condition'] = temp_filter['@current_condition']

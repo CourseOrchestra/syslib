@@ -61,13 +61,13 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name):
             'default'   : field_name_dict[field_name]['default'] if 'default' in field_name_dict[field_name] else '',
             '@selector_data'    : field_name_dict[field_name]['select_info'] if 'select_info' in field_name_dict[field_name] else '',
             '@current_condition': 'equal' if filtered_fields[field_name]['type'] != 'date' else 'between',
-            '@required'         : 'true' if 'required' in field_name_dict[field_name] and field_name_dict[field_name]['required'] else 'false'
+            '@required'         : 'true' if is_exist(field_name_dict[field_name], 'required', True) else 'false'
         }
         as_default(future_filter)
         future_filter['conditions'] = condition_constructor(
             future_filter,
             field_name_dict[field_name]['especial_conds'] if 'especial_conds' in field_name_dict[field_name] else False, 
-            future_filter['@bound'], future_filter['@type']
+            future_filter['@face'], future_filter['@type']
         )
         context.getData()[filter_id].append(future_filter)
         
@@ -106,7 +106,7 @@ def create_filter_map(cursor, field_name_dict):
     return table_fields
             
             
-def condition_constructor(filter_data, especial_conds, filter_bound, filter_type):
+def condition_constructor(filter_data, especial_conds, filter_face, filter_type):
     u'''
     Либо передаем свои собственные наименования, либо автозаполяем -- всё просто
     Поиск по маске педназначен для "особенной" обработки без обработки (?)
@@ -143,7 +143,7 @@ def condition_constructor(filter_data, especial_conds, filter_bound, filter_type
                  ,  '@label' : u'маска' }
         conditions = {'condition': [ equal ]}
         
-        if filter_bound != 'free' and filter_type in {'float', 'date'}:
+        if filter_face == 'usuall' and filter_type in {'float', 'date'}:
             conditions['condition'].append(between)
             conditions['condition'].append(right)
             conditions['condition'].append(left)

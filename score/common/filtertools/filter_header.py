@@ -125,7 +125,8 @@ class HeaderDict:
             h_key = ''
             h_cond = ''
             h_value = ''
-            if current_value in (['', '', ''], '', None):
+            print current_value, type(current_value)
+            if not current_value:
                 h_value = values_dict['empty']
             else:
                 # Если получаемые значения должны подставляться с использованием алиасов, то заменяем значения
@@ -137,8 +138,13 @@ class HeaderDict:
                 if isinstance(format_string, list):
                     if values_dict['data_type'] in {'date', 'float'}:
                         # Задаем текстовые шаблоны для интервальных значений
-                        first_chapter = u'с %s '
-                        second_chapter = u'по %s'
+                        first_chapter = u'{} %s '.format(standard_header_dict[key]['condition']['@label']
+                            if is_exist(standard_header_dict[key], 'condition', {'@value': 'left'})
+                            else u'c')
+                        second_chapter = u'{} %s'.format(standard_header_dict[key]['condition']['@label']
+                            if is_exist(standard_header_dict[key], 'condition', {'@value': 'right'}) 
+                                and standard_header_dict[key]['condition']['@value'] != u'до'
+                            else u'по')
                         third_chapter = format_string[2]
                         h_key = values_dict['label']
                         # Формируем окончательный вариант
@@ -227,9 +233,11 @@ def get_value_through_type(value_type, value_dict):
     if value_type not in {'date', 'float'}:
         return value_dict[format_dict[value_type]]
     else:
-        return [fast_trancate(x) for x in
-                [value_dict[format_dict[value_type]['from']], value_dict[format_dict[value_type]['to']], 
-                 value_dict[format_dict['text']]]]
+        interval = [fast_trancate(x) for x in
+            [value_dict[format_dict[value_type]['from']], value_dict[format_dict[value_type]['to']]]]
+        equal_value = fast_trancate(value_dict[format_dict['text']])
+        
+        return interval if filter(None, interval) else equal_value
 
 
 def through_filler(values_dict, types_dict):
