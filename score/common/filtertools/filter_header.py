@@ -126,7 +126,7 @@ class HeaderDict:
             h_cond = ''
             h_value = ''
             print current_value, type(current_value)
-            if not current_value:
+            if current_value in ('', None):
                 h_value = values_dict['empty']
             else:
                 # Если получаемые значения должны подставляться с использованием алиасов, то заменяем значения
