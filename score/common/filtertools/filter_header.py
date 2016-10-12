@@ -138,23 +138,17 @@ class HeaderDict:
                 if isinstance(format_string, list):
                     if values_dict['data_type'] in {'date', 'float'}:
                         # Задаем текстовые шаблоны для интервальных значений
-                        first_chapter = u'{} %s '.format(standard_header_dict[key]['condition']['@label']
-                            if is_exist(standard_header_dict[key], 'condition', {'@value': 'left'})
-                            else u'c')
-                        second_chapter = u'{} %s'.format(standard_header_dict[key]['condition']['@label']
-                            if is_exist(standard_header_dict[key], 'condition', {'@value': 'right'}) 
-                                and standard_header_dict[key]['condition']['@value'] != u'до'
-                            else u'по')
-                        third_chapter = format_string[2]
+                        first_chapter = u'c %s '
+                        second_chapter = u'по %s'
                         h_key = values_dict['label']
                         # Формируем окончательный вариант
                         if is_exist(standard_header_dict[key], 'condition', {'@value': 'equal'}):
                             h_cond = standard_header_dict[key]['condition']['@label']
-                            h_value = third_chapter
+                            h_value = format_string
                         elif is_exist(standard_header_dict[key], 'condition', {'@value': 'right'}):
-                            h_value = second_chapter % third_chapter
+                            h_value = second_chapter % format_string
                         elif is_exist(standard_header_dict[key], 'condition', {'@value': 'left'}):
-                            h_value = first_chapter % third_chapter
+                            h_value = first_chapter % format_string
                         else:
                             h_value = u'%s%s' % ((first_chapter  % format_string[0]) if format_string[0] != '' else '', 
                                                  (second_chapter % format_string[1]) if format_string[1] != '' else '')
@@ -174,7 +168,7 @@ class HeaderDict:
 #                 next_upper = True
                 
             if h_value != values_dict['empty']:
-                h_value = unicode(h_value + values_dict['end'])
+                h_value = unicode(h_value) + values_dict['end']
                 first_string = h_key or h_value or u'' 
                 # Штука для того, чтобы следующий фильтр шёл с большой буквы
                 if next_upper and not is_exist(values_dict, 'case_sensitive', True) and first_string and first_string[0].islower():
@@ -236,8 +230,7 @@ def get_value_through_type(value_type, value_dict):
         interval = [fast_trancate(x) for x in
             [value_dict[format_dict[value_type]['from']], value_dict[format_dict[value_type]['to']]]]
         equal_value = fast_trancate(value_dict[format_dict['text']])
-        
-        return interval if filter(None, interval) else equal_value
+        return interval if interval != ['', ''] else equal_value
 
 
 def through_filler(values_dict, types_dict):

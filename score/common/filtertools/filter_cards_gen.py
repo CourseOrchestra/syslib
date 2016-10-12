@@ -28,7 +28,7 @@ def card_save(xformsdata, context, filter_id):
             context.getData()[u'card_save'] = set([])
         context.getData()[u'card_save'].add(filter_id)    
         temp_context = xformsdata["schema"]["filters"]['filter']
-        handle = {'float': lambda x: float(x) if x.isdigit() else '', 
+        handle = {'float': lambda x: int(x) if x.isdigit() else '', 
                   'text': unicode, 
                   'bool': unicode, 
                   'date': unicode    # Потом везде сделать нормальную обработку
