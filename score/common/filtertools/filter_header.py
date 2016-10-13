@@ -3,7 +3,6 @@
 from collections import OrderedDict
 from any_functions import is_exist
 from filter import unbound_types, unbound_dict_filler
-from __builtin__ import len
 from common.filtertools.any_functions import Something
 
 
@@ -135,23 +134,23 @@ class HeaderDict:
                 else:
                     format_string = current_value
                 # Проверка на полученные значения -- одно или много
-                if isinstance(format_string, list):
-                    if values_dict['data_type'] in {'date', 'float'}:
-                        # Задаем текстовые шаблоны для интервальных значений
-                        first_chapter = u'c %s '
-                        second_chapter = u'по %s'
-                        h_key = values_dict['label']
-                        # Формируем окончательный вариант
-                        if is_exist(standard_header_dict[key], 'condition', {'@value': 'equal'}):
-                            h_cond = standard_header_dict[key]['condition']['@label']
-                            h_value = format_string
-                        elif is_exist(standard_header_dict[key], 'condition', {'@value': 'right'}):
-                            h_value = second_chapter % format_string
-                        elif is_exist(standard_header_dict[key], 'condition', {'@value': 'left'}):
-                            h_value = first_chapter % format_string
-                        else:
-                            h_value = u'%s%s' % ((first_chapter  % format_string[0]) if format_string[0] != '' else '', 
-                                                 (second_chapter % format_string[1]) if format_string[1] != '' else '')
+                if values_dict['data_type'] in {'date', 'float'}:
+                    # Задаем текстовые шаблоны для интервальных значений
+                    first_chapter = u'c %s'
+                    second_chapter = u'по %s'
+                    h_key = values_dict['label']
+                    # Формируем окончательный вариант
+                    if is_exist(standard_header_dict[key], 'condition', {'@value': 'equal'}):
+                        h_cond = standard_header_dict[key]['condition']['@label']
+                        h_value = format_string
+                    elif is_exist(standard_header_dict[key], 'condition', {'@value': 'right'}):
+                        h_value = second_chapter % format_string
+                    elif is_exist(standard_header_dict[key], 'condition', {'@value': 'left'}):
+                        h_value = first_chapter % format_string
+                    else:
+                        h_value = u'%s%s%s' % ((first_chapter  % format_string[0]) if format_string[0] != '' else '',
+                                               ' ' if '' not in format_string else '',
+                                               (second_chapter % format_string[1]) if format_string[1] != '' else '')
                 else:
                     if values_dict['data_type'] == 'bool':
                         h_key = (u'%s%s.' % (self.boolean_prefix, values_dict['label'].rstrip()))\
@@ -230,7 +229,8 @@ def get_value_through_type(value_type, value_dict):
         interval = [fast_trancate(x) for x in
             [value_dict[format_dict[value_type]['from']], value_dict[format_dict[value_type]['to']]]]
         equal_value = fast_trancate(value_dict[format_dict['text']])
-        return interval if interval != ['', ''] else equal_value
+        
+        return interval if value_dict['condition']['@value'] == 'between' else equal_value
 
 
 def through_filler(values_dict, types_dict):
