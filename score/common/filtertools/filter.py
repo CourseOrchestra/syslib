@@ -253,7 +253,7 @@ def filtered_function(context, filter_name, cursor):
                 elif filter_dict['@face'] == 'select' and filter_dict['@value']:
                     cursor.setRange(filter_dict['@id'], filter_dict['@value'])
                 elif  filter_dict['@face'] == 'selector' and filter_dict['item']['@id']:
-                    cursor.setRange(filter_dict['@id'], filter_dict['item']['@id'])
+                    cursor.setRange(filter_dict['@id'], filter_dict['item']['@name'])
                     
     # Возвращение значения unbound-значений
     if unbound_values:
