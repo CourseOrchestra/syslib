@@ -207,7 +207,6 @@ def sendmail(context, flute):
     msg = MIMEMultipart()
     msg["To"] = ",".join(to)
     msg["CC"] = ",".join(cc)
-    msg["BCC"] = ",".join(bcc)
     msg["From"] = mailfrom
     msg["Subject"] = Header(parser.subject, 'utf-8')
     msg['Date'] = formatdate(localtime=True)
@@ -225,6 +224,6 @@ def sendmail(context, flute):
         server.login(login, password)
 
     try:
-        server.sendmail(mailfrom, to + cc, msg.as_string())
+        server.sendmail(mailfrom, to + cc + bcc, msg.as_string())
     finally:
         server.close()
