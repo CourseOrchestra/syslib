@@ -11,6 +11,7 @@ from common.grainssettings import SettingsManager
 from common.numbersseries.getNextNo import getNextNoOfSeries
 from fileRepository._fileRepository_orm import fileCounterCursor, \
     fileCursor, fileVersionCursor
+from common._common_orm import linesOfNumbersSeriesCursor
 
 
 try:
@@ -35,6 +36,7 @@ def putFile(context, native_filename, stream_input, current_cluster_num=1,
     file_version_cursor = fileVersionCursor(context)
     file_cursor = fileCursor(context)
     file_count_cursor = fileCounterCursor(context)
+    linesOfNumbersSeries = linesOfNumbersSeriesCursor(context)
 
     """Проверка на существование кластера"""
     if not file_count_cursor.tryGet(int(current_cluster_num)):
@@ -53,7 +55,8 @@ def putFile(context, native_filename, stream_input, current_cluster_num=1,
 
     if not rewritten_file_id:
         """Если файл новый"""
-        file_cursor.id = getNextNoOfSeries(context, file_NS_name)
+        file_cursor.id = getNextNoOfSeries(
+            context, file_NS_name, linesOfNumbersSeries=linesOfNumbersSeries)
         file_cursor.name = native_filename
         file_cursor.uploadVersioning = uploadVersioning
     else:
@@ -85,7 +88,15 @@ def putFile(context, native_filename, stream_input, current_cluster_num=1,
                     file_version.exist = 0
                     file_version.update()
 
-    file_version_cursor.id = getNextNoOfSeries(context, file_vers_NS_name)
+    """3апись в БД в случае, если при загрузке не произошла ошибка"""
+    if not rewritten_file_id:
+        file_cursor.insert()
+    else:
+        file_cursor.update()
+
+    file_version_cursor.id = getNextNoOfSeries(
+        context, file_vers_NS_name, linesOfNumbersSeries=linesOfNumbersSeries)
+    linesOfNumbersSeries.close()
     file_version_cursor.fileId = file_cursor.id
     # Добавить функцию распределения кластеров как появятся
     file_version_cursor.clasterId = 1
@@ -95,6 +106,7 @@ def putFile(context, native_filename, stream_input, current_cluster_num=1,
     file_version_cursor.exist = 1
     file_version_cursor.timestamp = datetime.today()
 
+    file_version_cursor.insert()
     """Обновление/Добавление кластера в таблице fileCounter."""
     refresher = 1
     for file_counter in file_count_cursor.iterate():
@@ -124,13 +136,6 @@ def putFile(context, native_filename, stream_input, current_cluster_num=1,
     finally:
         stream_input.close()
         fileToWrite.close()
-
-    """3апись в БД в случае, если при загрузке не произошла ошибка"""
-    if not rewritten_file_id:
-        file_cursor.insert()
-    else:
-        file_cursor.update()
-    file_version_cursor.insert()
 
     return {
         "file_version_id": file_version_cursor.id,
@@ -486,14 +491,17 @@ def downloadFile(context, file_id=None, file_version_id=None):
     if file_version_id:
         file_version_cursor.get(file_version_id)
         if file_id is not None and file_id != file_version_cursor.fileId:
-            raise Exception(u"Неверное соответствие уникального идентификатора файла и его версии")
+            raise Exception(
+                u"Неверное соответствие уникального идентификатора файла и его версии")
         if not file_cursor.tryGet(file_version_cursor.fileId):
             context.error(u"Файл не найден")
     elif file_id:
         if not file_cursor.tryGet(file_id):
             context.error(u"Файл не найден")
     else:
-        raise Exception(u"Передайте уникальный идентификатор файла либо его версии")
-    out_stream = FileInputStream(getFilePathById(context, file_id, file_version_id))
+        raise Exception(
+            u"Передайте уникальный идентификатор файла либо его версии")
+    out_stream = FileInputStream(
+        getFilePathById(context, file_id, file_version_id))
 
     return JythonDownloadResult(out_stream, file_cursor.name)
