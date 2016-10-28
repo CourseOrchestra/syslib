@@ -12,7 +12,7 @@ from common.api.core import IJSONSerializable, IXMLSerializable
 from common.api.events.action import Action
 from common.api.utils.tools import objectQualifiedName, classQualifiedName
 from common.api.datapanels.datapanel import DatapanelElement, DatapanelElementTypes, ProcTypes
-from inspect import isfunction
+from inspect import isfunction, isclass
 
 
 class GridTypes(object):
@@ -24,15 +24,17 @@ class GridTypes(object):
     LIVE = 2
     ## Грид для отображения древовидных (иерархических) данных
     TREE = 3
+    ## Lyra-грид
+    LYRA = 4
     
     @staticmethod
     def validate(gridType):
         """Проверяет корректность типа грида
-        @param gridType (@c int) ИД типа грида (#PAGE, #LIVE, #TREE)
+        @param gridType (@c int) ИД типа грида (#PAGE, #LIVE, #TREE, #LYRA)
         @return (@c bool) @c True, если @a gridType является гридом, иначе - 
         @c False
         """
-        return gridType in [GridTypes.PAGE, GridTypes.LIVE, GridTypes.TREE]
+        return gridType in [GridTypes.PAGE, GridTypes.LIVE, GridTypes.TREE, GridTypes.LYRA]
 
 
 class GridProcTypes(ProcTypes):
@@ -51,17 +53,20 @@ class GridElement(DatapanelElement):
     * @c common.api.datapanels.grids.PageGrid
     * @c common.api.datapanels.grids.LiveGrid
     * @c common.api.datapanels.grids.TreeGrid
+    * @c common.api.datapanels.grids.LyraGrid
     """
     
     # syptype и plugin для разных видов гридов
     PAGE = (u'JS_PAGE_GRID', u'pageDGrid')
     LIVE = (u'JS_LIVE_GRID', u'liveDGrid')
     TREE = (u'JS_TREE_GRID', u'treeDGrid')
+    LYRA = (u'JS_LYRA_GRID', u'lyraDGrid')
     
     SUBTYPES_MAP = {
         GridTypes.PAGE: PAGE,
         GridTypes.LIVE: LIVE,
-        GridTypes.TREE: TREE
+        GridTypes.TREE: TREE,
+        GridTypes.LYRA: LYRA
     }
     
     
@@ -141,6 +146,52 @@ class GridElement(DatapanelElement):
         d['@plugin'] = self.SUBTYPES_MAP[self.gridType()][1]
         
         return d
+
+
+class LyraGrid(GridElement):
+    """Описывает элемент Lyra-грида.
+    """
+    
+    def __init__(self, elementId, viewCls=None):
+        """
+        @param elementId (@c string) ИД элемента
+        @param viewCls (<tt>string or lyra.gridForm.GridForm</tt>) Конкретное представление грида
+        """
+        super(LyraGrid, self).__init__(elementId, GridTypes.LYRA, viewCls)
+        
+    
+    def setView(self, viewCls):
+        """Устанавливает класс представления Lyra-грида.
+        
+        @param viewCls (<tt>string or lyra.gridForm.GridForm</tt>) Конкретное представление грида
+        @return ссылка на себя
+
+        """
+        
+        self.setProc(viewCls)
+        return self
+    
+    
+    def setProc(self, value):
+        """Переопределённый метод.
+        
+        @return ссылка на себя
+        
+        @note Хотя этот метод и работает как следует, но использование #setView
+        предпочтительнее, т.к. лучше отражает семантику действия.
+        @see common.api.datapanels.datapanel.DatapanelElement
+        
+        """
+        if isfunction(value):
+            raise TypeError('Cannot set proc function {} to the LyraGrid instance. Set class instead.'.format(classQualifiedName(value)))
+        name = value
+        if isclass(value):
+            name =  classQualifiedName(value)
+        return super(LyraGrid, self).setProc(name)
+    
+    
+    def setMetadataProc(self, value):
+        raise NotImplementedError('LyraGrid cannot have metadata proc!')
 
 
 def PageGrid(elementId, procName=None):
