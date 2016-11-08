@@ -220,7 +220,7 @@ class HeaderDict:
                 header_list[0]['span'][0]['#text'] = first_string
         if len(header_list) == int(bool(self.header)):
             if len(header_list) == 1:
-                header_list[0]['span']["#text"] += u' нет.'
+                header_list[0]['span'][0]["#text"] += u' нет.'
             else:
                 header_list.append({
                     "@class": "header-clause",
