@@ -351,7 +351,7 @@
 						<xf:label>Восстановить фильтр по умолчанию</xf:label>
 						<xf:action ev:event="DOMActivate">
 							<xf:action if="is-valid(instance('xformId_mainInstance')) = true()">
-								<xf:load resource="javascript:gwtXFormSave('xformId','1', 'del')"/>
+								<xf:load resource="javascript:gwtXFormSave('xformId','restore', 'del')"/>
 							</xf:action>
 						</xf:action>
 					</xf:trigger>
@@ -376,7 +376,7 @@
 					<xf:trigger class="close">
 						<xf:label>Закрыть</xf:label>
 						<xf:action ev:event="DOMActivate">
-                    <xf:load resource="javascript:gwtXFormUpdate('xformId','1', null)"/>
+                    <xf:load resource="javascript:gwtXFormUpdate('xformId','close', null)"/>
                 </xf:action>
             </xf:trigger>
            </div>			 

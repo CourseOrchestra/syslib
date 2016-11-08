@@ -68,6 +68,8 @@ def compare_with_shadow(source, schrodinger_cat):
 def into_dtime(DB_time):
     u'''return datetime
         Привод получаемой из постгре даты к юзер-дружелюбному виду'''
+    if not DB_time:
+        return ''
     try:
         return datetime.strftime(datetime.strptime(str(DB_time), '%Y-%m-%d %H:%M:%S.%f'), '%d.%m.%Y')
     except ValueError:
