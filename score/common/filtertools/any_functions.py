@@ -6,7 +6,8 @@ from collections import OrderedDict
 class Something:
     # Образец для сравнения
     def __eq__(self, other):
-        return other not in ['', None]
+        return other not in ('', None, list(), dict(), tuple(), set())
+
     def __contains__(self, item):
         return len(item) != 0
 

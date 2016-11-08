@@ -6,16 +6,16 @@ from common.filtertools.any_functions import is_exist
 from collections import OrderedDict
 
 
-def filter_assembly(context, cursor, filter_id, field_name_list, table_name):
+def filter_assembly(context, cursor, filter_id, field_name_list, table_name=None):
     u'''Функция для сборки в context.getData пустого фильтра
     Расшифровка передаваемых значений:
     free -- для обозначения, что данное поле не встречается в таблице грида или представлено типом, отличным от метаданных челесты
-    label -- аргументом передаётся строка, которая будет показываться в гриде 
+    label -- аргументом передаётся строка, которая будет показываться в гриде
     type -- аргументом передаётся тип поля, если такого поля в таблице нет, либо отличается от  стандартного. Может быть:
         'DATETIME', 'VARCHAR', 'NUMERIC', 'TEXT', 'INT', 'FLOAT', 'DATE', 'BOOLEAN'. Описаны в карточке.
     selector -- если True, то на данном поле будет повешен селектор
-    select_info -- аргументом передаётся путь к селектору, который надо передать в данный фильтр в формате 
-        'гранула.модуль_с_Селектором.название_py-файла.имя_функции_селекции' 
+    select_info -- аргументом передаётся путь к селектору, который надо передать в данный фильтр в формате
+        'гранула.модуль_с_Селектором.название_py-файла.имя_функции_селекции'
     itemset -- обозначает, что для данного поля нужен мультиселектор (выделяет искомое множество значений
     default -- передаёт значение по умолчанию. Указывается в списке в количестве 1 - 2 значений. Число значений зависит от типа фильтра
     unbound -- обозначает, что фильтрация по значению поля будет производится пользователем и описана отдельно
@@ -26,8 +26,6 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name):
     '''
     if filter_id not in context.getData():
         context.getData()[filter_id] = []
-    # Включение отсчёта времени для генерации randint значений в карточке для активации триггера xforms-value
-    clock()
     # Создание словаря с ключами-именами полей
     field_name_dict = {}
     for field_map in field_name_list:
@@ -40,7 +38,7 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name):
         future_filter = {
             '@key'      : 'unview' if 'unview' in field_name_dict[field_name] and field_name_dict[field_name]['unview'] else 'view',                                 
             '@id'       : field_name,
-            '@tableName': table_name,
+            '@tableName': table_name if table_name else '%s.%s' % (cursor._grainName(), cursor._tableName()),
             '@label'    : field_name_dict[field_name]['label'],
             '@type'     : filtered_fields[field_name]['type'],
             '@bound'    : filtered_fields[field_name]['bound'],
@@ -60,7 +58,8 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name):
             'item'      : {'@id': '', '@name': ''},
             'default'   : field_name_dict[field_name]['default'] if 'default' in field_name_dict[field_name] else '',
             '@selector_data'    : field_name_dict[field_name]['select_info'] if 'select_info' in field_name_dict[field_name] else '',
-            '@current_condition': 'equal' if filtered_fields[field_name]['type'] != 'date' else 'between',
+            '@current_condition': 'equal' if not (filtered_fields[field_name]['type'] == 'date' and
+                                          filtered_fields[field_name]['face'] == 'usuall') else 'between',
             '@required'         : 'true' if is_exist(field_name_dict[field_name], 'required', True) else 'false'
         }
         as_default(future_filter)
@@ -70,7 +69,7 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name):
             future_filter['@face'], future_filter['@type']
         )
         context.getData()[filter_id].append(future_filter)
-        
+
 
 def create_filter_map(cursor, field_name_dict):
     u'''Функция для приведения типов данных Челесты к типам данных фильтра'''
@@ -93,7 +92,7 @@ def create_filter_map(cursor, field_name_dict):
         'DATETIME': 'date', 'VARCHAR': 'text', 'NUMERIC': 'float',
         'TEXT': 'text', 'INT': 'float', 'FLOAT': 'float', 'DATE': 'date',
         'BOOLEAN': 'bool', 'BIT': 'bool', 'BOOL': 'bool', 'REAL': 'float'
-    }    
+    }
     # Генератор для выделения стиля оформления, либо присвоения не выделяемого челестой типа данных
     table_fields = {
         field_name: {
@@ -185,15 +184,19 @@ def filtered_function(context, filter_name, cursor):
                 if filter_dict['@face'] == 'usuall':
                     if filter_dict['@type'] == 'float':
                         # Фильтр по числовым полям. Зависит от условия.
-                        if filter_dict['@current_condition'] == 'equal' and filter_dict['@value']:
+                        if filter_dict['@current_condition'] == 'equal' and filter_dict['@value'] not in {None, ''}:
                             cursor.setRange(filter_dict['@id'], int(filter_dict['@value']))
-                        elif filter_dict['@current_condition'] == 'between' and (filter_dict['@maxValue'] or filter_dict['@minValue']):
-                            cursor.setFilter(filter_dict['@id'], '..%s&%s..' % (filter_dict['@maxValue'] or maxint, filter_dict['@minValue'] or minint))
-                        elif filter_dict['@current_condition'] == 'right' and filter_dict['@value']:
+                        elif filter_dict['@current_condition'] == 'between'\
+                                and (filter_dict['@maxValue'] not in {None, ''}
+                                    or filter_dict['@minValue'] not in {None, ''}):
+                            filter_dict['@maxValue'] = filter_dict['@maxValue'] if filter_dict['@maxValue'] not in {None, ''} else maxint
+                            filter_dict['@minValue'] = filter_dict['@minValue'] if filter_dict['@minValue'] not in {None, ''} else minint
+                            cursor.setFilter(filter_dict['@id'], '..%s&%s..' % (filter_dict['@maxValue'], filter_dict['@minValue']))
+                        elif filter_dict['@current_condition'] == 'right' and filter_dict['@value'] not in {None, ''}:
                             cursor.setFilter(
                                 filter_dict['@id'], '..%s' % filter_dict['@value']
                             )
-                        elif filter_dict['@current_condition'] == 'left' and filter_dict['@value']:
+                        elif filter_dict['@current_condition'] == 'left' and filter_dict['@value'] not in {None, ''}:
                             cursor.setFilter(
                                 filter_dict['@id'], '%s..' % filter_dict['@value']
                             )
@@ -255,11 +258,8 @@ def filtered_function(context, filter_name, cursor):
                 elif  filter_dict['@face'] == 'selector' and filter_dict['item']['@id']:
                     cursor.setRange(filter_dict['@id'], filter_dict['item']['@name'])
                     
-    # Возвращение значения unbound-значений
-    if unbound_values:
-        return unbound_values
-    else:
-        return {}
+    # Возвращение значений
+    return unbound_values
         
         
 def as_default(instance_dict):

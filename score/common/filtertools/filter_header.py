@@ -1,6 +1,9 @@
 #coding: utf-8
 #from datetime import date, datetime, timedelta
 from collections import OrderedDict
+
+import re
+
 from any_functions import is_exist
 from filter import unbound_types, unbound_dict_filler
 from common.filtertools.any_functions import Something
@@ -103,7 +106,16 @@ class HeaderDict:
             # Переработка полученных значений в текст в поле text, вне зависиммости от способа отображения
             for y in current_values.values():
                 if is_exist(y, 'item', {'@id': self.smth}):
-                    y['text'] = y['item']['@name']
+                    dash_date = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
+                    dot_date = re.compile(r"[0-9]{2}.[0-9]{2}.[0-9]{4}")
+                    dash_date_string = re.findall(dash_date, unicode(y['item']['@name']))
+                    dot_date_string = re.findall(dot_date, unicode(y['item']['@name']))
+                    if dash_date_string:
+                        y['text'] = dash_date_string[0]
+                    elif dot_date_string:
+                        y['text'] = dot_date_string[0]
+                    else:
+                        y['text'] = y['item']['@name']
                 elif is_exist(y, 'items'):
                     if '@name' not in y['items']:
                         y['text'] = u'; '.join([x['@name'] for x in y['items']])
@@ -111,7 +123,8 @@ class HeaderDict:
                         y['text'] = y['items']['@name']
             standard_header_dict = current_values
             
-        header_list = [{"@class": 'header-class', "span": {"@class": 'header-header', '#text': self.header}}]
+        header_list = [{"@class": 'header-class', "span":
+            {"@class": 'header-header', '#text': self.header}}] if self.header else []
         i = 0
         next_upper = False
         # Формирование списка с подстановкой значений, либо emtpy-вариантом
@@ -124,7 +137,7 @@ class HeaderDict:
             h_key = ''
             h_cond = ''
             h_value = ''
-            print current_value, type(current_value)
+            #print(current_value, values_dict['data_type'])
             if current_value in ('', None):
                 h_value = values_dict['empty']
             else:
@@ -197,6 +210,14 @@ class HeaderDict:
                 header_list[-1]['span'].append(header_value)
         
         header_list = filter(lambda x: x['span'] != [], header_list)
+        if header_list:
+            if isinstance(header_list[0]['span'], dict):
+                header_list[0]['span'] = [header_list[0]['span']]
+            first_string = header_list[0]['span'][0]['#text']
+            if not first_string[0].isupper():
+                first_string = u' '.join([first_string.split()[0].capitalize(), u' '.join(first_string.split()[1:])])\
+                    if len(first_string.split()) > 1 else first_string.capitalize()
+                header_list[0]['span'][0]['#text'] = first_string
         if len(header_list) == int(bool(self.header)):
             if len(header_list) == 1:
                 header_list[0]['span']["#text"] += u' нет.'
@@ -229,7 +250,18 @@ def get_value_through_type(value_type, value_dict):
         interval = [fast_trancate(x) for x in
             [value_dict[format_dict[value_type]['from']], value_dict[format_dict[value_type]['to']]]]
         equal_value = fast_trancate(value_dict[format_dict['text']])
-        
+
+        smth = Something()
+        #print(interval, equal_value, 'gvtt', smth in interval)
+        if not is_exist(value_dict['condition'], '@value'):
+            value_dict['condition'] = {}
+            if smth in interval:
+                value_dict['condition']['@value'] = 'between'
+                value_dict['condition']['@label'] = u''
+            else:
+                value_dict['condition']['@value'] = 'equal'
+                value_dict['condition']['@label'] = u''
+
         return interval if value_dict['condition']['@value'] == 'between' else equal_value
 
 
@@ -237,20 +269,20 @@ def through_filler(values_dict, types_dict):
     u'''Для вручную заданных данных для фильтра, функция получения словарей, идентичных возвращаемым из фильтра'''
     type_to_value = header_type_to_filter_type()
     types = unbound_types()
-    type_to_lst_id = {}
+    type_to_lst_id = {} # Лежит "тип данных: позиция в приходящем списке"
     for key, j in type_to_value.items():
         if isinstance(j, (dict, OrderedDict)):
             type_to_lst_id[key] = {x: list_find(types, y) for x, y in j.items()}
         else:
             type_to_lst_id[key] = list_find(types, j)
     output = {}
+    # {'punkt': False, 'filter_date': {'to': '2016-09-14', 'from': '2016-01-01'}, 'posta': 783, 'dichotomy': 'stool'}
     for i_key, i_value in values_dict.items():
-        if not isinstance(type_to_lst_id[types_dict[i_key]['data_type']], (dict, OrderedDict)):
+        if not isinstance(type_to_lst_id[types_dict[i_key]['data_type']], (dict, OrderedDict)): # Если приходит не число/дата
             unbound_string = [''] * type_to_lst_id[types_dict[i_key]['data_type']]
             unbound_string.append(i_value)
         else:
-            # hardcoding from datetime data type
-            if i_value:
+            if isinstance(i_value, dict):
                 from_dt = type_to_lst_id[types_dict[i_key]['data_type']]['from']
                 to_dt = type_to_lst_id[types_dict[i_key]['data_type']]['to']
                 min_dt, max_dt = (from_dt, to_dt) if from_dt < to_dt else (to_dt, from_dt)
@@ -262,10 +294,12 @@ def through_filler(values_dict, types_dict):
                 unbound_string.append(dt_value[min_dt])
                 unbound_string.extend([''] * (max_dt-min_dt-1))
                 unbound_string.append(dt_value[max_dt])
+            elif i_value != '':
+                unbound_string = []
+                unbound_string.append(i_value)
             else:
                 unbound_string = ['']
-        
-        output[i_key] =  unbound_dict_filler(unbound_string)
+        output[i_key] = unbound_dict_filler(unbound_string)
     return output
 
 

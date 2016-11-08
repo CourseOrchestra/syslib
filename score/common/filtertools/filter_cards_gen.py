@@ -28,9 +28,12 @@ def card_save(xformsdata, context, filter_id):
             context.getData()[u'card_save'] = set([])
         context.getData()[u'card_save'].add(filter_id)    
         temp_context = xformsdata["schema"]["filters"]['filter']
-        handle = {'float': lambda x: int(x) if x.isdigit() else '', 
-                  'text': unicode, 
-                  'bool': unicode, 
+        handle = {'float':
+                      lambda x: int(x) if x.isdigit() or
+                                          (x.startswith('-') and x.count('-') == 1 and x.replace('-', '').isdigit())
+                                       else '',
+                  'text': unicode,
+                  'bool': unicode,
                   'date': unicode    # Потом везде сделать нормальную обработку
                   }
         if isinstance(temp_context, dict):
@@ -52,6 +55,7 @@ def card_save(xformsdata, context, filter_id):
                     else:
                         stable_filter['items']['item'] = []
                     break
+    
 
 def add_filter_buttons(filter_id, session, height=False, width=800, add_info=u'', add_context=None, is_object=None, caption=u'Параметры поиска'):   # в параметр heigth можно задавать число фильтров в *filter для гибкого отображения размеров окна 
     u'''
