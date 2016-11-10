@@ -328,7 +328,6 @@ class XForm(DatapanelElement):
         return self
     
     
-    
     def toJSONDict(self):
         if not self.__template:
             raise ValueError(u"Template for XForms element id = '%s' is not set!" % self.id())
@@ -339,7 +338,21 @@ class XForm(DatapanelElement):
         d["@buildTemplate"] = str(self.buildTemplate()).lower()
         
         return d
-        
+
+
+def LyraForm(elementId, 
+             templateName='lyra.lyraplayer.getTemplate.cl', 
+             procName='lyra.lyraplayer.getInstance.cl', 
+             buildTemplate=True):
+    """Создаёт объект Lyra-формы.
+    
+    @note Создание элемента Лира-формы сделана функцией, т.к. это частный случай
+    XForm. 
+    
+    @see common.api.datapanels.datapanel.XForm
+    """
+    return XForm(elementId, templateName, procName)
+
         
 class Webtext(DatapanelElement):
     """Описывает элемент с типом Webtext"""
@@ -445,7 +458,7 @@ class Datapanel(IXMLSerializable):
     """Описывает информационную панель.
     
     Информационная панель представляет собой контейнер вкладок, которые уже
-    явялются контейнерами самих элементов
+    являются контейнерами самих элементов
     """
     
     def __init__(self):
