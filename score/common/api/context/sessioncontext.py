@@ -141,6 +141,10 @@ class URLParams(object):
             self.__params = res
     
     
+    def __contains__(self, attr):
+        return attr in self.__params
+    
+    
     def __getattr__(self, name):
         try:
             return self.__params[name]
@@ -236,7 +240,12 @@ class SessionContext:
         #     # получение значения параметра с именем param1
         #     param1Value = ses.urlparams.param1
         # except AttributeError:
-        #    # выбрасывает AttributeError, если параметр не был задан 
+        #    # выбрасывает AttributeError, если параметр не был задан
+        #
+        # # проверка наличия параметра
+        # if 'paramName' in ses.urlparams:
+        #    print 'URL has parameter!'
+        #
         # @endcode
         #
         # @note Если у запрашиваемого параметра больше одного значения, то
