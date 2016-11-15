@@ -10,7 +10,7 @@ import json
 try:
     from ru.curs.showcase.core.jython import JythonDTO
     from ru.curs.showcase.core.selector import ResultSelectorData
-    from ru.beta2.extra.gwt.ui.selector.api import DataRecord
+    from ru.curs.showcase.app.api.selector import DataRecord
 except:
     from ru.curs.celesta.showcase import JythonDTO, DataRecord, ResultSelectorData
 

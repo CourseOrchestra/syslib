@@ -5,7 +5,7 @@ Created on 09.07.2014
 @author: D.Bozhenko.
 '''
 
-import simplejson as json
+import json
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -14,7 +14,7 @@ except:
 
 try:
     from ru.curs.showcase.core.selector import ResultSelectorData
-    from ru.beta2.extra.gwt.ui.selector.api import DataRecord
+    from ru.curs.showcase.app.api.selector import DataRecord
 except:
     pass
 

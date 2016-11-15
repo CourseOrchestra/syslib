@@ -14,7 +14,7 @@ except:
 
 try:
     from ru.curs.showcase.core.selector import ResultSelectorData
-    from ru.beta2.extra.gwt.ui.selector.api import DataRecord
+    from ru.curs.showcase.app.api.selector import DataRecord
 except:
     pass
 
