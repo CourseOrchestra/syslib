@@ -1,4 +1,4 @@
-CREATE GRAIN security VERSION '1.2';
+CREATE GRAIN security VERSION '1.3';
 
 -- *** TABLES ***
 CREATE TABLE subjects(
