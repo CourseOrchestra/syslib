@@ -11,7 +11,7 @@ CREATE TABLE subjects(
 CREATE TABLE logins(
   subjectId VARCHAR(200),
   userName VARCHAR(255) NOT NULL,
-  password VARCHAR(200),
+  password VARCHAR(200) NOT NULL,
   CONSTRAINT pk_logins PRIMARY KEY (userName)
 );
 
@@ -35,16 +35,23 @@ CREATE TABLE rolesCustomPerms(
 );
 
 -- *** FOREIGN KEYS ***
-ALTER TABLE logins ADD CONSTRAINT fk_security_logins_sec001C7D9E FOREIGN KEY (subjectId) REFERENCES security.subjects(sid) ON DELETE CASCADE;
 ALTER TABLE customPerms ADD CONSTRAINT fk_security_customPerm5E921445 FOREIGN KEY (type) REFERENCES security.customPermsTypes(name);
 ALTER TABLE rolesCustomPerms ADD CONSTRAINT fk_security_rolesCusto0E151131 FOREIGN KEY (roleid) REFERENCES celesta.roles(id);
 ALTER TABLE rolesCustomPerms ADD CONSTRAINT fk_security_rolesCusto4BC26BD1 FOREIGN KEY (permissionId) REFERENCES security.customPerms(name);
 -- *** INDICES ***
 -- *** VIEWS ***
-create view tablesPermissionsView as
-  select roles.id as roleid, tables.grainid as grainid, tables.tablename as tablename
-    , perm.r as r, perm.i as i, perm.m as m, perm.d as d
-  from celesta.roles as roles
-    INNER join celesta.tables as tables on 1 = 1
-    LEFT join celesta.permissions as perm on roles.id = perm.roleid AND tables.grainid = perm.grainid AND tables.tablename = perm.tablename;
-
+CREATE VIEW tablesPermissionsView as
+SELECT
+	roles.id AS roleid,
+	tables.grainid AS grainid,
+	tables.tablename AS tablename,
+	perm.r AS r,
+	perm.i AS i,
+	perm.m AS m,
+	perm.d AS d
+FROM
+	celesta.roles AS roles
+INNER JOIN celesta.tables AS tables ON 1=1
+LEFT JOIN celesta.permissions AS perm ON roles.id = perm.roleid
+AND tables.grainid = perm.grainid
+AND tables.tablename = perm.tablename;
