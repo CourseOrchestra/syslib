@@ -1,5 +1,6 @@
 # coding: utf-8
 import json
+
 from common.api.datapanels.grids import ToolbarItem
 from common.api.events.action import Action, ModalWindow
 from common.api.events.activities import DatapanelElement
@@ -69,7 +70,7 @@ def add_filter_buttons(filter_id, session, height=False, width=800, add_info=u''
     if not height:
         height = int(0.6 * float(session['currentDatapanelHeight']))
     else:
-        height *= 60
+        height = int(height*60)
     
     button = ToolbarItem("deleteFileButton")\
         .setCaption(add_info or u"Параметры поиска")\
