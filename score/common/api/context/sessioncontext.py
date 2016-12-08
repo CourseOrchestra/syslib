@@ -152,6 +152,10 @@ class URLParams(object):
             raise AttributeError("URL parameter '{}' does not set".format(name))
         
     
+    def __iter__(self):
+        return self.__params.iteritems() 
+    
+    
     def __bool__(self):
         return bool(self.__params)
             
@@ -245,6 +249,10 @@ class SessionContext:
         # # проверка наличия параметра
         # if 'paramName' in ses.urlparams:
         #    print 'URL has parameter!'
+        # 
+        # # итерация по всем параметрам
+        # for paramName, paramValue in ses.urlparams:
+        #     print paramName, paramValue
         #
         # @endcode
         #
