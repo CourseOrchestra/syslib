@@ -3,5 +3,7 @@ from common.htmlhints.htmlHintsInit import permInit
 import initcontext
 
 context = initcontext()
-permInit(context)
+
+if not isinstance(context, (str, unicode)):
+    permInit(context)
 navigatorsParts['numberSeries'] = seriesNavigator
