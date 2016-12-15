@@ -6,7 +6,7 @@ except:
     from ru.curs.celesta.showcase import JythonDTO
     from ru.curs.celesta.showcase.utils import XMLJSONConverter
 import basicForm
-import simplejson as json
+import json
         
 def getFormInstance(context, formId):
     if '_lyraForms' in context.data:
