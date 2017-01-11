@@ -14,9 +14,8 @@ class GridForm(BasicGridForm):
         self.elemetId = elemetId
         
         
-    u'''OVERRIDE THIS TO RETURN CORRECT NUMBER OF ROWS IN GRID!'''
     def getGridHeight(self):
-        return 10
+        return 50
     
     def _beforeShow(self, context):
         '''Override this method to implement some actions 
