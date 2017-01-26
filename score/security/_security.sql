@@ -4,7 +4,7 @@ CREATE GRAIN security VERSION '1.3';
 CREATE TABLE subjects(
   sid VARCHAR(200) NOT NULL,
   name VARCHAR(255),
-  employeeId VARCHAR(30),
+  employeeId VARCHAR(36),
   CONSTRAINT pk_subjects PRIMARY KEY (sid)
 );
 
