@@ -240,7 +240,7 @@ class ToolbarItemTypes(object):
 class BaseToolbarAction(IJSONSerializable):
     """Базовый класс для кнопок тулбара и групп элементов"""
     
-    def __init__(self, itemType, caption, image=None, enabled=True, hint=None):
+    def __init__(self, itemType, caption, image=None, enabled=True, hint=None, iconClassName=None):
         """
         @param itemType (@c common.api.datapanels.grids.ToolbarItemTypes) тип
         элемента
@@ -252,6 +252,7 @@ class BaseToolbarAction(IJSONSerializable):
         """
         self.__caption = caption
         self.__image = image
+        self.__iconClassName = iconClassName
         self.__enabled = enabled
         self.__hint = hint
         self.__type = itemType
@@ -287,8 +288,17 @@ class BaseToolbarAction(IJSONSerializable):
         """
         self.__image = value
         return self
-       
-        
+    
+    
+    def iconClassName(self):
+        return self.__iconClassName
+    
+    
+    def setIconClassName(self, value):
+        self.__iconClassName = value
+        return self
+    
+    
     def enabled(self):
         """Возвращает состояение элемента
         @return @c bool 
@@ -334,6 +344,9 @@ class BaseToolbarAction(IJSONSerializable):
         if self.image():
             d['@img'] = self.image()
             
+        if self.iconClassName():
+            d['@iconClassName'] = self.iconClassName()
+            
         d['@disable'] = str(not self.enabled()).lower()
         
         if self.hint():
@@ -361,7 +374,7 @@ class Separator(IJSONSerializable):
 class ToolbarItem(BaseToolbarAction):
     """Класс элемента тулбара (простая кнопка)."""
     
-    def __init__(self, caption, image=None, enabled=True, hint=None, action=None):
+    def __init__(self, caption, image=None, enabled=True, hint=None, action=None, iconClassName=None):
         """
         @param caption, image, enabled, hint см. 
         @c common.api.datapanels.grids.BaseToolbarAction
