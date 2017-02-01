@@ -1,6 +1,7 @@
 # coding: utf-8
 import json
 
+from backend.constants import FILTER_FORM_BETTOR_GRID
 from common.api.datapanels.grids import ToolbarItem
 from common.api.events.action import Action, ModalWindow
 from common.api.events.activities import DatapanelElement
@@ -84,3 +85,11 @@ def add_filter_buttons(filter_id, session, height=False, width=800, add_info=u''
         button = button.toJSONDict()
 
     return button
+
+
+def filter_action(height=250, width=900):
+    action = Action()
+    action.showIn(ModalWindow(u'Параметры поиска', width, height))
+    action.add(DatapanelElement(FILTER_FORM_BETTOR_GRID))
+
+    return action

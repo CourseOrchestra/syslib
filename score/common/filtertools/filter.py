@@ -1,13 +1,13 @@
 # coding: utf-8
 from datetime import date, datetime
-from time import clock
 from sys import maxint, minint
 from common.filtertools.any_functions import is_exist
 from collections import OrderedDict
 
 
 def filter_assembly(context, cursor, filter_id, field_name_list, table_name=None):
-    u'''Функция для сборки в context.getData пустого фильтра
+    """
+    Функция для сборки в context.getData пустого фильтра
     Расшифровка передаваемых значений:
     free -- для обозначения, что данное поле не встречается в таблице грида или представлено типом, отличным от метаданных челесты
     label -- аргументом передаётся строка, которая будет показываться в гриде
@@ -23,8 +23,8 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name=None
     view -- если True, то показывается фильтр при загрузке
     especial_conds={'id':имя_поля} - переменная для поля "Условий". Принимает словарь вида {значение_условия: надпись} Значение -- одно из: equal right left between
     required -- флаг для обозначения обязательности заполнения.
-    '''
-    if filter_id not in context.getData():
+    """
+    if not context.getData().get(filter_id, False):
         context.getData()[filter_id] = []
     # Создание словаря с ключами-именами полей
     field_name_dict = {}
@@ -36,7 +36,7 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name=None
         field_name = field_dict['name']
         # Добавление в context.getData шаблонов фильтров
         future_filter = {
-            '@key'      : 'unview' if 'unview' in field_name_dict[field_name] and field_name_dict[field_name]['unview'] else 'view',                                 
+            '@key'      : 'unview' if field_name_dict[field_name].get('unview') else 'view',
             '@id'       : field_name,
             '@tableName': table_name if table_name else '%s.%s' % (cursor._grainName(), cursor._tableName()),
             '@label'    : field_name_dict[field_name]['label'],
@@ -50,16 +50,16 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name=None
             'items'     : {"item": []},
             'selects'   : {"select": 
                 [
-                    { '@label' : label
-                    , '@name'  : name  }
-                    for name, label in field_dict['select'].items()
+                    {'@label': label,
+                     '@name': name
+                    } for name, label in field_dict['select'].items()
                 ] if 'select' in field_dict else []
             },
             'item'      : {'@id': '', '@name': ''},
             'default'   : field_name_dict[field_name]['default'] if 'default' in field_name_dict[field_name] else '',
             '@selector_data'    : field_name_dict[field_name]['select_info'] if 'select_info' in field_name_dict[field_name] else '',
             '@current_condition': 'equal' if not (filtered_fields[field_name]['type'] == 'date' and
-                                          filtered_fields[field_name]['face'] == 'usuall') else 'between',
+                                                  filtered_fields[field_name]['face'] == 'usuall') else 'between',
             '@required'         : 'true' if is_exist(field_name_dict[field_name], 'required', True) else 'false'
         }
         as_default(future_filter)
