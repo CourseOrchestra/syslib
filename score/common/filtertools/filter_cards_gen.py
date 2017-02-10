@@ -84,3 +84,11 @@ def add_filter_buttons(filter_id, session, height=False, width=800, add_info=u''
         button = button.toJSONDict()
 
     return button
+
+
+def filter_action(fid, height=250, width=900):
+    action = Action()
+    action.showIn(ModalWindow(u'Параметры поиска', width, height))
+    action.add(DatapanelElement(fid))
+
+    return action
