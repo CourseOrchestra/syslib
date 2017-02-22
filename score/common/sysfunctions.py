@@ -1,6 +1,7 @@
 # coding: utf-8
 import importlib
 import json
+import os
 
 from ru.curs.celesta import Celesta
 
@@ -65,10 +66,17 @@ def getSettingsPath():
     u"""Функция возвращает путь к файлу с настройками гранул."""
 
     try:
-        from ru.curs.showcase.runtime import AppInfoSingleton
+        from ru.curs.showcase.runtime import AppInfoSingleton  # @UnresolvedImport
         settingsPath = r'%s/grainsSettings.xml' % AppInfoSingleton.getAppInfo().getUserdataRoot()
     except:
         settingsPath = Celesta.getInstance().setupProperties.getProperty('grainssettings.path')
+    return settingsPath
+
+
+def getUserSettingsPath():
+    settingsPath = Celesta.getInstance().setupProperties.getProperty('usergrainssettings.path')
+    if not settingsPath:
+        settingsPath = os.path.join(os.path.dirname(getSettingsPath()), "userGrainsSettings.xml")
     return settingsPath
 
 

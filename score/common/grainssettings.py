@@ -1,25 +1,38 @@
 # coding: utf-8
-import os
-import sys
-import re as regexp
-import uuid
-from org.xml.sax.helpers import XMLReaderFactory
-from org.xml.sax.ext import DefaultHandler2
-from org.xml.sax import InputSource
-from javax.xml.stream import XMLOutputFactory
 from java.io import FileInputStream, StringWriter, FileOutputStream, OutputStreamWriter
 from java.lang import String
+from javax.xml.stream import XMLOutputFactory
+from org.xml.sax import InputSource
+from org.xml.sax.ext import DefaultHandler2
+from org.xml.sax.helpers import XMLReaderFactory
+import os
+import sys
+import uuid
+
 from ru.curs.celesta import CelestaException
 
-from common.sysfunctions import getSettingsPath
+from common.sysfunctions import getSettingsPath, getUserSettingsPath
+import re as regexp
+
 
 class SettingsManager():
     u'''Класс получения настроек свойств для всех гранул'''
-    def __init__ (self, context=None):
+
+    def __init__(self, context=None):
         self.grainName = context.grain.name if context is not None and context.grain is not None else None
+
     def _getSettingsFilePath(self, isNew=''):
         u'''Функция получения пути с файлом настроек'''
         return '%s%s' % (getSettingsPath(), isNew)
+
+    def _getUserSettingsFilePath(self, isNew=''):
+        u'''Функция получения пути с файлом настроек'''
+        file_path = getUserSettingsPath()
+        if not os.path.exists(file_path):
+            file_path = self._getSettingsFilePath()
+        else:
+            file_path = '%s%s' % (file_path, isNew)
+        return file_path
 
     def _createReader(self, path, value, xmlWriter):
         u'''функция создания ридера для чтения файла настроек, с учетом указанного пути'''
@@ -28,7 +41,7 @@ class SettingsManager():
         elementPatern = regexp.compile(r"""(%s)(?:\[(?:@(%s)=(?:'([^']+)'|\"([^\"]+)\")|([0-9]+))\])?(?:/@(%s))?""" % (name, name, name), regexp.UNICODE)
         lastEnd = -1
         for a in elementPatern.finditer(unicode(path)):
-            if lastEnd + 1 != a.start(0) or (lastEnd > 0 and path[lastEnd]not in ('/', '\\')) :
+            if lastEnd + 1 != a.start(0) or (lastEnd > 0 and path[lastEnd]not in ('/', '\\')):
                 raise CelestaException('Bad XPath expression')
             pathList.append(NodeProperties(a.groups()))
             lastEnd = a.end(0)
@@ -39,9 +52,15 @@ class SettingsManager():
         parser.setErrorHandler(handler)
         parser.setFeature("http://xml.org/sax/features/namespace-prefixes", True)
         parser.setProperty("http://xml.org/sax/properties/lexical-handler", handler)
-        stream = FileInputStream(self._getSettingsFilePath())
+
+        stream = FileInputStream(self._getUserSettingsFilePath())
         parser.parse(InputSource(stream))
         stream.close()
+
+        if not handler.result:
+            stream = FileInputStream(self._getSettingsFilePath())
+            parser.parse(InputSource(stream))
+            stream.close()
 
         return handler.result
 
@@ -60,7 +79,7 @@ class SettingsManager():
 
     def _setSettings(self, path, value):
 
-        newFilePath = self._getSettingsFilePath(uuid.uuid1())
+        newFilePath = self._getUserSettingsFilePath(uuid.uuid1())
         stringWriter = OutputStreamWriter(FileOutputStream(newFilePath), "UTF8")
         xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(stringWriter)
 
@@ -69,9 +88,9 @@ class SettingsManager():
         xmlWriter.close()
         stringWriter.close()
 
-        os.rename(self._getSettingsFilePath(), self._getSettingsFilePath('_old'))
-        os.rename(newFilePath, self._getSettingsFilePath())
-        os.remove(self._getSettingsFilePath('_old'))
+        os.rename(self._getUserSettingsFilePath(), self._getUserSettingsFilePath('_old'))
+        os.rename(newFilePath, self._getUserSettingsFilePath())
+        os.remove(self._getUserSettingsFilePath('_old'))
 
         return result
 
@@ -82,8 +101,10 @@ class SettingsManager():
         grainLocal = grain or self.grainName
         return self._setSettings('grainSettings/grains/grain[@name="%s"]/%s' % (grainLocal, path), value)
 
+
 class NodeProperties():
     u'''Описание ноды для Xpath запроса'''
+
     def __init__(self, properties, newValue=None):
         self.node = properties[0]
         self.attrCond = properties[1]
@@ -93,8 +114,10 @@ class NodeProperties():
         self.attr = properties[5]
         self.curIndex = 0
 
+
 class ReadSettings(DefaultHandler2):
     u'''SAX-parser для чтения файла настроек'''
+
     def __init__(self, pathList):
         self.pathList = pathList
         self.result = []
@@ -111,7 +134,7 @@ class ReadSettings(DefaultHandler2):
         elif expected.attrCond is not None and attrs.getValue(expected.attrCond) is None:
             return False
         elif attrs.getValue(expected.attrCond)  is not None and attrs.getValue(expected.attrCond) != expected.attrValue1 and \
-            attrs.getValue(expected.attrCond) != expected.attrValue2:
+                attrs.getValue(expected.attrCond) != expected.attrValue2:
             return False
         elif expected.index is not None and expected.index != expected.curIndex:
             return False
@@ -119,8 +142,10 @@ class ReadSettings(DefaultHandler2):
             return False
 
         return True
+
     def startDocument(self):
         pass
+
     def endDocument(self):
         pass
 
@@ -134,9 +159,6 @@ class ReadSettings(DefaultHandler2):
                     self.curNum -= 1
                 else:
                     self.isFind = True
-
-
-
 
     def endElement(self, uri, lname, qname):
 
@@ -168,8 +190,10 @@ class ReadSettings(DefaultHandler2):
     def skippedEntity(self, name):
         pass
 
+
 class WriteSettings(DefaultHandler2):
     u'''SAX-parser для записи в файл настроек'''
+
     def __init__(self, pathList, xmlWriter=None, newValue=None):
         self.pathList = pathList
         self.result = []
@@ -189,7 +213,7 @@ class WriteSettings(DefaultHandler2):
         elif expected.attrCond is not None and attrs.getValue(expected.attrCond) is None:
             return False
         elif attrs.getValue(expected.attrCond)  is not None and attrs.getValue(expected.attrCond) != expected.attrValue1 and \
-            attrs.getValue(expected.attrCond) != expected.attrValue2:
+                attrs.getValue(expected.attrCond) != expected.attrValue2:
             return False
         elif expected.index is not None and expected.index != expected.curIndex:
             return False
@@ -197,9 +221,11 @@ class WriteSettings(DefaultHandler2):
             return False
 
         return True
+
     def startDocument(self):
         if self.isWrite:
             self.xmlWriter.writeStartDocument("UTF-8", "1.0")
+
     def endDocument(self):
         if self.isWrite:
             self.xmlWriter.writeEndDocument()
@@ -237,12 +263,10 @@ class WriteSettings(DefaultHandler2):
         elif not self.isFind and self.isWrite:
             self.xmlWriter.writeStartElement(qname)
             for i in range(0, attrs.getLength()):
-                    self.xmlWriter.writeAttribute(attrs.getQName(i), attrs.getValue(i))
-        #else:
-            #for i in range(0, attrs.getLength()):
+                self.xmlWriter.writeAttribute(attrs.getQName(i), attrs.getValue(i))
+        # else:
+            # for i in range(0, attrs.getLength()):
                 #self.xmlWriter.writeAttribute(attrs.getQName(i), attrs.getValue(i))
-
-
 
     def endElement(self, uri, lname, qname):
         if lname == self.pathList[self.curNum - 1].node:
@@ -257,7 +281,6 @@ class WriteSettings(DefaultHandler2):
             self.curResult = u''
             self.isFind = False
 
-
         self.curLevel -= 1
 
     def comment(self, ch, start, length):
@@ -267,7 +290,7 @@ class WriteSettings(DefaultHandler2):
     def startPrefixMapping(self, prefix, uri):
         if prefix == "" and self.isWrite:
             self.xmlWriter.setDefaultNamespace(uri)
-        elif  self.isWrite:
+        elif self.isWrite:
             self.xmlWriter.setPrefix(prefix, uri)
 
     def characters(self, ch, start, length):
@@ -283,4 +306,3 @@ class WriteSettings(DefaultHandler2):
     def skippedEntity(self, name):
         if not self.isFind and self.isWrite:
             self.xmlWriter.writeEntityRef(name)
-

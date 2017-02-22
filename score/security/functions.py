@@ -20,13 +20,12 @@ try:
 except:
     from ru.curs.celesta.showcase import JythonDownloadResult
 
+
 class Settings():
-    u"""Класс работы с настройками гранулы security из grainSettings.xml    
-    
+    u"""Класс работы с настройками гранулы security из grainSettings.xml
+
     """
-    settings = {}    # Статическая переменная класса, в которую сохраняются настройки гранулы.
-                # Данная реализация нужна для того, чтобы не обращаться каждый раз к расположенному на жестком диске файлу настроек
-                # rainSettings.xml
+    settings = {}
     settingsTag = 'securitySettings'    # Наименование тэга настроек гранулы
     grainName = 'security'    # название гранулы
 
@@ -41,51 +40,52 @@ class Settings():
         """
         if self.settings == {}:
             # Если переменная настроек self.settings пуста, получаем настройки из общего файла настроек grainSettings.xml
-            names = self.settingsInstance.getGrainSettings("%s/parameter/@name" % self.settingsTag, self.grainName)
-            values = self.settingsInstance.getGrainSettings("%s/parameter/@value" % self.settingsTag, self.grainName)
-            settingsJson = {}
-            for i in range(len(names)):
-                settingsJson[names[i]] = values[i]
-            self.settings = settingsJson
+            for param in ("employeesGrain", "employeesTable", "employeesId", "employeesName", "isSystemInitialised",
+                          "useAuthServer", "loginEqualSubject"):
+                value = self.settingsInstance.getGrainSettings("%s/parameter[@name='%s']/@value" % (self.settingsTag, param), self.grainName)
+
+                self.settings[param] = value[-1]  # возможно переопределение параметра
         return self.settings
 
     def isUseAuthServer(self):
-        u"""Метод возвращает значение параметра useAuthServer настроечного файла (True/False) 
+        u"""Метод возвращает значение параметра useAuthServer настроечного файла (True/False)
         """
         settingsJson = self.getSettingsJSON()
-        return settingsJson["useAuthServer"] == True or settingsJson["useAuthServer"] == "true"
+        return settingsJson["useAuthServer"] in ("true", True)
 
     def loginIsSubject(self):
-        u"""Метод возвращает значение параметра loginEqualSubject настроечного файла (True/False) 
+        u"""Метод возвращает значение параметра loginEqualSubject настроечного файла (True/False)
         """
         settingsJson = self.getSettingsJSON()
-        return settingsJson["loginEqualSubject"] == True or settingsJson["loginEqualSubject"] == "true"
+        return settingsJson["loginEqualSubject"] in ("true", True)
 
     def isEmployees(self):
         u"""Метод возвращает True, если в настроечном файле параметры employeesGrain, employeesTable, employeesName
-            одновременно принимают значения отличные от null и пустой строки. В противном случае возвращает False 
+            одновременно принимают значения отличные от null и пустой строки. В противном случае возвращает False
         """
         settingsJson = self.getSettingsJSON()
-        result = settingsJson["employeesGrain"] <> None and settingsJson["employeesTable"] <> None and settingsJson["employeesName"] <> None and\
-                settingsJson["employeesGrain"] <> "" and settingsJson["employeesTable"] <> "" and settingsJson["employeesName"] <> "" and\
-                settingsJson["employeesGrain"] <> "null" and settingsJson["employeesTable"] <> "null" and settingsJson["employeesName"] <> "null"
+        result = not(settingsJson["employeesGrain"] in (None, "null", "") or
+                     settingsJson["employeesTable"] in (None, "null", "") or
+                     settingsJson["employeesName"] in (None, "null", "") or
+                     settingsJson["employeesId"] in (None, "null", ""))
+
         return result
 
     def isSystemInitialised(self):
-        u"""Метод возвращает значение параметра isSystemInitialised настроечного файла (True/False) 
+        u"""Метод возвращает значение параметра isSystemInitialised настроечного файла (True/False)
         """
         settingsJson = self.getSettingsJSON()
-        return settingsJson["isSystemInitialised"] == True or settingsJson["isSystemInitialised"] == "true"
+        return settingsJson["isSystemInitialised"] in ("true", True)
 
     def getEmployeesParam(self, param):
-        u"""Возвращает значение параметра настроечного файла с именем param 
+        u"""Возвращает значение параметра настроечного файла с именем param
         """
         settingsJson = self.getSettingsJSON()
         return settingsJson[param]
 
     def setEmployeesParam(self, param, value):
         u"""Присваивает параметру param из настроечного json'а значение value,
-            (!)одновременно сохраняя значение в файл grainsSettings.xml 
+            (!)одновременно сохраняя значение в файл grainsSettings.xml
         """
         if param in self.settings.keys():
             self.settings[param] = value
@@ -100,16 +100,15 @@ class Settings():
         pass
 
 
-
 def id_generator(size=8, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
     u"""Функция генерирует произвольную строчку заданной длины и из заданного набора символов.
-        По умолчанию, длина результирующей строки 8, набор символов - цифры и английские буквы. 
+        По умолчанию, длина результирующей строки 8, набор символов - цифры и английские буквы.
     """
     return ''.join(random.choice(chars) for _ in range(size))
 
 
 def getUsersFromAuthServer(server, sessionId):
-    u"""Функция получает адрес Mellophone и ID сессии и возвращает xml (объект xml.dom.minidom) с пользователями. 
+    u"""Функция получает адрес Mellophone и ID сессии и возвращает xml (объект xml.dom.minidom) с пользователями.
         нужна для работы режима "useAuthServer"=="true"
     """
     req = urllib2.Request(server + '/importusers?sesid=' + sessionId, '<Request></Request>')
@@ -117,38 +116,41 @@ def getUsersFromAuthServer(server, sessionId):
     users = data.read()
     return parseString(users)
 
+
 def getActionJSON(add="", elementId="", caption="", height="", width=""):
     u"""Вспомогательная функция для упрощения генерации settings
         используется в гридах гранулы.
     """
     action = {"@show_in": "MODAL_WINDOW",
-                "#sorted":[{"main_context":"current"},
-                           {"modalwindow":{"@caption": caption,
+              "#sorted": [{"main_context": "current"},
+                          {"modalwindow": {"@caption": caption,
                                            "@height": height,
                                            "@width": width}
-                            },
-                           {"datapanel":{"@type": "current",
+                           },
+                          {"datapanel": {"@type": "current",
                                          "@tab": "current",
                                          "element": {"@id": elementId,
-                                                     "add_context":add}
+                                                     "add_context": add}
                                          }
-                            }]
-            }
+                           }]
+              }
     # Использование этой функции приводит к тому, что недоступные кнопки гридов не дизейблятся, а скрываются.
     # Возможно, надо доработать.
     return action
 
+
 def submissionGenPass(context, main=None, add=None, filterinfo=None, session=None, data=None):
-    u"""Функция для submission, генерирующая пароль с помощью вызова id_generator 
+    u"""Функция для submission, генерирующая пароль с помощью вызова id_generator
         изпользуется в карточке users.xml
     """
     instance = json.loads(data)
     instance["schema"]["user"]["@password"] = id_generator()
     return XMLJSONConverter.jsonToXml(json.dumps(instance))
 
-def generateGridSettings(columns={}, pagesize=25, gridHeight=250, delta=40, \
-                        totalCount=0, profile="default.properties", header="", columnsSorted=None, \
-                        datapanelWidth=None):
+
+def generateGridSettings(columns={}, pagesize=25, gridHeight=250, delta=40,
+                         totalCount=0, profile="default.properties", header="", columnsSorted=None,
+                         datapanelWidth=None):
     u"""Вспомогательная функция для упрощения построения настроек грида.
         columns - json с колонками грида
         pagesize - размер страницы
@@ -158,22 +160,23 @@ def generateGridSettings(columns={}, pagesize=25, gridHeight=250, delta=40, \
         profile="default.properties" - настройки грида
         header - заголовок
         columnsSorted - если None, сортируется по полям. Если не None, то в переменной передаются названия колонки в нужном порядке.
-        datapanelWidth - Если не None, ширина грида будет равна datapanelWidth 
+        datapanelWidth - Если не None, ширина грида будет равна datapanelWidth
     """
-    settings = {"gridsettings":{"columns":{"col":[]}
-                                }
+    settings = {"gridsettings": {"columns": {"col": []}
+                                 }
                 }
     if columnsSorted is None:
         columnsSorted = sorted(columns.keys())
     for key in columnsSorted:
-        settings["gridsettings"]["columns"]["col"].append({"@id":key, "@width": str(columns[key]) + "px"})
-    settings["gridsettings"]["properties"] = {"@pagesize":pagesize,
-                                            "@gridWidth":"100%",
-                                            "@gridHeight":gridHeight,
-                                            "@totalCount":totalCount,
-                                            "@profile":profile}
-    settings["gridsettings"]["labels"] = {"header":header}
+        settings["gridsettings"]["columns"]["col"].append({"@id": key, "@width": str(columns[key]) + "px"})
+    settings["gridsettings"]["properties"] = {"@pagesize": pagesize,
+                                              "@gridWidth": "100%",
+                                              "@gridHeight": gridHeight,
+                                              "@totalCount": totalCount,
+                                              "@profile": profile}
+    settings["gridsettings"]["labels"] = {"header": header}
     return settings
+
 
 def getPermissionsOfTypeAndUser(context, sid, permissionType=None):
     u"""
@@ -214,11 +217,12 @@ def getPermissionsOfTypeAndUser(context, sid, permissionType=None):
                     filter_string += "|'" + rolePermissions.permissionId + "'"
                 else:
                     break
-        if filter_string <> "":
+        if filter_string != "":
             permissions.setFilter("name", filter_string)
         else:
             return None
     return permissions
+
 
 def userHasPermission(context, sid, permission):
     u"""
@@ -250,11 +254,13 @@ def userHasPermission(context, sid, permission):
                 break
     return False
 
+
 def tableUpload(cursorInstance, fileData):
-    u"""Функция загрузки xml-данных fileData в таблицу с объектом курсора cursorInstance 
+    u"""Функция загрузки xml-данных fileData в таблицу с объектом курсора cursorInstance
     """
     exchange = DataBaseXMLExchange(fileData, cursorInstance)
     exchange.uploadXML()
+
 
 def tableDownload(cursorInstance, fileName):
     u"""Функция загрузки данных таблицы с объектом курсора cursorInstance в xml-файл
