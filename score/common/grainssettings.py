@@ -20,16 +20,20 @@ class SettingsManager():
 
     def __init__(self, context=None):
         self.grainName = context.grain.name if context is not None and context.grain is not None else None
+        self.settings_path = getSettingsPath()
+        self.user_settings_path = getUserSettingsPath()
+        if not os.path.exists(self.user_settings_path):
+            self.user_settings_path = None
 
     def _getSettingsFilePath(self, isNew=''):
         u'''Функция получения пути с файлом настроек'''
-        return '%s%s' % (getSettingsPath(), isNew)
+        return '%s%s' % (self.settings_path, isNew)
 
     def _getUserSettingsFilePath(self, isNew=''):
         u'''Функция получения пути с файлом настроек'''
-        file_path = getUserSettingsPath()
-        if not os.path.exists(file_path):
-            file_path = self._getSettingsFilePath()
+        file_path = self.user_settings_path
+        if not file_path:
+            file_path = self._getSettingsFilePath(isNew)
         else:
             file_path = '%s%s' % (file_path, isNew)
         return file_path
