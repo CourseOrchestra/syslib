@@ -1,4 +1,6 @@
 # coding: utf-8
+from java.io import FileInputStream
+from java.util import Properties
 import importlib
 import json
 import os
@@ -74,7 +76,13 @@ def getSettingsPath():
 
 
 def getUserSettingsPath():
-    settingsPath = Celesta.getInstance().setupProperties.getProperty('usergrainssettings.path')
+    try:
+        generalapp = Properties()
+        generalapp.load(FileInputStream(os.path.join(os.path.dirname(getSettingsPath())\
+                                                     ,"generalapp.properties")))
+        settingsPath = generalapp.getProperty('usergrainssettings.path')
+    except:
+        settingsPath = Celesta.getInstance().setupProperties.getProperty('usergrainssettings.path')
     if not settingsPath:
         settingsPath = os.path.join(os.path.dirname(getSettingsPath()), "userGrainsSettings.xml")
     return settingsPath
