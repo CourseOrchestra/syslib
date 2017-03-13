@@ -96,7 +96,7 @@ class GridElement(DatapanelElement):
         загрузки тулбара
         @return ссылка на себя
         """
-        self._addProc(GridProcTypes.TOOLBAR, value)
+        self._addProc(value, GridProcTypes.TOOLBAR)
         return self
 
     def metadataProc(self):
@@ -119,7 +119,7 @@ class GridElement(DatapanelElement):
             pp['@name'] = value
             return self
 
-        self._addProc(GridProcTypes.METADATA, value)
+        self._addProc(value, GridProcTypes.METADATA)
         return self
 
     def setPartialUpdateProc(self, value):

@@ -94,12 +94,13 @@ def createJythonDTO(inData, inSettings=None, convertData=True, convertSettings=T
 
 def procname(func):
     """Декоратор, возврщающий функцию получения имени функции."""
-    def wrapper(cls, *argc):
-        """Если последний аргумент - объект функции, возвращает её полное имя
+    def wrapper(instance, *args):
+        """Если первый аргумент - объект функции, возвращает её полное имя
         (*qualified name*) + celesta. Иначе оставляет как есть.
+        Второй - т.к. первый - self
         """
         
-        value = argc[-1]
+        value = args[0]
         if isfunction(value):
             # если функция декорирована, то имя формируется для __wrapped__
             if hasattr(value, '__wrapped__'):
@@ -108,8 +109,8 @@ def procname(func):
 #             '.'.join([value.__module__, value.__name__, 'celesta'])
             value = classQualifiedName(value) + '.celesta'
             
-        newArgs = argc[:-1] + (value,)
-        return func(cls, *newArgs)
+        newArgs = (value,) + args[1:]
+        return func(instance, *newArgs)
     
     return wrapper
 

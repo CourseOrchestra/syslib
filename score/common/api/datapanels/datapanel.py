@@ -166,7 +166,7 @@ class DatapanelElement(ShowcaseBaseElement):
         сохранения данных
         @return ссылка на себя
         """
-        self._addProc(ProcTypes.SAVE, value)
+        self._addProc(value, ProcTypes.SAVE)
         return self
 
 
@@ -205,7 +205,7 @@ class DatapanelElement(ShowcaseBaseElement):
         автоматически
         @return ссылка на себя
         """
-        self._addProc(ProcTypes.DOWNLOAD, value, procId)
+        self._addProc(value, ProcTypes.DOWNLOAD, procId)
         return self
 
 
@@ -224,7 +224,7 @@ class DatapanelElement(ShowcaseBaseElement):
         автоматически
         @return ссылка на себя
         """
-        self._addProc(ProcTypes.UPLOAD, value, procId=None)
+        self._addProc(value, ProcTypes.UPLOAD, procId)
         return self
 
 
@@ -237,14 +237,14 @@ class DatapanelElement(ShowcaseBaseElement):
         return self
 
     @procname
-    def _addProc(self, procType, procName, procId=None):
+    def _addProc(self, procName, procType, procId=None):
         procId_ = procId
         if procId is None:
             self.__procId += 1
-            procId_ = self.__procId
-            
+            procId_ = u"{}p{}".format(self.id(), self.__procId)
+        
         self.__elementProc.append({
-            "@id": u"{}p{}".format(self.id(), procId_),
+            "@id": procId_,
             "@name": procName,
             "@type": procType
         })
@@ -519,6 +519,9 @@ if __name__ == '__main__':
 
     f1 = XForm(u"xf1", u"f1.xml", u"test.forms.form1.data")
     f1.setSaveProc(testProc)  # (u'test.forms.form1.save')
+    
+    f1.setDownloadProc('proc.name', 'procId')
+    f1.setUploadProc(testProc, 'procId2')
 
     f1.addRelated(pg)
 
