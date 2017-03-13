@@ -152,11 +152,13 @@ class DatapanelElement(ShowcaseBaseElement):
         self.__proc = value
         return self
 
+
     def saveProc(self):
         """Возвращает функцию-обработчик сохранения данных
         @return (@c string) полное имя функции (*qualified name*)
         """
         return self._getProc(ProcTypes.SAVE)
+
 
     def setSaveProc(self, value):
         """Устанавливает функцию-обработчик сохранения данных.
@@ -167,11 +169,13 @@ class DatapanelElement(ShowcaseBaseElement):
         self._addProc(ProcTypes.SAVE, value)
         return self
 
+
     def refreshInterval(self):
         """Возвращает интервал обновления элемента в секундах
         @return @c int or @c None, если интервал не задан
         """
         return self.__refreshInterval
+
 
     def setRefreshInterval(self, numSec):
         """Включает обновление элемента по времени.
@@ -185,20 +189,25 @@ class DatapanelElement(ShowcaseBaseElement):
         self.__refreshInterval = numSec if numSec and numSec > 0 else None
         return self
 
+
     def downloadProc(self):
         """Возвращает функцию-обработчик скачивания данных
         @return (@c string) полное имя функции (*qualified name*)
         """
         return self._getProc(ProcTypes.DOWNLOAD)
 
-    def setDownloadProc(self, value):
+
+    def setDownloadProc(self, value, procId=None):
         """Устанавливает функцию-обработчик скачивания данных.
         @param value (<tt>string or function object</tt>) фунция-обработчик
         скачивания данных
+        @param procId (@c string) ИД функции. Если не задан, будет сгенерирован
+        автоматически
         @return ссылка на себя
         """
-        self._addProc(ProcTypes.DOWNLOAD, value)
+        self._addProc(ProcTypes.DOWNLOAD, value, procId)
         return self
+
 
     def uploadProc(self):
         """Возвращает функцию-обработчик загрузки данных на сервер
@@ -206,14 +215,18 @@ class DatapanelElement(ShowcaseBaseElement):
         """
         return self._getProc(ProcTypes.UPLOAD)
 
-    def setUploadProc(self, value):
+
+    def setUploadProc(self, value, procId=None):
         """Устанавливает функцию-обработчик загрузки данных на сервер.
         @param value (<tt>string or function object</tt>) фунция-обработчик
         загрузки данных на сервер
+        @param procId (@c string) ИД функции. Если не задан, будет сгенерирован
+        автоматически
         @return ссылка на себя
         """
-        self._addProc(ProcTypes.UPLOAD, value)
+        self._addProc(ProcTypes.UPLOAD, value, procId=None)
         return self
+
 
     def addRelated(self, datapanelElement):
         """Добавлеят связанный элемент
@@ -224,17 +237,23 @@ class DatapanelElement(ShowcaseBaseElement):
         return self
 
     @procname
-    def _addProc(self, procType, procName):
-        self.__procId += 1
+    def _addProc(self, procType, procName, procId=None):
+        procId_ = procId
+        if procId is None:
+            self.__procId += 1
+            procId_ = self.__procId
+            
         self.__elementProc.append({
-            "@id": u"%sp%i" % (self.id(), self.__procId),
+            "@id": u"{}p{}".format(self.id(), procId_),
             "@name": procName,
             "@type": procType
         })
 
+
     def _getProc(self, inProcType):
         p = filter(lambda x: x['@type'] == inProcType, self.__elementProc)
         return p and p[0] or None
+
 
     def toJSONDict(self):
         if not self.__proc:
