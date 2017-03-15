@@ -3,6 +3,7 @@ import importlib
 from java.io import FileInputStream
 from java.util import Properties
 import json
+import os
 
 from ru.curs.celesta import Celesta
 
