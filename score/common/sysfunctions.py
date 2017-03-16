@@ -1,7 +1,5 @@
 # coding: utf-8
 import importlib
-from java.io import FileInputStream
-from java.util import Properties
 import json
 import os
 
