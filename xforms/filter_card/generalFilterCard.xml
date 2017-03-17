@@ -386,7 +386,7 @@
 					<xf:trigger class="close">
 						<xf:label>Закрыть</xf:label>
 						<xf:action ev:event="DOMActivate">
-							<xf:load resource="javascript:gwtXFormUpdate('xformId','close', null)"/>
+							<xf:load resource="javascript:gwtXFormUpdate('xformId', null, null, true)"/>
 						</xf:action>
 					</xf:trigger>
 				</div>
