@@ -1,10 +1,11 @@
 # coding: utf-8
-from datetime import datetime
 from collections import OrderedDict
+from datetime import datetime
 
 
 class Something:
     # Образец для сравнения
+
     def __eq__(self, other):
         return other not in ('', None, list(), dict(), tuple(), set())
 
@@ -16,7 +17,7 @@ def compare_dict(instance_dict, equaled_dict):
     keys_instance = set(instance_dict.keys())
     keys_eq = set(equaled_dict.keys())
 
-    if len(keys_eq&keys_instance) != len(keys_eq):
+    if len(keys_eq & keys_instance) != len(keys_eq):
         return False
     results = []
     for key, value in equaled_dict.items():
@@ -33,16 +34,16 @@ def is_exist(dictionary, key, *args):
     dictionary = {1 : {2 : 3}}
     True == is_exist(dictionary, 1, {2:3})
     Проверяет существование ключа в словаре и существование его содержимого
-    Возврщает None, если передать не словарь, False, если ключа нет в словаре, либо значение этого ключа пустое, либо 
+    Возвращает None, если передать не словарь, False, если ключа нет в словаре, либо значение этого ключа пустое, либо 
     значение не равно третьему переданному аргументу.'''
     if not isinstance(dictionary, dict):
         return None
     if key not in dictionary.keys():
         return False
-    # Проверка на соответствие типов
-    for keys in dictionary.keys():
-        if dictionary[keys] == dictionary[key] and type(keys) != type(key):
-            return False
+#     # Проверка на соответствие типов
+#     for keys in dictionary.keys():
+#         if dictionary[keys] == dictionary[key] and type(keys) != type(key):
+#             return False
     if not dictionary[key]:
         return False
     if dictionary[key] and len(args) == 0:
