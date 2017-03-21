@@ -48,6 +48,20 @@ def getSubjectByLogin(context, sid):
     return subject
 
 
+def getSubjectIdByEmployeeId(context, employee_id):
+    """возвращает сид пользователя по идентификатору сотрудника"""
+    subjects = subjectsCursor(context)
+    subjects.setRange("employeeId", employee_id)
+    if subjects.count() > 1:
+        subjects.close()
+        raise Exception(u"Employee got more than one subjects")
+    else:
+        subjects.tryFirst()
+        sid = subjects.sid
+        subjects.close()
+        return sid
+
+
 def generateSalt(length=32):
     """Генерируем соль указанной длины"""
     return id_generator(length, string.ascii_lowercase + string.digits)

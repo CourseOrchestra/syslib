@@ -37,7 +37,6 @@ def getRoleUsers(context, role_id):
 def addUserRole(context, sid, role_list):
     """Добавляет пользователю роли
     @param role - список: """
-    role_list = list(role_list)
     userRoles = UserRolesCursor(context)
     for role in role_list:
         userRoles.userid = sid
@@ -50,7 +49,6 @@ def addUserRole(context, sid, role_list):
 def removeUserRole(context, sid, role_list):
     """Удаляет пользователю роли
     @param role - список: """
-    role_list = list(role_list)
     userRoles = UserRolesCursor(context)
     userRoles.setRange("userid", sid)
     userRoles.setFilter("roleid", "|".join("'%s'" % role for role in role_list))
