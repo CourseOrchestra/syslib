@@ -2,18 +2,21 @@
 """
 @author: d.bozhenko
 """
-import string
-import random
-import os
+from java.io import File, FileInputStream, FileOutputStream
 import json
+import os
+import random
+import string
 import urllib2
 from xml.dom.minidom import parseString
-from security._security_orm import customPermsCursor, rolesCustomPermsCursor
-from ru.curs.celesta.syscursors import PermissionsCursor, UserRolesCursor
+
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
+from ru.curs.celesta.syscursors import PermissionsCursor, UserRolesCursor
+
 from common.dbutils import DataBaseXMLExchange
-from java.io import File, FileInputStream, FileOutputStream
 from common.grainssettings import SettingsManager
+from security._security_orm import customPermsCursor, rolesCustomPermsCursor
+
 
 try:
     from ru.curs.showcase.core.jython import JythonDownloadResult
@@ -43,7 +46,8 @@ class Settings():
             for param in ("employeesGrain", "employeesTable", "employeesId", "employeesName", "isSystemInitialised",
                           "useAuthServer", "loginEqualSubject"):
                 value = self.settingsInstance.getGrainSettings("%s/parameter[@name='%s']/@value" % (self.settingsTag, param), self.grainName)
-
+                if not value:
+                    raise Exception("""Param "%s" not set""" % param)
                 self.settings[param] = value[-1]  # возможно переопределение параметра
         return self.settings
 
