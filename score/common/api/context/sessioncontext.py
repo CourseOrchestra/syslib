@@ -195,9 +195,10 @@ class SessionContext:
         self.phone = sesJson['phone']
         # (@c string) текущая перспектива
         self.userdata = sesJson['userdata']
-
-        self.currentDatapanelHeight = int(sesJson['currentDatapanelHeight'])
-        self.currentDatapanelWidth = int(sesJson['currentDatapanelWidth'])
+        if 'currentDatapanelHeight' in sesJson:
+            self.currentDatapanelHeight = int(sesJson['currentDatapanelHeight'])
+        if 'currentDatapanelWidth' in sesJson:
+            self.currentDatapanelWidth = int(sesJson['currentDatapanelWidth'])
 
         # (<tt>list of common.api.context.sessioncontext.GridContext</tt>) Список
         # контекстов связанных гридов.
