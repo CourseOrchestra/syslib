@@ -195,8 +195,16 @@ class SessionContext:
         self.phone = sesJson['phone']
         # (@c string) текущая перспектива
         self.userdata = sesJson['userdata']
+        
+        # Т.к. длины отсутствуют при работе с модальными окнами (или только с
+        # модальными формами). Возможно - баг.
+        ## (@c int) высота датапанели. Если параметр недоступен, то @c None
+        self.currentDatapanelHeight = None
         if 'currentDatapanelHeight' in sesJson:
             self.currentDatapanelHeight = int(sesJson['currentDatapanelHeight'])
+            
+        ## (@c int) ширина датапанели. Если параметр недоступен, то @c None
+        self.currentDatapanelWidth = None
         if 'currentDatapanelWidth' in sesJson:
             self.currentDatapanelWidth = int(sesJson['currentDatapanelWidth'])
 
