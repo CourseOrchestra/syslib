@@ -14,8 +14,11 @@ Created on 26 мая 2015 г.
 from common.api.core import ShowcaseBaseElement, ShowcaseBaseNamedElement, IXMLSerializable
 from common.api.utils.tools import procname
 
-elementsToJson = lambda elList: map(lambda x: x.toJSONDict(), elList)
-isIdExists = lambda el, elList: len(filter(lambda x: x.id == el.id, elList)) > 0
+
+def elementsToJson(elList): return map(lambda x: x.toJSONDict(), elList)
+
+
+def isIdExists(el, elList): return len(filter(lambda x: x.id == el.id, elList)) > 0
 
 
 def getElementsFromContainer(elementId, elementsList):
@@ -90,6 +93,8 @@ class DatapanelElement(ShowcaseBaseElement):
         self.__type = elementType
         self.__hideOnLoad = False
         self.__neverShowInPanel = False
+        self.__showLoadingMessage = True
+        self.__showLoadingMessageForFirstTime = True
 
         self.setProc(procName)
 
@@ -152,13 +157,11 @@ class DatapanelElement(ShowcaseBaseElement):
         self.__proc = value
         return self
 
-
     def saveProc(self):
         """Возвращает функцию-обработчик сохранения данных
         @return (@c string) полное имя функции (*qualified name*)
         """
         return self._getProc(ProcTypes.SAVE)
-
 
     def setSaveProc(self, value):
         """Устанавливает функцию-обработчик сохранения данных.
@@ -169,13 +172,11 @@ class DatapanelElement(ShowcaseBaseElement):
         self._addProc(value, ProcTypes.SAVE)
         return self
 
-
     def refreshInterval(self):
         """Возвращает интервал обновления элемента в секундах
         @return @c int or @c None, если интервал не задан
         """
         return self.__refreshInterval
-
 
     def setRefreshInterval(self, numSec):
         """Включает обновление элемента по времени.
@@ -189,13 +190,11 @@ class DatapanelElement(ShowcaseBaseElement):
         self.__refreshInterval = numSec if numSec and numSec > 0 else None
         return self
 
-
     def downloadProc(self):
         """Возвращает функцию-обработчик скачивания данных
         @return (@c string) полное имя функции (*qualified name*)
         """
         return self._getProc(ProcTypes.DOWNLOAD)
-
 
     def setDownloadProc(self, value, procId=None):
         """Устанавливает функцию-обработчик скачивания данных.
@@ -208,13 +207,11 @@ class DatapanelElement(ShowcaseBaseElement):
         self._addProc(value, ProcTypes.DOWNLOAD, procId)
         return self
 
-
     def uploadProc(self):
         """Возвращает функцию-обработчик загрузки данных на сервер
         @return (@c string) полное имя функции (*qualified name*)
         """
         return self._getProc(ProcTypes.UPLOAD)
-
 
     def setUploadProc(self, value, procId=None):
         """Устанавливает функцию-обработчик загрузки данных на сервер.
@@ -227,9 +224,40 @@ class DatapanelElement(ShowcaseBaseElement):
         self._addProc(value, ProcTypes.UPLOAD, procId)
         return self
 
+    def showLoadingMessage(self):
+        """Возвращает флаг, определяющий, нужно ли отображать элемент на 
+        информационной панели
+        @return @c bool
+        """
+        return self.__showLoadingMessage
+
+    def setShowLoadingMessage(self, value):
+        """Устанавливает флаг, определяющий, нужно ли отображать элемент на
+        информационной панели
+        @param value (@c bool)
+        @return ссылка на себя 
+        """
+        self.__showLoadingMessage = value
+        return self
+
+    def showLoadingMessageForFirstTime(self):
+        """Возвращает флаг, определяющий, нужно ли отображать элемент на 
+        информационной панели
+        @return @c bool
+        """
+        return self.__showLoadingMessageForFirstTime
+
+    def setShowLoadingMessageForFirstTime(self, value):
+        """Устанавливает флаг, определяющий, нужно ли отображать элемент на
+        информационной панели
+        @param value (@c bool)
+        @return ссылка на себя 
+        """
+        self.__showLoadingMessageForFirstTime = value
+        return self
 
     def addRelated(self, datapanelElement):
-        """Добавлеят связанный элемент
+        """Добавляет связанный элемент
         @param datapanelElement (@c DatapanelElement)
         @return ссылка на себя
         """
@@ -242,18 +270,16 @@ class DatapanelElement(ShowcaseBaseElement):
         if procId is None:
             self.__procId += 1
             procId_ = u"{}p{}".format(self.id(), self.__procId)
-        
+
         self.__elementProc.append({
             "@id": procId_,
             "@name": procName,
             "@type": procType
         })
 
-
     def _getProc(self, inProcType):
         p = filter(lambda x: x['@type'] == inProcType, self.__elementProc)
         return p and p[0] or None
-
 
     def toJSONDict(self):
         if not self.__proc:
@@ -264,6 +290,8 @@ class DatapanelElement(ShowcaseBaseElement):
         d['@type'] = self.type()
         d['@hideOnLoad'] = unicode(self.hideOnLoad()).lower()
         d['@neverShowInPanel'] = unicode(self.neverShowInPanel()).lower()
+        d['@showLoadingMessage'] = unicode(self.showLoadingMessage()).lower()
+        d['@showLoadingMessageForFirstTime'] = unicode(self.showLoadingMessageForFirstTime()).lower()
 
         d['@proc'] = self.proc()
 
@@ -336,20 +364,20 @@ class XForm(DatapanelElement):
         return d
 
 
-def LyraForm(elementId, 
-             templateName='lyra.lyraplayer.getTemplate.cl', 
-             procName='lyra.lyraplayer.getInstance.cl', 
+def LyraForm(elementId,
+             templateName='lyra.lyraplayer.getTemplate.cl',
+             procName='lyra.lyraplayer.getInstance.cl',
              buildTemplate=True):
     """Создаёт объект Lyra-формы.
-    
+
     @note Создание элемента Лира-формы сделана функцией, т.к. это частный случай
     XForm. 
-    
+
     @see common.api.datapanels.datapanel.XForm
     """
     return XForm(elementId, templateName, procName)
 
-        
+
 class Webtext(DatapanelElement):
     """Описывает элемент с типом Webtext"""
 
@@ -519,7 +547,7 @@ if __name__ == '__main__':
 
     f1 = XForm(u"xf1", u"f1.xml", u"test.forms.form1.data")
     f1.setSaveProc(testProc)  # (u'test.forms.form1.save')
-    
+
     f1.setDownloadProc('proc.name', 'procId')
     f1.setUploadProc(testProc, 'procId2')
 
