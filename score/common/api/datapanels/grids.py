@@ -230,17 +230,19 @@ class ToolbarItemTypes(object):
 class BaseToolbarAction(IJSONSerializable):
     """Базовый класс для кнопок тулбара и групп элементов"""
 
-    def __init__(self, itemType, caption, image=None, enabled=True, hint=None, iconClassName=None):
+    def __init__(self, itemType, caption, id=None ,image=None, enabled=True, hint=None, iconClassName=None):
         """
         @param itemType (@c common.api.datapanels.grids.ToolbarItemTypes) тип
         элемента
         @param caption (@c string) текст элемента
+        @param id (@c string) id элемента
         @param image (@c string) иконка элемента
         @param enabled (@c bool) свойство, отвечающее за активность элементов
         тулбара
         @param hint (@c string) всплывающая подсказка элемента    
         """
         self.__caption = caption
+        self.__id = id
         self.__image = image
         self.__iconClassName = iconClassName
         self.__enabled = enabled
@@ -259,6 +261,20 @@ class BaseToolbarAction(IJSONSerializable):
         @return ссылка на себя
         """
         self.__caption = value
+        return self
+
+    def id(self):
+        """Возвращает id элемента
+        @return @c string
+        """
+        return self.__id
+
+    def setId(self, value):
+        """Устанавливает id элемента
+        @param value (@c string)
+        @return ссылка на себя
+        """
+        self.__id = value
         return self
 
     def image(self):
@@ -319,6 +335,9 @@ class BaseToolbarAction(IJSONSerializable):
     def toJSONDict(self):
         d = {'@text': self.caption()}
 
+        if self.id():
+            d['@id'] = self.id()
+
         if self.image():
             d['@img'] = self.image()
 
@@ -351,14 +370,14 @@ class Separator(IJSONSerializable):
 class ToolbarItem(BaseToolbarAction):
     """Класс элемента тулбара (простая кнопка)."""
 
-    def __init__(self, caption, image=None, enabled=True, hint=None, action=None, iconClassName=None):
+    def __init__(self, caption, id=None, image=None, enabled=True, hint=None, action=None, iconClassName=None):
         """
-        @param caption, image, enabled, hint см. 
+        @param caption, id, image, enabled, hint см. 
         @c common.api.datapanels.grids.BaseToolbarAction
         @param action (@c common.api.events.action.Action) дейсвтие при клике
         по кнопке
         """
-        super(ToolbarItem, self).__init__(ToolbarItemTypes.ITEM, caption, image, enabled, hint)
+        super(ToolbarItem, self).__init__(ToolbarItemTypes.ITEM, caption, id, image, enabled, hint)
 
         self.setAction(action)
 
