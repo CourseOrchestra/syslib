@@ -230,7 +230,7 @@ class ToolbarItemTypes(object):
 class BaseToolbarAction(IJSONSerializable):
     """Базовый класс для кнопок тулбара и групп элементов"""
 
-    def __init__(self, itemType, caption, id=None ,image=None, enabled=True, hint=None, iconClassName=None):
+    def __init__(self, itemType, caption, image=None, enabled=True, hint=None, iconClassName=None, id=None):
         """
         @param itemType (@c common.api.datapanels.grids.ToolbarItemTypes) тип
         элемента
@@ -249,11 +249,13 @@ class BaseToolbarAction(IJSONSerializable):
         self.__hint = hint
         self.__type = itemType
 
+
     def caption(self):
         """Возвращает текст элемента
         @return @c string
         """
         return self.__caption
+
 
     def setCaption(self, value):
         """Устанавливает текст элемента
@@ -263,11 +265,13 @@ class BaseToolbarAction(IJSONSerializable):
         self.__caption = value
         return self
 
+
     def id(self):
         """Возвращает id элемента
         @return @c string
         """
         return self.__id
+
 
     def setId(self, value):
         """Устанавливает id элемента
@@ -277,11 +281,13 @@ class BaseToolbarAction(IJSONSerializable):
         self.__id = value
         return self
 
+
     def image(self):
         """Возвращает иконку элемента
         @return @c string
         """
         return self.__image
+
 
     def setImage(self, value):
         """Устанавливает иконку элемента
@@ -291,18 +297,22 @@ class BaseToolbarAction(IJSONSerializable):
         self.__image = value
         return self
 
+
     def iconClassName(self):
         return self.__iconClassName
+
 
     def setIconClassName(self, value):
         self.__iconClassName = value
         return self
+
 
     def enabled(self):
         """Возвращает состояение элемента
         @return @c bool 
         """
         return self.__enabled
+
 
     def setEnabled(self, value):
         """Устанавливает состояение элемента
@@ -312,11 +322,13 @@ class BaseToolbarAction(IJSONSerializable):
         self.__enabled = value
         return self
 
+
     def hint(self):
         """Возвращает текст всплывающей подсказки элемента
         @return @c string
         """
         return self.__hint
+
 
     def setHint(self, value):
         """Устанавливает текст всплывающей подсказки элемента
@@ -326,11 +338,13 @@ class BaseToolbarAction(IJSONSerializable):
         self.__hint = value
         return self
 
+
     def type(self):
         """Возвращает тип элемента
         @return @c common.api.datapanels.grids.ToolbarItemTypes
         """
         return self.__type
+
 
     def toJSONDict(self):
         d = {'@text': self.caption()}
@@ -360,8 +374,10 @@ class Separator(IJSONSerializable):
     def __init__(self):
         self.__type = ToolbarItemTypes.SEPARATOR
 
+
     def type(self):
         return self.__type
+
 
     def toJSONDict(self):
         return None
@@ -370,16 +386,17 @@ class Separator(IJSONSerializable):
 class ToolbarItem(BaseToolbarAction):
     """Класс элемента тулбара (простая кнопка)."""
 
-    def __init__(self, caption, id=None, image=None, enabled=True, hint=None, action=None, iconClassName=None):
+    def __init__(self, caption, image=None, enabled=True, hint=None, action=None, iconClassName=None, id=None):
         """
         @param caption, id, image, enabled, hint см. 
         @c common.api.datapanels.grids.BaseToolbarAction
         @param action (@c common.api.events.action.Action) дейсвтие при клике
         по кнопке
         """
-        super(ToolbarItem, self).__init__(ToolbarItemTypes.ITEM, caption, id, image, enabled, hint)
+        super(ToolbarItem, self).__init__(ToolbarItemTypes.ITEM, caption, image, enabled, hint, id)
 
         self.setAction(action)
+
 
     def action(self):
         """Возвращает действие, вызываемое при клике на узел
@@ -387,6 +404,7 @@ class ToolbarItem(BaseToolbarAction):
         на кнопку
         """
         return self.__action
+
 
     def setAction(self, value):
         """Устанавливает действие, вызываемое при клике на узел
@@ -399,6 +417,7 @@ class ToolbarItem(BaseToolbarAction):
 
         self.__action = value
         return self
+
 
     def toJSONDict(self):
         d = super(ToolbarItem, self).toJSONDict()
@@ -422,6 +441,7 @@ class ToolbarContainerMixIn(object):
     def __init__(self):
         self.initToolbarContainerMixIn()
 
+
     def initToolbarContainerMixIn(self):
         """Инициализирует контейнер. Елси при наследовании ToolbarContainerMixIn
         сотит не на первом месте, то в конструкторе дочернего класса необходимо
@@ -429,6 +449,7 @@ class ToolbarContainerMixIn(object):
         """
 
         self.__items = []
+
 
     def addItem(self, item):
         """
@@ -444,6 +465,7 @@ class ToolbarContainerMixIn(object):
         self.__items.append(item)
         return self
 
+
     def items(self):
         """Возвращает список элементов
         @return <tt>list of common.api.datapanels.grids.BaseToolbarAction or
@@ -451,9 +473,11 @@ class ToolbarContainerMixIn(object):
         """
         return self.__items
 
+
     def addSeparator(self):
         """Добавляет разделитель"""
         self.addItem(Separator())
+
 
     def _toJSONDict(self):
         """Формирует JSON по списку элементов контейнера с учётом порядка их 
@@ -505,6 +529,7 @@ class ToolbarGroup(BaseToolbarAction, ToolbarContainerMixIn):
         super(ToolbarGroup, self).__init__(ToolbarItemTypes.GROUP, caption, image, enabled, hint)
         self.initToolbarContainerMixIn()
 
+
     def toJSONDict(self):
         d = super(ToolbarGroup, self).toJSONDict()
 
@@ -526,21 +551,27 @@ class Toolbar(ToolbarContainerMixIn, IXMLSerializable):
         self.__className = className
         self.__style = style
 
+
     def clear(self):
         """Удлаяет все элементы из тулбара"""
         self.initToolbarContainerMixIn()
 
+
     def setClassName(self, className):
         self.__className = className
+
 
     def className(self):
         return self.__className
 
+
     def setStyle(self, style):
         self.__style = style
 
+
     def style(self):
         return self.__style
+
 
     def toJSONDict(self):
         gridtoolbar = {
