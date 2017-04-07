@@ -180,7 +180,9 @@ class SessionContext:
         self.sessionString = jsonString
 
         sesJson = json.loads(jsonString)['sessioncontext']
-
+		
+		# (@c string) ID сессии
+        self.sessionid = sesJson['sessionid']
         # (@c string) логин
         self.login = sesJson['username']
         # (@c string) SID пользователя
@@ -195,6 +197,7 @@ class SessionContext:
         self.phone = sesJson['phone']
         # (@c string) текущая перспектива
         self.userdata = sesJson['userdata']
+		
         
         # Т.к. длины отсутствуют при работе с модальными окнами (или только с
         # модальными формами). Возможно - баг.
