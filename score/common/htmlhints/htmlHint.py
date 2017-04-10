@@ -29,6 +29,7 @@ except:
 
 def htmlHintElement(elementId, is_object=False):
     """возвращает элемент датапанели"""
+
     element = (XForm(elementId, "common/htmlHints/htmlHint.xml", cardData)
                .setSaveProc(cardSave)
                )
@@ -45,7 +46,9 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     htmlHints = htmlHintsCursor(context)
     htmlHintsUsers = htmlHintsUsersCursor(context)
     height = "300px"
+    hint_exist = False
     if htmlHints.tryGet(elementId):
+        hint_exist = True
         htmlText = htmlHints.htmlText
         if htmlText is not None:
             htmlText = htmlText
@@ -67,11 +70,6 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
         htmlText = u""
         fullScreen = 'false'
         showOnLoad = 'true'
-        htmlHints.elementId = elementId
-        htmlHints.htmlText = htmlText
-        htmlHints.showOnLoad = 1
-        htmlHints.fullScreen = 0
-        htmlHints.tryInsert()
     if userHasPermission(context, sid, 'htmlHintsEdit'):
         userPerm = 1
     else:
@@ -89,6 +87,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     xformsdata = {
         "schema": {
             "@xmlns": "",
+            "hideHint": int(not (userHasPermission(context, sid, 'htmlHintsEdit') or hint_exist)),
             "elementId": elementId,
             "htmlText": unescapeHtml4(htmlText),
             "showHideHint": showHideHint,

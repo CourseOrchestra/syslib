@@ -99,7 +99,7 @@
 	</head>
 	<body>
 		<!--xf:output value="serialize(instance('xformId_mainInstance'))"></xf:output-->
-		<xf:group ref="instance('xformId_mainInstance')">
+		<xf:group ref="instance('xformId_mainInstance')/.[hideHint=0]">
 
 			<xf:group ref=".[showHideHint = 'false']">
 				<div class="break button100" id="hint_button">
