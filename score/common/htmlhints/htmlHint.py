@@ -4,18 +4,23 @@ Created on 02.03.2016
 HTML подсказки
 @author: a.rudenko
 '''
+import StringIO
 import json
+from xml.sax import make_parser, handler, ContentHandler
 
 from com.jayway.jsonpath import JsonPath
+
 from common._common_orm import htmlHintsCursor, htmlHintsUsersCursor
-from ru.curs.celesta.showcase.utils import XMLJSONConverter
+from common.api.datapanels.datapanel import XForm
+from common.api.utils.tools import createJythonDTO
+from common.htmlhints import htmlHint
 from security.functions import userHasPermission
+
+
 try:
     from org.apache.commons.lang3.StringEscapeUtils import unescapeHtml4
 except:
     pass
-from xml.sax import make_parser, handler, ContentHandler
-import StringIO
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
@@ -23,21 +28,16 @@ except:
     from ru.curs.celesta.showcase import JythonDTO
 
 
-def htmlHintElement(elementId):
-    htmlHint = {
-        '@id': elementId,
-        '@type': 'xforms',
-        '@proc': 'common.htmlhints.htmlHint.cardData.celesta',
-        #'@template': 'common/htmlHints/htmlHint.xml',
-        '@template': 'common.htmlhints.htmlHintXForm.xformTemplate.celesta',
-        '@hideOnLoad': 'false',
-        'proc': {
-            '@id': 'save',
-            '@name': 'common.htmlhints.htmlHint.cardSave.celesta',
-            '@type': 'SAVE'
-        }
-    }
-    return htmlHint
+def htmlHintElement(elementId, is_object=False):
+    """возвращает элемент датапанели"""
+    element = (XForm(elementId, "common/htmlHints/htmlHint.xml", htmlHint.cardData)
+               .setSaveProc(htmlHint.cardSave)
+               )
+
+    if not is_object:
+        element = element.toJSONDict()
+
+    return element
 
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
@@ -45,7 +45,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     sid = JsonPath.read(session, "$.sessioncontext.sid")
     htmlHints = htmlHintsCursor(context)
     htmlHintsUsers = htmlHintsUsersCursor(context)
-    
+    height = "300px"
     if htmlHints.tryGet(elementId):
         htmlText = htmlHints.htmlText
         if htmlText is not None:
@@ -55,17 +55,18 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             showOnLoad = 0
         showOnLoad = htmlHints.showOnLoad
         fullScreen = htmlHints.fullScreen
-        if showOnLoad == 1: 
-            showOnLoad='true' 
+        if showOnLoad == 1:
+            showOnLoad = 'true'
         else:
-            showOnLoad='false'
-        if fullScreen == 1: 
-            fullScreen='true' 
+            showOnLoad = 'false'
+        if fullScreen == 1:
+            fullScreen = 'true'
+            height = "100%"
         else:
-            fullScreen='false'
+            fullScreen = 'false'
     else:
         htmlText = u""
-        fullScreen='false'
+        fullScreen = 'false'
         showOnLoad = 'true'
         htmlHints.elementId = elementId
         htmlHints.htmlText = htmlText
@@ -76,49 +77,36 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
         userPerm = 1
     else:
         userPerm = 0
-    
+
     if htmlHintsUsers.tryGet(elementId, sid):
         showHideHint = htmlHintsUsers.showOnLoad
-        if showHideHint == 1: 
-            showHideHint='true' 
+        if showHideHint == 1:
+            showHideHint = 'true'
         else:
-            showHideHint='false'
+            showHideHint = 'false'
     else:
-        showHideHint  = showOnLoad
+        showHideHint = showOnLoad
+
     xformsdata = {
         "schema": {
             "@xmlns": "",
-            "elementId":elementId,
+            "elementId": elementId,
             "htmlText": unescapeHtml4(htmlText),
             "showHideHint": showHideHint,
             "showOnLoad": showOnLoad,
             "showHideEdit": 0,
             "userPerm": userPerm,
-            "fullScreen": fullScreen
+            "fullScreen": fullScreen,
+            "height": height
         }
     }
 
     xformssettings = {
         "properties": {
-            "event": [
-                {
-                    "@name": "single_click",
-                    "@linkId": "1",
-                    "action": {
-                        "@keep_user_settings": "true",
-                        "main_context": "current",
-                        "datapanel": {
-                            "@type": "current",
-                            "@tab": "current"
-                        }
-                    }
-                }
-            ]
         }
     }
 
-    return JythonDTO((XMLJSONConverter.jsonToXml(json.dumps(xformsdata))),
-                     XMLJSONConverter.jsonToXml(json.dumps(xformssettings)))
+    return createJythonDTO(xformsdata, xformssettings)
 
 
 def cardSave(context, main=None, add=None, filterinfo=None, session=None,
@@ -129,14 +117,14 @@ def cardSave(context, main=None, add=None, filterinfo=None, session=None,
     htmlText = json.loads(xformsdata)["schema"]["htmlText"]
     showOnLoad = json.loads(xformsdata)["schema"]["showOnLoad"]
     fullScreen = json.loads(xformsdata)["schema"]["fullScreen"]
-    if showOnLoad == 'true': 
-        showOnLoad=1 
+    if showOnLoad == 'true':
+        showOnLoad = 1
     else:
-        showOnLoad=0
-    if fullScreen == 'true': 
-        fullScreen=1 
+        showOnLoad = 0
+    if fullScreen == 'true':
+        fullScreen = 1
     else:
-        fullScreen=0
+        fullScreen = 0
     if htmlHints.tryGet(elementId):
         htmlHints.htmlText = htmlText
         htmlHints.showOnLoad = showOnLoad
@@ -149,9 +137,11 @@ def cardSave(context, main=None, add=None, filterinfo=None, session=None,
         htmlHints.fullScreen = fullScreen
         htmlHints.insert()
 
+
 class parserSAXHandlerhtmlEdit(ContentHandler):
     def __init__(self):
         self.firstDiv = False
+
 
 def htmlEdit(context, main, add, filterinfo, session, elementId):
     jsonData = json.loads(filterinfo)
@@ -169,10 +159,11 @@ def htmlEdit(context, main, add, filterinfo, session, elementId):
     <properties>
     </properties>
     '''
-    
+
     res = JythonDTO(unescapeHtml4(data), settings)
     return res
-    
+
+
 def showOnLoadSave(context, main=None, add=None, filterinfo=None, session=None, xformsdata=None):
     u'''функция сабмишна для проверки СНИЛС.'''
     showHideHint = json.loads(xformsdata)["schema"]["showHideHint"]
@@ -180,11 +171,11 @@ def showOnLoadSave(context, main=None, add=None, filterinfo=None, session=None, 
     sid = JsonPath.read(session, "$.sessioncontext.sid")
     htmlHintsUsers = htmlHintsUsersCursor(context)
     #raise Exception (main, add, filterinfo, session, xformsdata)
-    if showHideHint == 'true': 
-        showHideHint=1 
+    if showHideHint == 'true':
+        showHideHint = 1
     else:
-        showHideHint=0
-    if htmlHintsUsers.tryGet(elementId,sid):
+        showHideHint = 0
+    if htmlHintsUsers.tryGet(elementId, sid):
         htmlHintsUsers.showOnLoad = showHideHint
         htmlHintsUsers.update()
     else:
