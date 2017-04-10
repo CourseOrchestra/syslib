@@ -13,7 +13,6 @@ from com.jayway.jsonpath import JsonPath
 from common._common_orm import htmlHintsCursor, htmlHintsUsersCursor
 from common.api.datapanels.datapanel import XForm
 from common.api.utils.tools import createJythonDTO
-from common.htmlhints import htmlHint
 from security.functions import userHasPermission
 
 
@@ -30,8 +29,8 @@ except:
 
 def htmlHintElement(elementId, is_object=False):
     """возвращает элемент датапанели"""
-    element = (XForm(elementId, "common/htmlHints/htmlHint.xml", htmlHint.cardData)
-               .setSaveProc(htmlHint.cardSave)
+    element = (XForm(elementId, "common/htmlHints/htmlHint.xml", cardData)
+               .setSaveProc(cardSave)
                )
 
     if not is_object:
