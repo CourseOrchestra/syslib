@@ -180,9 +180,9 @@ class SessionContext:
         self.sessionString = jsonString
 
         sesJson = json.loads(jsonString)['sessioncontext']
-		
-		# (@c string) ID сессии
-        self.sessionid = sesJson['sessionid']
+        
+        # (@c string) ID сессии
+        self.sessionId = sesJson['sessionid']
         # (@c string) логин
         self.login = sesJson['username']
         # (@c string) SID пользователя
