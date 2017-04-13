@@ -131,11 +131,12 @@ def itemsListAndCount(context, main=None, add=None, filterinfo=None, session=Non
 #         cursor.setRange(field_name, curvalue)
     while cursor.tryFirst() and i < (firstrecord + recordcount):
         current_name = getattr(cursor, field_name)
-        current_name = current_name.replace("'", "''")
+        if is_quotes:
+            current_name = current_name.replace("'", "''")
         if (i >= firstrecord and not curvalue) or (i > firstrecord and curvalue):
             rec = DataRecord()
             rec.setId("rec%i" % i)
-            rec.setName(unicode(current_name.replace('""', '"').replace("''", "'")))
+            rec.setName(unicode(current_name.replace('""', '"').replace("''", "'")) if is_quotes else unicode(current_name))
             recordList.add(rec)
         # Определение формы выведения в setFilter для разных типов значений
         current_filter = ">%s" % ("'%s'" % current_name if is_quotes else int(current_name))
