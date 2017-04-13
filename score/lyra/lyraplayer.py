@@ -7,25 +7,26 @@ except:
     from ru.curs.celesta.showcase.utils import XMLJSONConverter
 import basicForm
 import json
-        
-def getFormInstance(context, formId):
+
+
+def getFormInstance(context, formClass, instanceID):
     if '_lyraForms' in context.data:
         lf = context.data['_lyraForms']
     else:
         lf = {}
         context.data['_lyraForms'] = lf
 
-    if formId in lf:
-        result = lf[formId]
-        #refreshing call context...
+    if instanceID in lf:
+        result = lf[instanceID]
+        # refreshing call context...
         result.setCallContext(context)
     else:
-        if not formId in basicForm._formclasses:
-            raise Exception('No form %s registered' % formId)
-        c = basicForm._formclasses[formId]
+        if not formClass in basicForm._formclasses:
+            raise Exception('No form %s registered' % formClass)
+        c = basicForm._formclasses[formClass]
         result = c(context)
-        lf[formId] = result
-    result._beforeShow(context)   
+        lf[instanceID] = result
+    result._beforeShow(context)
     return result
 
 
