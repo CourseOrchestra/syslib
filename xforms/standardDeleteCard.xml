@@ -45,6 +45,7 @@
         </xf:group>
 
         <xf:group ref="instance('xformId_mainInstance')/data[enable_delete='false']">
+            <div class="break button200"/>
             <div class="break button200">
                 <xf:trigger>
                     <xf:label>Закрыть</xf:label>
