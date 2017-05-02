@@ -1,8 +1,8 @@
 # coding: utf-8
 import importlib
 import json
-import os
 
+import os
 from ru.curs.celesta import Celesta
 
 
@@ -67,8 +67,8 @@ def getSettingsPath():
 
     try:
         from ru.curs.showcase.runtime import AppInfoSingleton  # @UnresolvedImport
-        settingsPath = r'%s/grainsSettings.xml' % AppInfoSingleton.getAppInfo().getUserdataRoot()
-    except:
+        settingsPath = os.path.join(AppInfoSingleton.getAppInfo().getUserdataRoot(), 'grainsSettings.xml')
+    except ImportError:
         settingsPath = Celesta.getInstance().setupProperties.getProperty('grainssettings.path')
     return settingsPath
 

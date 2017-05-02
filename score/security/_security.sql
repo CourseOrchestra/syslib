@@ -1,11 +1,17 @@
 CREATE GRAIN security VERSION '1.3';
 
 -- *** TABLES ***
-CREATE TABLE subjects(
-  sid VARCHAR(200) NOT NULL,
-  name VARCHAR(255),
-  employeeId VARCHAR(36),
-  CONSTRAINT pk_subjects PRIMARY KEY (sid)
+CREATE TABLE customPerms(
+  name VARCHAR(60) NOT NULL,
+  description VARCHAR(200),
+  type VARCHAR(60) NOT NULL,
+  CONSTRAINT pk_customPerms PRIMARY KEY (name)
+);
+
+CREATE TABLE customPermsTypes(
+  name VARCHAR(60) NOT NULL,
+  description VARCHAR(200),
+  CONSTRAINT pk_customPermsTypes PRIMARY KEY (name)
 );
 
 CREATE TABLE logins(
@@ -15,23 +21,17 @@ CREATE TABLE logins(
   CONSTRAINT pk_logins PRIMARY KEY (userName)
 );
 
-CREATE TABLE customPermsTypes(
-  name VARCHAR(60) NOT NULL,
-  description VARCHAR(200),
-  CONSTRAINT pk_customPermsTypes PRIMARY KEY (name)
-);
-
-CREATE TABLE customPerms(
-  name VARCHAR(60) NOT NULL,
-  description VARCHAR(200),
-  type VARCHAR(60) NOT NULL,
-  CONSTRAINT pk_customPerms PRIMARY KEY (name)
-);
-
 CREATE TABLE rolesCustomPerms(
   roleid VARCHAR(16) NOT NULL,
   permissionId VARCHAR(60) NOT NULL,
   CONSTRAINT pk_rolesCustomPerms PRIMARY KEY (roleid, permissionId)
+);
+
+CREATE TABLE subjects(
+  sid VARCHAR(200) NOT NULL,
+  name VARCHAR(255),
+  employeeId VARCHAR(36),
+  CONSTRAINT pk_subjects PRIMARY KEY (sid)
 );
 
 -- *** FOREIGN KEYS ***
@@ -40,18 +40,10 @@ ALTER TABLE rolesCustomPerms ADD CONSTRAINT fk_security_rolesCusto0E151131 FOREI
 ALTER TABLE rolesCustomPerms ADD CONSTRAINT fk_security_rolesCusto4BC26BD1 FOREIGN KEY (permissionId) REFERENCES security.customPerms(name);
 -- *** INDICES ***
 -- *** VIEWS ***
-CREATE VIEW tablesPermissionsView as
-SELECT
-	roles.id AS roleid,
-	tables.grainid AS grainid,
-	tables.tablename AS tablename,
-	perm.r AS r,
-	perm.i AS i,
-	perm.m AS m,
-	perm.d AS d
-FROM
-	celesta.roles AS roles
-INNER JOIN celesta.tables AS tables ON 1=1
-LEFT JOIN celesta.permissions AS perm ON roles.id = perm.roleid
-AND tables.grainid = perm.grainid
-AND tables.tablename = perm.tablename;
+create view tablesPermissionsView as
+  select roles.id as roleid, tables.grainid as grainid, tables.tablename as tablename
+    , perm.r as r, perm.i as i, perm.m as m, perm.d as d
+  from celesta.roles as roles
+    INNER join celesta.tables as tables on 1 = 1
+    LEFT join celesta.permissions as perm on roles.id = perm.roleid AND tables.grainid = perm.grainid AND tables.tablename = perm.tablename;
+
