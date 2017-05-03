@@ -1,9 +1,9 @@
 # coding: utf-8
-'''
+"""
 Created on 20 мар. 2017 г.
 
 @author: m.prudyvus
-'''
+"""
 from __future__ import unicode_literals
 
 from java.io import BufferedReader, InputStreamReader
