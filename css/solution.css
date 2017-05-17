@@ -93,7 +93,6 @@ div.group {
 }
 div.cell {
     margin: 0px 0px 0px 2px;
-    control
     padding: 2px;
     min-height: 25px;
     border-bottom: 1px dashed grey;
@@ -510,7 +509,7 @@ cursor:default;
 box-shadow:none;
 opacity:.7;
 -ms-filter:"alpha(opacity=70)";
-filter:alpha(opacity=70)
+filter:alpha(opacity=70);
 font-color: #000;
 }
 .disabled span  button:hover,.disabled span  button:active,.disabled span  button:focus {
