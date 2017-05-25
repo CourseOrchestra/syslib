@@ -1,29 +1,31 @@
 # coding: utf-8
-'''
+"""
 Created on 02.03.2016
 HTML подсказки
 @author: a.rudenko
-'''
+"""
 import StringIO
 import json
-from xml.sax import make_parser, handler, ContentHandler
+from xml.sax import make_parser, ContentHandler, SAXParseException
 
 from com.jayway.jsonpath import JsonPath
+from java.io import ByteArrayInputStream, ByteArrayOutputStream
+from java.lang import String
+from org.w3c.tidy import Tidy
 
 from common._common_orm import htmlHintsCursor, htmlHintsUsersCursor
 from common.api.datapanels.datapanel import XForm
 from common.api.utils.tools import createJythonDTO
 from security.functions import userHasPermission
 
-
 try:
     from org.apache.commons.lang3.StringEscapeUtils import unescapeHtml4
-except:
+except ImportError:
     pass
 
 try:
     from ru.curs.showcase.core.jython import JythonDTO
-except:
+except ImportError:
     from ru.curs.celesta.showcase import JythonDTO
 
 
@@ -41,7 +43,7 @@ def htmlHintElement(elementId, is_object=False):
 
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
-    u'''Карточка HTML подсказки'''
+    """Карточка HTML подсказки"""
     sid = JsonPath.read(session, "$.sessioncontext.sid")
     htmlHints = htmlHintsCursor(context)
     htmlHintsUsers = htmlHintsUsersCursor(context)
@@ -49,12 +51,8 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     hint_exist = False
     if htmlHints.tryGet(elementId):
         hint_exist = True
-        htmlText = htmlHints.htmlText
-        if htmlText is not None:
-            htmlText = htmlText
-        else:
-            htmlText = u""
-            showOnLoad = 0
+        htmlText = htmlHints.htmlText or ""
+
         showOnLoad = htmlHints.showOnLoad
         fullScreen = htmlHints.fullScreen
         if showOnLoad == 1:
@@ -70,10 +68,6 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
         htmlText = u""
         fullScreen = 'false'
         showOnLoad = 'true'
-    if userHasPermission(context, sid, 'htmlHintsEdit'):
-        userPerm = 1
-    else:
-        userPerm = 0
 
     if htmlHintsUsers.tryGet(elementId, sid):
         showHideHint = htmlHintsUsers.showOnLoad
@@ -93,7 +87,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
             "showHideHint": showHideHint,
             "showOnLoad": showOnLoad,
             "showHideEdit": 0,
-            "userPerm": userPerm,
+            "userPerm": int(userHasPermission(context, sid, 'htmlHintsEdit')),
             "fullScreen": fullScreen,
             "height": height
         }
@@ -109,66 +103,62 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 
 def cardSave(context, main=None, add=None, filterinfo=None, session=None,
              elementId=None, xformsdata=None):
-    u'''Сохранение HTML подсказки'''
+    """Сохранение HTML подсказки"""
     htmlHints = htmlHintsCursor(context)
 
     htmlText = json.loads(xformsdata)["schema"]["htmlText"]
     showOnLoad = json.loads(xformsdata)["schema"]["showOnLoad"]
     fullScreen = json.loads(xformsdata)["schema"]["fullScreen"]
-    if showOnLoad == 'true':
-        showOnLoad = 1
-    else:
-        showOnLoad = 0
-    if fullScreen == 'true':
-        fullScreen = 1
-    else:
-        fullScreen = 0
+
     if htmlHints.tryGet(elementId):
         htmlHints.htmlText = htmlText
-        htmlHints.showOnLoad = showOnLoad
-        htmlHints.fullScreen = fullScreen
+        htmlHints.showOnLoad = int(showOnLoad == 'true')
+        htmlHints.fullScreen = int(fullScreen == 'true')
         htmlHints.update()
     else:
         htmlHints.elementId = elementId
         htmlHints.htmlText = htmlText
-        htmlHints.showOnLoad = showOnLoad
-        htmlHints.fullScreen = fullScreen
+        htmlHints.showOnLoad = int(showOnLoad == 'true')
+        htmlHints.fullScreen = int(fullScreen == 'true')
         htmlHints.insert()
 
 
-class parserSAXHandlerhtmlEdit(ContentHandler):
+class ParserSAXHandlerHTMLEdit(ContentHandler):
     def __init__(self):
         self.firstDiv = False
 
 
 def htmlEdit(context, main, add, filterinfo, session, elementId):
+    """Вызывается при передаче данных из xform-ы в tinymce"""
     jsonData = json.loads(filterinfo)
-    htmlText = jsonData['schema']['filter']['htmlText']
-    data = htmlText
+    data = jsonData['schema']['filter']['htmlText']
     try:
+        # tinymce принимает только валидный xml
+        # В textarea в xform-е можно задать plain text
+        # Если вываливается ошибка парсинга, мы оборачиваем полученный текст в div-ы
+        # Хотя на самом деле здесь возможно больше ошибок в парсинге
         parser = make_parser()
-        handler = parserSAXHandlerhtmlEdit()
+        handler = ParserSAXHandlerHTMLEdit()
         parser.setContentHandler(handler)
-        parser.parse(StringIO.StringIO(unescapeHtml4(data).encode('utf8')))
-    except:
+        parser.parse(StringIO.StringIO(cleanData(data).encode('utf8')))
+    except SAXParseException:
         data = "<div>%s</div>" % data
-        pass
-    settings = u'''
+
+    settings = '''
     <properties>
     </properties>
     '''
 
-    res = JythonDTO(unescapeHtml4(data), settings)
-    return res
+    return JythonDTO(cleanData(data), settings)
 
 
 def showOnLoadSave(context, main=None, add=None, filterinfo=None, session=None, xformsdata=None):
-    u'''функция сабмишна для проверки СНИЛС.'''
+    """функция сабмишна для проверки СНИЛС."""
     showHideHint = json.loads(xformsdata)["schema"]["showHideHint"]
     elementId = json.loads(xformsdata)["schema"]["elementId"]
     sid = JsonPath.read(session, "$.sessioncontext.sid")
     htmlHintsUsers = htmlHintsUsersCursor(context)
-    #raise Exception (main, add, filterinfo, session, xformsdata)
+
     if showHideHint == 'true':
         showHideHint = 1
     else:
@@ -182,3 +172,16 @@ def showOnLoadSave(context, main=None, add=None, filterinfo=None, session=None, 
         htmlHintsUsers.showOnLoad = showHideHint
         htmlHintsUsers.insert()
     return xformsdata
+
+
+def cleanData(data):
+    tidy = Tidy()
+    tidy.setInputEncoding("UTF-8")
+    tidy.setOutputEncoding("UTF-8")
+
+    tidy.setPrintBodyOnly(True)
+    tidy.setQuoteAmpersand(True)
+    inputStream = ByteArrayInputStream(String(data).getBytes("UTF-8"))
+    outputStream = ByteArrayOutputStream()
+    tidy.parseDOM(inputStream, outputStream)
+    return outputStream.toString("UTF-8")
