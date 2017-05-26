@@ -11,7 +11,6 @@ from xml.sax import make_parser, ContentHandler, SAXParseException
 from com.jayway.jsonpath import JsonPath
 from java.io import ByteArrayInputStream, ByteArrayOutputStream
 from java.lang import String
-from org.w3c.tidy import Tidy
 
 from common._common_orm import htmlHintsCursor, htmlHintsUsersCursor
 from common.api.datapanels.datapanel import XForm
@@ -175,6 +174,7 @@ def showOnLoadSave(context, main=None, add=None, filterinfo=None, session=None, 
 
 
 def cleanData(data):
+    from org.w3c.tidy import Tidy
     tidy = Tidy()
     tidy.setInputEncoding("UTF-8")
     tidy.setOutputEncoding("UTF-8")
