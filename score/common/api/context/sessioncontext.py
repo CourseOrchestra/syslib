@@ -197,7 +197,7 @@ class SessionContext:
         self.phone = sesJson['phone']
         # (@c string) текущая перспектива
         self.userdata = sesJson['userdata']
-		
+
         
         # Т.к. длины отсутствуют при работе с модальными окнами (или только с
         # модальными формами). Возможно - баг.
