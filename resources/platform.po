@@ -158,6 +158,9 @@ msgstr "Welcome"
 msgid "Error"
 msgstr "Error"
 
+msgid "Warning"
+msgstr "Warning"
+
 msgid "Empty"
 msgstr "Empty"
 
@@ -250,3 +253,6 @@ msgstr "Error when converting height of the header or footer"
 
 msgid "when execution of server action"
 msgstr "when execution of server action"
+
+msgid "Verify that the information you entered is correct"
+msgstr "Verify that the information you entered is correct"
