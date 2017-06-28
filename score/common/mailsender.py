@@ -278,7 +278,7 @@ class MailParams(object):
                     o._data[repeatid].append(o._curdata)
                     o._curdata = o._data
 
-        if not o.mailfrom and not cfg.mailfrom:
+        if not o.mailfrom and cfg.mailfrom:
             o.mailfrom = cfg.mailfrom
 
         return o
