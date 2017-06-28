@@ -96,6 +96,9 @@ class MailsenderSettings(object):
 
         return obj
 
+    def __repr__(self):
+        return u'{cls}({args})'.format(type(self).__name__, self.__dict__)
+
 
 # 2. Now we are parsing template and preparing a message subject and body
 class Parser(object):
@@ -275,6 +278,9 @@ class MailParams(object):
                     o._data[repeatid].append(o._curdata)
                     o._curdata = o._data
 
+        if not o.mailfrom and not cfg.mailfrom:
+            o.mailfrom = cfg.mailfrom
+
         return o
 
 def sendmail(context, flute):
@@ -338,7 +344,7 @@ def sendmail(context, flute):
     part1 = MIMEText(parser.body, 'plain', 'utf-8')
     msg.attach(part1)
     server = smtplib.SMTP(cfg.smtphost, cfg.port)
-    server.set_debuglevel(1)  # connection log
+    # server.set_debuglevel(1)  # connection log
     if cfg.is_auth:
         server.ehlo()
         server.starttls()
