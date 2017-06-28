@@ -252,28 +252,28 @@ class MailParams(object):
 
         for evttype, e in xmlcontext:
             tagname = e.tag
-        if evttype == 'start':
-            if tagname == 'repeat':
-                o._curdata = {}
-        elif evttype == 'end':
-            if tagname == "template":
-                o.template = cfg.templatespath + e.text
-            elif tagname == "to":
-                o.to.append(e.text)
-            elif tagname == "cc":
-                o.cc.append(e.text)
-            elif tagname == "bcc":
-                o.bcc.append(e.text)
-            elif tagname == "from":
-                o.mailfrom = "\"%s\" <%s>" % (Header(e.text, 'utf-8'), cfg.mailfrom)
-            elif tagname == "field":
-                o._curdata[e.attrib['name']] = '' if e.text is None else e.text.encode('utf-8')
-            elif tagname == "repeat":
-                repeatid = e.attrib['id']
-                if repeatid not in o._data.keys():
-                    o._data[repeatid] = []
-                o._data[repeatid].append(o._curdata)
-                o._curdata = o._data
+            if evttype == 'start':
+                if tagname == 'repeat':
+                    o._curdata = {}
+            elif evttype == 'end':
+                if tagname == "template":
+                    o.template = cfg.templatespath + e.text
+                elif tagname == "to":
+                    o.to.append(e.text)
+                elif tagname == "cc":
+                    o.cc.append(e.text)
+                elif tagname == "bcc":
+                    o.bcc.append(e.text)
+                elif tagname == "from":
+                    o.mailfrom = "\"%s\" <%s>" % (Header(e.text, 'utf-8'), cfg.mailfrom)
+                elif tagname == "field":
+                    o._curdata[e.attrib['name']] = '' if e.text is None else e.text.encode('utf-8')
+                elif tagname == "repeat":
+                    repeatid = e.attrib['id']
+                    if repeatid not in o._data.keys():
+                        o._data[repeatid] = []
+                    o._data[repeatid].append(o._curdata)
+                    o._curdata = o._data
 
         return o
 
