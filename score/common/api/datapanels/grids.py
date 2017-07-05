@@ -129,7 +129,7 @@ class GridElement(DatapanelElement):
         @return ссылка на себя
         @todo Ещё не реализовано
         """
-#         self._addProc(GridProcTypes., procName)
+        #         self._addProc(GridProcTypes., procName)
         raise NotImplementedError()
 
     def toJSONDict(self):
@@ -174,7 +174,8 @@ class LyraGrid(GridElement):
 
         """
         if isfunction(value):
-            raise TypeError('Cannot set proc function {} to the LyraGrid instance. Set class instead.'.format(classQualifiedName(value)))
+            raise TypeError('Cannot set proc function {} to the LyraGrid instance. Set class instead.'.format(
+                classQualifiedName(value)))
         name = value
         if isclass(value):
             name = classQualifiedName(value)
@@ -230,7 +231,8 @@ class ToolbarItemTypes(object):
 class BaseToolbarAction(IJSONSerializable):
     """Базовый класс для кнопок тулбара и групп элементов"""
 
-    def __init__(self, itemType, caption, image=None, enabled=True, hint=None, iconClassName=None, id=None, popupText=None):
+    def __init__(self, itemType, caption, image=None, enabled=True, hint=None, iconClassName=None, id=None,
+                 popupText=None):
         """
         @param itemType (@c common.api.datapanels.grids.ToolbarItemTypes) тип
         элемента
@@ -378,15 +380,18 @@ class Separator(IJSONSerializable):
 class ToolbarItem(BaseToolbarAction):
     """Класс элемента тулбара (простая кнопка)."""
 
-    def __init__(self, caption, image=None, enabled=True, hint=None, action=None, iconClassName=None, id=None):
+    def __init__(self, caption, image=None, enabled=True, hint=None, action=None, iconClassName=None, id=None,
+                 downloadLinkId=None):
         """
         @param caption, id, image, enabled, hint см. 
         @c common.api.datapanels.grids.BaseToolbarAction
         @param action (@c common.api.events.action.Action) дейсвтие при клике
         по кнопке
+        @param downloadLinkId ссылка на процедуру скачивания
         """
         super(ToolbarItem, self).__init__(ToolbarItemTypes.ITEM, caption, image, enabled, hint, id)
 
+        self.__downloadLinkId = downloadLinkId
         self.setAction(action)
 
     def action(self):
@@ -408,11 +413,20 @@ class ToolbarItem(BaseToolbarAction):
         self.__action = value
         return self
 
+    def downloadLinkId(self):
+        return self.__downloadLinkId
+
+    def setDownloadLinkId(self, value):
+        self.__downloadLinkId = value
+        return self
+
     def toJSONDict(self):
         d = super(ToolbarItem, self).toJSONDict()
 
         if self.action():
             d.update(self.action().toJSONDict())
+        if self.downloadLinkId():
+            d['@downloadLinkId'] = self.downloadLinkId()
 
         return d
 
@@ -447,7 +461,9 @@ class ToolbarContainerMixIn(object):
         """
 
         if not isinstance(item, (BaseToolbarAction, Separator)):
-            raise TypeError("Instance of class 'BaseToolbarAction' or 'Separator' expected but '%s' is given" % objectQualifiedName(item))
+            raise TypeError(
+                "Instance of class 'BaseToolbarAction' or 'Separator' expected but '%s' is given" % objectQualifiedName(
+                    item))
 
         self.__items.append(item)
         return self
