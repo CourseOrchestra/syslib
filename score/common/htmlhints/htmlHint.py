@@ -176,7 +176,7 @@ def showOnLoadSave(context, main=None, add=None, filterinfo=None, session=None, 
 def cleanData(data):
     from org.w3c.tidy import Tidy
     tidy = Tidy()
-
+    tidy.setXHTML(True)
     tidy.setInputEncoding("UTF-8")
     tidy.setOutputEncoding("UTF-8")
 
@@ -192,7 +192,3 @@ def cleanData(data):
     tidy.parseDOM(inputStream, outputStream)
 
     return outputStream.toString("UTF-8")
-
-
-if __name__ == '__main__':
-    print cleanData("<div></div>")
