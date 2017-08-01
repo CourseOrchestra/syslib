@@ -117,6 +117,7 @@ class form(object):
                 ff = formfield(celestatype='VARCHAR')(method)
                 ff.name = '_properties_'
                 ff.caption = ff.name
+                ff.visible = False
                 cls._properties[ff.name] = ff
         cls._createUnboundField = _createUnboundField
         cls._createAllUnboundFields = _createAllUnboundFields
