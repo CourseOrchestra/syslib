@@ -8,11 +8,11 @@ import StringIO
 import json
 from xml.sax import make_parser, ContentHandler, SAXParseException
 
-from com.jayway.jsonpath import JsonPath
 from java.io import ByteArrayInputStream, ByteArrayOutputStream
 from java.lang import String
 
 from common._common_orm import htmlHintsCursor, htmlHintsUsersCursor
+from common.api.context.sessioncontext import SessionContext
 from common.api.datapanels.datapanel import XForm
 from common.api.utils.tools import createJythonDTO
 from security.functions import userHasPermission
@@ -43,7 +43,7 @@ def htmlHintElement(elementId, is_object=False):
 
 def cardData(context, main=None, add=None, filterinfo=None, session=None, elementId=None):
     """Карточка HTML подсказки"""
-    sid = JsonPath.read(session, "$.sessioncontext.sid")
+    sid = SessionContext(session).sid
     htmlHints = htmlHintsCursor(context)
     htmlHintsUsers = htmlHintsUsersCursor(context)
     height = "300px"
@@ -155,7 +155,7 @@ def showOnLoadSave(context, main=None, add=None, filterinfo=None, session=None, 
     """функция сабмишна для проверки СНИЛС."""
     showHideHint = json.loads(xformsdata)["schema"]["showHideHint"]
     elementId = json.loads(xformsdata)["schema"]["elementId"]
-    sid = JsonPath.read(session, "$.sessioncontext.sid")
+    sid = SessionContext(session).sid
     htmlHintsUsers = htmlHintsUsersCursor(context)
 
     if showHideHint == 'true':
