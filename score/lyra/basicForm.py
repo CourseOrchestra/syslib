@@ -87,7 +87,10 @@ def _getId(self):
     return self.__class__.__module__ + "." + self.__class__.__name__
 
 def _getFormProperties(self):
-    return self.__class__._formproperties
+    if not hasattr(self, '_forminstanceproperties'):
+        self._forminstanceproperties = LyraFormProperties(self.__class__._formproperties)
+    return self._forminstanceproperties
+    
 
 class form(object):
     def __init__(self, 
