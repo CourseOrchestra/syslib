@@ -58,6 +58,14 @@ def card_save(xformsdata, context, filter_id):
                     break
     
 
+def filter_action(fid, height=250, width=900, add_context=None, caption=u'Параметры поиска'):
+    action = Action()
+    action.showIn(ModalWindow(caption, width, height))
+    action.add(DatapanelElement(fid, '{0}|{1}'.format(fid, add_context) if add_context else fid))
+
+    return action
+
+
 def add_filter_buttons(filter_id, session, height=False, width=800, add_info=u'', add_context=None, is_object=None, caption=u'Параметры поиска'):   # в параметр heigth можно задавать число фильтров в *filter для гибкого отображения размеров окна 
     u'''
     filter_id - id карточки в датапанели, 
@@ -72,23 +80,13 @@ def add_filter_buttons(filter_id, session, height=False, width=800, add_info=u''
     else:
         height = int(height*60)
     
-    button = ToolbarItem("deleteFileButton")\
+    button = ToolbarItem('filterButton')\
         .setCaption(add_info or u"Параметры поиска")\
         .setHint(u"Установить фильтр")\
-        .setAction(Action()
-            .add(DatapanelElement(filter_id, filter_id if not add_context else '%s|%s' % (filter_id, add_context)))
-            .showIn(ModalWindow(caption, width, height)))\
+        .setAction(filter_action(filter_id, height, width, add_context, caption))\
         .setImage("gridToolBar/filter.png")
 
     if not is_object:
         button = button.toJSONDict()
 
     return button
-
-
-def filter_action(fid, height=250, width=900):
-    action = Action()
-    action.showIn(ModalWindow(u'Параметры поиска', width, height))
-    action.add(DatapanelElement(fid))
-
-    return action
