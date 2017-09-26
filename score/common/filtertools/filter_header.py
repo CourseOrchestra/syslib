@@ -213,11 +213,6 @@ class HeaderDict:
         if header_list:
             if isinstance(header_list[0]['span'], dict):
                 header_list[0]['span'] = [header_list[0]['span']]
-            first_string = header_list[0]['span'][0]['#text']
-            if not first_string[0].isupper():
-                first_string = u' '.join([first_string.split()[0].capitalize(), u' '.join(first_string.split()[1:])])\
-                    if len(first_string.split()) > 1 else first_string.capitalize()
-                header_list[0]['span'][0]['#text'] = first_string
         if len(header_list) == int(bool(self.header)):
             if len(header_list) == 1:
                 header_list[0]['span'][0]["#text"] += u' нет.'
