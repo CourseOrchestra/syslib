@@ -1,9 +1,9 @@
 # coding: utf-8
 import importlib
 import json
-
 import os
-from ru.curs.celesta import Celesta
+
+import common
 
 
 def toHexForXml(s):
@@ -69,14 +69,15 @@ def getSettingsPath():
         from ru.curs.showcase.runtime import AppInfoSingleton  # @UnresolvedImport
         settingsPath = os.path.join(AppInfoSingleton.getAppInfo().getUserdataRoot(), 'grainsSettings.xml')
     except ImportError:
-        settingsPath = Celesta.getInstance().setupProperties.getProperty('grainssettings.path')
+        settingsPath = common.globalCelesta.getSetupProperties().getProperty('grainssettings.path')
+
     return settingsPath
 
 
 def getUserSettingsPath():
-    settingsPath = Celesta.getInstance().setupProperties.getProperty('usergrainssettings.path')
+    settingsPath = common.globalCelesta.getSetupProperties().getProperty('usergrainssettings.path')
     if not settingsPath:
-        settingsPath = os.path.join(os.path.dirname(getSettingsPath()), "userGrainsSettings.xml")
+        settingsPath = os.path.join(os.path.dirname(getSettingsPath()), 'userGrainsSettings.xml')
     return settingsPath
 
 
