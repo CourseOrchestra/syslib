@@ -1,3 +1,4 @@
+# coding=utf-8
 from common.navigator import navigatorsParts, seriesNavigator
 
 globalCelesta = None
@@ -9,12 +10,12 @@ except ImportError:
     isInitContext = False
 
 if isInitContext:
-    from common.htmlhints.htmlHintsInit import permInit
     context = initcontext()
-    global globalCelesta
     globalCelesta = context.getCelesta()
-      
+
+    from common.htmlhints.htmlHintsInit import permInit
+
     if not isinstance(context, (str, unicode)):
         permInit(context)
-    
+
 navigatorsParts['numberSeries'] = seriesNavigator
