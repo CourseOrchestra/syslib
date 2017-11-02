@@ -205,3 +205,11 @@ def getNewItemInLevelInHierarchy(context, cursorInstance, numberField, isOneHier
         childCount = cursorInstanceClone.count()
         cursorInstanceClone.close()
         return unicode(childCount + 1)
+
+
+def getElementChildren(cursor, numberField, currentLevelNumber=None):
+    if currentLevelNumber is None:
+        cursor.setFilter(numberField, "!(%'.'%)")
+    # Дочерние элементы
+    else:
+        cursor.setFilter(numberField, "('%s.'%%)&!('%s.'%%'.'%%)" % (currentLevelNumber, currentLevelNumber))
