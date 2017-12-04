@@ -114,7 +114,7 @@ class form(object):
         cls.getFormProperties = _getFormProperties
         cls._properties = {}
         for name, method in cls.__dict__.iteritems():
-            if method.__class__ == formfield:
+            if issubclass(method.__class__, formfield):
                 cls._properties[name] = method
             elif name == 'get_properties_':
                 ff = formfield(celestatype='VARCHAR')(method)
