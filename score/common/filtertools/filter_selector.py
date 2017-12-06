@@ -100,6 +100,7 @@ def itemsListAndCount(context, main=None, add=None, filterinfo=None, session=Non
                       curvalue=None, startswith=None, firstrecord=None, recordcount=None):
     u"""Функция для получения списка элементов в пределе одного фильтра типа itemset"""
     all_fields, current = (x['filter'] for x in json.loads(XMLJSONConverter.xmlToJson(params))['schema']['filter'])
+    add = repair_add(add)
 
     grain, table = context.getData()[add][0]["@tableName"].split('.')
     field_name = current["@id"]
@@ -110,9 +111,11 @@ def itemsListAndCount(context, main=None, add=None, filterinfo=None, session=Non
             current_field = neccessary_field
             break
     bound_status = current_field['@bound']
-    
-    if bound_status != 'bound':
-        selector_path = current_field['@selector_data'].split('.')
+
+    selector_path = current_field['@selector_data']
+    # if bound_status != 'bound':
+    if selector_path:
+        selector_path = selector_path.split('.')
         selector_module, selector_function_name = '.'.join(selector_path[:-1]), selector_path[-1]
         selector_module = import_module(selector_module)
         selector = getattr(selector_module, selector_function_name)
