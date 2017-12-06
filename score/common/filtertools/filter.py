@@ -147,12 +147,26 @@ def condition_constructor(filter_data, especial_conds, filter_face, filter_type)
     return conditions
 
 
+DATE_TRANSFORM = lambda x: "'%s'" % x.replace('-', '')
+NO_TRANSFORM = lambda x: '{}'.format(x)
+
+class TypeTransforms(dict):
+    def __missing__(self, key):
+        return NO_TRANSFORM
+
+# обработчики приведения значений для использования в setFilter
+TYPE_TRANSFORMS = TypeTransforms()
+TYPE_TRANSFORMS['text'] = lambda x: "'{}'".format(x)
+TYPE_TRANSFORMS['date'] = DATE_TRANSFORM
+
+
 def filtered_function(context, filter_name, cursor):
     u'''Функция фильтрации по введённым значениям'''
     # Функция для преобразования дат и строк к виду, используемому для фильтров
-    date_transform = lambda x: "'%s'" % x.replace('-', '')
+
     unbound_values = {}
     object_iter = context.getData()[filter_name] if not isinstance(context, list) else context
+
     for filter_dict in object_iter:
         if filter_dict['@key'] == 'view':
             # Дёргаем корнюшон
@@ -212,23 +226,23 @@ def filtered_function(context, filter_name, cursor):
                             if len(filter_dict['@minValue']) == 0:
                                 date_from = "'19700101'"
                             else:
-                                date_from = date_transform(filter_dict['@minValue'])
+                                date_from = DATE_TRANSFORM(filter_dict['@minValue'])
 
                             if len(filter_dict['@maxValue']) == 0:
                                 date_to = "'%s%s%s'" % (date.today().year, str(date.today().month).zfill(2), str(date.today().day).zfill(2))
                             else:
-                                date_to = date_transform(filter_dict['@maxValue'])
+                                date_to = DATE_TRANSFORM(filter_dict['@maxValue'])
 
                             cursor.setFilter(
                                 filter_dict['@id'], '..%s&%s..' % (date_to, date_from)
                             )
                         elif filter_dict['@current_condition'] == 'right' and filter_dict['@value']:
                             cursor.setFilter(
-                                filter_dict['@id'], '..%s' % (date_transform(filter_dict['@value']))
+                                filter_dict['@id'], '..%s' % (DATE_TRANSFORM(filter_dict['@value']))
                             )
                         elif filter_dict['@current_condition'] == 'left' and filter_dict['@value']:
                             cursor.setFilter(
-                                filter_dict['@id'], '%s..' % (date_transform(filter_dict['@value']))
+                                filter_dict['@id'], '%s..' % (DATE_TRANSFORM(filter_dict['@value']))
                             )
                     elif filter_dict['@type'] == 'bool':
                         if filter_dict['@boolInput'] == 'true':
@@ -254,7 +268,11 @@ def filtered_function(context, filter_name, cursor):
                 elif filter_dict['@face'] == 'select' and filter_dict['@value']:
                     cursor.setRange(filter_dict['@id'], filter_dict['@value'])
                 elif filter_dict['@face'] == 'selector' and filter_dict['item']['@id']:
-                    cursor.setRange(filter_dict['@id'], filter_dict['item']['@name'])
+                    # если задана функция селектора, то ИД пришёл оттуда и надо фильтровать по нему
+                    if filter_dict['@selector_data']:
+                        cursor.setFilter(filter_dict['@id'], TYPE_TRANSFORMS[filter_dict['@type']](filter_dict['item']['@id']))
+                    else:
+                        cursor.setRange(filter_dict['@id'], filter_dict['item']['@name'])
 
     # Возвращение значений
     return unbound_values
