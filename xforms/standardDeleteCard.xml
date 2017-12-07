@@ -20,7 +20,7 @@
         <div class="break">
             <p>
                 <b>
-                    <xf:output ref="instance('xformId_mainInstance')/data/message"/>
+                    <xf:output value="instance('xformId_mainInstance')/data/message" mediatype="application/xhtml+xml"/>
                 </b>
             </p>
         </div>
