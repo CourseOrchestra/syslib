@@ -60,6 +60,8 @@ class DatapanelElementTypes:
     GRID = u'grid'
     # XForms
     XFORMS = u'xforms'
+    # JsForms
+    JSFORMS = u'jsForm'
     # webtext
     WEBTEXT = u'webtext'
 
@@ -74,6 +76,7 @@ class ProcTypes:
     DOWNLOAD = u'DOWNLOAD'
     # Процедура загрузки
     UPLOAD = u'UPLOAD'
+    JSFORMSUBMIT = u'JSFORMSUBMIT'
 
 
 class DatapanelElement(ShowcaseBaseElement):
@@ -89,7 +92,7 @@ class DatapanelElement(ShowcaseBaseElement):
         super(DatapanelElement, self).__init__(elementId)
 
         self.__procId = 0
-
+        self.procRequired = True
         self.__type = elementType
         self.__hideOnLoad = False
         self.__neverShowInPanel = False
@@ -282,7 +285,7 @@ class DatapanelElement(ShowcaseBaseElement):
         return p and p[0] or None
 
     def toJSONDict(self):
-        if not self.__proc:
+        if not self.__proc and self.procRequired:
             raise Exception(u"Procedure @proc for element id = '%s' is not set!" % self.id())
 
         d = super(DatapanelElement, self).toJSONDict()
@@ -293,7 +296,8 @@ class DatapanelElement(ShowcaseBaseElement):
         d['@showLoadingMessage'] = unicode(self.showLoadingMessage()).lower()
         d['@showLoadingMessageForFirstTime'] = unicode(self.showLoadingMessageForFirstTime()).lower()
 
-        d['@proc'] = self.proc()
+        if self.procRequired:
+            d['@proc'] = self.proc()
 
         if self.__elementProc:
             d['proc'] = self.__elementProc
@@ -360,6 +364,58 @@ class XForm(DatapanelElement):
 
         d["@template"] = self.template()
         d["@buildTemplate"] = str(self.buildTemplate()).lower()
+
+        return d
+
+
+class JsForm(DatapanelElement):
+    """Описывает элемент с типом XForm"""
+
+    def __init__(self, elementId, templateName=None):
+        """
+        @param elementId (@c string) ИД элемента
+        @param templateName (@c string) имя файла шаблона
+        @param procName (<tt>string or function object</tt>) функция-обработчик
+        загрузки данных для элемента
+        @param buildTemplate (@c boolean) фдаг сборки шаблона из частей
+        """
+        super(JsForm, self).__init__(elementId, DatapanelElementTypes.JSFORMS, procName=None)
+
+        self.procRequired = False
+        self.setTemplate(templateName)
+        self.jsforsubmit = []
+
+    def template(self):
+        """Возвращает имя файла шаблона XForms
+        @return (@c string)
+        """
+        return self.__template
+
+    @procname
+    def setTemplate(self, value):
+        """Устанавливает имя файла шаблона XForms
+        @param value (<tt>string or function object</tt>) имя файла шаблона
+        @return ссылка на себя
+        """
+        self.__template = value
+        return self
+
+    def addSubmitProc(self, value, procId):
+        """Устанавливает функцию-обработчик сохранения данных.
+        @param value (<tt>string or function object</tt>) фунция-обработчик
+        сохранения данных
+        @return ссылка на себя
+        """
+        self._addProc(value, ProcTypes.JSFORMSUBMIT, procId)
+        return self
+
+    def toJSONDict(self):
+        if not self.__template:
+            raise ValueError(u"Template for JsForms element id = '%s' is not set!" % self.id())
+
+        d = super(JsForm, self).toJSONDict()
+
+        d["@template"] = self.template()
 
         return d
 
@@ -457,7 +513,9 @@ class Tab(ShowcaseBaseNamedElement):
         @throw @c ValueError если элемент с таким ИД уже существует на вкладке
         """
         if isIdExists(datapanelElement, self.__elements):
-            raise ValueError(u"Error adding element to the tab id = '%s': element with the same id = '%s' already exists!" % (self.id, datapanelElement.id))
+            raise ValueError(
+                u"Error adding element to the tab id = '%s': element with the same id = '%s' already exists!" % (
+                    self.id, datapanelElement.id))
 
         self.__elements.append(datapanelElement)
         return self
@@ -538,7 +596,6 @@ def testProc():
 
 
 if __name__ == '__main__':
-
     from grids import PageGrid
 
     t = Tab(u't1', u"Таб 1")
