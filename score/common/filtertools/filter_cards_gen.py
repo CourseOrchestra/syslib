@@ -8,35 +8,35 @@ from common.filtertools.filter import recovery
 
 
 def card_info(context, elementId, excepted_fields=set()):
-    u'''Функция переведения данных из context.getData в xforms'''
+    """Функция переведения данных из context.getData в xforms"""
     filters = [
         x
         for x in context.getData()[elementId]
-            if x['@key'] == 'view' and x['@id'] not in excepted_fields
+        if x['@key'] == 'view' and x['@id'] not in excepted_fields
     ]
-    
+
     return filters
 
 
 def card_save(xformsdata, context, filter_id):
-    u'''Функция приведения данных из xforms в context.getData'''
+    """Функция приведения данных из xforms в context.getData"""
     if xformsdata == 'del':
         recovery(context, filter_id)
     elif 'filter' in xformsdata["schema"]["filters"]:
-        # Возможна ситуация, когда карточка бyдет вызвана,
-        # но не будет использован фильтр. Для исключения избыточной проверки на наличие значений словаря вводим ключ-флаг.
+        # Возможна ситуация, когда карточка бyдет вызвана, но не будет использован фильтр.
+        # Для исключения избыточной проверки на наличие значений словаря вводим ключ-флаг.
         if not context.getData().get(u'card_save'):
             context.getData()[u'card_save'] = set([])
-        context.getData()[u'card_save'].add(filter_id)    
+        context.getData()[u'card_save'].add(filter_id)
         temp_context = xformsdata["schema"]["filters"]['filter']
-        handle = {'float':
-                      lambda x: int(x) if x.isdigit() or
-                                          (x.startswith('-') and x.count('-') == 1 and x.replace('-', '').isdigit())
-                                       else '',
-                  'text': unicode,
-                  'bool': unicode,
-                  'date': unicode    # Потом везде сделать нормальную обработку
-                  }
+        handle = {
+            'float': lambda x: int(x) if x.isdigit() or (
+                    x.startswith('-') and x.count('-') == 1 and x.replace('-', '').isdigit()
+            ) else '',
+            'text': unicode,
+            'bool': unicode,
+            'date': unicode  # Потом везде сделать нормальную обработку
+        }
         if isinstance(temp_context, dict):
             temp_context = [temp_context]
         # Перенесение данных в контекст
@@ -56,7 +56,7 @@ def card_save(xformsdata, context, filter_id):
                     else:
                         stable_filter['items']['item'] = []
                     break
-    
+
 
 def filter_action(fid, height=250, width=900, add_context=None, caption=u'Параметры поиска'):
     action = Action()
@@ -66,11 +66,13 @@ def filter_action(fid, height=250, width=900, add_context=None, caption=u'Пар
     return action
 
 
-def add_filter_buttons(filter_id, session, height=False, width=800, add_info=u'', add_context=None, is_object=None, caption=u'Параметры поиска'):   # в параметр heigth можно задавать число фильтров в *filter для гибкого отображения размеров окна 
-    u'''
-    filter_id - id карточки в датапанели, 
+def add_filter_buttons(filter_id, session, height=False, width=800, add_info=u'', add_context=None, is_object=None,
+                       caption=u'Параметры поиска'):
+    """
+    filter_id - id карточки в датапанели,
     height="300" - высота карточки фильтра
-    '''
+    в параметр height можно задавать число фильтров в *filter для гибкого отображения размеров окна
+    """
     if isinstance(session, unicode) or isinstance(session, str):
         session = json.loads(session)['sessioncontext']
     elif "sessioncontext" in session:
@@ -78,12 +80,12 @@ def add_filter_buttons(filter_id, session, height=False, width=800, add_info=u''
     if not height:
         height = int(0.6 * float(session['currentDatapanelHeight']))
     else:
-        height = int(height*60)
-    
-    button = ToolbarItem('filterButton')\
-        .setCaption(add_info or u"Параметры поиска")\
-        .setHint(u"Установить фильтр")\
-        .setAction(filter_action(filter_id, height, width, add_context, caption))\
+        height = int(height * 60)
+
+    button = ToolbarItem('filterButton') \
+        .setCaption(add_info or u"Параметры поиска") \
+        .setHint(u"Установить фильтр") \
+        .setAction(filter_action(filter_id, height, width, add_context, caption)) \
         .setImage("gridToolBar/filter.png")
 
     if not is_object:

@@ -1,9 +1,12 @@
 # coding: utf-8
 from collections import OrderedDict
 from datetime import date, datetime
+
 from sys import maxint, minint
 
 from common.filtertools.any_functions import is_exist
+
+EMPTY = {None, ''}
 
 
 def filter_assembly(context, cursor, filter_id, field_name_list, table_name=None):
@@ -39,7 +42,7 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name=None
         future_filter = {
             '@key': 'unview' if field_name_dict[field_name].get('unview') else 'view',
             '@id': field_name,
-            '@tableName': table_name if table_name else '%s.%s' % (cursor._grainName(), cursor._tableName()),
+            '@tableName': table_name or '%s.%s' % (cursor._grainName(), cursor._tableName()),
             '@label': field_name_dict[field_name]['label'],
             '@type': filtered_fields[field_name]['type'],
             '@bound': filtered_fields[field_name]['bound'],
@@ -50,15 +53,16 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name=None
             '@boolInput': "false",
             'items': {"item": []},
             'selects': {"select":
-                        [
-                            {'@label': label,
-                                '@name': name
-                             } for name, label in field_dict['select'].items()
-                        ] if 'select' in field_dict else []
+                            [
+                                {'@label': label,
+                                 '@name': name
+                                 } for name, label in field_dict['select'].items()
+                            ] if 'select' in field_dict else []
                         },
             'item': {'@id': '', '@name': ''},
             'default': field_name_dict[field_name]['default'] if 'default' in field_name_dict[field_name] else '',
-            '@selector_data': field_name_dict[field_name]['select_info'] if 'select_info' in field_name_dict[field_name] else '',
+            '@selector_data': field_name_dict[field_name]['select_info'] if 'select_info' in field_name_dict[
+                field_name] else '',
             '@current_condition': 'equal' if not (filtered_fields[field_name]['type'] == 'date' and
                                                   filtered_fields[field_name]['face'] == 'usuall') else 'between',
             '@required': 'true' if is_exist(field_name_dict[field_name], 'required', True) else 'false'
@@ -73,13 +77,15 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name=None
 
 
 def create_filter_map(cursor, field_name_dict):
-    u'''Функция для приведения типов данных Челесты к типам данных фильтра'''
+    """Функция для приведения типов данных Челесты к типам данных фильтра"""
+
     # Функция для выделения стилей отображения
     def choose_style(styles_dict):
         for style in ['itemset', 'selector', 'select']:
             if is_exist(styles_dict, style):
                 return style
         return 'usuall'
+
     # Функция для описания взаимодействия поля с курсором
 
     def choose_bound(styles_dict):
@@ -87,8 +93,11 @@ def create_filter_map(cursor, field_name_dict):
             if is_exist(styles_dict, style):
                 return style
         return 'bound'
-    # Проверка на тип курсора. У курсора есть метод getColumn.
-    get_type = lambda x: cursor.meta().getColumns()[x].getCelestaType()
+
+    def get_type(column):
+        # Проверка на тип курсора. У курсора есть метод getColumn.
+        return cursor.meta().getColumns()[column].getCelestaType()
+
     # Словарь соответствий получаемых типов к типам, используемым в фильтре
     type_to_type = {
         'DATETIME': 'date', 'VARCHAR': 'text', 'NUMERIC': 'float',
@@ -98,7 +107,7 @@ def create_filter_map(cursor, field_name_dict):
     # Генератор для выделения стиля оформления, либо присвоения не выделяемого челестой типа данных
     table_fields = {
         field_name: {
-            'type': type_to_type[(field_data['type'] if 'type' in field_data else get_type(field_name)).upper()],
+            'type': type_to_type[(field_data.get('type') or get_type(field_name)).upper()],
             'face': choose_style(field_data),
             'bound': choose_bound(field_data)
         }
@@ -108,19 +117,20 @@ def create_filter_map(cursor, field_name_dict):
 
 
 def condition_constructor(filter_data, especial_conds, filter_face, filter_type):
-    u'''
+    """
     Либо передаем свои собственные наименования, либо автозаполяем -- всё просто
     Поиск по маске педназначен для "особенной" обработки без обработки (?)
-    '''
+    """
     if especial_conds:
         values = {'between', 'right', 'left', 'equal', 'masked'}
         if not all({x in values for x in especial_conds.keys()}):
-            raise Exception(u"В подаваемых conditions все значения должны быть из {'between', 'right', 'left', 'equal', 'masked'}")
+            raise Exception(
+                u"В подаваемых conditions все значения должны быть из {'between', 'right', 'left', 'equal', 'masked'}")
 
         conditions = {
             'condition': [
                 {'@value': value,
-                    '@label': label
+                 '@label': label
                  } for value, label in especial_conds.items()
             ]
         }
@@ -137,7 +147,7 @@ def condition_constructor(filter_data, especial_conds, filter_face, filter_type)
                 '@label': u'с'}
         equal = {'@value': 'equal',
                  '@label': type_to_label[filter_type]}
-        masked = {'@value': 'masked', '@label': u'маска'}
+        # masked = {'@value': 'masked', '@label': u'маска'}
         conditions = {'condition': [equal]}
 
         if filter_face == 'usuall' and filter_type in {'float', 'date'}:
@@ -150,9 +160,11 @@ def condition_constructor(filter_data, especial_conds, filter_face, filter_type)
 DATE_TRANSFORM = lambda x: "'%s'" % x.replace('-', '')
 NO_TRANSFORM = lambda x: '{}'.format(x)
 
+
 class TypeTransforms(dict):
     def __missing__(self, key):
         return NO_TRANSFORM
+
 
 # обработчики приведения значений для использования в setFilter
 TYPE_TRANSFORMS = TypeTransforms()
@@ -161,7 +173,7 @@ TYPE_TRANSFORMS['date'] = DATE_TRANSFORM
 
 
 def filtered_function(context, filter_name, cursor):
-    u'''Функция фильтрации по введённым значениям'''
+    """Функция фильтрации по введённым значениям"""
     # Функция для преобразования дат и строк к виду, используемому для фильтров
 
     unbound_values = {}
@@ -171,16 +183,18 @@ def filtered_function(context, filter_name, cursor):
         if filter_dict['@key'] == 'view':
             # Дёргаем корнюшон
             cond_in_value = {}
-            for cond in (filter_dict['conditions']['condition']
-                         if isinstance(filter_dict['conditions']['condition'], list)
-                         else [filter_dict['conditions']['condition']]):
 
+            if not isinstance(filter_dict['conditions']['condition'], list):
+                filter_dict['conditions']['condition'] = [filter_dict['conditions']['condition']]
+
+            for cond in filter_dict['conditions']['condition']:
                 if cond['@value'] == filter_dict['@current_condition']:
                     cond_in_value = cond
                     break
             # Добавление значений unbound-полей для использования вовне
             unbound_values[filter_dict['@id']] = unbound_dict_filler(filter_dict['@value'],
-                                                                     filter_dict['@boolInput'] == 'true', filter_dict['item'],
+                                                                     filter_dict['@boolInput'] == 'true',
+                                                                     filter_dict['item'],
                                                                      cond_in_value,
                                                                      filter_dict['@minValue'], filter_dict['@maxValue'],
                                                                      filter_dict['items']['item']
@@ -188,30 +202,31 @@ def filtered_function(context, filter_name, cursor):
             if filter_dict['@bound'] == 'bound':
                 if filter_dict['@current_condition'] == 'masked':
                     try:
-                        cursor.setFilter(filter_dict['@id'], ("'%s'" if filter_dict['@value'] != "'" else "%s") % filter_dict['@value'])
+                        cursor.setFilter(filter_dict['@id'],
+                                         ("'%s'" if filter_dict['@value'] != "'" else "%s") % filter_dict['@value'])
                         cursor.count()
                     except:
                         context.message(
-                            u"Фильтрация по полю {} не может быть произведена по причине некорректной маски.".format(filter_dict['@label']))
+                            u"Фильтрация по полю {} не может быть произведена по причине некорректной маски.".format(
+                                filter_dict['@label']))
                 if filter_dict['@face'] == 'usuall':
                     if filter_dict['@type'] == 'float':
                         # Фильтр по числовым полям. Зависит от условия.
-                        if filter_dict['@current_condition'] == 'equal' and filter_dict['@value'] not in {None, ''}:
+                        if filter_dict['@current_condition'] == 'equal' and filter_dict['@value'] not in EMPTY:
                             cursor.setRange(filter_dict['@id'], int(filter_dict['@value']))
-                        elif filter_dict['@current_condition'] == 'between'\
-                                and (filter_dict['@maxValue'] not in {None, ''}
-                                     or filter_dict['@minValue'] not in {None, ''}):
-                            filter_dict['@maxValue'] = filter_dict['@maxValue'] if filter_dict['@maxValue'] not in {None, ''} else maxint
-                            filter_dict['@minValue'] = filter_dict['@minValue'] if filter_dict['@minValue'] not in {None, ''} else minint
-                            cursor.setFilter(filter_dict['@id'], '..%s&%s..' % (filter_dict['@maxValue'], filter_dict['@minValue']))
-                        elif filter_dict['@current_condition'] == 'right' and filter_dict['@value'] not in {None, ''}:
-                            cursor.setFilter(
-                                filter_dict['@id'], '..%s' % filter_dict['@value']
-                            )
-                        elif filter_dict['@current_condition'] == 'left' and filter_dict['@value'] not in {None, ''}:
-                            cursor.setFilter(
-                                filter_dict['@id'], '%s..' % filter_dict['@value']
-                            )
+                        elif filter_dict['@current_condition'] == 'between' \
+                                and (filter_dict['@maxValue'] not in EMPTY
+                                     or filter_dict['@minValue'] not in EMPTY):
+                            filter_dict['@maxValue'] = \
+                                filter_dict['@maxValue'] if filter_dict['@maxValue'] not in EMPTY else maxint
+                            filter_dict['@minValue'] = \
+                                filter_dict['@minValue'] if filter_dict['@minValue'] not in EMPTY else minint
+                            cursor.setFilter(filter_dict['@id'],
+                                             '..%s&%s..' % (filter_dict['@maxValue'], filter_dict['@minValue']))
+                        elif filter_dict['@current_condition'] == 'right' and filter_dict['@value'] not in EMPTY:
+                            cursor.setFilter(filter_dict['@id'], '..%s' % filter_dict['@value'])
+                        elif filter_dict['@current_condition'] == 'left' and filter_dict['@value'] not in EMPTY:
+                            cursor.setFilter(filter_dict['@id'], '%s..' % filter_dict['@value'])
 
                     elif filter_dict['@type'] == 'text':
                         # Фильтр по текстовому полю.
@@ -222,14 +237,19 @@ def filtered_function(context, filter_name, cursor):
                         # Фильтр по полю дат.
                         if filter_dict['@current_condition'] == 'equal' and filter_dict['@value']:
                             cursor.setRange(filter_dict['@id'], datetime.strptime(filter_dict['@value'], '%Y-%m-%d'))
-                        elif filter_dict['@current_condition'] == 'between' and (filter_dict['@maxValue'] or filter_dict['@minValue']):
+                        elif filter_dict['@current_condition'] == 'between' and (
+                                filter_dict['@maxValue'] or filter_dict['@minValue']):
                             if len(filter_dict['@minValue']) == 0:
                                 date_from = "'19700101'"
                             else:
                                 date_from = DATE_TRANSFORM(filter_dict['@minValue'])
 
                             if len(filter_dict['@maxValue']) == 0:
-                                date_to = "'%s%s%s'" % (date.today().year, str(date.today().month).zfill(2), str(date.today().day).zfill(2))
+                                date_to = "'%s%s%s'" % (
+                                    date.today().year,
+                                    str(date.today().month).zfill(2),
+                                    str(date.today().day).zfill(2)
+                                )
                             else:
                                 date_to = DATE_TRANSFORM(filter_dict['@maxValue'])
 
@@ -256,12 +276,14 @@ def filtered_function(context, filter_name, cursor):
                         filter_schedule = "'%s'"
                     else:
                         filter_schedule = "%s"
-                    # В зависимости от записанного значения -- из карточки или из сессии, выделяются значения для фильтрации
-                    items_list = filter_dict['items']['item'] if isinstance(filter_dict['items']['item'], list) else [filter_dict['items']['item']]
+
+                    items_list = filter_dict['items']['item']
+                    if not isinstance(items_list, list):
+                        items_list = [items_list]
                     if isinstance(items_list[0], (dict, OrderedDict)):
                         filter_list = [filter_schedule % x['@name'] for x in items_list if x['@name']]
                     else:
-                        filter_list = [filter_schedule % x for x in items_list if x not in {None, ''}]
+                        filter_list = [filter_schedule % x for x in items_list if x not in EMPTY]
 
                     filter_string = '|'.join(filter_list) if len(filter_list) > 1 else filter_list[0]
                     cursor.setFilter(filter_dict['@id'], filter_string or "''")
@@ -270,7 +292,8 @@ def filtered_function(context, filter_name, cursor):
                 elif filter_dict['@face'] == 'selector' and filter_dict['item']['@id']:
                     # если задана функция селектора, то ИД пришёл оттуда и надо фильтровать по нему
                     if filter_dict['@selector_data']:
-                        cursor.setFilter(filter_dict['@id'], TYPE_TRANSFORMS[filter_dict['@type']](filter_dict['item']['@id']))
+                        cursor.setFilter(filter_dict['@id'],
+                                         TYPE_TRANSFORMS[filter_dict['@type']](filter_dict['item']['@id']))
                     else:
                         cursor.setRange(filter_dict['@id'], filter_dict['item']['@name'])
 
@@ -279,7 +302,7 @@ def filtered_function(context, filter_name, cursor):
 
 
 def as_default(instance_dict):
-    u'''Функция ораниченной функциональности для подстановки дефолтных значений'''
+    """Функция ораниченной функциональности для подстановки дефолтных значений"""
     if instance_dict['default']:
         value_type = instance_dict["@type"]
         value_face = instance_dict["@face"]
@@ -294,9 +317,9 @@ def as_default(instance_dict):
         elif value_face == 'select':
             instance_dict["@value"] = instance_dict["default"][0]
         elif value_face == 'itemset':
-            # Пускай будет джентельменское соглашение, что не нарушит ни один джентельмен default: [id, name], [id, name]
-            for did, dname in instance_dict["default"]:
-                instance_dict['items']['item'].append({'@id': did, '@name': dname})
+            # itemset работает только с такой структурой: [id, name], [id, name]
+            for d_id, d_name in instance_dict["default"]:
+                instance_dict['items']['item'].append({'@id': d_id, '@name': d_name})
 
         elif value_type in {'date', 'float'} and not (instance_dict["@minValue"] and instance_dict["@maxValue"]):
             if len(instance_dict["default"]) == 2:
@@ -315,6 +338,7 @@ def as_default(instance_dict):
 
 
 def recovery(context, add):
+    """Восстановление фильтра по умолчанию"""
     if add.find('|') != -1:
         add = add[:add.find('|')]
     default = False
