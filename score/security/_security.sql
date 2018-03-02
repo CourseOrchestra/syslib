@@ -36,8 +36,10 @@ CREATE TABLE subjects(
 
 -- *** FOREIGN KEYS ***
 ALTER TABLE customPerms ADD CONSTRAINT fk_security_customPerm5E921445 FOREIGN KEY (type) REFERENCES security.customPermsTypes(name);
+ALTER TABLE logins ADD CONSTRAINT fk_security_logins_sec001C7D9E FOREIGN KEY (subjectId) REFERENCES security.subjects(sid) ON DELETE CASCADE;
 ALTER TABLE rolesCustomPerms ADD CONSTRAINT fk_security_rolesCusto0E151131 FOREIGN KEY (roleid) REFERENCES celesta.roles(id);
 ALTER TABLE rolesCustomPerms ADD CONSTRAINT fk_security_rolesCusto4BC26BD1 FOREIGN KEY (permissionId) REFERENCES security.customPerms(name);
+ALTER TABLE subjects ADD CONSTRAINT fk_security_subjects_n6F12B545 FOREIGN KEY (employeeId) REFERENCES nsi.person(uid) ON DELETE SET NULL;
 -- *** INDICES ***
 -- *** VIEWS ***
 create view tablesPermissionsView as
