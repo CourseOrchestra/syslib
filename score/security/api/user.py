@@ -38,11 +38,11 @@ def getLoginsBySubject(context, subject_id):
     return logins
 
 
-def getSubjectByLogin(context, sid):
+def getSubjectByLogin(context, login):
 
     subject = subjectsCursor(context)
     logins = loginsCursor(context)
-    logins.get(sid)
+    logins.get(login)
     subject.get(logins.subjectId)
     logins.close()
     return subject
