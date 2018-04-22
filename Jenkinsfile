@@ -22,7 +22,7 @@ node {
         def downloadSpec = """
          {"files": [
             {
-              "pattern": "syslib/*/syslib.yml",
+              "pattern": "syslib/* /syslib.yml",
               "build": "syslib :: master/LATEST",
               "target": "previous.yml",
               "flat": "true"
