@@ -17,12 +17,11 @@ node {
         echo "Flake8 warnings count: ${warnings.flake8_warnings}"
     }
 
-    /*
     stage ('Ratcheting') {
         def downloadSpec = """
          {"files": [
             {
-              "pattern": "syslib/* /syslib.yml",
+              "pattern": "syslib/*/syslib.yml",
               "build": "syslib :: master/LATEST",
               "target": "previous.yml",
               "flat": "true"
@@ -35,11 +34,10 @@ node {
             error "Number of flake8 warnings ${warnings.flake8_warnings} is greater than previous ${oldWarnings.flake8_warnings}."
         }
     }
-    */
-    
+
     if (env.BRANCH_NAME == 'master') {
         stage ('Compress & upload sources') {
-            sh 'tar --exclude=*.class --exclude=target --exclude=templates --exclude=.git -zcvf target/syslib.tgz .'
+            sh 'tar --exclude=*.class --exclude=target --exclude=templates --exclude=.git --exclude Jenkinsfile --exclude flake8report.txt -zcvf target/syslib.tgz .'
             sh 'tar -zcvf target/syslib.templates.tgz templates'
             def uploadSpec = """
             {
