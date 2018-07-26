@@ -49,7 +49,7 @@ else:
     log = logging.getLogger("solution")
 
     streamHandler = logging.StreamHandler()
-    streamHandler.setLevel(logging.DEBUG)
+    streamHandler.setLevel(logging.INFO)
     streamHandler.setFormatter(formatter)
 
     log.addHandler(streamHandler)
