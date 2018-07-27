@@ -11,7 +11,7 @@ except:
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
 from ru.curs.celesta.syscursors import RolesCursor
 from ru.curs.celesta.syscursors import PermissionsCursor
-from ru.curs.celesta.syscursors import UserRolesCursor
+from ru.curs.celesta.syscursors import UserrolesCursor
 from security._security_orm import rolesCustomPermsCursor
 
 def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
@@ -37,7 +37,7 @@ def cardData(context, main, add, filterinfo=None, session=None, elementId=None):
 
 def cardDelete(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     currentRecordId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
-    userRoles=UserRolesCursor(context)
+    userRoles=UserrolesCursor(context)
     userRoles.setRange("roleid", currentRecordId)
     userRoles.deleteAll()
     rolesCustomPermissions=rolesCustomPermsCursor(context)

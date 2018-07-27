@@ -7,7 +7,7 @@ Created on 28 февр. 2017 г.
 
 from __future__ import unicode_literals
 
-from ru.curs.celesta.syscursors import UserRolesCursor
+from ru.curs.celesta.syscursors import UserrolesCursor
 
 from security._security_orm import customPermsCursor, rolesCustomPermsCursor
 
@@ -21,7 +21,7 @@ def userHasPermission(context, sid, permission):
         sid - sid пользователя
         permission - разрешение из таблицы customPermissions
     """
-    userRoles = UserRolesCursor(context)
+    userRoles = UserrolesCursor(context)
     if userRoles.tryGet(sid, "editor"):
         # Для роли editor есть все(!) разрешения
         return True
