@@ -6,12 +6,12 @@ Created on 28 февр. 2017 г.
 '''
 
 from __future__ import unicode_literals
-from ru.curs.celesta.syscursors import UserRolesCursor
+from ru.curs.celesta.syscursors import UserrolesCursor
 
 
 def getUserRoles(context, sid):
     """Возвращает список ролей пользователя"""
-    userRoles = UserRolesCursor(context)
+    userRoles = UserrolesCursor(context)
     userRoles.setRange("userid", sid)
     if userRoles.tryFindSet():
         while True:
@@ -23,7 +23,7 @@ def getUserRoles(context, sid):
 
 
 def getRoleUsers(context, role_id):
-    userRoles = UserRolesCursor(context)
+    userRoles = UserrolesCursor(context)
     userRoles.setRange("roleid", role_id)
     if userRoles.tryFindSet():
         while True:
@@ -37,7 +37,7 @@ def getRoleUsers(context, role_id):
 def addUserRole(context, sid, role_list):
     """Добавляет пользователю роли
     @param role - список: """
-    userRoles = UserRolesCursor(context)
+    userRoles = UserrolesCursor(context)
     for role in role_list:
         userRoles.userid = sid
         userRoles.roleid = role
@@ -49,7 +49,7 @@ def addUserRole(context, sid, role_list):
 def removeUserRole(context, sid, role_list):
     """Удаляет пользователю роли
     @param role - список: """
-    userRoles = UserRolesCursor(context)
+    userRoles = UserrolesCursor(context)
     userRoles.setRange("userid", sid)
     userRoles.setFilter("roleid", "|".join("'%s'" % role for role in role_list))
     userRoles.deleteAll()  # возможно нужна итерация, чтобы могли дергаться триггеры?

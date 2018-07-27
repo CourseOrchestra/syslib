@@ -11,7 +11,7 @@ import urllib2
 from xml.dom.minidom import parseString
 
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from ru.curs.celesta.syscursors import PermissionsCursor, UserRolesCursor
+from ru.curs.celesta.syscursors import PermissionsCursor, UserrolesCursor
 
 from common.dbutils import DataBaseXMLExchange
 from common.grainssettings import SettingsManager
@@ -191,7 +191,7 @@ def getPermissionsOfTypeAndUser(context, sid, permissionType=None):
     """
     # Насколько знаю, ни в одном решении функция не используется. Курсор с разрешениями пока никому не пригодился
     # Возможно, стоит выпилить.
-    userRoles = UserRolesCursor(context)
+    userRoles = UserrolesCursor(context)
     userRoles.setRange("userid", sid)
     filter_string = ""
     if userRoles.tryFindSet():
@@ -237,7 +237,7 @@ def userHasPermission(context, sid, permission):
         sid - sid пользователя
         permission - рарешение из таблицы customPermissions
     """
-    userRoles = UserRolesCursor(context)
+    userRoles = UserrolesCursor(context)
     if userRoles.tryGet(sid, "editor"):
         # Для роли editor есть все(!) разрешения
         return True

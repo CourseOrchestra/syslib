@@ -10,7 +10,7 @@ from java.util import ArrayList
 
 from ru.curs.celesta import CelestaException
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from ru.curs.celesta.syscursors import UserRolesCursor, RolesCursor
+from ru.curs.celesta.syscursors import UserrolesCursor, RolesCursor
 from security._security_orm import loginsCursor, subjectsCursor
 from security.functions import Settings
 
@@ -34,7 +34,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     settings = Settings()
 
     # ru.curs.showcase.security.SecurityParamsFactory.getAuthServerUrl()
-    rolesUsers = UserRolesCursor(context)
+    rolesUsers = UserrolesCursor(context)
     roles = RolesCursor(context)
     logins = loginsCursor(context)
 
@@ -102,7 +102,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     u'''Функция сохранения карточки редактирования содержимого справочника ролей. '''
-    rolesUsers = UserRolesCursor(context)
+    rolesUsers = UserrolesCursor(context)
     logins = loginsCursor(context)
     currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
     settings = Settings()
@@ -114,7 +114,7 @@ def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, el
     if json.loads(xformsdata)["schema"]["roles"] <> '':
         content = json.loads(xformsdata)["schema"]["roles"]["role"]
         content = content if isinstance(content, list) else [content]
-        rolesUsersOld = UserRolesCursor(context)
+        rolesUsersOld = UserrolesCursor(context)
         for role in content:
             rolesUsers.roleid = role["@id"]
             rolesUsers.userid = logins.subjectId

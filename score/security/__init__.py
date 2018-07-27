@@ -18,13 +18,14 @@ if isInitContext:
     if not settings.loginIsSubject() and settings.isEmployees():
         # Если роли привязываются к сотруднику и таблица сотрудников настроена (нужные настройки есть в grainSettings.xml),
         # привязываем к ней триггеры.
+        context = initcontext()
         employeesGrain = settings.getEmployeesParam("employeesGrain")
         employeesTable = settings.getEmployeesParam("employeesTable")
         employeesCursor = tableCursorImport(employeesGrain, employeesTable)
 
-        employeesCursor.onPostInsert.append(employeesSubjectsPostInsert)
-        employeesCursor.onPostUpdate.append(employeesSubjectsPostUpdate)
-        employeesCursor.onPreDelete.append(employeesSubjectsPreDelete)
+        employeesCursor.onPostInsert(context.getCelesta(), employeesSubjectsPostInsert)
+        employeesCursor.onPostUpdate(context.getCelesta(), employeesSubjectsPostUpdate)
+        employeesCursor.onPreDelete(context.getCelesta(), employeesSubjectsPreDelete)
 
     if not settings.isSystemInitialised():
         context = initcontext()

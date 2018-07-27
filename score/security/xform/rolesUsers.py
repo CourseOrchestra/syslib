@@ -13,7 +13,7 @@ import string
 
 from ru.curs.celesta import CelestaException
 from ru.curs.celesta.showcase.utils import XMLJSONConverter
-from ru.curs.celesta.syscursors import UserRolesCursor
+from ru.curs.celesta.syscursors import UserrolesCursor
 #from ru.curs.celesta.syscursors import RolesCursor
 from security._security_orm import loginsCursor
 from security._security_orm import subjectsCursor
@@ -39,7 +39,7 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
     settings=Settings()
 
     #ru.curs.showcase.security.SecurityParamsFactory.getAuthServerUrl()
-    rolesUsers = UserRolesCursor(context)
+    rolesUsers = UserrolesCursor(context)
     currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']
     rolesUsers.setRange("roleid", currId)    
     content=[]
@@ -95,9 +95,9 @@ def cardData(context, main=None, add=None, filterinfo=None, session=None, elemen
 
 def cardDataSave(context, main=None, add=None, filterinfo=None, session=None, elementId=None, xformsdata=None):
     u'''Функция сохранения карточки редактирования содержимого справочника ролей. '''    
-    rolesUsers = UserRolesCursor(context)
+    rolesUsers = UserrolesCursor(context)
     currId = json.loads(session)['sessioncontext']['related']['gridContext']['currentRecordId']    
-    rolesUsersOld = UserRolesCursor(context)
+    rolesUsersOld = UserrolesCursor(context)
     rolesUsers.setRange("roleid", currId)
     rolesUsers.deleteAll()
     
