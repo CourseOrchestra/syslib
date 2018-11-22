@@ -156,3 +156,30 @@ def itemsListAndCount(context, main=None, add=None, filterinfo=None, session=Non
         cursor.setFilter(field_name, current_filter)
         i += 1
     return ResultSelectorData(recordList, i)
+
+
+def treeItemsList(context, main=None, add=None, filterinfo=None, session=None, params=None,
+                  curvalue=None, startswith=None, parent_id=None):
+    """Функция для получения списка элементов в пределе одного фильтра типа tree itemset"""
+    all_fields, current = (x['filter'] for x in json.loads(XMLJSONConverter.xmlToJson(params))['schema']['filter'])
+    add = repair_add(add)
+
+    field_name = current["@id"]
+
+    for necessary_field in context.getData()[add]:
+        if field_name == necessary_field['@id']:
+            current_field = necessary_field
+            break
+
+    selector_path = current_field['@selector_data']
+    # if bound_status != 'bound':
+    if selector_path:
+        selector_path = selector_path.split('.')
+        selector_module, selector_function_name = '.'.join(selector_path[:-1]), selector_path[-1]
+        selector_module = import_module(selector_module)
+        selector = getattr(selector_module, selector_function_name)
+
+        return selector(context, main, add, filterinfo, session, params, curvalue, startswith, parent_id)
+    else:
+        raise NotImplementedError(
+            u"Автоматическая процедура для получения списка элементов не предусмотрена для treeselector")

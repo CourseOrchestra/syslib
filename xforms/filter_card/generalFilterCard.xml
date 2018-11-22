@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="xsltforms/xsltforms.xsl" type="text/xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ev="http://www.w3.org/2001/xml-events"
-	xmlns:xsd="http://www.w3.org/2001/XMLschema" xmlns:fs="http://www.curs.ru/ns/FormServer"
-	xmlns:xf="http://www.w3.org/2002/xforms">
+	  xmlns:xsd="http://www.w3.org/2001/XMLschema" xmlns:fs="http://www.curs.ru/ns/FormServer"
+	  xmlns:xf="http://www.w3.org/2002/xforms">
 	<head>
 		<xf:model id="xformId_mainModel">
 			<xf:instance id="xformId_mainInstance" xmlns="">
@@ -27,6 +27,14 @@
 				<schema>
 					<items>
 						<item id="" name=""/>
+					</items>
+				</schema>
+			</xf:instance>
+			<!-- Instance элементов для триселектора по уникальным значениям -->
+			<xf:instance id="xformId_treeitemInstance" xmlns="">
+				<schema>
+					<items>
+						<item id="" name="" id_parent=""/>
 					</items>
 				</schema>
 			</xf:instance>
@@ -219,7 +227,7 @@
 													<xf:input ref="@boolInput"/>
 												</div>
 											</xf:group>
-											<xf:group ref=".[@face='itemset']">
+											<xf:group ref=".[@face='itemset' and @tree='false']">
 												<div class="buttonMs">
 													<xf:multiselector buttonLabel="Добавить" dataWidth="'400px'" dataHeight="'400px'"
 														selectedDataWidth="'400px'" visibleRecordCount="'48'"
@@ -253,7 +261,53 @@
 													</xf:repeat>
 												</table>
 											</xf:group>
+											<xf:group ref=".[@face='itemset' and @tree='true']">
+												<div class="buttonMs">
 
+													<xf:treeselector buttonLabel="Добавить"
+                                                         windowCaption="'Выбор фильтров'"
+                                                         startWith="false" hideStartWith="true"
+                                                         manualSearch="true"
+                                                         dataWidth="'600px'" dataHeight="'500px'"
+                                                         hideHeaders="false" allowSelectAll="false"
+                                                         checkParent="false" checkChildren="true"
+                                                         columns="[
+                                                                    {label: '', selector: 'checkbox', width: '1', resizable: false},
+                                                                    {field: '@folding', label: 'o', width: '1', resizable: false, renderExpando: true},
+                                                                    {field: 'name', label: 'Наименование', width: '98'}
+                                                                ]"
+                                                         getDataProcName="'common.filtertools.filter_selector.treeItemsList.celesta'"
+                                                         generalFilters="['XPath(instance(quot(xformId_mainInstance))/filters/filter)', 'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))])']"
+                                                         currentValue="''"
+                                                         needClear="true" needInitSelection="true"
+                                                         xpathRoot="'XPath(instance(quot(xformId_mainInstance))/filters/filter[index(quot(xformId_filterRow))]/items)'"
+                                                         xpathMapping="{'XPath(instance(quot(xformId_treeitemInstance))/items/item)':{'id': '@id','name':'@name', 'id_parent': '@id_parent'}}"
+
+													/>
+												</div>
+												<table class="fieldConditionValueMs">
+													<xf:repeat class="multiValueItems" id="xformId_treeItemRow"
+															   nodeset="instance('xformId_mainInstance')/filters/filter[@id = current()/@id]/items/item">
+														<tr>
+															<td>
+																<div class="inlineButton">
+																	<xf:trigger>
+																		<xf:label>X</xf:label>
+																		<xf:action ev:event="DOMActivate">
+																			<xf:delete nodeset="current()"/>
+																		</xf:action>
+																	</xf:trigger>
+																</div>
+															</td>
+															<td>
+																<div class="fieldConditionValue">
+																	<xf:output value="replace(@name,'&lt;.*?&gt;','')"/>
+																</div>
+															</td>
+														</tr>
+													</xf:repeat>
+												</table>
+											</xf:group>
 											<xf:group ref=".[@face='select']">
 												<div class="listCondition single">
 													<xf:select1 ref="@value" class="listConditionValues">

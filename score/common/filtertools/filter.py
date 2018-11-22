@@ -21,6 +21,7 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name=None
     select_info -- аргументом передаётся путь к селектору, который надо передать в данный фильтр в формате
         'гранула.модуль_с_Селектором.название_py-файла.имя_функции_селекции'
     itemset -- обозначает, что для данного поля нужен мультиселектор (выделяет искомое множество значений
+    tree -- при itemset==True показывать treeselector
     default -- передаёт значение по умолчанию. Указывается в списке в количестве 1 - 2 значений. Число значений зависит от типа фильтра
     unbound -- обозначает, что фильтрация по значению поля будет производится пользователем и описана отдельно
     bound -- обозначает, что фильтрация по полю (name)
@@ -47,6 +48,7 @@ def filter_assembly(context, cursor, filter_id, field_name_list, table_name=None
             '@type': filtered_fields[field_name]['type'],
             '@bound': filtered_fields[field_name]['bound'],
             '@face': filtered_fields[field_name]['face'],
+            '@tree': unicode(field_name_dict[field_name].get('tree', False)).lower(),
             '@minValue': "",
             '@maxValue': "",
             '@value': "",
