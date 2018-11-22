@@ -220,3 +220,6 @@
 .header-value {
 	font-weight: lighter;
 }
+.header-value mark{
+	background-color: transparent;
+}
